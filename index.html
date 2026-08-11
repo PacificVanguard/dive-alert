@@ -3,228 +3,324 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>The Dive Bell — it rings when Laguna lines up</title>
-<meta name="description" content="A machine watches the swell, wind, rain, tide and light over Laguna's coves. Most days it says nothing. About twenty-one mornings a year, the bell rings.">
+<title>The Dive Bell</title>
+<meta name="description" content="It rings about twenty-one mornings a year. A bell for the coves of Laguna Beach, cast from open ocean data. One of one.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 4 C 8 4 5 12 5 20 L 5 25 L 27 25 L 27 20 C 27 12 24 4 16 4 Z' fill='%230a2a4a' stroke='%237fd4ff' stroke-width='1.6'/%3E%3Ccircle cx='16' cy='29' r='2.2' fill='%23ffd98a'/%3E%3C/svg%3E">
 <style>
   :root {
-    --abyss: #030913; --deep: #06182e; --mid: #0a2a4a;
-    --glow: #7fd4ff; --sand: #e8dcc3; --dim: #6b8aa5; --ring: #ffd98a;
+    --glow: #7fd4ff; --sand: #e8dcc3; --dim: #64809b; --gold: #ffd98a;
+    --ink: #a9c2d6;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html { scroll-behavior: smooth; }
   body {
-    background: var(--abyss); color: var(--sand);
+    color: var(--sand);
     font-family: Georgia, 'Times New Roman', serif;
-    overflow-x: hidden; line-height: 1.6;
-  }
-  /* ── the water column ─────────────────────────────── */
-  .sea {
-    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    overflow-x: hidden; line-height: 1.7;
+    /* the descent: one continuous water column, surface to seafloor */
     background:
-      radial-gradient(120% 90% at 50% -20%, rgba(127,212,255,.14), transparent 55%),
-      linear-gradient(180deg, var(--mid) 0%, var(--deep) 35%, var(--abyss) 100%);
+      radial-gradient(140% 55% at 50% -12%, rgba(127,212,255,.16), transparent 60%),
+      linear-gradient(180deg,
+        #0d3355 0%, #0a2a4a 14%, #071d36 30%, #051526 48%,
+        #040e1c 66%, #030913 82%, #02060d 100%);
   }
+  /* light rays die out partway down, as they do */
   .ray {
-    position: fixed; top: -10%; width: 12vw; height: 70vh; z-index: 0;
-    background: linear-gradient(180deg, rgba(127,212,255,.10), transparent 80%);
-    transform-origin: top center; filter: blur(6px); pointer-events: none;
-    animation: sway 11s ease-in-out infinite alternate;
+    position: absolute; top: -4vh; width: 13vw; height: 88vh;
+    background: linear-gradient(180deg, rgba(127,212,255,.11), transparent 85%);
+    transform-origin: top center; filter: blur(7px); pointer-events: none;
+    animation: sway 12s ease-in-out infinite alternate;
   }
-  .ray:nth-child(2) { left: 18%; transform: rotate(14deg); }
-  .ray:nth-child(3) { left: 44%; transform: rotate(4deg); animation-delay: -4s; height: 85vh; }
-  .ray:nth-child(4) { left: 68%; transform: rotate(-11deg); animation-delay: -7s; }
-  @keyframes sway { from { opacity: .5; } to { opacity: 1; transform: rotate(2deg); } }
-  .mote {
-    position: fixed; border-radius: 50%; background: rgba(200,225,245,.35);
-    z-index: 0; pointer-events: none; animation: rise linear infinite;
-  }
+  .ray:nth-of-type(1) { left: 16%; transform: rotate(13deg); }
+  .ray:nth-of-type(2) { left: 43%; transform: rotate(3deg); animation-delay: -5s; height: 100vh; }
+  .ray:nth-of-type(3) { left: 69%; transform: rotate(-12deg); animation-delay: -8s; }
+  @keyframes sway { from { opacity: .45; } to { opacity: 1; transform: rotate(1.5deg); } }
+  .mote { position: fixed; border-radius: 50%; background: rgba(190,220,242,.32);
+          pointer-events: none; animation: rise linear infinite; }
   @keyframes rise {
-    from { transform: translateY(105vh); opacity: 0; }
-    12% { opacity: .7; } 88% { opacity: .5; }
-    to { transform: translateY(-8vh); opacity: 0; }
+    from { transform: translateY(104vh); opacity: 0; }
+    10% { opacity: .65; } 90% { opacity: .4; }
+    to { transform: translateY(-6vh); opacity: 0; }
   }
-  main { position: relative; z-index: 1; max-width: 620px; margin: 0 auto; padding: 0 24px; }
 
-  /* ── hero ─────────────────────────────────────────── */
-  .hero { min-height: 92vh; display: flex; flex-direction: column;
-          align-items: center; justify-content: center; text-align: center; }
-  .bell-wrap { cursor: pointer; -webkit-tap-highlight-color: transparent; margin-bottom: 6px; }
-  .bell { width: 108px; height: auto; transform-origin: 54px 8px;
-          transition: filter .6s; animation: idle 7s ease-in-out infinite; }
-  @keyframes idle { 0%,100% { transform: rotate(0); } 50% { transform: rotate(2.2deg); } }
-  .bell.rung { animation: ring 1.6s cubic-bezier(.36,.07,.19,.97); filter: drop-shadow(0 0 22px rgba(255,217,138,.55)); }
-  @keyframes ring {
-    0% { transform: rotate(0); } 12% { transform: rotate(13deg); }
-    30% { transform: rotate(-11deg); } 48% { transform: rotate(8deg); }
-    64% { transform: rotate(-5deg); } 80% { transform: rotate(2.5deg); }
-    100% { transform: rotate(0); }
+  main { position: relative; max-width: 640px; margin: 0 auto; padding: 0 26px; }
+
+  /* depth markers — the page is a dive */
+  .depth {
+    position: absolute; left: -86px; color: var(--dim); opacity: .5;
+    font-family: ui-monospace, Menlo, monospace; font-size: .72rem;
+    letter-spacing: .18em; white-space: nowrap;
   }
-  h1 { font-size: clamp(2.1rem, 6.5vw, 3.2rem); font-weight: normal;
-       letter-spacing: .02em; margin: 14px 0 4px; }
-  .tagline { font-style: italic; color: var(--glow); opacity: .9;
-             font-size: clamp(1.05rem, 3vw, 1.3rem); margin-bottom: 26px; }
-  .creed { color: var(--dim); max-width: 46ch; margin: 0 auto 34px;
-           font-size: 1.02rem; }
-  .creed b { color: var(--sand); font-weight: normal; }
-  .cta {
-    display: inline-block; padding: 15px 34px; border-radius: 999px;
-    border: 1px solid rgba(127,212,255,.5); color: var(--abyss);
-    background: linear-gradient(180deg, #a8e0ff, #6db8e8);
-    font-family: inherit; font-size: 1.08rem; text-decoration: none;
-    box-shadow: 0 0 34px rgba(127,212,255,.25); transition: box-shadow .4s, transform .2s;
-  }
-  .cta:hover { box-shadow: 0 0 54px rgba(127,212,255,.5); transform: translateY(-1px); }
-  .cta-sub { margin-top: 14px; color: var(--dim); font-size: .88rem; }
+  .depth::before { content: "— "; }
+  @media (max-width: 900px) { .depth { position: static; display: block;
+    margin-bottom: 18px; opacity: .4; } }
+
+  /* ── SURFACE: the live state of the bell ─────────────── */
+  .surface { min-height: 96vh; display: flex; flex-direction: column;
+             justify-content: center; text-align: center; position: relative; }
+  .eyebrow { font-family: ui-monospace, Menlo, monospace; font-size: .74rem;
+             letter-spacing: .3em; color: var(--dim); text-transform: uppercase;
+             margin-bottom: 26px; }
+  h1 { font-weight: normal; font-size: clamp(2.5rem, 8vw, 4.1rem);
+       letter-spacing: .01em; line-height: 1.15; }
+  .state-sub { font-style: italic; color: var(--glow);
+               font-size: clamp(1.05rem, 3vw, 1.32rem); margin-top: 18px; }
+  .state-live { color: var(--dim); font-size: .98rem; margin-top: 30px; }
+  .surface .down { position: absolute; bottom: 5vh; left: 50%;
+    transform: translateX(-50%); color: var(--dim); text-decoration: none;
+    font-size: 1.3rem; opacity: .55; animation: bob 2.8s ease-in-out infinite; }
+  @keyframes bob { 0%,100% { transform: translate(-50%,0); } 50% { transform: translate(-50%,8px); } }
+
+  /* when the bell rings, the whole page knows */
+  body.ringing h1 { color: var(--gold); text-shadow: 0 0 44px rgba(255,217,138,.35); }
+  body.ringing .state-sub { color: var(--gold); }
+
+  /* ── the liturgy ─────────────────────────────────────── */
+  .stanza { padding: 13vh 0; position: relative; }
+  .stanza p { font-size: clamp(1.18rem, 3.4vw, 1.5rem); line-height: 1.85;
+              color: var(--ink); max-width: 34ch; }
+  .stanza p b { color: var(--sand); font-weight: normal; }
+  .stanza:nth-of-type(even) p { margin-left: auto; text-align: right; }
+
+  /* ── the surface report ──────────────────────────────── */
+  .report { padding: 10vh 0; position: relative; }
+  h2 { font-weight: normal; font-size: 1.05rem; color: var(--dim);
+       letter-spacing: .26em; text-transform: uppercase;
+       font-family: ui-monospace, Menlo, monospace; margin-bottom: 26px; }
+  .strip { display: flex; gap: 9px; flex-wrap: wrap; }
+  .day { flex: 1 1 62px; min-width: 62px; text-align: center;
+         padding: 13px 4px 11px; border: 1px solid rgba(100,128,155,.28);
+         border-radius: 11px; background: rgba(10,42,74,.28); }
+  .day .d { color: var(--dim); font-size: .78rem;
+            font-family: ui-monospace, Menlo, monospace; }
+  .day .s { font-size: 1.4rem; margin-top: 3px; }
+  .day.hot { border-color: rgba(255,217,138,.75);
+             box-shadow: 0 0 22px rgba(255,217,138,.16); }
+  .day.hot .s { color: var(--gold); }
+  .weeknote { color: var(--dim); font-size: .95rem; margin-top: 16px;
+              font-style: italic; }
+
+  /* ── what it weighs ──────────────────────────────────── */
+  .weighs { padding: 10vh 0; position: relative; }
+  .wlist { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+           gap: 16px; }
+  .w { border-left: 2px solid rgba(127,212,255,.3); padding: 3px 0 3px 15px; }
+  .w b { display: block; font-weight: normal; color: var(--sand); }
+  .w span { color: var(--dim); font-size: .89rem; line-height: 1.5; display: block; }
+
+  /* ── the vow ─────────────────────────────────────────── */
+  .vow { padding: 12vh 0; position: relative; }
+  .vow p { color: var(--ink); max-width: 44ch; margin-bottom: 20px; }
+  .vow p b { color: var(--sand); font-weight: normal; }
+  .vow .gamble { font-style: italic; color: var(--glow); font-size: 1.25rem; }
+
+  /* ── THE BELL, at depth ──────────────────────────────── */
+  .bellhouse { min-height: 92vh; display: flex; flex-direction: column;
+               align-items: center; justify-content: center; text-align: center;
+               position: relative; }
+  .bell-wrap { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .bell { width: 150px; height: auto; transform-origin: 75px 10px;
+          animation: idle 8s ease-in-out infinite; transition: filter .7s; }
+  @keyframes idle { 0%,100% { transform: rotate(0); } 50% { transform: rotate(2deg); } }
+  .bell.rung { animation: ringswing 1.9s cubic-bezier(.36,.07,.19,.97);
+               filter: drop-shadow(0 0 30px rgba(255,217,138,.6)); }
+  @keyframes ringswing {
+    0% { transform: rotate(0); } 11% { transform: rotate(14deg); }
+    28% { transform: rotate(-12deg); } 45% { transform: rotate(9deg); }
+    61% { transform: rotate(-6deg); } 77% { transform: rotate(3deg); }
+    100% { transform: rotate(0); } }
+  .ringhint { color: var(--dim); font-size: .8rem; letter-spacing: .22em;
+              text-transform: uppercase; font-family: ui-monospace, Menlo, monospace;
+              margin: 14px 0 40px; opacity: .6; }
+  .cta { display: inline-block; padding: 16px 40px; border-radius: 999px;
+         border: 1px solid rgba(255,217,138,.55); color: #050b14;
+         background: linear-gradient(180deg, #ffe9bd, #e8bd6b);
+         font-family: inherit; font-size: 1.12rem; text-decoration: none;
+         box-shadow: 0 0 40px rgba(255,217,138,.22);
+         transition: box-shadow .4s, transform .2s; }
+  .cta:hover { box-shadow: 0 0 64px rgba(255,217,138,.45); transform: translateY(-1px); }
+  .cta-sub { margin-top: 16px; color: var(--dim); font-size: .88rem; }
+  .cta-sub a { color: var(--glow); }
   .cta-sub code { font-family: ui-monospace, Menlo, monospace; color: var(--glow);
                   font-size: .84rem; }
-  .down { margin-top: 7vh; color: var(--dim); font-size: 1.4rem; opacity: .6;
-          animation: bob 2.6s ease-in-out infinite; text-decoration: none; }
-  @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(7px); } }
 
-  /* ── the week ─────────────────────────────────────── */
-  section { padding: 9vh 0; }
-  h2 { font-weight: normal; font-size: 1.5rem; color: var(--glow);
-       margin-bottom: 18px; letter-spacing: .04em; }
-  #week { display: none; }
-  .strip { display: flex; gap: 8px; flex-wrap: wrap; margin: 18px 0 8px; }
-  .day {
-    flex: 1 1 60px; min-width: 62px; text-align: center; padding: 12px 4px 10px;
-    border: 1px solid rgba(107,138,165,.25); border-radius: 10px;
-    background: rgba(10,42,74,.35);
-  }
-  .day .d { color: var(--dim); font-size: .8rem; }
-  .day .s { font-size: 1.35rem; margin-top: 2px; }
-  .day.hot { border-color: rgba(255,217,138,.7); box-shadow: 0 0 18px rgba(255,217,138,.18); }
-  .day.hot .s { color: var(--ring); }
-  .weeknote { color: var(--dim); font-size: .9rem; }
+  /* the foundry mark — every true bell carries one */
+  .foundry { padding: 0 0 9vh; text-align: center; }
+  .foundry .mark { font-family: ui-monospace, Menlo, monospace; font-size: .74rem;
+                   letter-spacing: .34em; color: var(--dim); text-transform: uppercase; }
+  .foundry .mark b { color: var(--gold); font-weight: normal; }
+  .foundry .fine { margin-top: 14px; color: rgba(100,128,155,.6); font-size: .78rem; }
+  .foundry .fine a { color: rgba(100,128,155,.8); }
 
-  /* ── what it watches ──────────────────────────────── */
-  .watch { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-           gap: 14px; margin-top: 8px; }
-  .w { border-left: 2px solid rgba(127,212,255,.35); padding: 4px 0 4px 14px; }
-  .w b { display: block; font-weight: normal; color: var(--sand); }
-  .w span { color: var(--dim); font-size: .88rem; }
-
-  /* ── the honest part ──────────────────────────────── */
-  .honest { border: 1px solid rgba(232,220,195,.2); border-radius: 14px;
-            padding: 26px 28px; background: rgba(6,24,46,.5); }
-  .honest p { color: var(--dim); }
-  .honest p b { color: var(--sand); font-weight: normal; }
-  .honest .vow { font-style: italic; color: var(--glow); margin-top: 14px; }
-
-  footer { padding: 6vh 0 8vh; text-align: center; color: var(--dim); font-size: .85rem; }
-  footer a { color: var(--dim); }
   @media (prefers-reduced-motion: reduce) {
     .ray, .mote, .bell, .down { animation: none !important; }
   }
 </style>
 </head>
 <body>
-<div class="sea"></div>
 <div class="ray"></div><div class="ray"></div><div class="ray"></div>
 
 <main>
-  <div class="hero">
-    <div class="bell-wrap" id="bellwrap" title="ring it">
-      <!-- the bell: a diving bell, rope above, mouth below -->
-      <svg class="bell" id="bell" viewBox="0 0 108 132" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <line x1="54" y1="0" x2="54" y2="16" stroke="#6b8aa5" stroke-width="2.5"/>
-        <path d="M54 16 C 26 16 16 44 16 74 L 16 96 L 92 96 L 92 74 C 92 44 82 16 54 16 Z"
-              fill="#0a2a4a" stroke="#7fd4ff" stroke-width="2.5" stroke-linejoin="round"/>
-        <path d="M28 30 C 22 40 20 52 20 62" stroke="rgba(127,212,255,.45)" stroke-width="2" stroke-linecap="round"/>
-        <rect x="12" y="96" width="84" height="7" rx="3.5" fill="#0a2a4a" stroke="#7fd4ff" stroke-width="2"/>
-        <line x1="54" y1="103" x2="54" y2="118" stroke="#6b8aa5" stroke-width="2.5"/>
-        <circle cx="54" cy="124" r="6" fill="#ffd98a"/>
-      </svg>
-    </div>
-    <h1>The Dive Bell</h1>
-    <div class="tagline">It rings about twenty-one mornings a year.</div>
-    <p class="creed">A machine watches the swell, the wind, the rain, the tide and the
-      light over Laguna&rsquo;s coves. Most days it keeps quiet. When
-      <b>every knowable thing lines up</b> — the bell rings.</p>
-    <a class="cta" href="https://ntfy.sh/laguna-dive-86dd82e0">Get on the bell</a>
-    <div class="cta-sub">Free · no account · ~one message a week<br>
-      In the <a style="color:var(--glow)" href="https://apps.apple.com/app/ntfy/id1625396347">ntfy app</a>:
-      subscribe to <code>laguna-dive-86dd82e0</code></div>
-    <a class="down" href="#week-anchor">▾</a>
+
+  <!-- SURFACE · 0 FT · the bell's actual state, right now -->
+  <div class="surface">
+    <div class="eyebrow" id="eyebrow">Laguna Beach</div>
+    <h1 id="state">The bell is quiet.</h1>
+    <div class="state-sub" id="statesub">It rings about twenty-one mornings a year.
+      This is not one of them.</div>
+    <div class="state-live" id="statelive"></div>
+    <a class="down" href="#descend">▾</a>
   </div>
 
-  <div id="week-anchor"></div>
-  <section id="week">
-    <h2>The water this week</h2>
+  <div id="descend"></div>
+
+  <div class="stanza">
+    <span class="depth">10 ft</span>
+    <p>Most mornings, the ocean says no.<br>
+       Wind on the water. Rain in the creeks.<br>
+       Short swell working the coves <b>like a fist</b>.</p>
+  </div>
+
+  <div class="stanza">
+    <span class="depth">20 ft</span>
+    <p>The bell weighs all of it — the swell and its period,
+       the wind and <b>which way it leans</b>, the rain and its sins,
+       the tide, the light, the season —<br>
+       and almost every day, it holds its tongue.</p>
+  </div>
+
+  <div class="stanza">
+    <span class="depth">30 ft</span>
+    <p>But some mornings — <b>December mornings, mostly</b>,
+       after the Santa Anas have swept the sea flat —
+       every knowable thing lines up at once.<br><br>
+       Those mornings, the bell rings.</p>
+  </div>
+
+  <div class="report" id="week" style="display:none">
+    <span class="depth">40 ft</span>
+    <h2>The surface report</h2>
     <div class="strip" id="strip"></div>
     <div class="weeknote" id="weeknote"></div>
-  </section>
+  </div>
 
-  <section>
-    <h2>What it watches</h2>
-    <div class="watch">
-      <div class="w"><b>The swell</b><span>height, period, direction — checked against a live buoy twice a day</span></div>
-      <div class="w"><b>The wind</b><span>and which way it blows — a Santa Ana flattens what a sea breeze wrecks</span></div>
-      <div class="w"><b>The rain</b><span>and how long the creeks have been quiet</span></div>
-      <div class="w"><b>The tide</b><span>which cove opens, and when to walk in</span></div>
+  <div class="weighs">
+    <span class="depth">50 ft</span>
+    <h2>What it weighs</h2>
+    <div class="wlist">
+      <div class="w"><b>The swell</b><span>height, period, direction — argued out against a live buoy, twice a day</span></div>
+      <div class="w"><b>The wind</b><span>and which way it blows. A Santa Ana flattens what a sea breeze wrecks</span></div>
+      <div class="w"><b>The rain</b><span>and how long the creeks have kept quiet</span></div>
+      <div class="w"><b>The tide</b><span>which cove opens, and the hour to walk in</span></div>
       <div class="w"><b>The light</b><span>sun on the kelp is half the magic</span></div>
-      <div class="w"><b>The season</b><span>the bell rings most between October and January</span></div>
+      <div class="w"><b>The season</b><span>October through January, mostly. The cold months keep the secrets</span></div>
     </div>
-  </section>
+  </div>
 
-  <section>
-    <div class="honest">
-      <h2>The honest part</h2>
-      <p>Nobody can forecast what you&rsquo;ll <b>see</b> down there — not this machine,
-         not anyone. Water clarity changes in days and answers to no free data.
-         We tested it. Thoroughly.</p>
-      <p>So the bell doesn&rsquo;t promise. It <b>positions</b> you: flat, dry, sunny,
-         warm, easy — every card that can be stacked, stacked.
-         The water is the last unknown.</p>
-      <p class="vow">When the bell rings, that&rsquo;s the day to gamble.</p>
+  <div class="vow">
+    <span class="depth">60 ft</span>
+    <h2>The vow</h2>
+    <p>The bell will never tell you what you&rsquo;ll <b>see</b> down there.
+       No one can. We tested every signal the ocean offers — satellites,
+       buoys, upwelling, temperature — and watched each one fail to call
+       the water.</p>
+    <p>So the bell doesn&rsquo;t promise. It <b>positions</b>. Flat, dry,
+       glassy, lit, warm — every card that can be stacked, stacked.
+       The water keeps the last card. It always has.</p>
+    <p class="gamble">When the bell rings, that&rsquo;s the day to gamble.</p>
+  </div>
+
+  <!-- THE BELL · hanging at depth, where a diving bell belongs -->
+  <div class="bellhouse">
+    <div class="bell-wrap" id="bellwrap">
+      <svg class="bell" id="bell" viewBox="0 0 150 184" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <line x1="75" y1="0" x2="75" y2="22" stroke="#64809b" stroke-width="3"/>
+        <path d="M75 22 C 36 22 22 62 22 103 L 22 133 L 128 133 L 128 103 C 128 62 114 22 75 22 Z"
+              fill="#081f38" stroke="#7fd4ff" stroke-width="3" stroke-linejoin="round"/>
+        <path d="M40 42 C 32 56 29 72 29 86" stroke="rgba(127,212,255,.4)" stroke-width="2.5" stroke-linecap="round"/>
+        <rect x="16" y="133" width="118" height="9" rx="4.5" fill="#081f38" stroke="#7fd4ff" stroke-width="2.5"/>
+        <line x1="75" y1="142" x2="75" y2="162" stroke="#64809b" stroke-width="3"/>
+        <circle cx="75" cy="170" r="8" fill="#ffd98a"/>
+      </svg>
     </div>
-  </section>
+    <div class="ringhint">ring it</div>
+    <a class="cta" href="https://ntfy.sh/laguna-dive-86dd82e0">Get on the bell</a>
+    <div class="cta-sub">Free · no account · ~one message a week<br>
+      In the <a href="https://apps.apple.com/app/ntfy/id1625396347">ntfy app</a>:
+      subscribe to <code>laguna-dive-86dd82e0</code></div>
+  </div>
 
-  <footer>
-    rings from Laguna Beach · built on public ocean data ·
-    <a href="https://ntfy.sh/laguna-dive-86dd82e0">the bell</a>
-  </footer>
+  <div class="foundry">
+    <div class="mark">Cast 2026 · Laguna Beach · <b>one of one</b></div>
+    <div class="fine">rung by open ocean data · answers to no one ·
+      <a href="https://ntfy.sh/laguna-dive-86dd82e0">the bell</a></div>
+  </div>
+
 </main>
 
 <script>
-  // drifting motes, sized and paced at random
-  for (let i = 0; i < 26; i++) {
+  // marine snow, drifting up-current
+  for (let i = 0; i < 24; i++) {
     const m = document.createElement("div");
     m.className = "mote";
-    const s = 1.5 + Math.random() * 3;
+    const s = 1.4 + Math.random() * 3;
     m.style.cssText = "width:" + s + "px;height:" + s + "px;left:" + (Math.random() * 100) +
-      "vw;animation-duration:" + (14 + Math.random() * 26) + "s;animation-delay:-" +
-      (Math.random() * 30) + "s;";
+      "vw;animation-duration:" + (16 + Math.random() * 26) + "s;animation-delay:-" +
+      (Math.random() * 34) + "s;";
     document.body.appendChild(m);
   }
 
-  // the bell rings — a real strike, struck by hand
+  // the strike — bronze, at depth, struck by hand
   const bell = document.getElementById("bell");
-  document.getElementById("bellwrap").addEventListener("click", () => {
+  function strike(gentle) {
     bell.classList.remove("rung"); void bell.offsetWidth; bell.classList.add("rung");
     try {
       const ac = new (window.AudioContext || window.webkitAudioContext)();
       const now = ac.currentTime;
-      [392, 587.3, 784].forEach((f, i) => {
+      [329.6, 493.9, 659.3, 987.8].forEach((f, i) => {
         const o = ac.createOscillator(), g = ac.createGain();
         o.type = "sine"; o.frequency.value = f;
-        g.gain.setValueAtTime(0.12 / (i + 1), now);
-        g.gain.exponentialRampToValueAtTime(0.0001, now + 2.4 - i * 0.4);
-        o.connect(g).connect(ac.destination); o.start(now); o.stop(now + 2.5);
+        g.gain.setValueAtTime((gentle ? 0.07 : 0.11) / (i + 1), now);
+        g.gain.exponentialRampToValueAtTime(0.0001, now + 3.2 - i * 0.5);
+        o.connect(g).connect(ac.destination); o.start(now); o.stop(now + 3.3);
       });
     } catch (e) {}
-  });
+  }
+  document.getElementById("bellwrap").addEventListener("click", () => strike(false));
 
-  // the living part: this week's real scores, straight from the last run
+  // the living page: the bell's true state, straight from the last run
   fetch("data/latest.json").then(r => r.json()).then(d => {
     if (!d.windows || !d.windows.length) return;
+    const upd = new Date(d.updated);
+    document.getElementById("eyebrow").textContent =
+      "Laguna Beach · " + upd.toLocaleDateString("en-US",
+        { weekday: "long", month: "long", day: "numeric" });
+
     const best = {};
     d.windows.forEach(w => {
       const day = w.start.slice(0, 10);
       if (!(day in best) || w.score > best[day].score) best[day] = w;
     });
     const days = Object.keys(best).sort().slice(0, 7);
+    const ringing = days.some(day => best[day].gate);
+    const top = days.map(x => best[x]).sort((a, b) => b.score - a.score)[0];
+
+    if (ringing) {
+      const gd = days.map(x => best[x]).find(w => w.gate);
+      document.body.classList.add("ringing");
+      document.getElementById("state").textContent = "The bell is ringing.";
+      document.getElementById("statesub").textContent =
+        "It rings about twenty-one mornings a year. This is one of them.";
+      document.getElementById("statelive").textContent =
+        gd.label + " — everything just lined up. " + gd.entries.join(" or ") + ". Go.";
+      if (!matchMedia("(prefers-reduced-motion: reduce)").matches)
+        setTimeout(() => strike(true), 1200);
+    } else {
+      document.getElementById("statelive").textContent =
+        "Best window ahead: " + top.label + ", " + top.score.toFixed(1) + " of 10." +
+        (d.sst_f ? " Water " + d.sst_f + "°." : "");
+    }
+
     const strip = document.getElementById("strip");
     days.forEach(day => {
       const w = best[day];
@@ -234,12 +330,9 @@
         w.score.toFixed(1) + (w.gate ? " ✨" : "") + "</div>";
       strip.appendChild(el);
     });
-    const top = days.map(d2 => best[d2]).sort((a, b) => b.score - a.score)[0];
-    const note = top.score >= 7
+    document.getElementById("weeknote").textContent = top.score >= 7
       ? top.label + " is the one — " + top.entries.join(" or ") + "."
-      : "Quiet stretch. The bell is listening.";
-    document.getElementById("weeknote").textContent = note +
-      (d.sst_f ? " Water " + d.sst_f + "°." : "");
+      : "A quiet stretch. The bell is listening.";
     document.getElementById("week").style.display = "block";
   }).catch(() => {});
 </script>
