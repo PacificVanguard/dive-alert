@@ -1,7 +1,15 @@
 # dive-alert
 
-Scores Laguna Beach dive windows 1–10 and pushes ntfy notifications. Two
-rhythms:
+Scores Laguna Beach dive **setups** 1–10 and pushes ntfy notifications.
+
+**What the score means, precisely:** how calm, dry, sunny and easy the window
+will be. It does NOT predict visibility. Measured over 265 days, the score has
+no relationship to independently observed water clarity (r=+0.07), because
+clarity decorrelates in ~3 days and the only direct measurement arrives ~10
+days late. So the app finds the days with the best odds and says the wildcard
+out loud — it positions you for a great dive rather than promising one.
+
+Two rhythms:
 
 - **Wednesday 7am — the week ahead.** A digest every week no matter what,
   showing all seven days at a glance and naming the day worth planning
@@ -9,6 +17,10 @@ rhythms:
   genuinely readable; a Monday digest would be guessing about Saturday.
 - **Twice daily — the opportunistic ping.** Fires only when a window clears
   7.0 at 12–48h lead, with streak logic so a good stretch doesn't spam you.
+- **The conjunction gate — "everything just lined up."** A strict AND across
+  flat / glass / dry / sun / warm / score, with no partial credit and no
+  trading one axis against another; anything unknown fails closed. Tuned to
+  ~21 days a year. This is the only path to the loud voice.
 
 One file, stdlib only, runs on GitHub Actions. Everything tunable is in
 `CONFIG` at the top of `dive_alert.py` — search for `CALIBRATION:` comments.
@@ -65,3 +77,15 @@ re-subscribe in the ntfy phone app. Nothing in the repo changes.
 nothing), `--offline` (fixtures, no network), `test` (scenario suite),
 `hindcast --days 180` (rebuild history). Secrets locally via git-ignored
 `local_config.json`: `{"NTFY_TOPIC": "...", "HEALTHCHECKS_URL": "..."}`.
+
+
+**Tune what "perfect" means** — `CONFIG["perfect_gate"]`. Every condition must
+pass. Loosening to damage 2.5 / cloud 40% / score 8.0 gives ~47 days a year
+(roughly weekly, stops feeling like an event); the shipped 1.5 / 25% / 8.5
+gives ~21. Note `min_dry_hours` can never exceed `features.rain_lookback_h` —
+dry_hours saturates there, and asking for more silently disables the gate.
+
+**A finding worth keeping** — two independent analyses (satellite clarity, and
+the gate) both say Laguna's best setups cluster **October–January**, not
+summer. Summer brings persistent south swell and a marine layer that kills the
+light.

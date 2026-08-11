@@ -211,25 +211,20 @@ CONFIG = {
         "wind_cap_score": 5.0,
         # chlorophyll bloom: confidence knock only, never a score change.
         "chla_bloom_mg_m3": 2.0,    # CALIBRATION: if green-water days slip through, lower this
-        # Below this, the satellite is independently reporting clear water, which
-        # is the ONLY positive evidence of clarity in the whole system — every
-        # other input measures the absence of things that ruin viz. A top-tier
-        # claim ("see the bottom from the surface") should be corroborated by it
-        # rather than inferred from calm alone. CALIBRATION: compare against
-        # logged 20ft+ days; raise if genuinely clear days sit above this.
-        "kd490_clear_m1": 0.075,
-        # Kd490 (satellite light attenuation, m^-1) -> penalty. The most direct
-        # "how far does light go" measurement available, BUT the science-quality
-        # product lags ~10 days, so this is a BACKGROUND clarity term (are we in
-        # a bloomy stretch of the year?), never a read on today's water. Its
-        # authority is deliberately capped near 1 point for that reason — the
-        # NRT variant is staler still (32d), so SQ is the right pick.
-        # CALIBRATION: log a clear day (viz 20+) and check data/score_log kd490 —
-        # it should sit near 0.08; if clear logged days show 0.15+, widen the flat start.
-        "kd490_penalty": [(0.06, 0.0), (0.10, 0.1), (0.16, 0.3), (0.25, 0.6), (0.40, 1.0)],
-        # Gate set well past the ~10d product lag so the term stays stable
-        # instead of flapping in and out and jerking scores around.
+        # Kd490 is still FETCHED and LOGGED, but no longer scores. Measured
+        # 2026-08-11 over 265 days: water clarity decorrelates from itself in
+        # ~3 days, and at the ~10-day lag this product actually arrives the
+        # autocorrelation is r=0.018 — no information. Scoring on it was fake
+        # precision. It stays in the log because it is the only direct clarity
+        # measurement available and backtesting may yet find a use for it.
         "kd490_stale_days": 21,
+        # LIGHT. Cloud cover during the window, mean %. Unlike clarity this is
+        # genuinely forecastable, and it is a huge part of how a dive FEELS —
+        # sunbeams through kelp at 25ft are most of the magic, and an overcast
+        # 25ft day reads like 15ft. Deliberately modest: gloom makes a good dive
+        # worse, it does not make it bad.
+        # CALIBRATION: if logged dives say overcast barely matters, flatten this.
+        "cloud_penalty": [(0, 0.0), (40, 0.15), (70, 0.5), (90, 0.9), (100, 1.1)],
         # Multiplier on Open-Meteo model wave heights before damage math.
         # CALIBRATION: set from `python3 dive_alert.py validate` (model-vs-buoy
         # bias over the last 45 days); keep 1.0 unless bias exceeds ~10%.
@@ -239,6 +234,32 @@ CONFIG = {
         # re-fit against the hindcast afterwards. Re-run validate each season;
         # if this drifts past ~1.25 the model has changed, not the ocean.
         "model_height_scale": 1.13,
+    },
+
+    # ---- the conjunction gate: what "perfect" means --------------------
+    # A weighted average lets one strong axis hide a fatal one — which is how
+    # this model produced 9.0s on days the satellite said were murky. Perfection
+    # is an AND, not a sum. EVERY condition below must hold; there is no partial
+    # credit and no trading one off against another. Rare by construction.
+    #
+    # Note what is NOT here: visibility. It is unforecastable at 12-48h lead
+    # (measured: swell score r=+0.07, SST r=-0.15, satellite decorrelates in 3d).
+    # So the gate says "every knowable thing has lined up" — it positions you
+    # for magic rather than predicting it, and the alert says so out loud.
+    # Tuned against the full year 2025-08 → 2026-08: these thresholds yield 21
+    # qualifying days (~2/month). Loosening to dmg 2.5 / cloud 40% / score 8.0
+    # gives 47/yr, which is roughly weekly and stops feeling like an event.
+    "perfect_gate": {
+        "max_damage": 1.5,        # CALIBRATION: the calmest few % of windows
+        "max_wind_kn": 7.0,       # glass, not merely light
+        # NOTE: dry_hours saturates at features.rain_lookback_h (72), so this
+        # must never exceed it — asking for 96 made the gate unreachable and it
+        # silently never fired. If you want a longer dry requirement, raise
+        # rain_lookback_h too.
+        "min_dry_hours": 72,      # no rain anywhere in the lookback
+        "max_cloud_pct": 25,      # sun on the kelp
+        "min_sst_c": 16.5,        # not punishing
+        "min_score": 8.5,         # the weighted score must agree too
     },
 
     # ---- alerting -----------------------------------------------------
@@ -267,17 +288,22 @@ CONFIG = {
         # score -> plain-English viz expectation, straight off the anchored scale
         "viz_expect": [(9.0, "25ft+ viz"), (8.0, "15–20ft viz"), (7.0, "12–15ft viz"),
                        (5.0, "8–10ft viz"), (0.0, "single-digit viz")],
-        # score -> what you should actually SEE. A number is a claim you have to
-        # decode; this is a claim you can check the moment your mask hits water,
-        # which makes it both more vivid AND more falsifiable. If these keep
-        # over-promising, the score is running hot — that is the point of them.
-        "sensory": [
-            (9.0, "you should see the bottom from the surface"),
-            (8.0, "you should pick up the kelp line before you drop"),
-            (7.0, "you should see your buddy across the reef"),
-            (5.0, "close-in work — stay on the rocks and go slow"),
-            (0.0, "braille diving"),
+        # What the SETUP will feel like. Note these describe water state and
+        # effort, never visibility — viz is not forecastable at this lead time
+        # and promising it is how a tool like this loses its credibility.
+        "setup_feel": [
+            (8.0, "flat, easy, nothing in the way"),
+            (7.0, "clean water and a relaxed entry"),
+            (5.0, "workable, a bit of texture"),
+            (0.0, "washing machine"),
         ],
+        # Said out loud on every alert. The honest core of the product: we can
+        # call the setup, nobody can call the water.
+        "wildcard": "Water clarity is the wildcard — nobody can forecast that.",
+        # Only ever used when the conjunction gate passes.
+        "perfect_hook": "Everything just lined up",
+        "perfect_line": ("Flat, dry, sunny, warm — every knowable thing has lined up. "
+                         "The water's the only unknown left, and this is the day to gamble."),
         # SST °F -> what wetsuit to throw in the car
         "wetsuit": [(58, "5mm-and-hood water"), (64, "solid 4/3 water"),
                     (70, "comfy 4/3 water"), (999, "spring-suit warm")],
@@ -496,7 +522,7 @@ def fetch_weather(src: Sources, lat, lon) -> Fetch:
     try:
         q = urllib.parse.urlencode({
             "latitude": lat, "longitude": lon,
-            "hourly": "wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation",
+            "hourly": "wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation,cloud_cover",
             "daily": "sunrise,sunset",
             "wind_speed_unit": "kn", "precipitation_unit": "inch",
             "past_days": 4, "forecast_days": 8, "timezone": "America/Los_Angeles"})
@@ -820,7 +846,10 @@ def compute_features(w, fetches, zone_cfg, t_now):
     wind_in_window = [wind.get(t) for t in window_hours(w)]
     wind_in_window = [v for v in wind_in_window if v is not None]
     kd = fetches.get("kd490")
+    clouds = [wx.get("cloud_cover", {}).get(t) for t in window_hours(w)]
+    clouds = [c for c in clouds if c is not None]
     feats = {
+        "cloud_pct": (sum(clouds) / len(clouds)) if clouds else None,
         "wind_energy_48h": wind_e if wind else None,
         "swell_energy_72h": swell_e if swell_series else None,
         "dry_hours": dry,
@@ -862,9 +891,9 @@ def score_window(feats, creek_adjacent=False):
     else:
         breakdown["wind_now"] = 0.5
         flags.append("no window wind forecast")
-    # background water clarity from satellite; absent/stale simply contributes 0
-    if feats.get("kd490") is not None:
-        breakdown["clarity"] = piecewise(feats["kd490"], sc["kd490_penalty"])
+    # light: forecastable, and a real part of how the dive feels
+    if feats.get("cloud_pct") is not None:
+        breakdown["light"] = piecewise(feats["cloud_pct"], sc["cloud_penalty"])
     score -= sum(breakdown.values())
     score = max(1.0, min(10.0, score))
 
@@ -1076,22 +1105,14 @@ def wetsuit_phrase(sst_c):
 
 
 def sensory_phrase(score, kd490=None):
-    """What you should be able to see. The top claim requires corroboration:
-    every other input in this system measures the ABSENCE of things that wreck
-    viz (surf, wind, runoff), and absence-of-bad is not evidence-of-great. Only
-    the satellite clarity reading is positive evidence, so without it we promise
-    one tier lower rather than inferring a rare day from calm water."""
-    tiers = CONFIG["voice"]["sensory"]
-    if score >= tiers[0][0] and not clarity_corroborated(kd490):
-        return tiers[1][1]
-    for th, phrase in tiers:
+    """What the SETUP will feel like — never a visibility promise. Measured
+    2026-08-11: this score has no relationship to independently observed water
+    clarity (r=+0.07 over 265 days), so any viz claim here would be invented.
+    kd490 is accepted and ignored, kept so callers need not change."""
+    for th, phrase in CONFIG["voice"]["setup_feel"]:
         if score >= th:
             return phrase
-    return tiers[-1][1]
-
-
-def clarity_corroborated(kd490):
-    return kd490 is not None and kd490 <= CONFIG["scoring"]["kd490_clear_m1"]
+    return CONFIG["voice"]["setup_feel"][-1][1]
 
 
 def why_line(feats, score, kind="dawn"):
@@ -1164,8 +1185,11 @@ def superlative(score, t_now, hist=None):
 def render_alert(w, score, feats, conf_word, conf_notes, entries, tide_fyi, tip, state,
                  quiet=False, sst_c=None, brag=None, actions=None):
     v = CONFIG["voice"]
-    title = "%s — %.1f/10 %s %s" % (hook_for(score, state), score, w["label"], v["emoji"])
-    lines = [why_line(feats, score, w.get("kind", "dawn"))]
+    is_perfect, _ = perfect_gate(feats, score, sst_c)
+    hook = v["perfect_hook"] if is_perfect else hook_for(score, state)
+    title = "%s — %.1f/10 %s %s" % (hook, score, w["label"], v["emoji"])
+    lines = [v["perfect_line"] if is_perfect
+             else why_line(feats, score, w.get("kind", "dawn"))]
 
     # Line 2 is a sentence about where to go, not a field dump. The brag leads
     # when it's earned, because rarity is the thing that makes you clear a morning.
@@ -1180,8 +1204,8 @@ def render_alert(w, score, feats, conf_word, conf_notes, entries, tide_fyi, tip,
         if tide_fyi:
             s += ", %s" % tide_fyi
         plan.append(s + ".")
-    if clarity_corroborated(feats.get("kd490")) and tier_for(score) >= 2:
-        plan.append("Satellite has the water running clear, too.")
+    if tier_for(score) >= 2 and not is_perfect:
+        plan.append(v["wildcard"])
     suit = wetsuit_phrase(sst_c)
     if suit:
         plan.append(suit + ".")
@@ -1211,6 +1235,23 @@ def render_downgrade(w, old, new, feats):
     msg = CONFIG["voice"]["downgrade"].format(label=w["label"], old=old, new=new, why=why)
     # split on ". " (not ".") so decimal scores in the title survive
     return {"title": msg.split(". ")[0], "message": msg, "priority": 3}
+
+
+def perfect_gate(feats, score, sst_c):
+    """Every knowable axis aligned, as a strict AND. Returns (passed, failures).
+    Deliberately unforgiving: no partial credit, no averaging one axis against
+    another. If anything is unknown it fails — silence beats a false promise."""
+    g = CONFIG["perfect_gate"]
+    checks = [
+        ("flat", feats.get("damage"), lambda v: v <= g["max_damage"]),
+        ("glass", feats.get("wind_window_max_kn"), lambda v: v <= g["max_wind_kn"]),
+        ("dry", feats.get("dry_hours"), lambda v: v >= g["min_dry_hours"]),
+        ("sun", feats.get("cloud_pct"), lambda v: v <= g["max_cloud_pct"]),
+        ("warm", sst_c, lambda v: v >= g["min_sst_c"]),
+        ("score", score, lambda v: v >= g["min_score"]),
+    ]
+    failed = [name for name, val, ok in checks if val is None or not ok(val)]
+    return (not failed), failed
 
 
 def best_of(scored):
@@ -1438,7 +1479,8 @@ LOG_COLS = ["run_ts", "zone", "window_key", "window_start", "window_kind", "lead
             "score", "cap_reason", "confidence", "completeness", "agreement",
             "damage", "swell_hgt_ft", "swell_per_s", "swell_dir",
             "wind_energy_48h", "swell_energy_72h", "dry_hours", "wind_window_max_kn",
-            "obs_frac", "sst_c", "chla_mg_m3", "best_entries", "alerted", "flags"]
+            "obs_frac", "cloud_pct", "sst_c", "chla_mg_m3", "kd490_m1",
+            "perfect_gate", "best_entries", "alerted", "flags"]
 
 
 def load_state():
@@ -1534,7 +1576,10 @@ def cmd_run(args):
                 "dry_hours": round(s["feats"]["dry_hours"], 0) if s["feats"]["dry_hours"] is not None else "",
                 "wind_window_max_kn": round(s["feats"]["wind_window_max_kn"], 1) if s["feats"]["wind_window_max_kn"] is not None else "",
                 "obs_frac": round(s["feats"]["obs_frac"], 2),
+                "cloud_pct": round(s["feats"]["cloud_pct"]) if s["feats"].get("cloud_pct") is not None else "",
                 "sst_c": sst if sst is not None else "", "chla_mg_m3": chla if chla is not None else "",
+                "kd490_m1": s["feats"].get("kd490") if s["feats"].get("kd490") is not None else "",
+                "perfect_gate": "PASS" if perfect_gate(s["feats"], s["score"], sst)[0] else "",
                 "best_entries": " / ".join(s["entries"]), "alerted": "",
                 "flags": "; ".join(s["flags"])})
         all_scored += scored
@@ -1606,9 +1651,12 @@ def cmd_hindcast(args):
     mh = arch(CONFIG["sources"]["marine"],
               {"hourly": "wave_height,wave_period,swell_wave_height,swell_wave_period,"
                          "swell_wave_direction,wind_wave_height,wind_wave_period,wind_wave_direction"})
+    # cloud_cover included so the hindcast scores with the SAME model that
+    # alerts — omitting a scored input here silently validates a model we
+    # never ship (this exact asymmetry has bitten twice now).
     wh = arch(CONFIG["sources"]["weather_archive"],
-              {"hourly": "wind_speed_10m,precipitation", "wind_speed_unit": "kn",
-               "precipitation_unit": "inch"})
+              {"hourly": "wind_speed_10m,precipitation,cloud_cover",
+               "wind_speed_unit": "kn", "precipitation_unit": "inch"})
     marine = {k: hourly_map(mh["time"], mh[k]) for k in mh if k != "time"}
     marine["wave_direction"] = marine.get("swell_wave_direction", {})
     wx = {k: hourly_map(wh["time"], wh[k]) for k in wh if k != "time"}
@@ -1647,6 +1695,7 @@ def cmd_hindcast(args):
     fetches = {"marine": Fetch("marine", True, marine),
                "weather": Fetch("weather", True, {"wind_speed_10m": wx["wind_speed_10m"],
                                                   "precipitation": wx["precipitation"],
+                                                  "cloud_cover": wx.get("cloud_cover", {}),
                                                   "sunrise": [], "sunset": []}),
                "ndbc_primary": Fetch("ndbc_primary", False, error="hindcast"),
                "ndbc_offshore": Fetch("ndbc_offshore", False, error="hindcast"),
@@ -1676,6 +1725,7 @@ def cmd_hindcast(args):
                          "wind_energy_48h": round(feats["wind_energy_48h"] or 0),
                          "swell_energy_72h": round(feats["swell_energy_72h"] or 0),
                          "dry_hours": round(feats["dry_hours"] or 0),
+                         "cloud_pct": round(feats["cloud_pct"]) if feats.get("cloud_pct") is not None else "",
                          "kd490": round(kdv, 4) if kdv is not None else ""})
         d += timedelta(days=1)
     cols = list(rows[0].keys())
@@ -2073,17 +2123,23 @@ def cmd_test(args):
     check("(k2) real standout brags", superlative(8.5, t0, hist=hist_low) is not None)
     check("(k3) tier1 never brags", superlative(7.5, t0, hist=hist_low) is None)
 
-    # (l) kd490 stale/absent contributes nothing; fresh murk penalizes
+    # (l) Satellite clarity must NOT move the score — it decorrelates in ~3 days
+    # and arrives ~10 days late (r=0.018 at that lag). Scoring it was fake
+    # precision. It is still fetched and logged for future backtesting.
     f_kd = _mk_fetches(t0, swell_ft=1.5, per_s=16, dir_deg=190, wind_kn=4)
-    ft_no = compute_features(w, f_kd, zc, t0)
+    s_no, _, _, _ = score_window(compute_features(w, f_kd, zc, t0))
     f_kd["kd490"] = Fetch("kd490", True, {"m1": 0.30, "age_d": 2})
-    ft_yes = compute_features(w, f_kd, zc, t0)
-    s_no, _, _, _ = score_window(ft_no)
-    s_yes, _, _, _ = score_window(ft_yes)
-    # Authority is deliberately modest: the product lags ~10 days, so it may
-    # nudge the score but must never dominate a same-day swell/wind read.
-    check("(l) murky satellite water costs points", 0.3 <= (s_no - s_yes) <= 1.2,
-          "clear=%.1f murky=%.1f" % (s_no, s_yes))
+    s_murk, _, _, _ = score_window(compute_features(w, f_kd, zc, t0))
+    check("(l) stale satellite clarity does not move the score", s_no == s_murk,
+          "no-data=%.1f murky=%.1f" % (s_no, s_murk))
+
+    # (l2) LIGHT does move it — cloud cover is genuinely forecastable, unlike viz.
+    ft_sun = dict(compute_features(w, f_kd, zc, t0), cloud_pct=5)
+    ft_gloom = dict(compute_features(w, f_kd, zc, t0), cloud_pct=95)
+    s_sun, _, _, _ = score_window(ft_sun)
+    s_gloom, _, _, _ = score_window(ft_gloom)
+    check("(l2) overcast costs a little, not a lot", 0.4 <= (s_sun - s_gloom) <= 1.3,
+          "sun=%.1f gloom=%.1f" % (s_sun, s_gloom))
 
     # (o) REGRESSION: real windows start off-the-hour (sunrise-derived). Hourly
     # series are keyed on the hour, so lagged features must snap to the hour or
@@ -2109,17 +2165,42 @@ def cmd_test(args):
     check("(o2) rain rule fires on an off-the-hour window", s_rain <= 4.0 and cap_r,
           "score=%.1f cap=%s" % (s_rain, cap_r))
 
-    # (n) the top sensory claim must be EARNED by independent clarity evidence,
-    # never inferred from calm water alone.
-    top = CONFIG["voice"]["sensory"][0][1]
-    check("(n) 9.5 without clarity data won't promise the top claim",
-          sensory_phrase(9.5, None) != top, sensory_phrase(9.5, None))
-    check("(n2) 9.5 with murky satellite won't either",
-          sensory_phrase(9.5, 0.20) != top)
-    check("(n3) 9.5 with clear satellite does promise it",
-          sensory_phrase(9.5, 0.04) == top)
-    check("(n4) lower tiers unaffected by clarity",
-          sensory_phrase(7.2, None) == sensory_phrase(7.2, 0.04))
+    # (n) THE CREDIBILITY RULE: no message may promise visibility. Measured
+    # 2026-08-11, this score has no relationship to observed clarity, so a viz
+    # claim would be invention. The alert must say the wildcard out loud.
+    viz_words = ("viz", "visibility", "see the bottom", "ft of vis")
+    for sc_ in (7.2, 8.6, 9.4):
+        txt = sensory_phrase(sc_).lower()
+        check("(n) %.1f setup phrase makes no viz claim" % sc_,
+              not any(v in txt for v in viz_words), txt)
+    ft_mid = {"dmg_parts": {"hgt_ft": 1.3, "per_s": 15, "dir": 195}, "dry_hours": 72,
+              "wind_window_max_kn": 5, "cloud_pct": 12, "damage": 1.1, "kd490": None}
+    msg_t2 = render_alert(_window_at(t0, 24), 8.6, ft_mid, "high", [], ["Shaw's Cove"],
+                          "slack at 9am", None, {}, sst_c=None)
+    check("(n2) tier-2 alert names the wildcard",
+          CONFIG["voice"]["wildcard"] in msg_t2["message"])
+
+    # (p) THE CONJUNCTION GATE: perfection is an AND. Every axis must pass, and
+    # anything unknown fails — silence beats a false promise.
+    sst_ok = 20.0
+    ok, fails = perfect_gate(ft_mid, 8.6, sst_ok)
+    check("(p) all axes aligned -> gate passes", ok, "failed=%s" % fails)
+    for axis, mutate in (("flat", {"damage": 9.0}), ("glass", {"wind_window_max_kn": 12}),
+                         ("dry", {"dry_hours": 20}), ("sun", {"cloud_pct": 95})):
+        bad = dict(ft_mid); bad.update(mutate)
+        ok_b, fails_b = perfect_gate(bad, 8.6, sst_ok)
+        check("(p) %s alone breaks the gate" % axis, (not ok_b) and axis in fails_b,
+              "failed=%s" % fails_b)
+    ok_u, fails_u = perfect_gate(dict(ft_mid, cloud_pct=None), 8.6, sst_ok)
+    check("(p2) unknown axis fails closed", not ok_u, "failed=%s" % fails_u)
+    ok_s, _ = perfect_gate(ft_mid, 7.4, sst_ok)
+    check("(p3) weighted score must agree too", not ok_s)
+    perfect_msg = render_alert(_window_at(t0, 24), 8.6, ft_mid, "high", [],
+                               ["Shaw's Cove"], "slack at 9am", None, {}, sst_c=sst_ok)
+    check("(p4) gate pass uses the reserved hook",
+          CONFIG["voice"]["perfect_hook"] in perfect_msg["title"], perfect_msg["title"])
+    check("(p5) a gate pass still doesn't promise viz",
+          not any(v in perfect_msg["message"].lower() for v in viz_words))
 
     # (m) weekly digest: exactly one calendar week, no duplicate weekday, and
     # a quiet week must not borrow tier-2 language it hasn't earned.
