@@ -334,19 +334,20 @@ CONFIG = {
         # own way in. Scarcity is the growth engine — this line must NEVER
         # appear on an ordinary alert.
         "gate_share_line": "Forwarded this? The bell lives at thedivebell.com",
-        # First words a new subscriber ever hears. Bell voice in the word
-        # choice, but every sentence carries an exact fact: what arrives,
-        # when, what the numbers mean, what the buttons do.
+        # First words a new subscriber ever hears. The site's cadence — short
+        # declaratives, every line carrying a fact — compressed to a phone
+        # screen. The program is all here: cadence, threshold, lead time,
+        # ring rate, and the one question the buttons ask.
         "welcome_title": "You're on the bell 🤿",
-        "welcome_body": ("Twice a day, the bell scores every dawn and dusk window on "
-                         "Laguna's coves — swell, wind, rain, tide, light — out of 10.\n"
-                         "What lands here: the week ahead every Wednesday at 7am, a "
-                         "heads-up 12–48 hours before any window worth the drive (7+), "
-                         "and the rare ring — about 21 mornings a year — when everything "
-                         "lines up at once.\n"
-                         "After a dive, answer one question — what could you see? "
-                         "👀 the whole reef, 🙂 your buddy, or 🌫 just your fins. "
-                         "One tap; the bell learns the coves from it."),
+        "welcome_body": ("It reads the water twice a day — swell, wind, rain, tide, "
+                         "light — every dawn and dusk on Laguna's coves, scored out of 10.\n"
+                         "Most mornings it says nothing. That's the discipline.\n"
+                         "Wednesdays at 7am — the week ahead, read plainly.\n"
+                         "A window worth the drive — a day or two of warning.\n"
+                         "Some 21 mornings a year — flat, glass, dry, sun, warm, all at "
+                         "once — the bell rings.\n"
+                         "Been down? One question: what did the water give you?\n"
+                         "👀 the whole reef · 🙂 your buddy · 🌫 just your fins"),
         # SST °F -> what wetsuit to throw in the car
         "wetsuit": [(58, "5mm-and-hood water"), (64, "solid 4/3 water"),
                     (70, "comfy 4/3 water"), (999, "spring-suit warm")],
