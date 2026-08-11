@@ -332,7 +332,7 @@ CONFIG = {
         # the one that gets screenshotted into group chats, so it carries its
         # own way in. Scarcity is the growth engine — this line must NEVER
         # appear on an ordinary alert.
-        "gate_share_line": "Forwarded this? Getting in is one tap: ntfy.sh/{topic}",
+        "gate_share_line": "Forwarded this? The bell lives at thedivebell.com",
         # SST °F -> what wetsuit to throw in the car
         "wetsuit": [(58, "5mm-and-hood water"), (64, "solid 4/3 water"),
                     (70, "comfy 4/3 water"), (999, "spring-suit warm")],
@@ -1805,6 +1805,20 @@ def cmd_run(args):
                 notify(render_downgrade(payload["w"], payload["old"], payload["new"], payload["feats"]),
                        args.dry_run)
         append_log(LOG_PATH, LOG_COLS, rows, args.dry_run)
+        # the website's heartbeat: thedivebell.com reads this file off Pages,
+        # so the page always shows the real, current outlook with no backend
+        if not args.dry_run:
+            os.makedirs(DATA, exist_ok=True)
+            with open(os.path.join(DATA, "latest.json"), "w") as jf:
+                json.dump({
+                    "updated": t_now.isoformat(), "zone": zk,
+                    "sst_f": round(sst * 9 / 5 + 32) if sst is not None else None,
+                    "windows": [{"label": s["w"]["label"],
+                                 "start": s["w"]["start"].isoformat(),
+                                 "score": s["score"], "conf": s["conf"],
+                                 "entries": s["entries"][:2],
+                                 "gate": bool(s.get("gate"))} for s in scored],
+                }, jf, indent=1)
 
     save_state(state, args.dry_run)
     if not any_swell_ok:
@@ -2439,13 +2453,13 @@ def cmd_test(args):
         m_gate = render_alert(_window_at(t0, 24), 8.6, ft_mid, "high", [],
                               ["Shaw's Cove"], "slack at 9am", "a tip", {}, sst_c=sst_ok)
         check("(t) gate alert carries its own invite",
-              "ntfy.sh/laguna-test-topic" in m_gate["message"], m_gate["message"].split("\n")[-1])
+              "thedivebell.com" in m_gate["message"], m_gate["message"].split("\n")[-1])
         check("(t2) invite replaces the tip, keeping the line budget",
               "Tip:" not in m_gate["message"] and len(m_gate["message"].split("\n")) <= 3)
         m_norm = render_alert(_window_at(t0, 24), 7.2, ft40, "high", [],
                               ["Shaw's Cove"], "slack at 9am", "a tip", {}, sst_c=sst_ok)
         check("(t3) ordinary alerts never carry the invite",
-              "ntfy.sh/" not in m_norm["message"] and "Tip: a tip" in m_norm["message"])
+              "thedivebell.com" not in m_norm["message"] and "Tip: a tip" in m_norm["message"])
     finally:
         del os.environ["NTFY_TOPIC"]
 
