@@ -342,11 +342,10 @@ CONFIG = {
         "welcome_body": ("It reads the water twice a day — swell, wind, rain, tide, "
                          "light — every dawn and dusk on Laguna's coves, scored out of 10.\n"
                          "Most mornings it says nothing. That's the discipline.\n"
-                         "Wednesdays at 7am — the week ahead, read plainly.\n"
-                         "A window worth the drive — a day or two of warning.\n"
-                         "Some 21 mornings a year — flat, glass, dry, sun, warm, all at "
-                         "once — the bell rings.\n"
-                         "Been down? One question: what did the water give you?\n"
+                         "Wednesdays at 7am it reads you the week. When a window's worth "
+                         "the drive, you get a day or two of warning. And some 21 mornings "
+                         "a year — flat, glass, dry, sun, warm, all at once — it rings.\n"
+                         "When you surface, tell the bell what the water gave you:\n"
                          "👀 the whole reef · 🙂 your buddy · 🌫 just your fins"),
         # SST °F -> what wetsuit to throw in the car
         "wetsuit": [(58, "5mm-and-hood water"), (64, "solid 4/3 water"),
