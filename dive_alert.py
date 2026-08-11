@@ -304,6 +304,11 @@ CONFIG = {
         "perfect_hook": "Everything just lined up",
         "perfect_line": ("Flat, dry, sunny, warm — every knowable thing has lined up. "
                          "The water's the only unknown left, and this is the day to gamble."),
+        # Gate days replace the tip with an invite: the ~21-a-year message is
+        # the one that gets screenshotted into group chats, so it carries its
+        # own way in. Scarcity is the growth engine — this line must NEVER
+        # appear on an ordinary alert.
+        "gate_share_line": "Forwarded this? Getting in is one tap: ntfy.sh/{topic}",
         # SST °F -> what wetsuit to throw in the car
         "wetsuit": [(58, "5mm-and-hood water"), (64, "solid 4/3 water"),
                     (70, "comfy 4/3 water"), (999, "spring-suit warm")],
@@ -1218,7 +1223,11 @@ def render_alert(w, score, feats, conf_word, conf_notes, entries, tide_fyi, tip,
             note += " — %s" % conf_notes[0]
         plan.append(note + ".")
     lines.append(" ".join(plan))
-    if tip:
+    topic = get_secret("NTFY_TOPIC")
+    if is_perfect and topic:
+        # the rare alert carries its own invite; the tip yields the line
+        lines.append(v["gate_share_line"].format(topic=topic))
+    elif tip:
         lines.append("Tip: " + tip)
     return {"title": title, "message": "\n".join(lines[:3]),
             "priority": (2 if quiet else (4 if score >= 8.0 else 3)),
@@ -2255,6 +2264,22 @@ def cmd_test(args):
           CONFIG["voice"]["perfect_hook"] in perfect_msg["title"], perfect_msg["title"])
     check("(p5) a gate pass still doesn't promise viz",
           not any(v in perfect_msg["message"].lower() for v in viz_words))
+
+    # (t) VIRALITY IS SCARCITY: the invite line rides ONLY the gate alert.
+    os.environ["NTFY_TOPIC"] = "laguna-test-topic"
+    try:
+        m_gate = render_alert(_window_at(t0, 24), 8.6, ft_mid, "high", [],
+                              ["Shaw's Cove"], "slack at 9am", "a tip", {}, sst_c=sst_ok)
+        check("(t) gate alert carries its own invite",
+              "ntfy.sh/laguna-test-topic" in m_gate["message"], m_gate["message"].split("\n")[-1])
+        check("(t2) invite replaces the tip, keeping the line budget",
+              "Tip:" not in m_gate["message"] and len(m_gate["message"].split("\n")) <= 3)
+        m_norm = render_alert(_window_at(t0, 24), 7.2, ft40, "high", [],
+                              ["Shaw's Cove"], "slack at 9am", "a tip", {}, sst_c=sst_ok)
+        check("(t3) ordinary alerts never carry the invite",
+              "ntfy.sh/" not in m_norm["message"] and "Tip: a tip" in m_norm["message"])
+    finally:
+        del os.environ["NTFY_TOPIC"]
 
     # (m) weekly digest: exactly one calendar week, no duplicate weekday, and
     # a quiet week must not borrow tier-2 language it hasn't earned.
