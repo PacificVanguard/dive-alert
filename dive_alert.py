@@ -497,8 +497,11 @@ class Sources:
     def fixture_now(self):
         meta = os.path.join(self.dir, "meta.json")
         if self.offline and os.path.exists(meta):
-            with open(meta) as f:
-                return datetime.fromisoformat(json.load(f)["now"]).astimezone(PT)
+            try:
+                with open(meta) as f:
+                    return datetime.fromisoformat(json.load(f)["now"]).astimezone(PT)
+            except (ValueError, KeyError, json.JSONDecodeError):
+                return None  # corrupt meta must degrade, not crash the run
         return None
 
 
@@ -1279,12 +1282,24 @@ def render_digest(scored, t_now, state, sst_c=None, tip=None, actions=None):
         elif s["score"] > by_day[d]["score"]:
             by_day[d] = s
     best = max((by_day[d] for d in order), key=lambda s: s["score"])
+    gate_days = [d for d in order if by_day[d].get("gate")]
     strip = " · ".join(
         "%s %.1f%s" % (by_day[d]["w"]["start"].strftime("%a"), by_day[d]["score"],
-                       "★" if by_day[d] is best else "")
+                       "✨" if d in gate_days else ("★" if by_day[d] is best else ""))
         for d in order)
 
-    if best["score"] >= CONFIG["alerting"]["threshold"]:
+    if gate_days:
+        # A gate day in the outlook IS the news. Nothing else gets the headline.
+        gd = by_day[gate_days[0]]
+        headline = "✨ %s — everything lines up" % gd["w"]["label"]
+        lead = "%s: flat, dry, sunny, warm — the rare kind. Guard the morning now." \
+               % sentence_case(gd["w"]["label"])
+        where = ("Take %s" % gd["entries"][0]) if gd["entries"] else ""
+        if gd["tide_fyi"] and where:
+            where += ", " + gd["tide_fyi"]
+        body = [strip, lead + ((" " + where + ".") if where else "")]
+        best = gd
+    elif best["score"] >= CONFIG["alerting"]["threshold"]:
         headline = "%s looks like the one" % best["w"]["label"]
         lead = "%s is the pick — %s." % (
             sentence_case(best["w"]["label"]),
@@ -1316,40 +1331,55 @@ def render_digest(scored, t_now, state, sst_c=None, tip=None, actions=None):
 # alert decision + streak logic
 # =====================================================================
 
-def decide_alert(scored, t_now, state):
+def decide_alert(scored, t_now, state, zone_key="A"):
     """scored: list of dicts with window/score/feats/... . Returns (action, payload)
-    where action in (None, 'alert', 'quiet_alert', 'downgrade')."""
+    where action in (None, 'alert', 'quiet_alert', 'downgrade'). Streak state is
+    per-zone so enabling Zone B/C later can't cross-contaminate Laguna's."""
     al = CONFIG["alerting"]
+    streaks = state.setdefault("streaks", {})
+    if "streak" in state:  # migrate pre-multizone state files in place
+        legacy = state.pop("streak")
+        if legacy:
+            streaks.setdefault(zone_key, legacy)
     eligible = [s for s in scored
                 if al["lead_min_h"] <= (s["w"]["start"] - t_now).total_seconds() / 3600.0 <= al["lead_max_h"]]
     qualifying = [s for s in eligible if s["score"] >= al["threshold"]]
     best = max(qualifying, key=lambda s: s["score"]) if qualifying else None
-    streak = state.get("streak")
+    streak = streaks.get(zone_key)
 
     if best is None:
         if streak:
             best_any = max(eligible, key=lambda s: s["score"]) if eligible else None
-            state["streak"] = None
+            streaks.pop(zone_key, None)
             if best_any is not None and streak["score"] - best_any["score"] >= al["material_change"]:
                 return "downgrade", {"w": best_any["w"], "old": streak["score"],
                                      "new": best_any["score"], "feats": best_any["feats"]}
         return None, None
 
+    gate_now = bool(best.get("gate"))
     if not streak:
-        state["streak"] = {"score": best["score"], "entries": best["entries"],
-                           "window_key": best["w"]["key"], "since": t_now.isoformat()}
+        streaks[zone_key] = {"score": best["score"], "entries": best["entries"],
+                             "window_key": best["w"]["key"], "since": t_now.isoformat(),
+                             "gate": gate_now}
         return "alert", best
 
+    # A gate flip IS material change — arguably the most material there is.
+    # Without this, "everything just lined up" arriving on day 3 of a modest
+    # streak would be silently swallowed by the anti-spam logic.
+    gate_flip = gate_now and not streak.get("gate", False)
     moved = abs(best["score"] - streak["score"]) >= al["material_change"]
     entries_changed = best["entries"] != streak["entries"]
-    if moved or entries_changed:
+    if gate_flip or moved or entries_changed:
         dropped = best["score"] < streak["score"]
-        state["streak"].update({"score": best["score"], "entries": best["entries"],
-                                "window_key": best["w"]["key"]})
+        streak.update({"score": best["score"], "entries": best["entries"],
+                       "window_key": best["w"]["key"], "gate": gate_now})
+        if gate_flip:
+            return "alert", best   # loud: the rare day gets the loud voice
         if dropped and moved:
             return "downgrade", {"w": best["w"], "old": streak["score"],
                                  "new": best["score"], "feats": best["feats"]}
         return "quiet_alert", best
+    streak["gate"] = gate_now
     return None, None
 
 
@@ -1525,11 +1555,13 @@ def score_zone(zone_key, zone_cfg, fetches, t_now, horizon_h=72):
         score, breakdown, cap_reason, flags = score_window(feats, creek)
         conf_word, comp, agree, notes = confidence(fetches, feats, t_now)
         entries, tide_fyi, band = best_entries(zone_cfg, w, tides, feats["damage"])
+        sstv = fetches["sst"].data["c"] if fetches["sst"].ok else None
+        gate_ok, _ = perfect_gate(feats, score, sstv)
         scored.append({"zone": zone_key, "w": w, "score": score, "feats": feats,
                        "breakdown": breakdown, "cap_reason": cap_reason, "flags": flags,
                        "conf": conf_word, "completeness": comp, "agreement": agree,
                        "conf_notes": notes, "entries": entries, "tide_fyi": tide_fyi,
-                       "band": band})
+                       "band": band, "gate": gate_ok})
     return scored
 
 
@@ -1606,7 +1638,7 @@ def cmd_run(args):
                     best["tide_fyi"] or "")
                 notify({"title": "Dive brief — Zone %s" % zk, "message": txt, "priority": 2}, args.dry_run)
         else:
-            action, payload = decide_alert(scored, t_now, state)
+            action, payload = decide_alert(scored, t_now, state, zk)
             if action == "alert" or action == "quiet_alert":
                 tip = select_tip(payload["entries"], payload["score"], payload["feats"]["damage"],
                                  payload["band"], payload["w"]["start"], state)
@@ -2223,6 +2255,50 @@ def cmd_test(args):
     hot = [_mkw(i, s, t0) for i, s in enumerate([5.9, 8.4, 5.4, 6.6, 6.1, 5.8, 6.3])]
     check("(m4) good week names the day", "Tue" in render_digest(hot, t0, {})["title"],
           render_digest(hot, t0, {})["title"])
+    # (m5) a gate day in the outlook takes the headline over a higher plain score
+    gated_wk = [_mkw(i, s, t0) for i, s in enumerate([5.9, 8.9, 5.4, 8.2, 6.1, 5.8, 6.3])]
+    gated_wk[3]["gate"] = True   # Thu gates at 8.2; Tue is higher at 8.9 but doesn't
+    dgg = render_digest(gated_wk, t0, {})
+    check("(m5) gate day owns the digest headline",
+          "✨" in dgg["title"] and "Thu" in dgg["title"], dgg["title"])
+    check("(m5b) strip marks the gate day", "Thu 8.2✨" in dgg["message"],
+          dgg["message"].split("\n")[0])
+
+    # (q) THE MAGIC MUST NOT BE SWALLOWED: a gate flip inside a steady streak
+    # is material change of the highest order and fires the LOUD alert.
+    state_q = {"streaks": {"A": {"score": 7.4, "entries": ["Shaw's Cove", "Divers Cove"],
+                                 "window_key": "x", "since": t0.isoformat(), "gate": False}}}
+    sc_gate = dict(sc40, score=7.6, gate=True)   # +0.2 — below material_change alone
+    act, payload = decide_alert([sc_gate], t0, state_q)
+    check("(q) gate flip breaks through streak, loud", act == "alert", "action=%s" % act)
+    act2, _ = decide_alert([sc_gate], t0, state_q)
+    check("(q2) gate already-known stays quiet", act2 is None, "action=%s" % act2)
+    state_leg = {"streak": {"score": 7.4, "entries": ["Shaw's Cove", "Divers Cove"],
+                            "window_key": "x", "since": t0.isoformat()}}
+    act3, _ = decide_alert([dict(sc40, score=7.4)], t0, state_leg)
+    check("(q3) legacy single-streak state migrates silently",
+          act3 is None and "streak" not in state_leg and "A" in state_leg["streaks"])
+
+    # (r) CHAOS: every source returns HTML garbage at once. The pipeline must
+    # degrade to a low-confidence guess and never raise. Fail soft, never silent.
+    fx_chaos, src_chaos = fetch_all(zc, offline=True, fixture_set="chaos")
+    check("(r) all chaos fetchers fail closed", all(not f_.ok for f_ in fx_chaos.values()),
+          str([k for k, f_ in fx_chaos.items() if f_.ok]))
+    check("(r2) corrupt meta.json doesn't crash", src_chaos.fixture_now() is None)
+    try:
+        scored_chaos = score_zone("A", zc, fx_chaos, t0)
+        crash = None
+    except Exception as e:
+        scored_chaos, crash = [], e
+    check("(r3) zero-data scoring survives", crash is None and len(scored_chaos) > 0,
+          "crash=%r windows=%d" % (crash, len(scored_chaos)))
+    if scored_chaos:
+        check("(r4) zero-data confidence is low", scored_chaos[0]["conf"] == "low",
+              scored_chaos[0]["conf"])
+        check("(r5) zero-data never passes the gate",
+              not any(s["gate"] for s in scored_chaos))
+        check("(r6) swell-dead rule would exit nonzero",
+              not (fx_chaos["marine"].ok or fx_chaos["ndbc_primary"].ok))
 
     # fixture suite: degraded + disagreement
     print("fixture tests:")
