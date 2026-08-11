@@ -1,0 +1,83 @@
+name: dive-alert
+
+on:
+  schedule:
+    # Morning run ~4am Pacific, evening run ~6pm Pacific.
+    # Dual UTC offsets cover PST/PDT; a guard step keeps exactly one of each
+    # pair. Scheduled runs fire 15-60 min late — nothing depends on exactness.
+    - cron: "0 11 * * *"   # 4am PDT  / 3am PST (guarded out in PST)
+    - cron: "0 12 * * *"   # 5am PDT (guarded out) / 4am PST
+    - cron: "0 1 * * *"    # 6pm PDT  / 5pm PST (guarded out)
+    - cron: "0 2 * * *"    # 7pm PDT (guarded out) / 6pm PST
+    - cron: "0 18 * * *"   # 11am PDT / 10am PST (guarded out) — feedback ingest only
+    - cron: "0 19 * * *"   # noon PDT (guarded out) / 11am PST — feedback ingest only
+    # Weekly digest, Wednesday ~7am Pacific. Wednesday because 3-4 day forecast
+    # skill makes the coming weekend genuinely readable.
+    - cron: "0 14 * * 3"   # 7am PDT / 6am PST (guarded out)
+    - cron: "0 15 * * 3"   # 8am PDT (guarded out) / 7am PST
+  workflow_dispatch: {}    # manual runs always allowed
+
+permissions:
+  contents: write
+
+concurrency:
+  group: dive-alert
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Pacific-hour guard (skip the DST twin)
+        id: guard
+        run: |
+          H=$(TZ=America/Los_Angeles date +%-H)
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "$H" = "4" ] || [ "$H" = "18" ]; then
+            echo "go=yes" >> "$GITHUB_OUTPUT"
+          elif [ "$H" = "7" ] && [ "$(TZ=America/Los_Angeles date +%u)" = "3" ]; then
+            echo "go=weekly" >> "$GITHUB_OUTPUT"   # Wednesday: the week-ahead ritual
+          elif [ "$H" = "11" ]; then
+            echo "go=ingest" >> "$GITHUB_OUTPUT"   # midday: fold in feedback button presses
+          else
+            echo "go=no" >> "$GITHUB_OUTPUT"
+            echo "Skipping: local hour $H is the DST twin of this cron."
+          fi
+
+      - name: Run dive_alert
+        if: steps.guard.outputs.go == 'yes'
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          HEALTHCHECKS_URL: ${{ secrets.HEALTHCHECKS_URL }}
+        run: python dive_alert.py run
+
+      - name: Weekly digest
+        if: steps.guard.outputs.go == 'weekly'
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          HEALTHCHECKS_URL: ${{ secrets.HEALTHCHECKS_URL }}
+        run: python dive_alert.py run --weekly
+
+      - name: Ingest feedback only
+        if: steps.guard.outputs.go == 'ingest'
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+        run: python dive_alert.py ingest
+
+      - name: Commit data back
+        # [skip ci] both avoids loops and keeps the repo active so GitHub's
+        # 60-day scheduled-workflow auto-disable never triggers.
+        if: steps.guard.outputs.go != 'no'
+        run: |
+          git config user.name "dive-alert bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/
+          git diff --cached --quiet && exit 0
+          git commit -m "data: scored windows $(date -u +%Y-%m-%dT%H:%M) [skip ci]"
+          git pull --rebase origin ${{ github.ref_name }}
+          git push
