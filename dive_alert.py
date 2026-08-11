@@ -61,6 +61,10 @@ CONFIG = {
             "exposure": [(0, 0.10), (90, 0.15), (157, 0.52), (180, 0.80),
                          (220, 0.80), (245, 0.70), (270, 0.55), (285, 0.38),
                          (300, 0.28), (330, 0.15), (360, 0.10)],
+            # Direction the offshore (land) wind comes FROM — Laguna Canyon
+            # funnels Santa Anas out of the NE. Wind from here flattens the
+            # nearshore instead of chopping it.
+            "offshore_dir": 45,
             # Every Zone A site is a pocket cove between rocky points, not open
             # beach. The zone-level swell model describes open coast, so without
             # this the model systematically over-penalizes: divers get into
@@ -74,31 +78,31 @@ CONFIG = {
             # restructure blocked deep links — re-verify boundaries if enabling
             # any take-oriented feature. shelter is a site-rank bonus, +-0.5 max.
             "sites": [
-                {"name": "Crescent Bay", "take_allowed": False, "creek_adjacent": False,
+                {"name": "Crescent Bay", "depth_ft": 30, "take_allowed": False, "creek_adjacent": False,
                  "shelter": 0.1, "tide": "any",
                  "entry": "sand walk-in; deep channel mid-beach",
                  "note": "Seal Rock reef on the north end; longest swim to structure"},
-                {"name": "Shaw's Cove", "take_allowed": False, "creek_adjacent": False,
+                {"name": "Shaw's Cove", "depth_ft": 20, "take_allowed": False, "creek_adjacent": False,
                  "shelter": 0.3, "tide": "any",
                  "entry": "stairs to sand; easy walk-in",
                  "note": "most protected cove; west reef crevice at mid-high tide"},
-                {"name": "Divers Cove", "take_allowed": False, "creek_adjacent": False,
+                {"name": "Divers Cove", "depth_ft": 25, "take_allowed": False, "creek_adjacent": False,
                  "shelter": 0.2, "tide": "any",
                  "entry": "sand walk-in between reefs",
                  "note": "short swim to kelp; garibaldi central"},
-                {"name": "Fisherman's Cove", "take_allowed": False, "creek_adjacent": False,
+                {"name": "Fisherman's Cove", "depth_ft": 20, "take_allowed": False, "creek_adjacent": False,
                  "shelter": 0.2, "tide": "mid-high",
                  "entry": "narrow sand channel between rock shelves",
                  "note": "channel gets shallow and grabby at low tide"},
-                {"name": "Picnic Beach (Heisler)", "take_allowed": False, "creek_adjacent": False,
+                {"name": "Picnic Beach (Heisler)", "depth_ft": 15, "take_allowed": False, "creek_adjacent": False,
                  "shelter": 0.0, "tide": "high",
                  "entry": "rocky shelf; ankle-twister at low tide",
                  "note": "best structure close in; enter north of the point"},
-                {"name": "Wood's Cove", "take_allowed": False, "creek_adjacent": False,
+                {"name": "Wood's Cove", "depth_ft": 25, "take_allowed": False, "creek_adjacent": False,
                  "shelter": -0.1, "tide": "mid",
                  "entry": "stairs; rock outcrops both sides",
                  "note": "boulder field holds fish; watch the shorebreak slot"},
-                {"name": "Cleo Street barge", "take_allowed": False, "creek_adjacent": False,
+                {"name": "Cleo Street barge", "depth_ft": 25, "take_allowed": False, "creek_adjacent": False,
                  "shelter": -0.3, "tide": "any",
                  "entry": "sand entry, ~150 yd surface swim",
                  "note": "barge wreck ~25 ft; calm days only, mind the swim"},
@@ -115,10 +119,10 @@ CONFIG = {
                 # VERIFY take_allowed against current CDFW boundaries before enabling:
                 # Aliso sits inside Laguna Beach SMCA (No-Take); Thousand Steps is
                 # south of the Table Rock boundary.
-                {"name": "Aliso Beach", "take_allowed": False, "creek_adjacent": True,
+                {"name": "Aliso Beach", "depth_ft": 15, "take_allowed": False, "creek_adjacent": True,
                  "shelter": -0.2, "tide": "any",
                  "entry": "steep sand; shorebreak-prone", "note": "Aliso Creek outflow — 96h rain rule"},
-                {"name": "Thousand Steps", "take_allowed": True, "creek_adjacent": False,
+                {"name": "Thousand Steps", "depth_ft": 20, "take_allowed": True, "creek_adjacent": False,
                  "shelter": 0.0, "tide": "mid-high",
                  "entry": "long stairs, sand entry", "note": "VERIFY take boundary before enabling"},
             ],
@@ -131,10 +135,10 @@ CONFIG = {
                          (220, 1.00), (245, 0.90), (270, 0.55), (285, 0.35),
                          (300, 0.25), (330, 0.15), (360, 0.10)],
             "sites": [
-                {"name": "Salt Creek", "take_allowed": False, "creek_adjacent": True,
+                {"name": "Salt Creek", "depth_ft": 20, "take_allowed": False, "creek_adjacent": True,
                  "shelter": 0.0, "tide": "any",
                  "entry": "long beach walk", "note": "Dana Point SMCA — VERIFY current take rules"},
-                {"name": "Dana Point Harbor breakwall (outside)", "take_allowed": True,
+                {"name": "Dana Point Harbor breakwall (outside)", "depth_ft": 30, "take_allowed": True,
                  "creek_adjacent": False, "shelter": 0.2, "tide": "any",
                  "entry": "boat or long swim", "note": "VERIFY take rules + season before enabling"},
             ],
@@ -218,6 +222,26 @@ CONFIG = {
         # precision. It stays in the log because it is the only direct clarity
         # measurement available and backtesting may yet find a use for it.
         "kd490_stale_days": 21,
+        # WIND DIRECTION. A knot of offshore wind is not a knot of onshore
+        # wind: offshore (Santa Ana) flattens the nearshore and blows chop out
+        # to sea; onshore sea breeze builds it. Factor on wind speed by angular
+        # distance from the zone's offshore_dir before any wind penalty.
+        # CALIBRATION: if a Santa Ana morning still scored low, lower the 0-60
+        # values; if an offshore day was rougher than scored, raise them.
+        "wind_dir_factor": [(0, 0.35), (60, 0.55), (90, 0.80), (120, 1.0), (180, 1.0)],
+        # FIRST FLUSH. The first rain after the long dry season carries a
+        # summer of oil and grime to the ocean in one pulse — cap harder than
+        # ordinary post-rain. Live runs only see ~4 days of precip history, so
+        # season stands in for true antecedent dryness: any May-Oct rain in
+        # SoCal is first-flush-ish. CALIBRATION: replace with a real antecedent
+        # dry-day counter when the dive log shows season alone mis-fires.
+        "first_flush_months": [5, 6, 7, 8, 9, 10],
+        "first_flush_cap": 3.0,
+        # SPRING TIDES mix the water column and drain entries hard; neaps are
+        # kind. Daily tide range (ft, MLLW) -> small penalty. Newport neaps run
+        # ~3-4ft, springs ~6-8ft. CALIBRATION: zero this if logged dives show
+        # no tide-range effect at Laguna.
+        "tide_range_penalty": [(3.5, 0.0), (5.0, 0.15), (6.5, 0.4), (8.0, 0.6)],
         # LIGHT. Cloud cover during the window, mean %. Unlike clarity this is
         # genuinely forecastable, and it is a huge part of how a dive FEELS —
         # sunbeams through kelp at 25ft are most of the magic, and an overcast
@@ -658,6 +682,39 @@ def fetch_kd490(src: Sources, lat, lon) -> Fetch:
         return Fetch("kd490", False, error=str(e))
 
 
+def parse_ndbc_spec(text: str):
+    """NDBC .spec file: observed swell/wind-wave SEPARATION from the buoy.
+    Cols: YY MM DD hh mm WVHT SwH SwP WWH WWP SwD WWD STEEPNESS APD MWD."""
+    rows = []
+    for line in text.splitlines():
+        if line.startswith("#"):
+            continue
+        p = line.split()
+        if len(p) < 12:
+            continue
+        try:
+            dt = datetime(int(p[0]), int(p[1]), int(p[2]), int(p[3]), int(p[4]), tzinfo=timezone.utc)
+        except ValueError:
+            continue
+        def num(s):
+            return None if s in ("MM", "N/A") else float(s)
+        rows.append({"t": dt, "swh_m": num(p[6]), "swp_s": num(p[7]),
+                     "wwh_m": num(p[8]), "wwp_s": num(p[9])})
+    return rows
+
+
+def fetch_ndbc_spec(src: Sources, station: str) -> Fetch:
+    try:
+        url = "https://www.ndbc.noaa.gov/data/realtime2/%s.spec" % station
+        rows = parse_ndbc_spec(src.get("ndbc_spec", url, timeout=20))
+        good = [r for r in rows if r["wwh_m"] is not None or r["swh_m"] is not None]
+        if not good:
+            return Fetch("ndbc_spec", False, error="no valid rows")
+        return Fetch("ndbc_spec", True, {"latest": good[0], "station": station})
+    except Exception as e:
+        return Fetch("ndbc_spec", False, error=str(e))
+
+
 def fetch_all(zone_cfg, offline=False, fixture_set="normal"):
     src = Sources(offline, fixture_set)
     lat, lon = zone_cfg["lat"], zone_cfg["lon"]
@@ -670,6 +727,10 @@ def fetch_all(zone_cfg, offline=False, fixture_set="normal"):
         "sst": fetch_sst(src, lat, lon),
         "chla": fetch_chla(src, lat, lon),
         "kd490": fetch_kd490(src, lat, lon),
+        # observed swell/chop split — feeds agreement only, so it is
+        # deliberately NOT in SOURCE_WEIGHTS (losing it must not dent
+        # completeness; it's a bonus check, not a pipeline input)
+        "ndbc_spec": fetch_ndbc_spec(src, CONFIG["sources"]["ndbc_primary"]),
     }
     return f, src
 
@@ -824,14 +885,34 @@ def swell_damage(marine, w, exposure_map, cove_factor=1.0):
     return (tot / cnt) * cove_factor, parts
 
 
+def wind_dir_factor(wdir, zone_cfg):
+    """A knot of offshore wind is not a knot of onshore wind. Scale wind speed
+    by angular distance from the zone's offshore direction before penalizing."""
+    off = zone_cfg.get("offshore_dir", 45)
+    ang = abs((wdir - off) % 360)
+    ang = min(ang, 360 - ang)
+    return piecewise(ang, CONFIG["scoring"]["wind_dir_factor"])
+
+
+def tide_range_ft(tides, w):
+    """Daily tide swing around the window — spring tides mix and drain hard."""
+    lo, hi = w["start"] - timedelta(hours=18), w["start"] + timedelta(hours=18)
+    fts = [e["ft"] for e in (tides or []) if lo <= e["t"] <= hi]
+    return (max(fts) - min(fts)) if len(fts) >= 2 else None
+
+
 def compute_features(w, fetches, zone_cfg, t_now):
     fc = CONFIG["features"]
     marine = fetches["marine"].data if fetches["marine"].ok else {}
     wx = fetches["weather"].data if fetches["weather"].ok else {}
     wind = wx.get("wind_speed_10m", {})
+    wdirs = wx.get("wind_direction_10m", {})
     precip = wx.get("precipitation", {})
 
-    wind_e, _ = decayed_sum(wind, w["start"], fc["wind_lookback_h"], fc["wind_half_life_h"], lambda v: v * v)
+    # direction-weighted wind: offshore hours count ~1/3 of onshore hours
+    wind_eff = {t: v * wind_dir_factor(wdirs.get(t, 180.0), zone_cfg)
+                for t, v in wind.items()}
+    wind_e, _ = decayed_sum(wind_eff, w["start"], fc["wind_lookback_h"], fc["wind_half_life_h"], lambda v: v * v)
     swell_series = marine.get("wave_height", {})
     swell_per = marine.get("wave_period", {})
 
@@ -853,6 +934,10 @@ def compute_features(w, fetches, zone_cfg, t_now):
                                   zone_cfg.get("cove_damage_factor", 1.0))
     wind_in_window = [wind.get(t) for t in window_hours(w)]
     wind_in_window = [v for v in wind_in_window if v is not None]
+    wind_eff_window = [wind_eff.get(t) for t in window_hours(w)]
+    wind_eff_window = [v for v in wind_eff_window if v is not None]
+    tides_f = fetches.get("tides")
+    trange = tide_range_ft(tides_f.data if (tides_f is not None and tides_f.ok) else None, w)
     kd = fetches.get("kd490")
     clouds = [wx.get("cloud_cover", {}).get(t) for t in window_hours(w)]
     clouds = [c for c in clouds if c is not None]
@@ -864,6 +949,9 @@ def compute_features(w, fetches, zone_cfg, t_now):
         "damage": dmg, "dmg_parts": dmg_parts,
         "kd490": kd.data["m1"] if (kd is not None and kd.ok) else None,
         "wind_window_max_kn": max(wind_in_window) if wind_in_window else None,
+        "wind_window_eff_kn": max(wind_eff_window) if wind_eff_window else None,
+        "tide_range_ft": trange,
+        "month": w["start"].month,
         "obs_frac": (obs_fraction(w["start"], fc["wind_lookback_h"], t_now)
                      + obs_fraction(w["start"], fc["swell_lookback_h"], t_now)) / 2.0,
         "missing": [k for k, f in fetches.items() if not f.ok],
@@ -894,11 +982,15 @@ def score_window(feats, creek_adjacent=False):
     else:
         breakdown["wind_hist"] = 0.8
         flags.append("no wind history")
-    if feats["wind_window_max_kn"] is not None:
-        breakdown["wind_now"] = piecewise(feats["wind_window_max_kn"], sc["wind_now_penalty"])
+    # penalize the direction-weighted wind: 12kt offshore ~ 4kt onshore
+    eff_wind = feats.get("wind_window_eff_kn", feats.get("wind_window_max_kn"))
+    if eff_wind is not None:
+        breakdown["wind_now"] = piecewise(eff_wind, sc["wind_now_penalty"])
     else:
         breakdown["wind_now"] = 0.5
         flags.append("no window wind forecast")
+    if feats.get("tide_range_ft") is not None:
+        breakdown["tide_mix"] = piecewise(feats["tide_range_ft"], sc["tide_range_penalty"])
     # light: forecastable, and a real part of how the dive feels
     if feats.get("cloud_pct") is not None:
         breakdown["light"] = piecewise(feats["cloud_pct"], sc["cloud_penalty"])
@@ -906,13 +998,18 @@ def score_window(feats, creek_adjacent=False):
     score = max(1.0, min(10.0, score))
 
     cap, cap_reason = None, None
-    # hard rules override the weighted score
-    if feats["wind_window_max_kn"] is not None and feats["wind_window_max_kn"] >= sc["wind_cap_kt"]:
+    # hard rules override the weighted score (wind cap on the direction-
+    # weighted speed: a 16kt Santa Ana flattens the coves, it doesn't cap them)
+    if eff_wind is not None and eff_wind >= sc["wind_cap_kt"]:
         cap, cap_reason = sc["wind_cap_score"], "wind ≥%dkt in window" % sc["wind_cap_kt"]
     rain_lb = CONFIG["features"]["creek_rain_lookback_h"] if creek_adjacent else CONFIG["features"]["rain_lookback_h"]
     rain_cap = sc["creek_rain_cap"] if creek_adjacent else sc["rain_cap"]
     if feats["dry_hours"] is not None and feats["dry_hours"] < rain_lb:
         c = rain_cap
+        # first flush: dry-season rain carries months of grime in one pulse
+        if feats.get("month") in sc["first_flush_months"]:
+            c = min(c, sc["first_flush_cap"])
+            flags.append("first-flush")
         if cap is None or c < cap:
             cap, cap_reason = c, "post-rain (%.0fh since ≥%.1f\")" % (
                 feats["dry_hours"], CONFIG["features"]["rain_threshold_in"])
@@ -959,6 +1056,32 @@ def confidence(fetches, feats, t_now):
             if rel > 0.35:
                 disagree_note = "buoy %s shows %.1fft vs model %.1fft" % (
                     mp.data["station"], m_to_ft(latest["wvht_m"]), m_to_ft(model))
+    # observed CHOP check: the buoy's measured wind-wave height vs the model's.
+    # Chop is the heaviest term in the score, so the model's chop claim gets
+    # verified against an instrument every run, not trusted.
+    spec = fetches.get("ndbc_spec")
+    if spec is not None and spec.ok and ma is not None and ma.ok:
+        latest = spec.data["latest"]
+        t = latest["t"].astimezone(PT).replace(minute=0, second=0, microsecond=0)
+        mww = None
+        for k in range(4):
+            mww = ma.data.get("wind_wave_height", {}).get(t - timedelta(hours=k))
+            if mww is not None:
+                break
+        oww = latest["wwh_m"]
+        # Materiality needs an ABSOLUTE floor: buoy and model partition swell
+        # vs wind-wave differently, so 0.4m-vs-0.1m is a definitional quibble,
+        # not a forecast bust. Only a large-relative AND large-absolute gap
+        # counts, and chop-partition disagreement alone can knock confidence
+        # to medium, never to low (that right is reserved for total height).
+        if (mww is not None and oww is not None
+                and abs(oww - mww) >= 0.35 and max(oww, mww) >= 0.5):
+            rel = abs(oww - mww) / max(oww, mww, 0.1)
+            if rel > 0.5:
+                agreement = min(agreement, max(0.5, 1.0 - rel))
+                note = "buoy chop %.1fft vs model %.1fft" % (m_to_ft(oww), m_to_ft(mww))
+                disagree_note = (disagree_note + "; " + note) if disagree_note else note
+
     chla = fetches.get("chla")
     bloom_note = None
     if chla and chla.ok and chla.data["mg_m3"] >= CONFIG["scoring"]["chla_bloom_mg_m3"]:
@@ -1022,12 +1145,28 @@ def site_tide_fit(site, band):
     return 0.0
 
 
-def best_entries(zone_cfg, w, tides, damage):
+def surge_at_depth(depth_ft, period_s):
+    """Fraction of surface orbital motion surviving at depth (deep-water decay
+    exp(-2πd/L), L≈5.12T² ft). Short chop dies fast with depth — a 7s sea keeps
+    ~50% at 25ft; a 16s groundswell keeps ~94%. So chop days favor the deeper
+    sites and long-period days flatten the differences."""
+    if not period_s:
+        return 1.0
+    wavelength = 5.12 * period_s * period_s
+    return math.exp(-2 * math.pi * depth_ft / wavelength)
+
+
+def best_entries(zone_cfg, w, tides, damage, period_s=None):
     h, trend, next_e = tide_state_at(tides, w["start"] + (w["end"] - w["start"]) / 2)
     band = tide_band(h)
+    # CALIBRATION: the 0.06 sets how strongly the day's swell steers site
+    # choice vs the static shelter ranking; raise if chop days keep naming
+    # shallow coves the log says were washing-machines.
     ranked = sorted(zone_cfg["sites"],
                     key=lambda s: -(s["shelter"] * (1.0 + min(damage or 0, 10) / 5.0)
-                                    + site_tide_fit(s, band)))
+                                    + site_tide_fit(s, band)
+                                    - min(damage or 0, 10)
+                                    * surge_at_depth(s.get("depth_ft", 20), period_s) * 0.06))
     names = [s["name"] for s in ranked[:2]]
     fyi = None
     if h is not None:
@@ -1256,7 +1395,8 @@ def perfect_gate(feats, score, sst_c):
     g = CONFIG["perfect_gate"]
     checks = [
         ("flat", feats.get("damage"), lambda v: v <= g["max_damage"]),
-        ("glass", feats.get("wind_window_max_kn"), lambda v: v <= g["max_wind_kn"]),
+        ("glass", feats.get("wind_window_eff_kn", feats.get("wind_window_max_kn")),
+         lambda v: v <= g["max_wind_kn"]),
         ("dry", feats.get("dry_hours"), lambda v: v >= g["min_dry_hours"]),
         ("sun", feats.get("cloud_pct"), lambda v: v <= g["max_cloud_pct"]),
         ("warm", sst_c, lambda v: v >= g["min_sst_c"]),
@@ -1563,7 +1703,8 @@ def score_zone(zone_key, zone_cfg, fetches, t_now, horizon_h=72):
         creek = False  # zone-level scoring; creek rule applies per-site when Zone B wakes
         score, breakdown, cap_reason, flags = score_window(feats, creek)
         conf_word, comp, agree, notes = confidence(fetches, feats, t_now)
-        entries, tide_fyi, band = best_entries(zone_cfg, w, tides, feats["damage"])
+        entries, tide_fyi, band = best_entries(zone_cfg, w, tides, feats["damage"],
+                                               (feats["dmg_parts"] or {}).get("per_s"))
         sstv = fetches["sst"].data["c"] if fetches["sst"].ok else None
         gate_ok, _ = perfect_gate(feats, score, sstv)
         scored.append({"zone": zone_key, "w": w, "score": score, "feats": feats,
@@ -1696,7 +1837,7 @@ def cmd_hindcast(args):
     # alerts — omitting a scored input here silently validates a model we
     # never ship (this exact asymmetry has bitten twice now).
     wh = arch(CONFIG["sources"]["weather_archive"],
-              {"hourly": "wind_speed_10m,precipitation,cloud_cover",
+              {"hourly": "wind_speed_10m,wind_direction_10m,precipitation,cloud_cover",
                "wind_speed_unit": "kn", "precipitation_unit": "inch"})
     marine = {k: hourly_map(mh["time"], mh[k]) for k in mh if k != "time"}
     marine["wave_direction"] = marine.get("swell_wave_direction", {})
@@ -1731,16 +1872,43 @@ def cmd_hindcast(args):
                 return v
         return None
 
+    # Historical tide predictions (CO-OPS serves past dates; chunked) — the
+    # tide_mix term must exist in hindcast or we validate a model we never
+    # ship. Fail-soft: no tides just zeroes that term.
+    tide_events = []
+    try:
+        span_start = start - timedelta(days=1)
+        while span_start <= end:
+            span_end = min(span_start + timedelta(days=300), end + timedelta(days=1))
+            tq = urllib.parse.urlencode({
+                "product": "predictions", "application": "dive_alert",
+                "begin_date": span_start.strftime("%Y%m%d"),
+                "end_date": span_end.strftime("%Y%m%d"),
+                "datum": "MLLW", "station": CONFIG["sources"]["tide_station"],
+                "time_zone": "lst_ldt", "units": "english", "interval": "hilo",
+                "format": "json"})
+            dd = json.loads(http_get(CONFIG["sources"]["tides"] + "?" + tq, timeout=60))
+            tide_events += [{"t": datetime.strptime(p["t"], "%Y-%m-%d %H:%M").replace(tzinfo=PT),
+                             "ft": float(p["v"]), "type": p["type"]}
+                            for p in dd["predictions"]]
+            span_start = span_end + timedelta(days=1)
+        print("  tides: %d hi/lo events" % len(tide_events))
+    except Exception as e:
+        print("  tide history unavailable (%s) — hindcast omits the tide_mix term" % e)
+
     rows = []
     d = start
     fetches = {"marine": Fetch("marine", True, marine),
                "weather": Fetch("weather", True, {"wind_speed_10m": wx["wind_speed_10m"],
+                                                  "wind_direction_10m": wx.get("wind_direction_10m", {}),
                                                   "precipitation": wx["precipitation"],
                                                   "cloud_cover": wx.get("cloud_cover", {}),
                                                   "sunrise": [], "sunset": []}),
                "ndbc_primary": Fetch("ndbc_primary", False, error="hindcast"),
                "ndbc_offshore": Fetch("ndbc_offshore", False, error="hindcast"),
-               "tides": Fetch("tides", False, error="hindcast"),
+               "ndbc_spec": Fetch("ndbc_spec", False, error="hindcast"),
+               "tides": (Fetch("tides", True, tide_events) if tide_events
+                         else Fetch("tides", False, error="hindcast")),
                "sst": Fetch("sst", False, error="hindcast"),
                "chla": Fetch("chla", False, error="hindcast")}
     while d <= end:
@@ -2012,7 +2180,7 @@ def _flat_series(start, hours, val):
 
 
 def _mk_fetches(t0, swell_ft, per_s, dir_deg, wind_kn=4.0, precip_series=None,
-                windwave_ft=0.0, ww_per=5.0):
+                windwave_ft=0.0, ww_per=5.0, wind_dir=270.0):
     hours = 200
     m = {
         "wave_height": _flat_series(t0, hours, swell_ft / 3.28084),
@@ -2027,7 +2195,7 @@ def _mk_fetches(t0, swell_ft, per_s, dir_deg, wind_kn=4.0, precip_series=None,
     }
     wx = {
         "wind_speed_10m": _flat_series(t0, hours, wind_kn),
-        "wind_direction_10m": _flat_series(t0, hours, 270.0),
+        "wind_direction_10m": _flat_series(t0, hours, wind_dir),
         "wind_gusts_10m": _flat_series(t0, hours, wind_kn * 1.4),
         "precipitation": precip_series if precip_series is not None else _flat_series(t0, hours, 0.0),
         "sunrise": [t0.replace(hour=6) + timedelta(days=i) for i in range(5)],
@@ -2310,6 +2478,56 @@ def cmd_test(args):
           "✨" in dgg["title"] and "Thu" in dgg["title"], dgg["title"])
     check("(m5b) strip marks the gate day", "Thu 8.2✨" in dgg["message"],
           dgg["message"].split("\n")[0])
+
+    # (u) WIND DIRECTION: a knot offshore is not a knot onshore.
+    f_on = _mk_fetches(t0, swell_ft=1.5, per_s=15, dir_deg=195, wind_kn=12, wind_dir=225)
+    f_off = _mk_fetches(t0, swell_ft=1.5, per_s=15, dir_deg=195, wind_kn=12, wind_dir=45)
+    s_on, _, _, _ = score_window(compute_features(w, f_on, zc, t0))
+    s_off, _, _, _ = score_window(compute_features(w, f_off, zc, t0))
+    check("(u) 12kt offshore beats 12kt onshore", s_off - s_on >= 1.0,
+          "offshore=%.1f onshore=%.1f" % (s_off, s_on))
+    f_cap_on = _mk_fetches(t0, swell_ft=1.5, per_s=15, dir_deg=195, wind_kn=16, wind_dir=225)
+    f_cap_off = _mk_fetches(t0, swell_ft=1.5, per_s=15, dir_deg=195, wind_kn=16, wind_dir=45)
+    s_c_on, _, cap_on, _ = score_window(compute_features(w, f_cap_on, zc, t0))
+    s_c_off, _, cap_off, _ = score_window(compute_features(w, f_cap_off, zc, t0))
+    check("(u2) 16kt onshore caps at 5; Santa Ana doesn't",
+          cap_on is not None and s_c_on <= 5.0 and cap_off is None and s_c_off > 6.5,
+          "on=%.1f(%s) off=%.1f(%s)" % (s_c_on, cap_on, s_c_off, cap_off))
+
+    # (v) PERIOD REACHES DEEPER THAN CHOP: orbital survival physics.
+    check("(v) chop dies with depth, groundswell doesn't",
+          surge_at_depth(25, 7) < 0.6 < 0.85 < surge_at_depth(25, 16),
+          "7s@25ft=%.2f 16s@25ft=%.2f" % (surge_at_depth(25, 7), surge_at_depth(25, 16)))
+    check("(v2) shallow sites eat the chop", surge_at_depth(15, 7) > surge_at_depth(30, 7))
+
+    # (w) FIRST FLUSH: dry-season rain caps harder than winter rain.
+    rain_s = _flat_series(t0, 200, 0.0)
+    rain_s[floor_hour(w["start"]) - timedelta(hours=24)] = 0.3
+    f_ff = _mk_fetches(t0, swell_ft=1.5, per_s=16, dir_deg=190, wind_kn=4, precip_series=rain_s)
+    s_ff, _, _, fl_ff = score_window(compute_features(w, f_ff, zc, t0))   # t0 = August
+    t0w = datetime(2026, 2, 10, 6, 0, tzinfo=PT)
+    ww_feb = _window_at(t0w, 24)
+    rain_w = _flat_series(t0w, 200, 0.0)
+    rain_w[floor_hour(ww_feb["start"]) - timedelta(hours=24)] = 0.3
+    f_wr = _mk_fetches(t0w, swell_ft=1.5, per_s=16, dir_deg=190, wind_kn=4, precip_series=rain_w)
+    s_wr, _, _, fl_wr = score_window(compute_features(ww_feb, f_wr, zc, t0w))
+    check("(w) August rain is first flush, cap 3", s_ff <= 3.0 and "first-flush" in fl_ff,
+          "score=%.1f flags=%s" % (s_ff, fl_ff))
+    check("(w2) February rain caps at 4, no flush flag",
+          s_wr <= 4.0 and s_wr > 3.0 and "first-flush" not in fl_wr,
+          "score=%.1f" % s_wr)
+
+    # (x) SPRING TIDES MIX: bigger swing, small honest penalty.
+    f_tide = _mk_fetches(t0, swell_ft=1.5, per_s=16, dir_deg=190, wind_kn=4)
+    f_spring = _mk_fetches(t0, swell_ft=1.5, per_s=16, dir_deg=190, wind_kn=4)
+    f_spring["tides"] = Fetch("tides", True, [
+        {"t": w["start"] - timedelta(hours=6), "ft": -1.5, "type": "L"},
+        {"t": w["start"] + timedelta(hours=1), "ft": 7.0, "type": "H"},
+        {"t": w["start"] + timedelta(hours=7), "ft": -1.0, "type": "L"}])
+    s_neap, _, _, _ = score_window(compute_features(w, f_tide, zc, t0))
+    s_spring, _, _, _ = score_window(compute_features(w, f_spring, zc, t0))
+    check("(x) spring tide costs a little", 0.2 <= (s_neap - s_spring) <= 0.8,
+          "neap=%.1f spring=%.1f" % (s_neap, s_spring))
 
     # (q) THE MAGIC MUST NOT BE SWALLOWED: a gate flip inside a steady streak
     # is material change of the highest order and fires the LOUD alert.
