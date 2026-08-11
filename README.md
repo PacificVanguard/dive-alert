@@ -29,6 +29,13 @@ One file, stdlib only, runs on GitHub Actions. Everything tunable is in
 welcome push, and prints the GitHub commands; add `--github` to run them.
 Change the digest day with `alerting.digest_weekday` (0=Mon).
 
+**Add a dive buddy (30 seconds, no account)** — `python3 dive_alert.py share`
+prints an invite to paste into a text. Buddies just install ntfy and subscribe;
+they get every alert, and their feedback button presses feed the same
+calibration log — every subscriber is another ground-truth sensor. (The topic
+name is the only access control, so share it like a group-chat invite, not a
+public post.)
+
 **Tell it how it did** — every alert carries 🤿 Epic / 👍 Decent / 👎 Meh
 buttons. Press one after you dive; the next run folds it into
 `data/dive_log.csv`. That's the calibration loop, and it needs no secrets.

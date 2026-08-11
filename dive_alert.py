@@ -1911,6 +1911,28 @@ def cmd_setup(args):
             print("   " + c)
 
 
+def cmd_share(args):
+    """Onboarding for a dive buddy is subscribe-only: the compute runs in one
+    person's repo, ntfy is pub-sub, and the feedback buttons work for every
+    subscriber — each buddy is another ground-truth sensor. Prints an invite
+    ready to paste into a text message."""
+    topic = get_secret("NTFY_TOPIC")
+    if not topic:
+        print("No topic yet — run `python3 dive_alert.py setup` first.")
+        sys.exit(1)
+    print("─" * 60)
+    print("Dive-conditions alerts for the Laguna coves — free, ~1/week.")
+    print("Setup is 30 seconds and needs no account:")
+    print("  1. Install the ntfy app:")
+    print("     iPhone: https://apps.apple.com/app/ntfy/id1625396347")
+    print("     Android: https://play.google.com/store/apps/details?id=io.heckel.ntfy")
+    print("  2. In the app, tap + and subscribe to: %s" % topic)
+    print("     (or open https://ntfy.sh/%s in a browser)" % topic)
+    print("After a dive, press the buttons on the alert — it tunes the model.")
+    print("─" * 60)
+    print("(copy everything above into a text; that's the whole onboarding)")
+
+
 # =====================================================================
 # validate — pressure-test the swell model against 45 days of buoy truth
 # =====================================================================
@@ -2356,6 +2378,7 @@ def main():
     sub.add_parser("record-fixtures")
     sub.add_parser("validate")
     sub.add_parser("ingest")
+    sub.add_parser("share")
     p_setup = sub.add_parser("setup")
     p_setup.add_argument("--github", action="store_true")
     p_setup.add_argument("--topic", default=None)
@@ -2390,6 +2413,8 @@ def main():
         cmd_validate(args)
     elif args.cmd == "setup":
         cmd_setup(args)
+    elif args.cmd == "share":
+        cmd_share(args)
     elif args.cmd == "ingest":
         state = load_state()
         ingest_feedback(state, dry_run=False)
