@@ -617,7 +617,9 @@ def fetch_tides(src: Sources, begin: datetime) -> Fetch:
         q = urllib.parse.urlencode({
             "product": "predictions", "application": "dive_alert",
             "begin_date": begin.strftime("%Y%m%d"),
-            "end_date": (begin + timedelta(days=4)).strftime("%Y%m%d"),
+            # 8 days, not 4: the weekly digest reads a full week ahead, and a
+            # short tide fetch silently degrades its far days to "steady tide"
+            "end_date": (begin + timedelta(days=8)).strftime("%Y%m%d"),
             "datum": "MLLW", "station": CONFIG["sources"]["tide_station"],
             "time_zone": "lst_ldt", "units": "english", "interval": "hilo", "format": "json"})
         d = json.loads(src.get("tides", CONFIG["sources"]["tides"] + "?" + q))
