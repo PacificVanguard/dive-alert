@@ -334,14 +334,18 @@ CONFIG = {
         # own way in. Scarcity is the growth engine — this line must NEVER
         # appear on an ordinary alert.
         "gate_share_line": "Forwarded this? The bell lives at thedivebell.com",
-        # First words a new subscriber ever hears. Bell voice, not dev voice.
+        # First words a new subscriber ever hears. Bell voice in the word
+        # choice, but every sentence carries an exact fact: what arrives,
+        # when, what the numbers mean, what the buttons do.
         "welcome_title": "You're on the bell 🤿",
-        "welcome_body": ("It stays quiet on purpose — most mornings the ocean says no.\n"
-                         "Wednesdays it reads you the week. When a window clears 7, it "
-                         "speaks up. And about twenty-one mornings a year, everything "
-                         "lines up at once — those mornings, the bell rings.\n"
-                         "Been in the water? Press a button below. The bell learns from "
-                         "every dive."),
+        "welcome_body": ("Twice a day, the bell scores every dawn and dusk window on "
+                         "Laguna's coves — swell, wind, rain, tide, light — out of 10.\n"
+                         "What lands here: the week ahead every Wednesday at 7am, a "
+                         "heads-up 12–48 hours before any window worth the drive (7+), "
+                         "and the rare ring — about 21 mornings a year — when everything "
+                         "lines up at once.\n"
+                         "After a dive, tap one button below: 👀 20ft+, 🙂 ~10ft, or "
+                         "🌫 murky. Every tap tunes the bell to the coves."),
         # SST °F -> what wetsuit to throw in the car
         "wetsuit": [(58, "5mm-and-hood water"), (64, "solid 4/3 water"),
                     (70, "comfy 4/3 water"), (999, "spring-suit warm")],
@@ -1446,43 +1450,60 @@ def render_digest(scored, t_now, state, sst_c=None, tip=None, actions=None):
                        "✨" if d in gate_days else ("★" if by_day[d] is best else ""))
         for d in order)
 
+    def day_name(s):
+        return "%s %s" % (s["w"]["start"].strftime("%A"), s["w"].get("kind", "dawn"))
+
+    def in_by(s):
+        return s["w"]["start"].strftime("%-I:%M%p").lower()
+
+    # One verdict in the title; the body never repeats it — it adds the exact
+    # details a diver plans around: time in the water, the cove, the tide,
+    # the temperature. A fact in every sentence, or the sentence goes.
+    suit = wetsuit_phrase(sst_c)
     if gate_days:
-        # A gate day in the outlook IS the news. Nothing else gets the headline.
         gd = by_day[gate_days[0]]
         headline = "✨ %s — everything lines up" % gd["w"]["label"]
-        lead = "%s: flat, dry, sunny, warm — the rare kind. Guard the morning now." \
-               % sentence_case(gd["w"]["label"])
-        where = ("Take %s" % gd["entries"][0]) if gd["entries"] else ""
-        if gd["tide_fyi"] and where:
-            where += ", " + gd["tide_fyi"]
-        body = [strip, lead + ((" " + where + ".") if where else "")]
+        lead = "%s: flat, dry, sunny, warm — the rare kind. In the water by %s" \
+               % (sentence_case(day_name(gd)), in_by(gd))
+        if gd["entries"]:
+            lead += " at %s" % gd["entries"][0]
+        if gd["tide_fyi"]:
+            lead += "; " + gd["tide_fyi"]
+        lead += "; %s." % suit if suit else "."
+        body = [strip, lead]
         best = gd
     elif best["score"] >= CONFIG["alerting"]["threshold"]:
         headline = "%s looks like the one" % best["w"]["label"]
-        lead = "%s is the pick — %s." % (
-            sentence_case(best["w"]["label"]),
-            sensory_phrase(best["score"], (best.get("feats") or {}).get("kd490")))
-        where = "Take %s" % best["entries"][0] if best["entries"] else ""
-        if best["tide_fyi"] and where:
-            where += ", " + best["tide_fyi"]
-        body = [strip, lead + ((" " + where + ".") if where else "")]
+        lead = "%s, %s — in the water by %s" % (
+            sentence_case(sensory_phrase(best["score"], (best.get("feats") or {}).get("kd490"))),
+            best["score"], in_by(best))
+        if best["entries"]:
+            lead += " at %s" % best["entries"][0]
+        if best["tide_fyi"]:
+            lead += "; " + best["tide_fyi"]
+        lead += "; %s." % suit if suit else "."
+        body = [strip, lead]
     else:
-        headline = "the bell stays quiet; %s comes closest" % best["w"]["label"]
-        body = [strip,
-                "Nothing rings the bell yet. %s comes closest at %.1f — %s. "
-                "Midweek will firm it up."
-                % (best["w"]["label"], best["score"],
-                   sensory_phrase(best["score"], (best.get("feats") or {}).get("kd490")))]
+        headline = "the bell stays quiet"
+        lead = "Best of it: %s at %.1f — %s." % (
+            day_name(best), best["score"],
+            sensory_phrase(best["score"], (best.get("feats") or {}).get("kd490")))
+        detail = "If you go: in by %s" % in_by(best)
+        if best["tide_fyi"]:
+            detail += ", " + best["tide_fyi"]
+        if suit:
+            detail += ", " + suit
+        body = [strip, lead + " " + detail + "."]
     brag = superlative(best["score"], t_now)
     if brag:
-        body[1] += " (%s)" % brag
-    suit = wetsuit_phrase(sst_c)
-    if suit:
-        body[1] += " · %s" % suit
+        body[1] += " (%s.)" % sentence_case(brag)
     if tip:
         body.append("Tip: " + tip)
-    return {"title": "The week ahead — %s %s" % (headline, v["emoji"]),
-            "message": "\n".join(body), "priority": 3, "actions": actions or []}
+    # a ringing bell doesn't share the week-ahead frame — it IS the news
+    title = ("✨ The bell rings %s %s" % (day_name(best), v["emoji"]) if gate_days
+             else "The week ahead — %s %s" % (headline, v["emoji"]))
+    return {"title": title, "message": "\n".join(body),
+            "priority": 4 if gate_days else 3, "actions": actions or []}
 
 
 # =====================================================================
