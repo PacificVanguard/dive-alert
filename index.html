@@ -108,6 +108,23 @@
   .w b { display: block; font-weight: normal; color: var(--sand); }
   .w span { color: var(--dim); font-size: .89rem; line-height: 1.5; display: block; }
 
+  /* ── what rings the bell: the covenant, engraved ─────── */
+  .ringsec { padding: 10vh 0; position: relative; }
+  .plate { border: 1px solid rgba(255,217,138,.28); border-radius: 14px;
+           padding: 30px 32px; background: rgba(4,14,28,.55);
+           box-shadow: 0 0 44px rgba(255,217,138,.05) inset; }
+  .cond { display: flex; gap: 18px; padding: 9px 0;
+          border-bottom: 1px solid rgba(100,128,155,.14); align-items: baseline; }
+  .cond:last-of-type { border-bottom: 0; }
+  .cond .k { font-family: ui-monospace, Menlo, monospace; color: var(--gold);
+             letter-spacing: .22em; font-size: .8rem; flex: 0 0 74px; }
+  .cond .v { color: var(--ink); font-size: .95rem; }
+  .laws { margin-top: 22px; font-style: italic; color: var(--sand);
+          font-size: 1.02rem; line-height: 1.7; }
+  .rate { margin-top: 14px; color: var(--dim); font-size: .9rem; }
+  .rate b { color: var(--gold); font-weight: normal; }
+  @media (max-width: 520px) { .cond { flex-direction: column; gap: 2px; } }
+
   /* ── the vow ─────────────────────────────────────────── */
   .vow { padding: 12vh 0; position: relative; }
   .vow p { color: var(--ink); max-width: 44ch; margin-bottom: 20px; }
@@ -206,24 +223,48 @@
 
   <div class="weighs">
     <span class="depth">50 ft</span>
-    <h2>What it weighs</h2>
+    <h2>The instruments</h2>
     <div class="wlist">
-      <div class="w"><b>The swell</b><span>height, period, direction — argued out against a live buoy, twice a day</span></div>
-      <div class="w"><b>The wind</b><span>and which way it blows. A Santa Ana flattens what a sea breeze wrecks</span></div>
-      <div class="w"><b>The rain</b><span>and how long the creeks have kept quiet</span></div>
-      <div class="w"><b>The tide</b><span>which cove opens, and the hour to walk in</span></div>
-      <div class="w"><b>The light</b><span>sun on the kelp is half the magic</span></div>
-      <div class="w"><b>The season</b><span>October through January, mostly. The cold months keep the secrets</span></div>
+      <div class="w"><b>Waverider buoy 46253 · San Pedro South</b>
+        <span>the ocean itself, measured every thirty minutes. The forecast must argue with it twice a day</span></div>
+      <div class="w"><b>The swell model</b>
+        <span>held to 1,100 hours of buoy truth — correlation 0.86, its 11% shyness measured and corrected</span></div>
+      <div class="w"><b>The buoy&rsquo;s spectra</b>
+        <span>groundswell split from wind chop by instrument, not assumption — chop is what wrecks a morning</span></div>
+      <div class="w"><b>NOAA station 9410580 · Newport Bay</b>
+        <span>the tide to the minute — which cove opens, spring swing from neap calm</span></div>
+      <div class="w"><b>VIIRS · 490 nanometers</b>
+        <span>water clarity read from orbit. Kept as witness, never as judge — we proved it cannot forecast</span></div>
+      <div class="w"><b>The wind, by its vector</b>
+        <span>hour by hour, weighed by direction — a knot of Santa Ana counts a third of a knot of sea breeze</span></div>
+    </div>
+  </div>
+
+  <div class="ringsec">
+    <span class="depth">60 ft</span>
+    <h2>What rings the bell</h2>
+    <div class="plate">
+      <div class="cond"><span class="k">FLAT</span><span class="v">swell energy, surface to seabed, in the calmest few percent of mornings</span></div>
+      <div class="cond"><span class="k">GLASS</span><span class="v">under seven knots of effective wind across the whole window</span></div>
+      <div class="cond"><span class="k">DRY</span><span class="v">not a drop of rain in seventy-two hours — the creeks silent</span></div>
+      <div class="cond"><span class="k">SUN</span><span class="v">a quarter of the sky clouded, at most — light on the kelp</span></div>
+      <div class="cond"><span class="k">WARM</span><span class="v">sixty-two degree water or better</span></div>
+      <div class="cond"><span class="k">SCORE</span><span class="v">and the full model must still call it 8.5 of 10</span></div>
+      <div class="laws">All six, or silence. No partial credit. Nothing traded off.
+        If any one of them is unknown, the bell stays down.</div>
+      <div class="rate">Held against a full year of ocean: the bell would have rung
+        <b>21&nbsp;mornings</b> — nearly all of them October through January.</div>
     </div>
   </div>
 
   <div class="vow">
-    <span class="depth">60 ft</span>
+    <span class="depth">70 ft</span>
     <h2>The vow</h2>
     <p>The bell will never tell you what you&rsquo;ll <b>see</b> down there.
-       No one can. We tested every signal the ocean offers — satellites,
-       buoys, upwelling, temperature — and watched each one fail to call
-       the water.</p>
+       No one can. We hunted a forecast for the water itself — satellite
+       clarity, upwelling indices, temperature swings, offshore winds,
+       the swell record — <b>five signals, five nulls</b>. Clarity forgets
+       itself in three days; nothing free sees it coming.</p>
     <p>So the bell doesn&rsquo;t promise. It <b>positions</b>. Flat, dry,
        glassy, lit, warm — every card that can be stacked, stacked.
        The water keeps the last card. It always has.</p>
@@ -247,7 +288,9 @@
     <a class="cta" href="https://ntfy.sh/laguna-dive-86dd82e0">Get on the bell</a>
     <div class="cta-sub">Free · no account · ~one message a week<br>
       In the <a href="https://apps.apple.com/app/ntfy/id1625396347">ntfy app</a>:
-      subscribe to <code>laguna-dive-86dd82e0</code></div>
+      subscribe to <code>laguna-dive-86dd82e0</code><br>
+      No app? <a href="https://ntfy.sh/laguna-dive-86dd82e0">Open the bell in a
+      browser</a> and allow notifications — it rings there too.</div>
   </div>
 
   <div class="foundry">
