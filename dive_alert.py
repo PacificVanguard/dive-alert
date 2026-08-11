@@ -322,10 +322,11 @@ CONFIG = {
             (0.0, "washing machine"),
         ],
         # Said out loud on every alert. The honest core of the product: we can
-        # call the setup, nobody can call the water.
-        "wildcard": "Water clarity is the wildcard — nobody can forecast that.",
-        # Only ever used when the conjunction gate passes.
-        "perfect_hook": "Everything just lined up",
+        # call the setup, nobody can call the water. Must match the site's vow.
+        "wildcard": "The water keeps the last card — nobody can forecast that.",
+        # Only ever used when the conjunction gate passes. This is the phrase
+        # the website turns gold for; phone and site must say the same words.
+        "perfect_hook": "The bell is ringing",
         "perfect_line": ("Flat, dry, sunny, warm — every knowable thing has lined up. "
                          "The water's the only unknown left, and this is the day to gamble."),
         # Gate days replace the tip with an invite: the ~21-a-year message is
@@ -333,6 +334,14 @@ CONFIG = {
         # own way in. Scarcity is the growth engine — this line must NEVER
         # appear on an ordinary alert.
         "gate_share_line": "Forwarded this? The bell lives at thedivebell.com",
+        # First words a new subscriber ever hears. Bell voice, not dev voice.
+        "welcome_title": "You're on the bell 🤿",
+        "welcome_body": ("It stays quiet on purpose — most mornings the ocean says no.\n"
+                         "Wednesdays it reads you the week. When a window clears 7, it "
+                         "speaks up. And about twenty-one mornings a year, everything "
+                         "lines up at once — those mornings, the bell rings.\n"
+                         "Been in the water? Press a button below. The bell learns from "
+                         "every dive."),
         # SST °F -> what wetsuit to throw in the car
         "wetsuit": [(58, "5mm-and-hood water"), (64, "solid 4/3 water"),
                     (70, "comfy 4/3 water"), (999, "spring-suit warm")],
@@ -1458,10 +1467,10 @@ def render_digest(scored, t_now, state, sst_c=None, tip=None, actions=None):
             where += ", " + best["tide_fyi"]
         body = [strip, lead + ((" " + where + ".") if where else "")]
     else:
-        headline = "quiet week, best is %s" % best["w"]["label"]
+        headline = "the bell stays quiet; %s comes closest" % best["w"]["label"]
         body = [strip,
-                "Nothing clears 7 yet — %s is the pick at %.1f, so %s. "
-                "Forecasts firm up midweek."
+                "Nothing rings the bell yet. %s comes closest at %.1f — %s. "
+                "Midweek will firm it up."
                 % (best["w"]["label"], best["score"],
                    sensory_phrase(best["score"], (best.get("feats") or {}).get("kd490")))]
     brag = superlative(best["score"], t_now)
@@ -1472,7 +1481,7 @@ def render_digest(scored, t_now, state, sst_c=None, tip=None, actions=None):
         body[1] += " · %s" % suit
     if tip:
         body.append("Tip: " + tip)
-    return {"title": "Laguna week ahead — %s %s" % (headline, v["emoji"]),
+    return {"title": "The week ahead — %s %s" % (headline, v["emoji"]),
             "message": "\n".join(body), "priority": 3, "actions": actions or []}
 
 
@@ -2067,9 +2076,8 @@ def cmd_setup(args):
     print("   feedback topic (automatic): %s" % feedback_topic())
 
     welcome = {
-        "title": "dive-alert is live 🤿",
-        "message": "You're subscribed. Alerts fire when Laguna scores 7+, 12-48h out.\n"
-                   "Buttons on each alert feed the calibration loop — press them after you dive.",
+        "title": CONFIG["voice"]["welcome_title"],
+        "message": CONFIG["voice"]["welcome_body"],
         "priority": 3,
         "actions": feedback_actions("setup-test"),
     }
