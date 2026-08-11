@@ -344,16 +344,18 @@ CONFIG = {
                          "heads-up 12–48 hours before any window worth the drive (7+), "
                          "and the rare ring — about 21 mornings a year — when everything "
                          "lines up at once.\n"
-                         "After a dive, tap one button below: 👀 20ft+, 🙂 ~10ft, or "
-                         "🌫 murky. Every tap tunes the bell to the coves."),
+                         "After a dive, answer one question — what could you see? "
+                         "👀 the whole reef, 🙂 your buddy, or 🌫 just your fins. "
+                         "One tap; the bell learns the coves from it."),
         # SST °F -> what wetsuit to throw in the car
         "wetsuit": [(58, "5mm-and-hood water"), (64, "solid 4/3 water"),
                     (70, "comfy 4/3 water"), (999, "spring-suit warm")],
-        # Feedback buttons (max 3 — ntfy limit). These are anchored to VIZ IN
-        # FEET, not vibes: viz is the variable the model is actually trying to
-        # predict, so "Epic/Decent/Meh" would have collected the wrong data.
-        # Three taps that land straight in the backtest.
-        "fb_buttons": [("👀 20ft+", "clear"), ("🙂 ~10ft", "fair"), ("🌫 Murky", "murk")],
+        # Feedback buttons (max 3 — ntfy limit). Each is a VERDICT in the same
+        # visual language the alerts promise in ("you should see your buddy
+        # across the reef") — a diver answers instantly, no numbers to guess.
+        # FEEDBACK_MAP translates each verdict to viz-in-feet for the backtest.
+        "fb_buttons": [("👀 Saw it all", "clear"), ("🙂 Saw my buddy", "fair"),
+                       ("🌫 Saw my fins", "murk")],
     },
 
     # ---- tip library --------------------------------------------------
@@ -1597,9 +1599,12 @@ def feedback_actions(window_key):
             for label, verdict in CONFIG["voice"]["fb_buttons"]]
 
 
-# verdict -> rough viz/surge equivalents for the dive log.
-# CALIBRATION: these seed backtests until you log precise numbers with log-dive.
-FEEDBACK_MAP = {"clear": (20.0, "low"), "fair": (10.0, "low"), "murk": (5.0, "med")}
+# verdict -> viz/surge for the dive log. The buttons speak in what-you-saw;
+# this is where each verdict becomes a number the backtest can use:
+#   saw the whole reef ≈ 25ft · saw your buddy across it ≈ 12ft ·
+#   saw only your fins ≈ 4ft
+# CALIBRATION: these seed backtests until precise numbers arrive via log-dive.
+FEEDBACK_MAP = {"clear": (25.0, "low"), "fair": (12.0, "low"), "murk": (4.0, "med")}
 
 
 def ingest_feedback(state, dry_run):
