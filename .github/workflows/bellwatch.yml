@@ -1,0 +1,52 @@
+name: bellwatch
+
+# The dead-man's watch. A separate workflow with its own cron whose only job
+# is to notice that the bell has stopped speaking — if the main runs die
+# (broken fetch, bad merge, disabled schedule), data/latest.json goes stale
+# and this shouts. Deliberately minimal: fewer moving parts than the thing
+# it watches. Its blind spot is GitHub Actions itself being down, which is
+# what the external Healthchecks ping covers.
+
+on:
+  schedule:
+    - cron: "30 20 * * *"   # daily, ~1:30pm PDT / 12:30pm PST — offset from all main runs
+  workflow_dispatch: {}
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: The bell must have spoken within 30 hours
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+        run: |
+          python3 - <<'EOF'
+          import json, os, sys, urllib.request
+          from datetime import datetime, timezone
+          try:
+              with open("data/latest.json") as f:
+                  updated = datetime.fromisoformat(json.load(f)["updated"])
+              age_h = (datetime.now(timezone.utc)
+                       - updated.astimezone(timezone.utc)).total_seconds() / 3600
+          except Exception as e:
+              print("could not read latest.json: %s" % e)
+              age_h = 9e9
+          if age_h <= 30:
+              print("the bell spoke %.1f hours ago — alive" % age_h)
+              sys.exit(0)
+          topic = os.environ.get("NTFY_TOPIC")
+          if topic:
+              body = json.dumps({
+                  "topic": topic,
+                  "title": "The bell has gone silent 🔧",
+                  "message": "No scored run in %.0f hours. Check "
+                             "github.com/PacificVanguard/dive-alert/actions" % age_h,
+                  "priority": 5}).encode()
+              urllib.request.urlopen(
+                  urllib.request.Request("https://ntfy.sh", data=body,
+                                         headers={"Content-Type": "application/json"}),
+                  timeout=20)
+          sys.exit("stale: last run %.0f hours ago" % age_h)
+          EOF

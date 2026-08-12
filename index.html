@@ -161,6 +161,29 @@
   .cta-sub code { font-family: ui-monospace, Menlo, monospace; color: var(--glow);
                   font-size: .84rem; }
 
+  /* the joining */
+  .join { max-width: 520px; margin: 0 auto; padding: 2vh 0 10vh; }
+  .jstep { display: flex; gap: 18px; margin-bottom: 30px; }
+  .jn { flex: 0 0 34px; height: 34px; border: 1px solid rgba(255,217,138,.5);
+        border-radius: 50%; display: flex; align-items: center; justify-content: center;
+        color: var(--gold); font-family: ui-monospace, Menlo, monospace; font-size: .9rem; }
+  .jstep b { display: block; font-weight: normal; color: var(--sand); margin-bottom: 4px; }
+  .jstep span { color: var(--dim); font-size: .9rem; line-height: 1.6; display: block; }
+  .jstep span a { color: var(--glow); }
+  .jlinks { margin-top: 10px; display: flex; gap: 10px; }
+  .jlinks a { color: var(--glow); border: 1px solid rgba(127,212,255,.4);
+              border-radius: 999px; padding: 7px 18px; text-decoration: none;
+              font-size: .88rem; }
+  .addr { display: flex; gap: 10px; align-items: center; margin: 10px 0; }
+  .addr code { font-family: ui-monospace, Menlo, monospace; color: var(--glow);
+               background: rgba(10,42,74,.5); border: 1px solid rgba(127,212,255,.3);
+               border-radius: 8px; padding: 9px 14px; font-size: .92rem; }
+  .copy { font-family: ui-monospace, Menlo, monospace; font-size: .78rem;
+          letter-spacing: .1em; text-transform: uppercase; cursor: pointer;
+          color: var(--gold); background: none; border: 1px solid rgba(255,217,138,.5);
+          border-radius: 999px; padding: 8px 16px; }
+  .copy:hover { box-shadow: 0 0 18px rgba(255,217,138,.25); }
+
   /* the foundry mark — every true bell carries one */
   .foundry { padding: 0 0 9vh; text-align: center; }
   .foundry .mark { font-family: ui-monospace, Menlo, monospace; font-size: .74rem;
@@ -285,12 +308,35 @@
       </svg>
     </div>
     <div class="ringhint">ring it</div>
-    <a class="cta" href="https://ntfy.sh/laguna-dive-86dd82e0">Get on the bell</a>
-    <div class="cta-sub">Free · no account · ~one message a week<br>
-      In the <a href="https://apps.apple.com/app/ntfy/id1625396347">ntfy app</a>:
-      subscribe to <code>laguna-dive-86dd82e0</code><br>
-      No app? <a href="https://ntfy.sh/laguna-dive-86dd82e0">Open the bell in a
-      browser</a> and allow notifications — it rings there too.</div>
+    <a class="cta" href="#join">Get on the bell</a>
+    <div class="cta-sub">Free · no account · ~one message a week</div>
+  </div>
+
+  <!-- the joining: the whole ceremony happens here, on the bell's own ground -->
+  <div class="join" id="join">
+    <h2>Getting on the bell</h2>
+    <div class="jstep"><span class="jn">1</span>
+      <div><b>Get ntfy — the bell's messenger.</b>
+        <span>A small open-source app: free, no account, no tracking. It exists
+        so things like the bell can reach you without owning your data.</span>
+        <div class="jlinks">
+          <a href="https://apps.apple.com/app/ntfy/id1625396347">App Store</a>
+          <a href="https://play.google.com/store/apps/details?id=io.heckel.ntfy">Google Play</a>
+        </div></div></div>
+    <div class="jstep"><span class="jn">2</span>
+      <div><b>Tap +, and give it the bell&rsquo;s address.</b>
+        <div class="addr"><code id="topic">laguna-dive-86dd82e0</code>
+          <button class="copy" id="copybtn">copy</button></div>
+        <span>The strange string is deliberate — the bell&rsquo;s address is
+        unlisted, like a good dive spot. Only people who were told can listen,
+        and no one else can speak on it to you.</span></div></div>
+    <div class="jstep"><span class="jn">3</span>
+      <div><b>That&rsquo;s it. The welcome is already waiting.</b>
+        <span>It was cached the moment it was sent — subscribe and it appears.
+        On a computer or Android you can skip the app entirely:
+        <a href="https://ntfy.sh/laguna-dive-86dd82e0">open the bell&rsquo;s
+        channel</a> and allow notifications. On iPhone, the app is the way.</span>
+      </div></div>
   </div>
 
   <div class="foundry">
@@ -330,6 +376,16 @@
     } catch (e) {}
   }
   document.getElementById("bellwrap").addEventListener("click", () => strike(false));
+
+  // the address, one tap to take
+  document.getElementById("copybtn").addEventListener("click", () => {
+    navigator.clipboard.writeText(document.getElementById("topic").textContent)
+      .then(() => {
+        const b = document.getElementById("copybtn");
+        b.textContent = "copied ✓";
+        setTimeout(() => { b.textContent = "copy"; }, 2200);
+      }).catch(() => {});
+  });
 
   // the living page: the bell's true state, straight from the last run
   fetch("data/latest.json").then(r => r.json()).then(d => {

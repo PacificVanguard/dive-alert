@@ -1570,6 +1570,25 @@ def decide_alert(scored, t_now, state, zone_key="A"):
 # delivery + health
 # =====================================================================
 
+SENTINEL_RUNS = 6   # ~3 days at two runs a day
+
+def sentinel_update(state, fetches):
+    """The 20-year rule: a data source must not be able to die without a human
+    hearing about it. Buoys get decommissioned (46223 Dana Point did), APIs
+    move — and fail-soft would otherwise hide it forever. Tracks consecutive
+    failures per source and announces each outage exactly once, at the
+    threshold crossing; recovery silently resets."""
+    counts = state.setdefault("src_fail", {})
+    newly = []
+    for name, f in fetches.items():
+        if f.ok:
+            counts[name] = 0
+        else:
+            counts[name] = counts.get(name, 0) + 1
+            if counts[name] == SENTINEL_RUNS:
+                newly.append(name)
+    return newly
+
 def get_secret(name):
     v = os.environ.get(name)
     if v:
@@ -1770,6 +1789,13 @@ def cmd_run(args):
         for name, f in fetches.items():
             if not f.ok:
                 print("degraded: %s failed (%s)" % (name, f.error), file=sys.stderr)
+        for dead in sentinel_update(state, fetches):
+            notify({"title": "An instrument went quiet 🔧",
+                    "message": "%s has failed %d straight runs (~3 days). The bell "
+                               "scores on without it, at lower confidence. Worth a "
+                               "look: github.com/PacificVanguard/dive-alert/actions"
+                               % (dead, SENTINEL_RUNS),
+                    "priority": 4}, args.dry_run)
         if not swell_ok:
             print("zone %s: ALL swell sources failed" % zk, file=sys.stderr)
             continue
@@ -2614,6 +2640,24 @@ def cmd_test(args):
               not any(s["gate"] for s in scored_chaos))
         check("(r6) swell-dead rule would exit nonzero",
               not (fx_chaos["marine"].ok or fx_chaos["ndbc_primary"].ok))
+
+    # (z) THE 20-YEAR RULE: a dying source announces itself exactly once.
+    st_z = {}
+    fx_dead = {"ndbc_primary": Fetch("ndbc_primary", False, error="gone"),
+               "marine": Fetch("marine", True, {})}
+    fired = []
+    for i in range(SENTINEL_RUNS + 3):
+        fired += sentinel_update(st_z, fx_dead)
+    check("(z) outage announced exactly once at run %d" % SENTINEL_RUNS,
+          fired == ["ndbc_primary"], "fired=%s" % fired)
+    fx_back = {"ndbc_primary": Fetch("ndbc_primary", True, {"x": 1}),
+               "marine": Fetch("marine", True, {})}
+    sentinel_update(st_z, fx_back)
+    check("(z2) recovery resets the counter", st_z["src_fail"]["ndbc_primary"] == 0)
+    fired2 = []
+    for i in range(SENTINEL_RUNS):
+        fired2 += sentinel_update(st_z, fx_dead)
+    check("(z3) a second outage announces again", fired2 == ["ndbc_primary"])
 
     # fixture suite: degraded + disagreement
     print("fixture tests:")
