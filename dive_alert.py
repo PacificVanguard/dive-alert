@@ -343,8 +343,10 @@ CONFIG = {
                          "light — every dawn and dusk on Laguna's coves, scored out of 10.\n"
                          "Most mornings it says nothing. That's the discipline.\n"
                          "Wednesdays at 7am it reads you the week. When a window's worth "
-                         "the drive, you get a day or two of warning. And some 21 mornings "
-                         "a year — flat, glass, dry, sun, warm, all at once — it rings.\n"
+                         "the drive, you get a day or two of warning. And a dozen mornings "
+                         "a year — flat, glass, dry, sun, warm, all at once — the ocean "
+                         "says yes, and it rings. Twenty-one in a good year; an El Niño "
+                         "winter might allow five.\n"
                          "When you surface, tell the bell what the water gave you:\n"
                          "👀 the whole reef · 🙂 your buddy · 🌫 just your fins"),
         # SST °F -> what wetsuit to throw in the car

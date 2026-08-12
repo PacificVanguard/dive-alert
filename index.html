@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Dive Bell</title>
-<meta name="description" content="It rings a dozen-some mornings a year. A bell for the coves of Laguna Beach, cast from open ocean data. One of one.">
+<meta name="description" content="Three hundred and fifty mornings a year, the bell keeps its silence. A dozen mornings, the ocean says yes — and it rings. Cast for the coves of Laguna Beach. One of one.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 4 C 8 4 5 12 5 20 L 5 25 L 27 25 L 27 20 C 27 12 24 4 16 4 Z' fill='%230a2a4a' stroke='%237fd4ff' stroke-width='1.6'/%3E%3Ccircle cx='16' cy='29' r='2.2' fill='%23ffd98a'/%3E%3C/svg%3E">
 <style>
   :root {
@@ -206,8 +206,8 @@
   <div class="surface">
     <div class="eyebrow" id="eyebrow">Laguna Beach</div>
     <h1 id="state">The bell is quiet.</h1>
-    <div class="state-sub" id="statesub">It rings a dozen-some mornings a year.
-      This is not one of them.</div>
+    <div class="state-sub" id="statesub">Three hundred and fifty mornings a year,
+      the bell keeps its silence. This is one of them.</div>
     <div class="state-live" id="statelive"></div>
     <a class="down" href="#descend">▾</a>
   </div>
@@ -410,7 +410,7 @@
       document.body.classList.add("ringing");
       document.getElementById("state").textContent = "The bell is ringing.";
       document.getElementById("statesub").textContent =
-        "It rings a dozen-some mornings a year. This is one of them.";
+        "A dozen mornings a year, the ocean says yes. This is one of them.";
       document.getElementById("statelive").textContent =
         gd.label + " — everything just lined up. " + gd.entries.join(" or ") + ". Go.";
       if (!matchMedia("(prefers-reduced-motion: reduce)").matches)
