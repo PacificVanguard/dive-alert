@@ -2241,10 +2241,105 @@ def cmd_validate(args):
     scale = CONFIG["scoring"]["model_height_scale"]
     suggested = round(mo / mm, 2) if mm else 1.0
     print("  model_height_scale: current %.2f, data suggests %.2f" % (scale, suggested))
-    if abs(bias_pct) > 10:
-        print("  → bias exceeds 10%%: set CONFIG['scoring']['model_height_scale'] = %.2f" % suggested)
+    breach = abs(suggested - scale) / scale > 0.10
+    if breach:
+        print("  → drift past 10%% of current scale: consider model_height_scale = %.2f" % suggested)
     else:
-        print("  → bias within 10%: leave model_height_scale at 1.0")
+        print("  → within 10% of current scale; leave it")
+
+    # The 20-year memory: every validation appends to a drift log, so 'has the
+    # upstream model quietly changed?' is a chart, not a recollection.
+    append_log(os.path.join(DATA, "drift_log.csv"),
+               ["date", "n_hours", "buoy_ft", "model_ft", "bias_pct", "mae_ft",
+                "r", "scale_current", "scale_suggested"],
+               [{"date": now_pt().date().isoformat(), "n_hours": n,
+                 "buoy_ft": round(m_to_ft(mo), 2), "model_ft": round(m_to_ft(mm), 2),
+                 "bias_pct": round(bias_pct, 1), "mae_ft": round(mae_ft, 2),
+                 "r": round(corr(0, 1), 3), "scale_current": scale,
+                 "scale_suggested": suggested}], dry_run=False)
+    if breach and getattr(args, "notify", False):
+        notify({"title": "The bell's ear is drifting 🔎",
+                "message": "Swell model vs buoy %s: bias %+.0f%% over %d hours. "
+                           "Current height scale %.2f, data suggests %.2f. "
+                           "See data/drift_log.csv." % (st, bias_pct, n, scale, suggested),
+                "priority": 4}, dry_run=False)
+
+
+# =====================================================================
+# report — the recursive ratchet: promises vs. what the water gave
+# =====================================================================
+
+PROMISE_ORDER = {"clear": 2, "fair": 1, "murk": 0}
+
+
+def promise_tier(score):
+    """What the alert's sensory line promised: >=8 'see it all' territory,
+    >=7 'see your buddy'. Below 7 nothing was promised, nothing is graded."""
+    return "clear" if score >= 8.0 else ("fair" if score >= 7.0 else None)
+
+
+def verdict_tier(viz_ft):
+    return "clear" if viz_ft >= 18 else ("fair" if viz_ft >= 8 else "murk")
+
+
+def promise_kept(score, viz_ft):
+    p = promise_tier(score)
+    if p is None:
+        return None
+    return PROMISE_ORDER[verdict_tier(viz_ft)] >= PROMISE_ORDER[p]
+
+
+def cmd_report(args):
+    """The learning loop's ratchet: grade every promise against every verdict,
+    surface miscalibration as a PROPOSAL for a human to act on — never a
+    silent self-edit. Sparse noisy labels + selection bias make full autotune
+    a trap: you only dive on days the bell praised, so it can never learn it
+    was wrong about the days it dismissed. This names that, too."""
+    dives = _read_csv(DIVE_LOG)
+    hist = {r["window_key"]: r for r in _read_csv(LOG_PATH) if r.get("window_key")}
+    graded, low_side = [], 0
+    for d in dives:
+        wk = None
+        for tok in (d.get("notes") or "").split():
+            if tok.startswith("window:"):
+                wk = tok.split(":", 1)[1]
+        row = hist.get(wk)
+        if row is None:
+            continue
+        score, viz = float(row["score"]), float(d["viz_ft"])
+        if score < 7.0:
+            low_side += 1
+        kept = promise_kept(score, viz)
+        if kept is not None:
+            graded.append((score, viz, kept))
+    n = len(graded)
+    print("THE BELL'S RECORD — %d graded promises, %d verdicts total" % (n, len(dives)))
+    if n < 10:
+        print("  the ratchet needs ~10 graded promises before it speaks (has %d)" % n)
+        return
+    for band, lo, hi in (("clear (8.0+)", 8.0, 99), ("fair (7.0-7.9)", 7.0, 8.0)):
+        g = [k for s, v, k in graded if lo <= s < hi]
+        if g:
+            print("  promised %-15s n=%2d  kept %3.0f%%" % (band, len(g), 100 * sum(g) / len(g)))
+    kept_rate = sum(k for _, _, k in graded) / n
+    proposals = []
+    if kept_rate < 0.5:
+        proposals.append("Promises kept under half the time — the score runs hot. "
+                         "Raise surf_penalty ~10% or min_score, rebuild hindcast, re-tune.")
+    elif kept_rate > 0.9 and n >= 15:
+        proposals.append("Promises kept over 90% — the bell may be too shy. "
+                         "Consider easing surf_penalty ~5%.")
+    if low_side == 0 and len(dives) >= 6:
+        proposals.append("Every verdict comes from a day the bell praised — it can never "
+                         "learn it was wrong about the days it dismissed. One dive on a "
+                         "5-6 day would teach it more than five on ringing days.")
+    for p in proposals:
+        print("  PROPOSAL: " + p)
+    if proposals and getattr(args, "notify", False):
+        notify({"title": "The bell's council 🔎",
+                "message": ("%d promises graded, %.0f%% kept.\n" % (n, 100 * kept_rate))
+                           + "\n".join(proposals[:2]),
+                "priority": 3}, dry_run=False)
 
 
 # =====================================================================
@@ -2659,6 +2754,13 @@ def cmd_test(args):
         fired2 += sentinel_update(st_z, fx_dead)
     check("(z3) a second outage announces again", fired2 == ["ndbc_primary"])
 
+    # (bb) THE RATCHET grades promises against verdicts, and only where a
+    # promise was actually made.
+    check("(bb) 8.6 + saw-it-all = kept", promise_kept(8.6, 25.0) is True)
+    check("(bb2) 8.6 + saw-buddy = broken", promise_kept(8.6, 12.0) is False)
+    check("(bb3) 7.2 + saw-buddy = kept", promise_kept(7.2, 12.0) is True)
+    check("(bb4) no promise below 7, nothing graded", promise_kept(6.4, 25.0) is None)
+
     # fixture suite: degraded + disagreement
     print("fixture tests:")
     for name in ("degraded", "disagreement"):
@@ -2713,7 +2815,10 @@ def main():
     sub.add_parser("backtest")
     sub.add_parser("test")
     sub.add_parser("record-fixtures")
-    sub.add_parser("validate")
+    p_val = sub.add_parser("validate")
+    p_val.add_argument("--notify", action="store_true")
+    p_rep = sub.add_parser("report")
+    p_rep.add_argument("--notify", action="store_true")
     sub.add_parser("ingest")
     sub.add_parser("share")
     p_setup = sub.add_parser("setup")
@@ -2748,6 +2853,8 @@ def main():
         cmd_record_fixtures(args)
     elif args.cmd == "validate":
         cmd_validate(args)
+    elif args.cmd == "report":
+        cmd_report(args)
     elif args.cmd == "setup":
         cmd_setup(args)
     elif args.cmd == "share":
