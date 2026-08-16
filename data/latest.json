@@ -1,34 +1,12 @@
 {
- "updated": "2026-08-15T04:00:00-07:00",
+ "updated": "2026-08-16T04:00:00-07:00",
  "zone": "A",
  "sst_f": 74,
  "windows": [
   {
-   "label": "Sat dawn",
-   "start": "2026-08-15T05:43:00-07:00",
-   "score": 4.8,
-   "conf": "medium",
-   "entries": [
-    "Shaw's Cove",
-    "Divers Cove"
-   ],
-   "gate": false
-  },
-  {
-   "label": "Sat dusk",
-   "start": "2026-08-15T17:37:00-07:00",
-   "score": 2.6,
-   "conf": "medium",
-   "entries": [
-    "Shaw's Cove",
-    "Divers Cove"
-   ],
-   "gate": false
-  },
-  {
    "label": "Sun dawn",
    "start": "2026-08-16T05:44:00-07:00",
-   "score": 3.7,
+   "score": 4.7,
    "conf": "medium",
    "entries": [
     "Shaw's Cove",
@@ -39,7 +17,7 @@
   {
    "label": "Sun dusk",
    "start": "2026-08-16T17:36:00-07:00",
-   "score": 2.3,
+   "score": 2.8,
    "conf": "medium",
    "entries": [
     "Shaw's Cove",
@@ -50,7 +28,7 @@
   {
    "label": "Mon dawn",
    "start": "2026-08-17T05:45:00-07:00",
-   "score": 5.4,
+   "score": 4.6,
    "conf": "medium",
    "entries": [
     "Shaw's Cove",
@@ -61,11 +39,33 @@
   {
    "label": "Mon dusk",
    "start": "2026-08-17T17:34:00-07:00",
-   "score": 4.3,
+   "score": 3.9,
    "conf": "medium",
    "entries": [
     "Shaw's Cove",
     "Divers Cove"
+   ],
+   "gate": false
+  },
+  {
+   "label": "Tue dawn",
+   "start": "2026-08-18T05:45:00-07:00",
+   "score": 4.2,
+   "conf": "medium",
+   "entries": [
+    "Fisherman's Cove",
+    "Shaw's Cove"
+   ],
+   "gate": false
+  },
+  {
+   "label": "Tue dusk",
+   "start": "2026-08-18T17:33:00-07:00",
+   "score": 3.6,
+   "conf": "medium",
+   "entries": [
+    "Fisherman's Cove",
+    "Shaw's Cove"
    ],
    "gate": false
   }
