@@ -205,15 +205,10 @@ CONFIG = {
         },
         "E": {
             "name": "Monterey",
-            # CASTING FAILED 2026-08-17: median 1.4, only 5% >=7 — far outside
-            # the honesty band. Likely cause: the Open-Meteo grid point sees
-            # full NW ocean swell that the peninsula actually blocks, so the
-            # exposure map needs to be far lower (or the marine point moved
-            # inside the bay) before this bell can be trusted. Benched until a
-            # real calibration session; config preserved. hindcast_E.csv holds
-            # the evidence. This is the covenant working: a bell that cannot
-            # read its water does not get to speak.
-            "enabled": False,
+            # First casting FAILED (median 1.4, 5% >=7) and the bell was
+            # benched — see marine_height_scale below for the diagnosis and
+            # the mechanism that recast it. hindcast_E.csv holds both pours.
+            "enabled": True,
             # BELL No.4 — cast 2026-08-17. The first bell of a NEW WATER
             # FAMILY: bay-sheltered and cold. The peninsula blocks the south
             # entirely and blunts the NW; and 55°F is a fine morning here, so
@@ -227,6 +222,16 @@ CONFIG = {
             "offshore_dir": 190,          # land lies south of the breakwater shore
             "cove_damage_factor": 0.50,   # famously protected inside the bay
             "perfect_gate_overrides": {"min_sst_c": 11.5},   # ~53°F: warm, for Monterey
+            # THE BAY MECHANISM (2026-08-17): every candidate model point snaps
+            # to one coarse grid cell that reports ~4.4ft mean where the
+            # Breakwater famously sits at 1-2ft — inside-bay shelter is
+            # sub-grid, invisible to the model. This scale says "the model
+            # overstates this water's height by ~half" and feeds BOTH damage
+            # and the turbidity memory. Fit on the failed casting's own
+            # evidence: s=0.55 → 27% >=7, med 5.5, mid-band with slack both
+            # ways (in-band range was 0.50-0.70, not a knife-edge).
+            # CALIBRATION: first verdicts from a Monterey keeper judge it.
+            "marine_height_scale": 0.55,
             "lat": 36.611, "lon": -121.898,
             # North-facing shore inside the bay: only wrapped NW-N energy
             # arrives. CALIBRATION: drafted from geometry, unconfirmed by a local.
@@ -998,7 +1003,7 @@ def window_hours(w):
     return out or [w["start"].replace(minute=0)]
 
 
-def swell_damage(marine, w, exposure_map, cove_factor=1.0):
+def swell_damage(marine, w, exposure_map, cove_factor=1.0, h_scale=1.0):
     """Mean over window hours of h_ft^2 * period_factor * exposure, swell and
     wind-wave partitions scored jointly then summed — height, period and
     direction always interact, never scored independently."""
@@ -1010,7 +1015,7 @@ def swell_damage(marine, w, exposure_map, cove_factor=1.0):
         sh = marine.get("swell_wave_height", {}).get(t)
         sp = marine.get("swell_wave_period", {}).get(t)
         sd = marine.get("swell_wave_direction", {}).get(t)
-        scale = CONFIG["scoring"]["model_height_scale"]
+        scale = CONFIG["scoring"]["model_height_scale"] * h_scale
         if sh is not None and sp is not None and sd is not None:
             d += (m_to_ft(sh) * scale) ** 2 * piecewise(sp, pf) * piecewise(sd % 360, exposure_map)
             parts["hgt_ft"] += m_to_ft(sh) * scale; parts["per_s"] += sp; parts["dir"] += sd
@@ -1066,14 +1071,16 @@ def compute_features(w, fetches, zone_cfg, t_now):
             h, p = swell_series.get(t), swell_per.get(t)
             if h is not None and p is not None:
                 age = (anchor - t).total_seconds() / 3600.0
-                total += (0.5 ** (age / fc["swell_half_life_h"])) * (m_to_ft(h) ** 2) * p
+                hs = m_to_ft(h) * zone_cfg.get("marine_height_scale", 1.0)
+                total += (0.5 ** (age / fc["swell_half_life_h"])) * (hs ** 2) * p
             t += timedelta(hours=1)
         return total
 
     swell_e = swell_fn_pair()
     dry = dry_hours(precip, w["start"], fc["rain_lookback_h"], fc["rain_threshold_in"]) if precip else None
     dmg, dmg_parts = swell_damage(marine, w, zone_cfg["exposure"],
-                                  zone_cfg.get("cove_damage_factor", 1.0))
+                                  zone_cfg.get("cove_damage_factor", 1.0),
+                                  zone_cfg.get("marine_height_scale", 1.0))
     wind_in_window = [wind.get(t) for t in window_hours(w)]
     wind_in_window = [v for v in wind_in_window if v is not None]
     wind_eff_window = [wind_eff.get(t) for t in window_hours(w)]
@@ -2990,6 +2997,18 @@ def cmd_test(args):
     check("(bb2) 8.6 + saw-buddy = broken", promise_kept(8.6, 12.0) is False)
     check("(bb3) 7.2 + saw-buddy = kept", promise_kept(7.2, 12.0) is True)
     check("(bb4) no promise below 7, nothing graded", promise_kept(6.4, 25.0) is None)
+
+    # (dd) THE BAY MECHANISM: a zone's height scale must damp both the surf
+    # term and the turbidity memory — sub-grid shelter the model can't see.
+    zc_bay = dict(zc, marine_height_scale=0.5)
+    f_bay = _mk_fetches(t0, swell_ft=3.0, per_s=10, dir_deg=190, wind_kn=4)
+    ft_open = compute_features(w, f_bay, zc, t0)
+    ft_shel = compute_features(w, f_bay, zc_bay, t0)
+    check("(dd) height scale damps damage ~4x",
+          0.2 <= ft_shel["damage"] / ft_open["damage"] <= 0.3,
+          "open=%.1f bay=%.1f" % (ft_open["damage"], ft_shel["damage"]))
+    check("(dd2) and the turbidity memory too",
+          0.2 <= ft_shel["swell_energy_72h"] / ft_open["swell_energy_72h"] <= 0.3)
 
     # fixture suite: degraded + disagreement
     print("fixture tests:")

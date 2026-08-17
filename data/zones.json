@@ -1,5 +1,5 @@
 {
- "updated": "2026-08-17T11:00:00-07:00",
+ "updated": "2026-08-17T13:00:00-07:00",
  "zones": {
   "A": {
    "keeper": "Curtis",
@@ -251,6 +251,91 @@
      "entries": [
       "La Jolla Cove",
       "La Jolla Shores (Canyon)"
+     ],
+     "gate": false
+    }
+   ]
+  },
+  "E": {
+   "keeper": null,
+   "record": {
+    "promises": 0,
+    "rings": 0
+   },
+   "bell": {
+    "no": 4,
+    "name": "Monterey",
+    "cast": "2026-08-17"
+   },
+   "tier": "provisional",
+   "topic": "monterey-dive-d01f1d8e",
+   "name": "Monterey",
+   "last_ring": null,
+   "sst_f": 62,
+   "windows": [
+    {
+     "label": "Mon dusk",
+     "start": "2026-08-17T17:56:00-07:00",
+     "score": 7.3,
+     "conf": "medium",
+     "entries": [
+      "McAbee Beach",
+      "Breakwater (San Carlos)"
+     ],
+     "gate": false
+    },
+    {
+     "label": "Tue dawn",
+     "start": "2026-08-18T05:57:00-07:00",
+     "score": 7.4,
+     "conf": "medium",
+     "entries": [
+      "McAbee Beach",
+      "Breakwater (San Carlos)"
+     ],
+     "gate": false
+    },
+    {
+     "label": "Tue dusk",
+     "start": "2026-08-18T17:54:00-07:00",
+     "score": 6.6,
+     "conf": "medium",
+     "entries": [
+      "McAbee Beach",
+      "Breakwater (San Carlos)"
+     ],
+     "gate": false
+    },
+    {
+     "label": "Wed dawn",
+     "start": "2026-08-19T05:58:00-07:00",
+     "score": 6.7,
+     "conf": "medium",
+     "entries": [
+      "Breakwater (San Carlos)",
+      "McAbee Beach"
+     ],
+     "gate": false
+    },
+    {
+     "label": "Wed dusk",
+     "start": "2026-08-19T17:53:00-07:00",
+     "score": 5.4,
+     "conf": "medium",
+     "entries": [
+      "Breakwater (San Carlos)",
+      "McAbee Beach"
+     ],
+     "gate": false
+    },
+    {
+     "label": "Thu dawn",
+     "start": "2026-08-20T05:59:00-07:00",
+     "score": 6.3,
+     "conf": "low",
+     "entries": [
+      "Breakwater (San Carlos)",
+      "McAbee Beach"
      ],
      "gate": false
     }

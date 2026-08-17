@@ -1,5 +1,16 @@
 {
- "streaks": {},
+ "streaks": {
+  "E": {
+   "score": 7.4,
+   "entries": [
+    "McAbee Beach",
+    "Breakwater (San Carlos)"
+   ],
+   "window_key": "20260818T0557-dawn",
+   "since": "2026-08-17T13:00:00-07:00",
+   "gate": false
+  }
+ },
  "last_tip_id": "sh2",
  "src_fail": {
   "marine": 0,
@@ -17,7 +28,7 @@
   "A:ndbc_offshore": 0,
   "A:tides": 0,
   "A:sst": 0,
-  "A:chla": 2,
+  "A:chla": 3,
   "A:kd490": 0,
   "A:ndbc_spec": 0,
   "C:marine": 0,
@@ -26,7 +37,7 @@
   "C:ndbc_offshore": 0,
   "C:tides": 0,
   "C:sst": 0,
-  "C:chla": 2,
+  "C:chla": 3,
   "C:kd490": 0,
   "C:ndbc_spec": 0,
   "D:marine": 0,
@@ -37,7 +48,16 @@
   "D:sst": 0,
   "D:chla": 0,
   "D:kd490": 0,
-  "D:ndbc_spec": 0
+  "D:ndbc_spec": 0,
+  "E:marine": 0,
+  "E:weather": 0,
+  "E:ndbc_primary": 1,
+  "E:ndbc_offshore": 0,
+  "E:tides": 0,
+  "E:sst": 0,
+  "E:chla": 1,
+  "E:kd490": 0,
+  "E:ndbc_spec": 1
  },
  "fb_since_by_zone": {},
  "record": {
@@ -50,8 +70,13 @@
    "rings": 0
   },
   "D": {
+   "promises": 1,
+   "rings": 0
+  },
+  "E": {
    "promises": 0,
    "rings": 0
   }
- }
+ },
+ "hook_idx": 1
 }
