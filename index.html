@@ -94,6 +94,13 @@
   .day .d { color: var(--dim); font-size: .78rem;
             font-family: ui-monospace, Menlo, monospace; }
   .day .s { font-size: 1.4rem; margin-top: 3px; }
+  .day .lim { display: block; margin-top: 5px; color: var(--dim); font-size: .68rem;
+              font-family: ui-monospace, Menlo, monospace; letter-spacing: .06em; }
+  .day.hot .lim { color: rgba(255,217,138,.8); }
+  .legend { color: var(--dim); font-size: .88rem; line-height: 1.6; margin-bottom: 20px;
+            max-width: 52ch; }
+  .legend b { color: var(--sand); font-weight: normal; }
+  .smssoon { color: var(--dim); font-size: .85rem; font-style: italic; }
   .day.hot { border-color: rgba(255,217,138,.75);
              box-shadow: 0 0 22px rgba(255,217,138,.16); }
   .day.hot .s { color: var(--gold); }
@@ -244,9 +251,7 @@
     <div style="margin-top:18px;font-size:.92rem">
       <a href="#join" style="color:var(--glow);text-decoration:none;
         border-bottom:1px solid rgba(127,212,255,.35)">get on this bell ↓</a>
-      <span style="color:var(--dim)"> &nbsp;·&nbsp; or text its name to
-        <a href="sms:+18338582355" style="color:var(--gold);text-decoration:none;
-        border-bottom:1px solid rgba(255,217,138,.35)">833-858-BELL</a></span></div>
+      <span id="smsline" style="color:var(--dim)"></span></div>
     <a class="down" href="#descend">▾</a>
   </div>
 
@@ -284,6 +289,10 @@
   <div class="report" id="week" style="display:none">
     <span class="depth">40 ft</span>
     <h2>The surface report</h2>
+    <div class="legend">Each dawn and dusk, scored out of 10 — swell height and
+      period, wind and its direction, rain in the creeks, the tide, the light.
+      <b>7</b> is worth the drive. <b>8.5</b> with every card aligned is the
+      ring. Below <b>5</b>, the ocean is saying no.</div>
     <div class="strip" id="strip"></div>
     <div class="weeknote" id="weeknote"></div>
   </div>
@@ -360,14 +369,9 @@
   <!-- the joining: the whole ceremony happens here, on the bell's own ground -->
   <div class="join" id="join">
     <h2>Getting on the bell</h2>
-    <div class="jstep"><span class="jn">☎</span>
-      <div><b>By text — the short way.</b>
-        <span>Text the name of your water to <a href="sms:+18338582355"
-        style="color:var(--gold)">833-858-BELL</a> and you&rsquo;re on. No app, no account.
-        About 15 messages a year; reply STOP to end any time. Msg &amp; data rates may apply.
-        <a href="/sms/">How it works →</a></span>
-        <div class="addr"><code>LAGUNA</code><code>MONTEREY</code><code>MAUI</code>
-          <code>SYDNEY</code></div></div></div>
+    <div class="jstep" id="jsms"><span class="jn">☎</span>
+      <div><b id="jsmsh">By text — the short way.</b>
+        <span id="jsmsb"></span></div></div>
     <div class="jstep"><span class="jn">1</span>
       <div><b>Get ntfy — the bell's messenger.</b>
         <span>A small open-source app: free, no account, no tracking. It exists
@@ -519,8 +523,10 @@
       const w = st.best[day];
       const el = document.createElement("div");
       el.className = "day" + (w.gate || w.score >= 7 ? " hot" : "");
-      el.innerHTML = "<div class='d'>" + w.label.split(" ")[0] + "</div><div class='s'>" +
-        w.score.toFixed(1) + (w.gate ? " ✨" : "") + "</div>";
+      el.innerHTML = "<div class='d'>" + w.label.split(" ")[0] +
+        (w.kind ? " " + w.kind : "") + "</div><div class='s'>" +
+        w.score.toFixed(1) + (w.gate ? " ✨" : "") + "</div>" +
+        (w.limit ? "<span class='lim'>" + w.limit + "</span>" : "");
       strip.appendChild(el);
     });
     document.getElementById("weeknote").textContent = st.top && st.top.score >= 7
@@ -594,8 +600,30 @@
     return ORDER[0];
   }
 
+  function smsCopy(live) {
+    const line = document.getElementById("smsline");
+    const h = document.getElementById("jsmsh"), b = document.getElementById("jsmsb");
+    if (live) {
+      line.innerHTML = " &nbsp;·&nbsp; or text its name to <a href='sms:+18338582355' " +
+        "style='color:var(--gold);text-decoration:none;border-bottom:1px solid " +
+        "rgba(255,217,138,.35)'>833-858-BELL</a>";
+      h.textContent = "By text — the short way.";
+      b.innerHTML = "Text the name of your water to <a href='sms:+18338582355' " +
+        "style='color:var(--gold)'>833-858-BELL</a> and you're on. No app, no account. " +
+        "About 15 messages a year; reply STOP to end any time. Msg &amp; data rates may " +
+        "apply. <a href='/sms/'>How it works →</a>";
+    } else {
+      line.innerHTML = "";
+      h.textContent = "By text — soon.";
+      b.innerHTML = "<span class='smssoon'>The bell has its number — 833-858-BELL — and " +
+        "is waiting on carrier verification before it can answer. Until then, the app " +
+        "below is the way in.</span> <a href='/sms/'>What&rsquo;s coming →</a>";
+    }
+  }
+
   fetch("data/zones.json").then(r => r.json()).then(d => {
     BELLS = d.zones;
+    smsCopy(!!d.sms_live);
     ORDER = Object.keys(BELLS).sort((a, b) => (BELLS[a].bell.no || 9) - (BELLS[b].bell.no || 9));
     if (!location.hash) {
       const n = nearestKey();

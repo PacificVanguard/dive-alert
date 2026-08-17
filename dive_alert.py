@@ -702,6 +702,11 @@ CONFIG = {
         "model_height_scale": 1.13,
     },
 
+    # Flip to True the day carrier verification clears. Until then the site
+    # must not invite anyone to text a number that cannot answer — a broken
+    # promise on the signup page poisons a product built on kept ones.
+    "sms_live": False,
+
     # ---- the conjunction gate: what "perfect" means --------------------
     # A weighted average lets one strong axis hide a fatal one — which is how
     # this model produced 9.0s on days the satellite said were murky. Perfection
@@ -1938,6 +1943,26 @@ def perfect_gate(feats, score, sst_c, zone_cfg=None):
     return (not failed), failed
 
 
+# What is holding this window back, in one plain word. The score answers
+# "how good"; this answers "why not better" — the thing a diver actually
+# reads a forecast for.
+LIMIT_WORDS = {"surf": "swell", "turbidity": "stirred up", "wind_hist": "recent wind",
+               "wind_now": "wind", "light": "grey", "tide_mix": "big tide"}
+
+
+def limiting_factor(breakdown, cap_reason, score):
+    if cap_reason and "rain" in cap_reason:
+        return "rain"
+    if cap_reason and "wind" in cap_reason:
+        return "wind"
+    if score >= 8.5:
+        return "all clear"
+    if not breakdown:
+        return None
+    worst = max(breakdown.items(), key=lambda kv: kv[1])
+    return LIMIT_WORDS.get(worst[0]) if worst[1] >= 0.5 else "all clear"
+
+
 def best_of(scored):
     return max((s["score"] for s in scored), default=0.0)
 
@@ -2427,6 +2452,7 @@ def score_zone(zone_key, zone_cfg, fetches, t_now, horizon_h=72):
         if zone_cfg.get("tier") == "provisional":
             gate_ok = False
         scored.append({"zone": zone_key, "w": w, "score": score, "feats": feats,
+                       "limit": limiting_factor(breakdown, cap_reason, score),
                        "breakdown": breakdown, "cap_reason": cap_reason, "flags": flags,
                        "conf": conf_word, "completeness": comp, "agreement": agree,
                        "conf_notes": notes, "entries": entries, "tide_fyi": tide_fyi,
@@ -2558,7 +2584,9 @@ def cmd_run(args):
             "sst_f": round(sst * 9 / 5 + 32) if sst is not None else None,
             "windows": [{"label": s["w"]["label"],
                          "start": s["w"]["start"].isoformat(),
+                         "kind": s["w"].get("kind", "dawn"),
                          "score": s["score"], "conf": s["conf"],
+                         "limit": s.get("limit"),
                          "entries": s["entries"][:2],
                          "gate": bool(s.get("gate"))} for s in scored],
         }
@@ -2568,7 +2596,9 @@ def cmd_run(args):
     if not args.dry_run and board:
         os.makedirs(DATA, exist_ok=True)
         with open(os.path.join(DATA, "zones.json"), "w") as jf:
-            json.dump({"updated": t_now.isoformat(), "zones": board}, jf, indent=1)
+            json.dump({"updated": t_now.isoformat(),
+                       "sms_live": CONFIG.get("sms_live", False),
+                       "zones": board}, jf, indent=1)
         first = board.get("A") or list(board.values())[0]
         with open(os.path.join(DATA, "latest.json"), "w") as jf:
             json.dump({"updated": t_now.isoformat(), "zone": "A",
