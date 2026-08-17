@@ -47,6 +47,14 @@ CONFIG = {
         "A": {
             "name": "Laguna",
             "enabled": True,
+            # Every bell is individually cast and named. Topics are public by
+            # design (they're printed on the site); the NTFY_TOPIC secret
+            # remains as an override for Zone A only, for continuity.
+            "bell": {"no": 1, "name": "Laguna Beach", "cast": "2026-08-11"},
+            "topic": "laguna-dive-86dd82e0",
+            # sworn = buoy-validated + hindcast-fitted; its gate may ring.
+            # provisional = newly cast; it watches and speaks but cannot ring.
+            "tier": "sworn",
             "lat": 33.542, "lon": -117.785,   # Open-Meteo query point, just offshore of Heisler
             # Direction exposure map: swell direction (deg true, coming-from) -> 0..1
             # exposure of the Laguna coves. Coast faces ~SW; strong S/SW exposure,
@@ -129,7 +137,19 @@ CONFIG = {
         },
         "C": {
             "name": "Dana Point",
-            "enabled": False,
+            "enabled": True,
+            # BELL No. 2 — cast 2026-08-17. Provisional: no local diver has
+            # confirmed its water, so its gate is locked shut until it is
+            # sworn (buoy check + first verdicts). It scores, digests and
+            # alerts, and says on its plate that it is still earning its ring.
+            "bell": {"no": 2, "name": "Dana Point", "cast": "2026-08-17"},
+            "topic": "danapoint-dive-8952a5b5",
+            "tier": "provisional",
+            "offshore_dir": 40,
+            # Salt Creek is open beach, the headland shelters less than
+            # Laguna's pocket coves — less protection than Laguna's 0.62.
+            # CALIBRATION: set from the casting hindcast; retune on verdicts.
+            "cove_damage_factor": 0.75,
             "lat": 33.460, "lon": -117.714,
             "exposure": [(0, 0.10), (90, 0.20), (157, 0.70), (180, 1.00),
                          (220, 1.00), (245, 0.90), (270, 0.55), (285, 0.35),
@@ -138,9 +158,11 @@ CONFIG = {
                 {"name": "Salt Creek", "depth_ft": 20, "take_allowed": False, "creek_adjacent": True,
                  "shelter": 0.0, "tide": "any",
                  "entry": "long beach walk", "note": "Dana Point SMCA — VERIFY current take rules"},
-                {"name": "Dana Point Harbor breakwall (outside)", "depth_ft": 30, "take_allowed": True,
+                # take_allowed stays False until CDFW rules are verified in
+                # person — an unverified True would wake the take machinery.
+                {"name": "Dana Point Harbor breakwall (outside)", "depth_ft": 30, "take_allowed": False,
                  "creek_adjacent": False, "shelter": 0.2, "tide": "any",
-                 "entry": "boat or long swim", "note": "VERIFY take rules + season before enabling"},
+                 "entry": "boat or long swim", "note": "VERIFY take rules before flipping take_allowed"},
             ],
         },
     },
@@ -417,6 +439,20 @@ CONFIG = {
              "text": "Time the shorebreak slot between sets; fins on past the outcrop."},
             {"id": "wo3", "viz": "any", "surge": "low", "tide": "any", "season": "winter", "lane": "photo",
              "text": "Winter storms rearrange the sand — new ledges show up; hunt fresh exposures."},
+        ],
+        "Salt Creek": [
+            {"id": "sc1", "viz": "any", "surge": "low", "tide": "any", "season": "any", "lane": "sightsee",
+             "text": "Work the reef fingers off the point — the structure runs deeper than it looks."},
+            {"id": "sc2", "viz": "any", "surge": "any", "tide": "low", "season": "any", "lane": "entry",
+             "text": "Long walk, soft sand — stage your gear high and time the shorebreak."},
+            {"id": "sc3", "viz": "high", "surge": "low", "tide": "any", "season": "winter", "lane": "photo",
+             "text": "Winter sun on the headland wall — shoot the ledges side-lit, morning only."},
+        ],
+        "Dana Point Harbor breakwall (outside)": [
+            {"id": "db1", "viz": "any", "surge": "low", "tide": "any", "season": "any", "lane": "sightsee",
+             "text": "The outer rocks stack bass and lobster-watchers — follow the wall, don't cross it."},
+            {"id": "db2", "viz": "any", "surge": "any", "tide": "any", "season": "any", "lane": "skills",
+             "text": "Boat traffic overhead — fly a flag, surface close to the wall, listen up."},
         ],
         "Cleo Street barge": [
             {"id": "cl1", "viz": "high", "surge": "low", "tide": "any", "season": "any", "lane": "sightsee",
@@ -1349,9 +1385,9 @@ def superlative(score, t_now, hist=None):
 
 
 def render_alert(w, score, feats, conf_word, conf_notes, entries, tide_fyi, tip, state,
-                 quiet=False, sst_c=None, brag=None, actions=None):
+                 quiet=False, sst_c=None, brag=None, actions=None, gate=None):
     v = CONFIG["voice"]
-    is_perfect, _ = perfect_gate(feats, score, sst_c)
+    is_perfect = gate if gate is not None else perfect_gate(feats, score, sst_c)[0]
     hook = v["perfect_hook"] if is_perfect else hook_for(score, state)
     title = "%s — %.1f/10 %s %s" % (hook, score, w["label"], v["emoji"])
     lines = [v["perfect_line"] if is_perfect
@@ -1574,7 +1610,7 @@ def decide_alert(scored, t_now, state, zone_key="A"):
 
 SENTINEL_RUNS = 6   # ~3 days at two runs a day
 
-def sentinel_update(state, fetches):
+def sentinel_update(state, fetches, zone_key="A"):
     """The 20-year rule: a data source must not be able to die without a human
     hearing about it. Buoys get decommissioned (46223 Dana Point did), APIs
     move — and fail-soft would otherwise hide it forever. Tracks consecutive
@@ -1583,11 +1619,12 @@ def sentinel_update(state, fetches):
     counts = state.setdefault("src_fail", {})
     newly = []
     for name, f in fetches.items():
+        key = "%s:%s" % (zone_key, name)   # zones share source NAMES, not health
         if f.ok:
-            counts[name] = 0
+            counts[key] = 0
         else:
-            counts[name] = counts.get(name, 0) + 1
-            if counts[name] == SENTINEL_RUNS:
+            counts[key] = counts.get(key, 0) + 1
+            if counts[key] == SENTINEL_RUNS:
                 newly.append(name)
     return newly
 
@@ -1602,16 +1639,30 @@ def get_secret(name):
     return None
 
 
-def feedback_topic():
-    t = get_secret("NTFY_TOPIC")
+def zone_topic(zone_cfg=None):
+    """Product topic for a zone. Zone A honors the legacy secret override."""
+    if zone_cfg is None or zone_cfg.get("bell", {}).get("no") == 1:
+        return get_secret("NTFY_TOPIC") or (zone_cfg or CONFIG["zones"]["A"]).get("topic")
+    return zone_cfg.get("topic")
+
+
+def ops_topic():
+    """Keeper channel: sentinels, watchdogs, drift, the council. Divers never
+    see the plumbing — ops rides <bell-1-topic>-ops."""
+    base = zone_topic()
+    return (base + "-ops") if base else None
+
+
+def feedback_topic(zone_cfg=None):
+    t = zone_topic(zone_cfg)
     return (t + "-fb") if t else None
 
 
-def feedback_actions(window_key):
-    """ntfy action buttons that post a verdict to the companion feedback topic.
+def feedback_actions(window_key, zone_cfg=None):
+    """ntfy action buttons that post a verdict to the zone's feedback topic.
     Zero secrets leave the repo: the buttons just publish plain text, and the
     next scheduled run polls the topic and folds verdicts into dive_log.csv."""
-    fb = feedback_topic()
+    fb = feedback_topic(zone_cfg)
     if not fb:
         return []
     return [{"action": "http", "label": label,
@@ -1628,14 +1679,17 @@ def feedback_actions(window_key):
 FEEDBACK_MAP = {"clear": (25.0, "low"), "fair": (12.0, "low"), "murk": (4.0, "med")}
 
 
-def ingest_feedback(state, dry_run):
-    """Poll the feedback topic for button presses since last ingest; join each
-    verdict back to its window and append to dive_log.csv. Fail-soft."""
-    fb = feedback_topic()
+def ingest_feedback(state, dry_run, zone_cfg=None, zone_key="A"):
+    """Poll a zone's feedback topic for button presses since last ingest; join
+    each verdict back to its window and append to dive_log.csv. Fail-soft."""
+    fb = feedback_topic(zone_cfg)
     if not fb:
         return 0
     try:
-        since = state.get("fb_since", "48h")
+        since_map = state.setdefault("fb_since_by_zone", {})
+        if "fb_since" in state:  # migrate the single-zone key in place
+            since_map.setdefault("A", state.pop("fb_since"))
+        since = since_map.get(zone_key, "48h")
         url = "%s/%s/json?poll=1&since=%s" % (CONFIG["sources"]["ntfy"], fb, since)
         body = http_get(url, timeout=20)
         rows, latest = [], None
@@ -1662,15 +1716,15 @@ def ingest_feedback(state, dry_run):
             append_log(DIVE_LOG, ["ts", "site", "viz_ft", "surge", "notes"], rows, dry_run)
             print("ingested %d feedback verdict(s)" % len(rows))
         if latest:
-            state["fb_since"] = str(latest + 1)
+            since_map[zone_key] = str(latest + 1)
         return len(rows)
     except Exception as e:
         print("feedback ingest skipped: %s" % e, file=sys.stderr)
         return 0
 
 
-def notify(payload, dry_run):
-    topic = get_secret("NTFY_TOPIC")
+def notify(payload, dry_run, topic=None):
+    topic = topic or zone_topic()
     if dry_run or not topic:
         print("--- NOTIFICATION (%s) ---" % ("dry-run" if dry_run else "NO TOPIC SET"))
         print("Title: " + payload["title"])
@@ -1688,6 +1742,11 @@ def notify(payload, dry_run):
     with urllib.request.urlopen(req, timeout=20) as r:
         r.read()
     return True
+
+
+def notify_ops(payload, dry_run):
+    """Plumbing news goes to the keeper channel, never to divers."""
+    return notify(payload, dry_run, topic=ops_topic())
 
 
 def ping_health(ok=True, msg=""):
@@ -1765,6 +1824,10 @@ def score_zone(zone_key, zone_cfg, fetches, t_now, horizon_h=72):
                                                (feats["dmg_parts"] or {}).get("per_s"))
         sstv = fetches["sst"].data["c"] if fetches["sst"].ok else None
         gate_ok, _ = perfect_gate(feats, score, sstv)
+        # a provisional bell watches and speaks but cannot ring — it has not
+        # been sworn (buoy check + first local verdicts) for this water
+        if zone_cfg.get("tier") == "provisional":
+            gate_ok = False
         scored.append({"zone": zone_key, "w": w, "score": score, "feats": feats,
                        "breakdown": breakdown, "cap_reason": cap_reason, "flags": flags,
                        "conf": conf_word, "completeness": comp, "agreement": agree,
@@ -1776,12 +1839,14 @@ def score_zone(zone_key, zone_cfg, fetches, t_now, horizon_h=72):
 def cmd_run(args):
     t_now = now_pt()
     state = load_state()
-    if not args.offline:
-        ingest_feedback(state, args.dry_run)
     all_scored, any_swell_ok = [], False
+    board = {}
     for zk, zc in CONFIG["zones"].items():
         if not zc["enabled"]:
             continue
+        if not args.offline:
+            ingest_feedback(state, args.dry_run, zc, zk)
+        ztopic = zone_topic(zc)
         fetches, src = fetch_all(zc, offline=args.offline, fixture_set=args.fixtures)
         fx_now = src.fixture_now()
         if fx_now:
@@ -1791,13 +1856,13 @@ def cmd_run(args):
         for name, f in fetches.items():
             if not f.ok:
                 print("degraded: %s failed (%s)" % (name, f.error), file=sys.stderr)
-        for dead in sentinel_update(state, fetches):
-            notify({"title": "An instrument went quiet 🔧",
-                    "message": "%s has failed %d straight runs (~3 days). The bell "
-                               "scores on without it, at lower confidence. Worth a "
-                               "look: github.com/PacificVanguard/dive-alert/actions"
-                               % (dead, SENTINEL_RUNS),
-                    "priority": 4}, args.dry_run)
+        for dead in sentinel_update(state, fetches, zk):
+            notify_ops({"title": "An instrument went quiet 🔧",
+                        "message": "%s (bell %s) has failed %d straight runs (~3 days). "
+                                   "The bell scores on without it, at lower confidence. "
+                                   "github.com/PacificVanguard/dive-alert/actions"
+                                   % (dead, zc.get("bell", {}).get("name", zk), SENTINEL_RUNS),
+                        "priority": 4}, args.dry_run)
         if not swell_ok:
             print("zone %s: ALL swell sources failed" % zk, file=sys.stderr)
             continue
@@ -1843,15 +1908,16 @@ def cmd_run(args):
             tip = select_tip(scored[0]["entries"] if scored else [], best_of(scored),
                              None, "any", t_now, state) if scored else None
             notify(render_digest(scored, t_now, state, sst_c=sst, tip=tip,
-                                 actions=feedback_actions("digest-%s" % t_now.date())),
-                   args.dry_run)
+                                 actions=feedback_actions("digest-%s" % t_now.date(), zc)),
+                   args.dry_run, topic=ztopic)
         elif args.brief:
             best = max(scored, key=lambda s: s["score"]) if scored else None
             if best:
                 txt = "Zone %s best: %.1f/10 %s — %s. %s" % (
                     zk, best["score"], best["w"]["label"], " / ".join(best["entries"]),
                     best["tide_fyi"] or "")
-                notify({"title": "Dive brief — Zone %s" % zk, "message": txt, "priority": 2}, args.dry_run)
+                notify({"title": "Dive brief — Zone %s" % zk, "message": txt, "priority": 2},
+                       args.dry_run, topic=ztopic)
         else:
             action, payload = decide_alert(scored, t_now, state, zk)
             if action == "alert" or action == "quiet_alert":
@@ -1861,29 +1927,42 @@ def cmd_run(args):
                                    payload["conf_notes"], payload["entries"], payload["tide_fyi"],
                                    tip, state, quiet=(action == "quiet_alert"),
                                    sst_c=sst, brag=superlative(payload["score"], t_now),
-                                   actions=feedback_actions(payload["w"]["key"]))
-                notify(msg, args.dry_run)
+                                   actions=feedback_actions(payload["w"]["key"], zc),
+                                   gate=payload.get("gate"))
+                notify(msg, args.dry_run, topic=ztopic)
                 for r in rows:
                     if r["window_key"] == payload["w"]["key"]:
                         r["alerted"] = action
             elif action == "downgrade":
                 notify(render_downgrade(payload["w"], payload["old"], payload["new"], payload["feats"]),
-                       args.dry_run)
+                       args.dry_run, topic=ztopic)
         append_log(LOG_PATH, LOG_COLS, rows, args.dry_run)
-        # the website's heartbeat: thedivebell.com reads this file off Pages,
-        # so the page always shows the real, current outlook with no backend
-        if not args.dry_run:
-            os.makedirs(DATA, exist_ok=True)
-            with open(os.path.join(DATA, "latest.json"), "w") as jf:
-                json.dump({
-                    "updated": t_now.isoformat(), "zone": zk,
-                    "sst_f": round(sst * 9 / 5 + 32) if sst is not None else None,
-                    "windows": [{"label": s["w"]["label"],
-                                 "start": s["w"]["start"].isoformat(),
-                                 "score": s["score"], "conf": s["conf"],
-                                 "entries": s["entries"][:2],
-                                 "gate": bool(s.get("gate"))} for s in scored],
-                }, jf, indent=1)
+        # the bell remembers: a gate day seen is a ring recorded
+        gate_days_seen = [s["w"]["start"].date().isoformat() for s in scored if s.get("gate")]
+        if gate_days_seen:
+            state.setdefault("last_ring", {})[zk] = max(gate_days_seen)
+        board[zk] = {
+            "bell": zc.get("bell", {}), "tier": zc.get("tier", "provisional"),
+            "topic": ztopic, "name": zc["name"],
+            "last_ring": state.get("last_ring", {}).get(zk),
+            "sst_f": round(sst * 9 / 5 + 32) if sst is not None else None,
+            "windows": [{"label": s["w"]["label"],
+                         "start": s["w"]["start"].isoformat(),
+                         "score": s["score"], "conf": s["conf"],
+                         "entries": s["entries"][:2],
+                         "gate": bool(s.get("gate"))} for s in scored],
+        }
+
+    # the website's heartbeat: one file for the board, and latest.json kept
+    # as Bell No.1's view for continuity (bellwatch reads its age)
+    if not args.dry_run and board:
+        os.makedirs(DATA, exist_ok=True)
+        with open(os.path.join(DATA, "zones.json"), "w") as jf:
+            json.dump({"updated": t_now.isoformat(), "zones": board}, jf, indent=1)
+        first = board.get("A") or list(board.values())[0]
+        with open(os.path.join(DATA, "latest.json"), "w") as jf:
+            json.dump({"updated": t_now.isoformat(), "zone": "A",
+                       "sst_f": first["sst_f"], "windows": first["windows"]}, jf, indent=1)
 
     save_state(state, args.dry_run)
     if not any_swell_ok:
@@ -1897,9 +1976,9 @@ def cmd_run(args):
 # =====================================================================
 
 def cmd_hindcast(args):
-    """Rebuild historical Zone A scores from Open-Meteo archives so backtesting
+    """Rebuild historical zone scores from Open-Meteo archives so backtesting
     works from day one. Dawn/dusk per day, features from the archive series."""
-    zc = CONFIG["zones"]["A"]
+    zc = CONFIG["zones"][getattr(args, "zone", "A")]
     end = now_pt().date() - timedelta(days=2)  # archive lags ~2 days
     start = end - timedelta(days=args.days)
     def arch(url, extra):
@@ -2018,12 +2097,14 @@ def cmd_hindcast(args):
         d += timedelta(days=1)
     cols = list(rows[0].keys())
     os.makedirs(DATA, exist_ok=True)
-    with open(HINDCAST, "w", newline="") as f:
+    zone_arg = getattr(args, "zone", "A")
+    out_path = HINDCAST if zone_arg == "A" else HINDCAST.replace(".csv", "_%s.csv" % zone_arg)
+    with open(out_path, "w", newline="") as f:
         wr = csv.DictWriter(f, fieldnames=cols)
         wr.writeheader()
         for r in rows:
             wr.writerow(r)
-    print("wrote %d windows to %s" % (len(rows), HINDCAST))
+    print("wrote %d windows to %s" % (len(rows), out_path))
     good = [r for r in rows if r["score"] >= 7]
     print("windows ≥7: %d (%.0f%%); best: %s at %.1f" % (
         len(good), 100.0 * len(good) / len(rows),
@@ -2260,11 +2341,46 @@ def cmd_validate(args):
                  "r": round(corr(0, 1), 3), "scale_current": scale,
                  "scale_suggested": suggested}], dry_run=False)
     if breach and getattr(args, "notify", False):
-        notify({"title": "The bell's ear is drifting 🔎",
+        notify_ops({"title": "The bell's ear is drifting 🔎",
                 "message": "Swell model vs buoy %s: bias %+.0f%% over %d hours. "
                            "Current height scale %.2f, data suggests %.2f. "
                            "See data/drift_log.csv." % (st, bias_pct, n, scale, suggested),
                 "priority": 4}, dry_run=False)
+
+
+# =====================================================================
+# cast — the swearing-in of a new bell
+# =====================================================================
+
+def cmd_cast(args):
+    """Casting report for a zone: run its hindcast, judge the distribution
+    against the honesty bands, and print the checklist a bell must clear
+    before its tier flips from provisional to sworn. Judgment steps stay
+    human; this automates the evidence."""
+    zk = args.zone
+    zc = CONFIG["zones"][zk]
+    print("CASTING REPORT — Bell No.%s · %s (tier: %s)\n" % (
+        zc.get("bell", {}).get("no", "?"), zc.get("bell", {}).get("name", zc["name"]),
+        zc.get("tier", "unset")))
+    args.days = getattr(args, "days", 365)
+    cmd_hindcast(args)
+    path = HINDCAST if zk == "A" else HINDCAST.replace(".csv", "_%s.csv" % zk)
+    rows = _read_csv(path)
+    scores = sorted(float(r["score"]) for r in rows)
+    n = len(scores)
+    pct7 = 100 * sum(1 for x in scores if x >= 7) / n
+    pct8 = 100 * sum(1 for x in scores if x >= 8) / n
+    print("\n  distribution: n=%d  med=%.1f  >=7 %.0f%%  >=8 %.0f%%" % (
+        n, scores[n // 2], pct7, pct8))
+    if 15 <= pct7 <= 35:
+        print("  → distribution inside the honesty band (15-35%% >=7): curve fits this water")
+    else:
+        print("  → OUTSIDE the honesty band: tune cove_damage_factor before trusting alerts")
+    print("\n  to swear this bell in (tier -> sworn):")
+    print("   [ ] validate vs nearest live buoy (dive_alert.py validate pattern)")
+    print("   [ ] a local diver confirms the water reads true")
+    print("   [ ] first verdicts arrive on its feedback topic")
+    print("   [ ] take_allowed flags verified against current regs")
 
 
 # =====================================================================
@@ -2338,7 +2454,7 @@ def cmd_report(args):
     for p in proposals:
         print("  PROPOSAL: " + p)
     if proposals and getattr(args, "notify", False):
-        notify({"title": "The bell's council 🔎",
+        notify_ops({"title": "The bell's council 🔎",
                 "message": ("%d promises graded, %.0f%% kept.\n" % (n, 100 * kept_rate))
                            + "\n".join(proposals[:2]),
                 "priority": 3}, dry_run=False)
@@ -2744,17 +2860,24 @@ def cmd_test(args):
                "marine": Fetch("marine", True, {})}
     fired = []
     for i in range(SENTINEL_RUNS + 3):
-        fired += sentinel_update(st_z, fx_dead)
+        fired += sentinel_update(st_z, fx_dead, "A")
     check("(z) outage announced exactly once at run %d" % SENTINEL_RUNS,
           fired == ["ndbc_primary"], "fired=%s" % fired)
     fx_back = {"ndbc_primary": Fetch("ndbc_primary", True, {"x": 1}),
                "marine": Fetch("marine", True, {})}
-    sentinel_update(st_z, fx_back)
-    check("(z2) recovery resets the counter", st_z["src_fail"]["ndbc_primary"] == 0)
+    sentinel_update(st_z, fx_back, "A")
+    check("(z2) recovery resets the counter", st_z["src_fail"]["A:ndbc_primary"] == 0)
     fired2 = []
     for i in range(SENTINEL_RUNS):
-        fired2 += sentinel_update(st_z, fx_dead)
+        fired2 += sentinel_update(st_z, fx_dead, "A")
     check("(z3) a second outage announces again", fired2 == ["ndbc_primary"])
+    # (z4) MULTI-ZONE: one zone's healthy source must not erase another's outage
+    st_mz = {}
+    for i in range(SENTINEL_RUNS):
+        f_c = sentinel_update(st_mz, fx_dead, "C")
+        sentinel_update(st_mz, fx_back, "A")
+    check("(z4) zone C outage survives zone A health", f_c == ["ndbc_primary"],
+          "fired=%s" % f_c)
 
     # (bb) THE RATCHET grades promises against verdicts, and only where a
     # promise was actually made.
@@ -2814,6 +2937,10 @@ def main():
     p_log.add_argument("--notes", default="")
     p_hc = sub.add_parser("hindcast")
     p_hc.add_argument("--days", type=int, default=180)
+    p_hc.add_argument("--zone", default="A")
+    p_cast = sub.add_parser("cast")
+    p_cast.add_argument("--zone", required=True)
+    p_cast.add_argument("--days", type=int, default=365)
     sub.add_parser("backtest")
     sub.add_parser("test")
     sub.add_parser("record-fixtures")
@@ -2857,6 +2984,8 @@ def main():
         cmd_validate(args)
     elif args.cmd == "report":
         cmd_report(args)
+    elif args.cmd == "cast":
+        cmd_cast(args)
     elif args.cmd == "setup":
         cmd_setup(args)
     elif args.cmd == "share":

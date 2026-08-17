@@ -161,6 +161,22 @@
   .cta-sub code { font-family: ui-monospace, Menlo, monospace; color: var(--glow);
                   font-size: .84rem; }
 
+  /* the bell board */
+  .board { padding: 4vh 0 2vh; }
+  .brow { display: flex; align-items: center; gap: 16px; padding: 14px 6px;
+          border-bottom: 1px solid rgba(100,128,155,.16); text-decoration: none;
+          color: var(--sand); }
+  .brow:hover { background: rgba(10,42,74,.25); }
+  .brow .bno { font-family: ui-monospace, Menlo, monospace; color: var(--dim);
+               font-size: .75rem; letter-spacing: .15em; flex: 0 0 34px; }
+  .brow .bname { flex: 1; }
+  .brow .bname small { display: block; color: var(--dim); font-size: .78rem; }
+  .brow .bstate { font-family: ui-monospace, Menlo, monospace; font-size: .78rem;
+                  letter-spacing: .18em; color: var(--dim); text-transform: uppercase; }
+  .brow.ringing .bstate { color: var(--gold); text-shadow: 0 0 14px rgba(255,217,138,.4); }
+  .tierline { margin-top: 12px; color: rgba(255,217,138,.75); font-size: .88rem;
+              font-style: italic; }
+
   /* the joining */
   .join { max-width: 520px; margin: 0 auto; padding: 2vh 0 10vh; }
   .jstep { display: flex; gap: 18px; margin-bottom: 30px; }
@@ -209,7 +225,14 @@
     <div class="state-sub" id="statesub">Three hundred and fifty mornings a year,
       the bell keeps its silence. This is one of them.</div>
     <div class="state-live" id="statelive"></div>
+    <div class="tierline" id="tierline" style="display:none">Newly cast and not yet
+      sworn — this bell watches and speaks, but its ring is still locked.</div>
     <a class="down" href="#descend">▾</a>
+  </div>
+
+  <div class="board" id="board" style="display:none">
+    <h2>The bells</h2>
+    <div id="boardrows"></div>
   </div>
 
   <div id="descend"></div>
@@ -335,15 +358,16 @@
       <div><b>That&rsquo;s it. The welcome is already waiting.</b>
         <span>It was cached the moment it was sent — subscribe and it appears.
         On a computer or Android you can skip the app entirely:
-        <a href="https://ntfy.sh/laguna-dive-86dd82e0">open the bell&rsquo;s
-        channel</a> and allow notifications. On iPhone, the app is the way.</span>
+        <a id="chanlink" href="https://ntfy.sh/laguna-dive-86dd82e0">open the
+        bell&rsquo;s channel</a> and allow notifications. On iPhone, the app is
+        the way.</span>
       </div></div>
   </div>
 
   <div class="foundry">
-    <div class="mark">Cast 2026 · Laguna Beach · <b>one of one</b></div>
+    <div class="mark" id="foundry">№1 · Cast 2026 · Laguna Beach · <b>one of one</b></div>
     <div class="fine">rung by open ocean data · answers to no one ·
-      <a href="https://ntfy.sh/laguna-dive-86dd82e0">the bell</a></div>
+      <a id="footchan" href="https://ntfy.sh/laguna-dive-86dd82e0">the bell</a></div>
   </div>
 
 </main>
@@ -369,7 +393,7 @@
       const now = ac.currentTime;
       [329.6, 493.9, 659.3, 987.8].forEach((f, i) => {
         const o = ac.createOscillator(), g = ac.createGain();
-        o.type = "sine"; o.frequency.value = f;
+        o.type = "sine"; o.frequency.value = f * PITCH;
         g.gain.setValueAtTime((gentle ? 0.07 : 0.11) / (i + 1), now);
         g.gain.exponentialRampToValueAtTime(0.0001, now + 3.2 - i * 0.5);
         o.connect(g).connect(ac.destination); o.start(now); o.stop(now + 3.3);
@@ -388,26 +412,46 @@
       }).catch(() => {});
   });
 
-  // the living page: the bell's true state, straight from the last run
-  fetch("data/latest.json").then(r => r.json()).then(d => {
-    if (!d.windows || !d.windows.length) return;
-    const upd = new Date(d.updated);
-    document.getElementById("eyebrow").textContent =
-      "Laguna Beach · " + upd.toLocaleDateString("en-US",
-        { weekday: "long", month: "long", day: "numeric" });
+  // ── the living pages: every bell, one descent ──────────────────────
+  let BELLS = null, ORDER = [];
+  const slug = n => n.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+  const curKey = () => {
+    const h = location.hash.replace("#", "");
+    return ORDER.find(k => slug(BELLS[k].bell.name) === h) || ORDER[0];
+  };
+  let PITCH = 1;   // each casting strikes its own note
 
+  function bellState(z) {
     const best = {};
-    d.windows.forEach(w => {
+    (z.windows || []).forEach(w => {
       const day = w.start.slice(0, 10);
       if (!(day in best) || w.score > best[day].score) best[day] = w;
     });
     const days = Object.keys(best).sort().slice(0, 7);
-    const ringing = days.some(day => best[day].gate);
-    const top = days.map(x => best[x]).sort((a, b) => b.score - a.score)[0];
+    return { days, best, ringing: days.some(d => best[d].gate),
+             top: days.map(d => best[d]).sort((a, b) => b.score - a.score)[0] };
+  }
 
-    if (ringing) {
-      const gd = days.map(x => best[x]).find(w => w.gate);
-      document.body.classList.add("ringing");
+  function silenceLine(z) {
+    const since = z.last_ring || (z.bell && z.bell.cast);
+    if (!since) return "";
+    const n = Math.max(0, Math.round((Date.now() - new Date(since)) / 864e5));
+    const m = n === 1 ? "morning" : "mornings";
+    return z.last_ring
+      ? "Last rang " + new Date(z.last_ring + "T12:00").toLocaleDateString("en-US",
+          { month: "long", day: "numeric" }) + " — " + n + " " + m + " ago."
+      : "Unrung since its casting — " + n + " " + m + " of silence.";
+  }
+
+  function render(updated) {
+    const k = curKey(), z = BELLS[k], st = bellState(z);
+    PITCH = Math.pow(0.94, (z.bell.no || 1) - 1);
+    document.getElementById("eyebrow").textContent =
+      z.bell.name + " · " + new Date(updated).toLocaleDateString("en-US",
+        { weekday: "long", month: "long", day: "numeric" });
+    document.body.classList.toggle("ringing", st.ringing);
+    if (st.ringing) {
+      const gd = st.days.map(d => st.best[d]).find(w => w.gate);
       document.getElementById("state").textContent = "The bell is ringing.";
       document.getElementById("statesub").textContent =
         "A dozen mornings a year, the ocean says yes. This is one of them.";
@@ -416,25 +460,80 @@
       if (!matchMedia("(prefers-reduced-motion: reduce)").matches)
         setTimeout(() => strike(true), 1200);
     } else {
-      document.getElementById("statelive").textContent =
-        "Best window ahead: " + top.label + ", " + top.score.toFixed(1) + " of 10." +
-        (d.sst_f ? " Water " + d.sst_f + "°." : "");
+      document.getElementById("state").textContent = "The bell is quiet.";
+      document.getElementById("statesub").textContent =
+        "Three hundred and fifty mornings a year, the bell keeps its silence. " +
+        "This is one of them.";
+      document.getElementById("statelive").textContent = st.top
+        ? "Best window ahead: " + st.top.label + ", " + st.top.score.toFixed(1) +
+          " of 10." + (z.sst_f ? " Water " + z.sst_f + "°." : "") + "  " + silenceLine(z)
+        : silenceLine(z);
     }
+    document.getElementById("tierline").style.display =
+      z.tier === "provisional" ? "block" : "none";
 
     const strip = document.getElementById("strip");
-    days.forEach(day => {
-      const w = best[day];
+    strip.innerHTML = "";
+    st.days.forEach(day => {
+      const w = st.best[day];
       const el = document.createElement("div");
       el.className = "day" + (w.gate || w.score >= 7 ? " hot" : "");
       el.innerHTML = "<div class='d'>" + w.label.split(" ")[0] + "</div><div class='s'>" +
         w.score.toFixed(1) + (w.gate ? " ✨" : "") + "</div>";
       strip.appendChild(el);
     });
-    document.getElementById("weeknote").textContent = top.score >= 7
-      ? top.label + " is the one — " + top.entries.join(" or ") + "."
+    document.getElementById("weeknote").textContent = st.top && st.top.score >= 7
+      ? st.top.label + " is the one — " + st.top.entries.join(" or ") + "."
       : "A quiet stretch. The bell is listening.";
-    document.getElementById("week").style.display = "block";
-  }).catch(() => {});
+    document.getElementById("week").style.display = st.days.length ? "block" : "none";
+
+    document.getElementById("topic").textContent = z.topic;
+    ["chanlink", "footchan"].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.href = "https://ntfy.sh/" + z.topic;
+    });
+    document.getElementById("foundry").innerHTML =
+      "№" + z.bell.no + " · Cast " + (z.bell.cast || "2026").slice(0, 4) + " · " +
+      z.bell.name + " · <b>one of one</b>";
+  }
+
+  function buildBoard(updated) {
+    const rows = document.getElementById("boardrows");
+    rows.innerHTML = "";
+    ORDER.forEach(k => {
+      const z = BELLS[k], st = bellState(z);
+      const a = document.createElement("a");
+      a.className = "brow" + (st.ringing ? " ringing" : "");
+      a.href = "#" + slug(z.bell.name);
+      a.innerHTML = "<span class='bno'>№" + z.bell.no + "</span>" +
+        "<span class='bname'>" + z.bell.name +
+        "<small>" + (z.tier === "provisional" ? "provisional · " : "") +
+        silenceLine(z) + "</small></span>" +
+        "<span class='bstate'>" + (st.ringing ? "ringing" : "quiet") + "</span>";
+      rows.appendChild(a);
+    });
+    document.getElementById("board").style.display = ORDER.length > 1 ? "block" : "none";
+  }
+
+  fetch("data/zones.json").then(r => r.json()).then(d => {
+    BELLS = d.zones;
+    ORDER = Object.keys(BELLS).sort((a, b) => (BELLS[a].bell.no || 9) - (BELLS[b].bell.no || 9));
+    buildBoard(d.updated);
+    render(d.updated);
+    window.addEventListener("hashchange", () => {
+      render(d.updated);
+      document.querySelector(".surface").scrollIntoView({ behavior: "smooth" });
+    });
+  }).catch(() => {
+    // transition fallback: the old single-bell feed
+    fetch("data/latest.json").then(r => r.json()).then(d => {
+      BELLS = { A: { bell: { no: 1, name: "Laguna Beach", cast: "2026-08-11" },
+                     tier: "sworn", topic: "laguna-dive-86dd82e0",
+                     sst_f: d.sst_f, windows: d.windows, last_ring: null } };
+      ORDER = ["A"];
+      render(d.updated);
+    }).catch(() => {});
+  });
 </script>
 </body>
 </html>

@@ -6,6 +6,7 @@ name: bellwatch
 # and this shouts. Deliberately minimal: fewer moving parts than the thing
 # it watches. Its blind spot is GitHub Actions itself being down, which is
 # what the external Healthchecks ping covers.
+# Alarms ride the -ops keeper channel, never the divers' topics.
 
 on:
   schedule:
@@ -39,7 +40,7 @@ jobs:
           topic = os.environ.get("NTFY_TOPIC")
           if topic:
               body = json.dumps({
-                  "topic": topic,
+                  "topic": topic + "-ops",
                   "title": "The bell has gone silent 🔧",
                   "message": "No scored run in %.0f hours. Check "
                              "github.com/PacificVanguard/dive-alert/actions" % age_h,
