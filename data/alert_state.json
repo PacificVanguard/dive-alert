@@ -9,6 +9,16 @@
    "window_key": "20260818T0557-dawn",
    "since": "2026-08-17T13:00:00-07:00",
    "gate": false
+  },
+  "H": {
+   "score": 7.2,
+   "entries": [
+    "Whalers Cove",
+    "Bluefish Cove"
+   ],
+   "window_key": "20260818T0558-dawn",
+   "since": "2026-08-17T14:00:00-07:00",
+   "gate": false
   }
  },
  "last_tip_id": "sh2",
@@ -28,7 +38,7 @@
   "A:ndbc_offshore": 0,
   "A:tides": 0,
   "A:sst": 0,
-  "A:chla": 3,
+  "A:chla": 4,
   "A:kd490": 0,
   "A:ndbc_spec": 0,
   "C:marine": 0,
@@ -36,8 +46,8 @@
   "C:ndbc_primary": 0,
   "C:ndbc_offshore": 0,
   "C:tides": 0,
-  "C:sst": 0,
-  "C:chla": 3,
+  "C:sst": 1,
+  "C:chla": 4,
   "C:kd490": 0,
   "C:ndbc_spec": 0,
   "D:marine": 0,
@@ -51,13 +61,67 @@
   "D:ndbc_spec": 0,
   "E:marine": 0,
   "E:weather": 0,
-  "E:ndbc_primary": 1,
+  "E:ndbc_primary": 2,
   "E:ndbc_offshore": 0,
   "E:tides": 0,
   "E:sst": 0,
-  "E:chla": 1,
+  "E:chla": 2,
   "E:kd490": 0,
-  "E:ndbc_spec": 1
+  "E:ndbc_spec": 2,
+  "F:marine": 0,
+  "F:weather": 0,
+  "F:ndbc_primary": 0,
+  "F:ndbc_offshore": 0,
+  "F:tides": 0,
+  "F:sst": 0,
+  "F:chla": 0,
+  "F:kd490": 0,
+  "F:ndbc_spec": 0,
+  "G:marine": 0,
+  "G:weather": 0,
+  "G:ndbc_primary": 0,
+  "G:ndbc_offshore": 0,
+  "G:tides": 0,
+  "G:sst": 0,
+  "G:chla": 0,
+  "G:kd490": 0,
+  "G:ndbc_spec": 0,
+  "H:marine": 0,
+  "H:weather": 0,
+  "H:ndbc_primary": 0,
+  "H:ndbc_offshore": 0,
+  "H:tides": 0,
+  "H:sst": 0,
+  "H:chla": 1,
+  "H:kd490": 0,
+  "H:ndbc_spec": 0,
+  "I:marine": 0,
+  "I:weather": 0,
+  "I:ndbc_primary": 0,
+  "I:ndbc_offshore": 0,
+  "I:tides": 0,
+  "I:sst": 0,
+  "I:chla": 0,
+  "I:kd490": 0,
+  "I:ndbc_spec": 0,
+  "J:marine": 0,
+  "J:weather": 0,
+  "J:ndbc_primary": 0,
+  "J:ndbc_offshore": 1,
+  "J:tides": 0,
+  "J:sst": 0,
+  "J:chla": 0,
+  "J:kd490": 0,
+  "J:ndbc_spec": 0,
+  "K:marine": 0,
+  "K:weather": 0,
+  "K:ndbc_primary": 1,
+  "K:ndbc_offshore": 1,
+  "K:tides": 0,
+  "K:sst": 0,
+  "K:chla": 1,
+  "K:kd490": 0,
+  "K:ndbc_spec": 1
  },
  "fb_since_by_zone": {},
  "record": {
@@ -76,7 +140,31 @@
   "E": {
    "promises": 0,
    "rings": 0
+  },
+  "F": {
+   "promises": 0,
+   "rings": 0
+  },
+  "G": {
+   "promises": 1,
+   "rings": 0
+  },
+  "H": {
+   "promises": 0,
+   "rings": 0
+  },
+  "I": {
+   "promises": 0,
+   "rings": 0
+  },
+  "J": {
+   "promises": 0,
+   "rings": 0
+  },
+  "K": {
+   "promises": 0,
+   "rings": 0
   }
  },
- "hook_idx": 1
+ "hook_idx": 2
 }

@@ -1,5 +1,5 @@
 {
- "updated": "2026-08-17T13:00:00-07:00",
+ "updated": "2026-08-17T14:00:00-07:00",
  "zones": {
   "A": {
    "keeper": "Curtis",
@@ -101,7 +101,7 @@
    "topic": "danapoint-dive-8952a5b5",
    "name": "Dana Point",
    "last_ring": null,
-   "sst_f": 73,
+   "sst_f": null,
    "windows": [
     {
      "label": "Mon dusk",
@@ -174,7 +174,7 @@
   "D": {
    "keeper": null,
    "record": {
-    "promises": 0,
+    "promises": 1,
     "rings": 0
    },
    "bell": {
@@ -336,6 +336,516 @@
      "entries": [
       "Breakwater (San Carlos)",
       "McAbee Beach"
+     ],
+     "gate": false
+    }
+   ]
+  },
+  "F": {
+   "keeper": null,
+   "record": {
+    "promises": 0,
+    "rings": 0
+   },
+   "bell": {
+    "no": 5,
+    "name": "Catalina",
+    "cast": "2026-08-17"
+   },
+   "tier": "provisional",
+   "topic": "catalina-dive-8fac8d86",
+   "name": "Catalina",
+   "last_ring": null,
+   "sst_f": 74,
+   "windows": [
+    {
+     "label": "Mon dusk",
+     "start": "2026-08-17T17:37:00-07:00",
+     "score": 5.5,
+     "conf": "high",
+     "entries": [
+      "Casino Point Dive Park",
+      "Lover's Cove"
+     ],
+     "gate": false
+    },
+    {
+     "label": "Tue dawn",
+     "start": "2026-08-18T05:48:00-07:00",
+     "score": 5.3,
+     "conf": "high",
+     "entries": [
+      "Casino Point Dive Park",
+      "Lover's Cove"
+     ],
+     "gate": false
+    },
+    {
+     "label": "Tue dusk",
+     "start": "2026-08-18T17:35:00-07:00",
+     "score": 5.2,
+     "conf": "high",
+     "entries": [
+      "Casino Point Dive Park",
+      "Lover's Cove"
+     ],
+     "gate": false
+    },
+    {
+     "label": "Wed dawn",
+     "start": "2026-08-19T05:49:00-07:00",
+     "score": 6.2,
+     "conf": "medium",
+     "entries": [
+      "Casino Point Dive Park",
+      "Lover's Cove"
+     ],
+     "gate": false
+    },
+    {
+     "label": "Wed dusk",
+     "start": "2026-08-19T17:34:00-07:00",
+     "score": 6.5,
+     "conf": "medium",
+     "entries": [
+      "Casino Point Dive Park",
+      "Lover's Cove"
+     ],
+     "gate": false
+    },
+    {
+     "label": "Thu dawn",
+     "start": "2026-08-20T05:49:00-07:00",
+     "score": 7.1,
+     "conf": "medium",
+     "entries": [
+      "Casino Point Dive Park",
+      "Lover's Cove"
+     ],
+     "gate": false
+    }
+   ]
+  },
+  "G": {
+   "keeper": null,
+   "record": {
+    "promises": 0,
+    "rings": 0
+   },
+   "bell": {
+    "no": 6,
+    "name": "Palos Verdes",
+    "cast": "2026-08-17"
+   },
+   "tier": "provisional",
+   "topic": "palosverdes-dive-0dcfd89c",
+   "name": "Palos Verdes",
+   "last_ring": null,
+   "sst_f": 71,
+   "windows": [
+    {
+     "label": "Mon dusk",
+     "start": "2026-08-17T17:37:00-07:00",
+     "score": 3.1,
+     "conf": "high",
+     "entries": [
+      "Christmas Tree Cove",
+      "Terranea (Old Marineland)"
+     ],
+     "gate": false
+    },
+    {
+     "label": "Tue dawn",
+     "start": "2026-08-18T05:47:00-07:00",
+     "score": 3.6,
+     "conf": "high",
+     "entries": [
+      "Terranea (Old Marineland)",
+      "Christmas Tree Cove"
+     ],
+     "gate": false
+    },
+    {
+     "label": "Tue dusk",
+     "start": "2026-08-18T17:36:00-07:00",
+     "score": 3.3,
+     "conf": "high",
+     "entries": [
+      "Terranea (Old Marineland)",
+      "Christmas Tree Cove"
+     ],
+     "gate": false
+    },
+    {
+     "label": "Wed dawn",
+     "start": "2026-08-19T05:48:00-07:00",
+     "score": 3.1,
+     "conf": "medium",
+     "entries": [
+      "Terranea (Old Marineland)",
+      "Christmas Tree Cove"
+     ],
+     "gate": false
+    },
+    {
+     "label": "Wed dusk",
+     "start": "2026-08-19T17:35:00-07:00",
+     "score": 4.2,
+     "conf": "medium",
+     "entries": [
+      "Terranea (Old Marineland)",
+      "Christmas Tree Cove"
+     ],
+     "gate": false
+    },
+    {
+     "label": "Thu dawn",
+     "start": "2026-08-20T05:49:00-07:00",
+     "score": 4.7,
+     "conf": "medium",
+     "entries": [
+      "Terranea (Old Marineland)",
+      "Christmas Tree Cove"
+     ],
+     "gate": false
+    }
+   ]
+  },
+  "H": {
+   "keeper": null,
+   "record": {
+    "promises": 0,
+    "rings": 0
+   },
+   "bell": {
+    "no": 7,
+    "name": "Point Lobos",
+    "cast": "2026-08-17"
+   },
+   "tier": "provisional",
+   "topic": "pointlobos-dive-e69f7b6a",
+   "name": "Point Lobos",
+   "last_ring": null,
+   "sst_f": 63,
+   "windows": [
+    {
+     "label": "Mon dusk",
+     "start": "2026-08-17T17:56:00-07:00",
+     "score": 7.8,
+     "conf": "medium",
+     "entries": [
+      "Whalers Cove",
+      "Bluefish Cove"
+     ],
+     "gate": false
+    },
+    {
+     "label": "Tue dawn",
+     "start": "2026-08-18T05:58:00-07:00",
+     "score": 7.2,
+     "conf": "medium",
+     "entries": [
+      "Whalers Cove",
+      "Bluefish Cove"
+     ],
+     "gate": false
+    },
+    {
+     "label": "Tue dusk",
+     "start": "2026-08-18T17:54:00-07:00",
+     "score": 6.4,
+     "conf": "medium",
+     "entries": [
+      "Whalers Cove",
+      "Bluefish Cove"
+     ],
+     "gate": false
+    },
+    {
+     "label": "Wed dawn",
+     "start": "2026-08-19T05:58:00-07:00",
+     "score": 6.4,
+     "conf": "medium",
+     "entries": [
+      "Whalers Cove",
+      "Bluefish Cove"
+     ],
+     "gate": false
+    },
+    {
+     "label": "Wed dusk",
+     "start": "2026-08-19T17:53:00-07:00",
+     "score": 5.0,
+     "conf": "medium",
+     "entries": [
+      "Whalers Cove",
+      "Bluefish Cove"
+     ],
+     "gate": false
+    },
+    {
+     "label": "Thu dawn",
+     "start": "2026-08-20T05:59:00-07:00",
+     "score": 5.4,
+     "conf": "medium",
+     "entries": [
+      "Whalers Cove",
+      "Bluefish Cove"
+     ],
+     "gate": false
+    }
+   ]
+  },
+  "I": {
+   "keeper": null,
+   "record": {
+    "promises": 0,
+    "rings": 0
+   },
+   "bell": {
+    "no": 8,
+    "name": "Santa Barbara",
+    "cast": "2026-08-17"
+   },
+   "tier": "provisional",
+   "topic": "santabarbara-dive-64e572f7",
+   "name": "Santa Barbara",
+   "last_ring": null,
+   "sst_f": 69,
+   "windows": [
+    {
+     "label": "Mon dusk",
+     "start": "2026-08-17T17:45:00-07:00",
+     "score": 4.6,
+     "conf": "medium",
+     "entries": [
+      "Refugio State Beach",
+      "Tajiguas Reef"
+     ],
+     "gate": false
+    },
+    {
+     "label": "Tue dawn",
+     "start": "2026-08-18T05:53:00-07:00",
+     "score": 6.0,
+     "conf": "medium",
+     "entries": [
+      "Tajiguas Reef",
+      "Refugio State Beach"
+     ],
+     "gate": false
+    },
+    {
+     "label": "Tue dusk",
+     "start": "2026-08-18T17:44:00-07:00",
+     "score": 5.6,
+     "conf": "medium",
+     "entries": [
+      "Tajiguas Reef",
+      "Refugio State Beach"
+     ],
+     "gate": false
+    },
+    {
+     "label": "Wed dawn",
+     "start": "2026-08-19T05:54:00-07:00",
+     "score": 5.9,
+     "conf": "medium",
+     "entries": [
+      "Tajiguas Reef",
+      "Refugio State Beach"
+     ],
+     "gate": false
+    },
+    {
+     "label": "Wed dusk",
+     "start": "2026-08-19T17:43:00-07:00",
+     "score": 5.6,
+     "conf": "medium",
+     "entries": [
+      "Tajiguas Reef",
+      "Refugio State Beach"
+     ],
+     "gate": false
+    },
+    {
+     "label": "Thu dawn",
+     "start": "2026-08-20T05:55:00-07:00",
+     "score": 6.7,
+     "conf": "medium",
+     "entries": [
+      "Tajiguas Reef",
+      "Refugio State Beach"
+     ],
+     "gate": false
+    }
+   ]
+  },
+  "J": {
+   "keeper": null,
+   "record": {
+    "promises": 0,
+    "rings": 0
+   },
+   "bell": {
+    "no": 9,
+    "name": "Oahu North Shore",
+    "cast": "2026-08-17"
+   },
+   "tier": "provisional",
+   "topic": "oahunorth-dive-c7559382",
+   "name": "Oahu North Shore",
+   "last_ring": null,
+   "sst_f": 79,
+   "windows": [
+    {
+     "label": "Mon dusk",
+     "start": "2026-08-17T17:01:00-10:00",
+     "score": 4.0,
+     "conf": "high",
+     "entries": [
+      "Three Tables",
+      "Shark's Cove"
+     ],
+     "gate": false
+    },
+    {
+     "label": "Tue dawn",
+     "start": "2026-08-18T05:41:00-10:00",
+     "score": 4.0,
+     "conf": "high",
+     "entries": [
+      "Three Tables",
+      "Shark's Cove"
+     ],
+     "gate": false
+    },
+    {
+     "label": "Tue dusk",
+     "start": "2026-08-18T17:00:00-10:00",
+     "score": 4.0,
+     "conf": "medium",
+     "entries": [
+      "Three Tables",
+      "Shark's Cove"
+     ],
+     "gate": false
+    },
+    {
+     "label": "Wed dawn",
+     "start": "2026-08-19T05:41:00-10:00",
+     "score": 4.0,
+     "conf": "medium",
+     "entries": [
+      "Three Tables",
+      "Shark's Cove"
+     ],
+     "gate": false
+    },
+    {
+     "label": "Wed dusk",
+     "start": "2026-08-19T16:59:00-10:00",
+     "score": 4.0,
+     "conf": "medium",
+     "entries": [
+      "Three Tables",
+      "Shark's Cove"
+     ],
+     "gate": false
+    },
+    {
+     "label": "Thu dawn",
+     "start": "2026-08-20T05:42:00-10:00",
+     "score": 4.0,
+     "conf": "medium",
+     "entries": [
+      "Three Tables",
+      "Shark's Cove"
+     ],
+     "gate": false
+    }
+   ]
+  },
+  "K": {
+   "keeper": null,
+   "record": {
+    "promises": 0,
+    "rings": 0
+   },
+   "bell": {
+    "no": 10,
+    "name": "Kona",
+    "cast": "2026-08-17"
+   },
+   "tier": "provisional",
+   "topic": "kona-dive-2127ce9f",
+   "name": "Kona",
+   "last_ring": null,
+   "sst_f": 81,
+   "windows": [
+    {
+     "label": "Mon dusk",
+     "start": "2026-08-17T16:50:00-10:00",
+     "score": 1.7,
+     "conf": "medium",
+     "entries": [
+      "Two Step (Honaunau)",
+      "Kahalu'u"
+     ],
+     "gate": false
+    },
+    {
+     "label": "Tue dawn",
+     "start": "2026-08-18T05:35:00-10:00",
+     "score": 2.7,
+     "conf": "medium",
+     "entries": [
+      "Two Step (Honaunau)",
+      "Kahalu'u"
+     ],
+     "gate": false
+    },
+    {
+     "label": "Tue dusk",
+     "start": "2026-08-18T16:49:00-10:00",
+     "score": 3.9,
+     "conf": "medium",
+     "entries": [
+      "Two Step (Honaunau)",
+      "Kahalu'u"
+     ],
+     "gate": false
+    },
+    {
+     "label": "Wed dawn",
+     "start": "2026-08-19T05:35:00-10:00",
+     "score": 4.0,
+     "conf": "medium",
+     "entries": [
+      "Two Step (Honaunau)",
+      "Kahalu'u"
+     ],
+     "gate": false
+    },
+    {
+     "label": "Wed dusk",
+     "start": "2026-08-19T16:48:00-10:00",
+     "score": 4.0,
+     "conf": "low",
+     "entries": [
+      "Two Step (Honaunau)",
+      "Kahalu'u"
+     ],
+     "gate": false
+    },
+    {
+     "label": "Thu dawn",
+     "start": "2026-08-20T05:35:00-10:00",
+     "score": 4.0,
+     "conf": "low",
+     "entries": [
+      "Two Step (Honaunau)",
+      "Kahalu'u"
      ],
      "gate": false
     }

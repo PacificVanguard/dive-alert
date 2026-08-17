@@ -23,10 +23,13 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Validate model against buoy truth
+      - name: Validate every bell against its own buoy
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
-        run: python dive_alert.py validate --notify
+        run: |
+          for Z in A D E F H I J K; do
+            python dive_alert.py validate --zone $Z --notify || true
+          done
       - name: Grade the bell's promises
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}

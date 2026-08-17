@@ -249,6 +249,177 @@ CONFIG = {
                  "note": "kelp thickens fast in summer — plan the swim-out lanes"},
             ],
         },
+        "F": {
+            "name": "Catalina",
+            "enabled": True,
+            # BELL No.5 — Casino Point Dive Park, Avalon. THE SoCal dive park.
+            # NE-facing lee of the island: the model's channel cell sees swell
+            # the island itself blocks — height scale expected at casting.
+            "bell": {"no": 5, "name": "Catalina", "cast": "2026-08-17"},
+            "topic": "catalina-dive-8fac8d86", "tier": "provisional", "keeper": None,
+            "tide_station": "9410079", "buoy": "46221", "buoy_offshore": "46086",
+            "offshore_dir": 225,          # the island's interior lies SW of Avalon
+            "cove_damage_factor": 0.70,
+            # Fit on this bell's own casting evidence (model cell already sits in the island's lee my exposure map discounts
+            # again — the scale RAISES effective height to undo the double count).
+            "marine_height_scale": 1.60,
+            "lat": 33.345, "lon": -118.325,
+            "exposure": [(0, 0.45), (45, 0.60), (90, 0.40), (157, 0.15),
+                         (200, 0.10), (245, 0.06), (285, 0.06), (330, 0.20), (360, 0.45)],
+            "sites": [
+                {"name": "Casino Point Dive Park", "depth_ft": 40, "take_allowed": False,
+                 "creek_adjacent": False, "shelter": 0.3, "tide": "any",
+                 "entry": "stairs off the breakwater, gear-up benches",
+                 "note": "kelp cathedral, the wrecks on the sand line; ferry over, walk in"},
+                {"name": "Lover's Cove", "depth_ft": 25, "take_allowed": False,
+                 "creek_adjacent": False, "shelter": 0.2, "tide": "any",
+                 "entry": "cobble beach east of the ferry landing",
+                 "note": "garibaldi thick as confetti; snorkel-friendly"},
+            ],
+        },
+        "G": {
+            "name": "Palos Verdes",
+            "enabled": True,
+            # BELL No.6 — Terranea / Old Marineland. Laguna's northern cousin:
+            # SW-facing open coast, rocky coves, same swell family.
+            "bell": {"no": 6, "name": "Palos Verdes", "cast": "2026-08-17"},
+            "topic": "palosverdes-dive-0dcfd89c", "tier": "provisional", "keeper": None,
+            "tide_station": "9410660", "buoy": "46221", "buoy_offshore": "46086",
+            "offshore_dir": 45,
+            "cove_damage_factor": 0.70,
+            # Fit on this bell's own casting evidence (near-band first pour; light ease).
+            "marine_height_scale": 0.85,
+            "lat": 33.738, "lon": -118.396,
+            "exposure": [(0, 0.10), (90, 0.12), (157, 0.50), (180, 0.80),
+                         (220, 0.90), (245, 0.85), (270, 0.70), (285, 0.50),
+                         (300, 0.35), (330, 0.15), (360, 0.10)],
+            "sites": [
+                {"name": "Terranea (Old Marineland)", "depth_ft": 30, "take_allowed": False,
+                 "creek_adjacent": False, "shelter": 0.1, "tide": "mid-high",
+                 "entry": "cobble cove below the resort trail",
+                 "note": "120 Reef beyond the kelp line; watch the cobble in surge"},
+                {"name": "Christmas Tree Cove", "depth_ft": 25, "take_allowed": False,
+                 "creek_adjacent": False, "shelter": 0.2, "tide": "any",
+                 "entry": "steep trail, small pocket beach",
+                 "note": "clearest water on the peninsula on its day"},
+            ],
+        },
+        "H": {
+            "name": "Point Lobos",
+            "enabled": True,
+            # BELL No.7 — Whalers Cove, Point Lobos SNR. Permit water; the
+            # finest shore diving in California by reputation. Carmel Bay
+            # shelters the south entirely; NW wraps in through the mouth.
+            "bell": {"no": 7, "name": "Point Lobos", "cast": "2026-08-17"},
+            "topic": "pointlobos-dive-e69f7b6a", "tier": "provisional", "keeper": None,
+            "tide_station": "9413450", "buoy": "46239", "buoy_offshore": "46042",
+            "offshore_dir": 160,
+            "cove_damage_factor": 0.55,
+            "perfect_gate_overrides": {"min_sst_c": 11.5},
+            # Fit on this bell's own casting evidence (bay-mouth shelter deeper than pre-set).
+            "marine_height_scale": 0.49,
+            "lat": 36.522, "lon": -121.940,
+            "exposure": [(0, 0.55), (30, 0.45), (90, 0.15), (157, 0.05),
+                         (220, 0.08), (270, 0.25), (300, 0.50), (330, 0.60), (360, 0.55)],
+            "sites": [
+                {"name": "Whalers Cove", "depth_ft": 40, "take_allowed": False,
+                 "creek_adjacent": False, "shelter": 0.3, "tide": "any",
+                 "entry": "boat ramp; reserve a dive permit ahead",
+                 "note": "Middle Reef's hydrocoral; the cove IS the reserve — permits cap divers"},
+                {"name": "Bluefish Cove", "depth_ft": 60, "take_allowed": False,
+                 "creek_adjacent": False, "shelter": 0.1, "tide": "any",
+                 "entry": "swim or scooter from Whalers",
+                 "note": "the drop past the pinnacles — advanced, worth every kick"},
+            ],
+        },
+        "I": {
+            "name": "Santa Barbara",
+            "enabled": True,
+            # BELL No.8 — Refugio / Tajiguas. South-facing lee of Point
+            # Conception; the Channel Islands shadow much of the south swell —
+            # double shelter, height scale expected at casting.
+            "bell": {"no": 8, "name": "Santa Barbara", "cast": "2026-08-17"},
+            "topic": "santabarbara-dive-64e572f7", "tier": "provisional", "keeper": None,
+            "tide_station": "9411340", "buoy": "46054", "buoy_offshore": "46054",
+            "offshore_dir": 350,
+            "cove_damage_factor": 0.70,
+            "perfect_gate_overrides": {"min_sst_c": 13.5},
+            # Fit on this bell's own casting evidence (Point Conception + island shadow double-counted with exposure; raised).
+            "marine_height_scale": 1.15,
+            "lat": 34.462, "lon": -120.070,
+            "exposure": [(0, 0.10), (90, 0.15), (157, 0.70), (180, 0.90),
+                         (220, 0.85), (245, 0.50), (270, 0.20), (285, 0.10),
+                         (300, 0.08), (330, 0.08), (360, 0.10)],
+            "sites": [
+                {"name": "Refugio State Beach", "depth_ft": 25, "take_allowed": False,
+                 "creek_adjacent": True, "shelter": 0.2, "tide": "any",
+                 "entry": "sand beside the point, palms at your back",
+                 "note": "eelgrass and reef west of the point; VERIFY take rules"},
+                {"name": "Tajiguas Reef", "depth_ft": 30, "take_allowed": False,
+                 "creek_adjacent": False, "shelter": 0.1, "tide": "mid-high",
+                 "entry": "pullout beach, short swim",
+                 "note": "low-relief reef fingers; navigation practice water"},
+            ],
+        },
+        "J": {
+            "name": "Oahu North Shore",
+            "enabled": True,
+            # BELL No.9 — Shark's Cove, Pupukea. The inverse of SoCal: glass
+            # all summer, unrideable all winter. First bell on Hawaii clock
+            # and Hawaii rain (no SoCal flush season).
+            "bell": {"no": 9, "name": "Oahu North Shore", "cast": "2026-08-17"},
+            "topic": "oahunorth-dive-c7559382", "tier": "provisional", "keeper": None,
+            "tz": "Pacific/Honolulu",
+            "first_flush_months": [],
+            "tide_station": "1612340", "buoy": "51201", "buoy_offshore": "51003",
+            "offshore_dir": 140,          # trades come over the island from ESE
+            "cove_damage_factor": 0.62,
+            # Fit on this bell's own casting evidence (the cell drinks the full N Pacific winter Shark's Cove never swims in).
+            "marine_height_scale": 0.45,
+            "lat": 21.655, "lon": -158.063,
+            "exposure": [(0, 0.85), (45, 0.50), (90, 0.20), (157, 0.10),
+                         (200, 0.15), (245, 0.30), (285, 0.70), (315, 1.00),
+                         (340, 0.95), (360, 0.85)],
+            "sites": [
+                {"name": "Shark's Cove", "depth_ft": 25, "take_allowed": False,
+                 "creek_adjacent": False, "shelter": 0.3, "tide": "mid-high",
+                 "entry": "lava-rock puzzle at the north end",
+                 "note": "caves and arches left of the cove mouth; summer water only"},
+                {"name": "Three Tables", "depth_ft": 30, "take_allowed": False,
+                 "creek_adjacent": False, "shelter": 0.2, "tide": "any",
+                 "entry": "sand between the table rocks",
+                 "note": "the tables' seaward walls; turtles on the ledges"},
+            ],
+        },
+        "K": {
+            "name": "Kona",
+            "enabled": True,
+            # BELL No.10 — Two Step, Honaunau. Leeward Big Island: the island
+            # blocks the trades and most swell; height scale expected. The
+            # calmest famous shore dive in America.
+            "bell": {"no": 10, "name": "Kona", "cast": "2026-08-17"},
+            "topic": "kona-dive-2127ce9f", "tier": "provisional", "keeper": None,
+            "tz": "Pacific/Honolulu",
+            "first_flush_months": [],
+            "tide_station": "1617433", "buoy": "51003", "buoy_offshore": "51003",
+            "offshore_dir": 90,           # the volcano's slope lies due east
+            "cove_damage_factor": 0.62,
+            # Fit on this bell's own casting evidence (lee of the lee; raised to undo the double count).
+            "marine_height_scale": 1.40,
+            "lat": 19.421, "lon": -155.913,
+            "exposure": [(0, 0.10), (90, 0.08), (157, 0.15), (200, 0.35),
+                         (245, 0.50), (270, 0.45), (300, 0.25), (330, 0.12), (360, 0.10)],
+            "sites": [
+                {"name": "Two Step (Honaunau)", "depth_ft": 35, "take_allowed": False,
+                 "creek_adjacent": False, "shelter": 0.3, "tide": "any",
+                 "entry": "the lava two-step beside the boat ramp",
+                 "note": "coral garden drops to the aquarium; dolphins some mornings"},
+                {"name": "Kahalu'u", "depth_ft": 15, "take_allowed": False,
+                 "creek_adjacent": False, "shelter": 0.2, "tide": "mid-high",
+                 "entry": "sand channel through the breakwater",
+                 "note": "turtle cleaning stations in snorkel depth"},
+            ],
+        },
     },
 
     # ---- windows ------------------------------------------------------
@@ -606,18 +777,23 @@ def m_to_ft(m: float) -> float:
     return m * 3.28084
 
 
-def parse_local(s: str) -> datetime:
-    return datetime.fromisoformat(s).replace(tzinfo=PT)
+def parse_local(s: str, tz=None) -> datetime:
+    return datetime.fromisoformat(s).replace(tzinfo=tz or PT)
 
 
-def hourly_map(times, vals):
-    """{aware datetime -> float} skipping nulls."""
+def hourly_map(times, vals, tz=None):
+    """{aware datetime -> float} skipping nulls. tz: the zone's own clock —
+    a Hawaii bell must speak Hawaii time or 'in by 9:12am' is a lie."""
     out = {}
     for t, v in zip(times, vals):
         if v is None:
             continue
-        out[parse_local(t)] = float(v)
+        out[parse_local(t, tz)] = float(v)
     return out
+
+
+def zone_tz(zone_cfg):
+    return ZoneInfo(zone_cfg.get("tz", "America/Los_Angeles")) if zone_cfg else PT
 
 
 # =====================================================================
@@ -671,35 +847,37 @@ class Sources:
         return None
 
 
-def fetch_marine(src: Sources, lat, lon) -> Fetch:
+def fetch_marine(src: Sources, lat, lon, tzname="America/Los_Angeles") -> Fetch:
     try:
         q = urllib.parse.urlencode({
             "latitude": lat, "longitude": lon,
             "hourly": "wave_height,wave_period,wave_direction,"
                       "swell_wave_height,swell_wave_period,swell_wave_direction,"
                       "wind_wave_height,wind_wave_period,wind_wave_direction",
-            "past_days": 4, "forecast_days": 8, "timezone": "America/Los_Angeles"})
+            "past_days": 4, "forecast_days": 8, "timezone": tzname})
         d = json.loads(src.get("marine", CONFIG["sources"]["marine"] + "?" + q))
         h = d["hourly"]
-        data = {k: hourly_map(h["time"], h[k]) for k in h if k != "time"}
+        tz = ZoneInfo(tzname)
+        data = {k: hourly_map(h["time"], h[k], tz) for k in h if k != "time"}
         return Fetch("marine", True, data)
     except Exception as e:
         return Fetch("marine", False, error=str(e))
 
 
-def fetch_weather(src: Sources, lat, lon) -> Fetch:
+def fetch_weather(src: Sources, lat, lon, tzname="America/Los_Angeles") -> Fetch:
     try:
         q = urllib.parse.urlencode({
             "latitude": lat, "longitude": lon,
             "hourly": "wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation,cloud_cover",
             "daily": "sunrise,sunset",
             "wind_speed_unit": "kn", "precipitation_unit": "inch",
-            "past_days": 4, "forecast_days": 8, "timezone": "America/Los_Angeles"})
+            "past_days": 4, "forecast_days": 8, "timezone": tzname})
         d = json.loads(src.get("weather", CONFIG["sources"]["weather"] + "?" + q))
         h = d["hourly"]
-        data = {k: hourly_map(h["time"], h[k]) for k in h if k != "time"}
-        data["sunrise"] = [parse_local(t) for t in d["daily"]["sunrise"]]
-        data["sunset"] = [parse_local(t) for t in d["daily"]["sunset"]]
+        tz = ZoneInfo(tzname)
+        data = {k: hourly_map(h["time"], h[k], tz) for k in h if k != "time"}
+        data["sunrise"] = [parse_local(t, tz) for t in d["daily"]["sunrise"]]
+        data["sunset"] = [parse_local(t, tz) for t in d["daily"]["sunset"]]
         return Fetch("weather", True, data)
     except Exception as e:
         return Fetch("weather", False, error=str(e))
@@ -736,7 +914,7 @@ def fetch_ndbc(src: Sources, station: str, key: str) -> Fetch:
         return Fetch(key, False, error=str(e))
 
 
-def fetch_tides(src: Sources, begin: datetime, station=None) -> Fetch:
+def fetch_tides(src: Sources, begin: datetime, station=None, tz=None) -> Fetch:
     # station "none" is a legitimate Phase-3 state (tideless international
     # coasts): the tide term and entry-timing FYI degrade gracefully.
     station = station or CONFIG["sources"]["tide_station"]
@@ -752,7 +930,7 @@ def fetch_tides(src: Sources, begin: datetime, station=None) -> Fetch:
             "datum": "MLLW", "station": station,
             "time_zone": "lst_ldt", "units": "english", "interval": "hilo", "format": "json"})
         d = json.loads(src.get("tides", CONFIG["sources"]["tides"] + "?" + q))
-        ev = [{"t": datetime.strptime(p["t"], "%Y-%m-%d %H:%M").replace(tzinfo=PT),
+        ev = [{"t": datetime.strptime(p["t"], "%Y-%m-%d %H:%M").replace(tzinfo=tz or PT),
                "ft": float(p["v"]), "type": p["type"]} for p in d["predictions"]]
         return Fetch("tides", True, ev)
     except Exception as e:
@@ -864,13 +1042,14 @@ def fetch_all(zone_cfg, offline=False, fixture_set="normal"):
     lat, lon = zone_cfg["lat"], zone_cfg["lon"]
     buoy = zone_cfg.get("buoy", CONFIG["sources"]["ndbc_primary"])
     buoy_off = zone_cfg.get("buoy_offshore", CONFIG["sources"]["ndbc_offshore"])
+    tzname = zone_cfg.get("tz", "America/Los_Angeles")
     f = {
-        "marine": fetch_marine(src, lat, lon),
-        "weather": fetch_weather(src, lat, lon),
+        "marine": fetch_marine(src, lat, lon, tzname),
+        "weather": fetch_weather(src, lat, lon, tzname),
         "ndbc_primary": fetch_ndbc(src, buoy, "ndbc_primary"),
         "ndbc_offshore": fetch_ndbc(src, buoy_off, "ndbc_offshore"),
         "tides": fetch_tides(src, (src.fixture_now() or now_pt()),
-                             zone_cfg.get("tide_station")),
+                             zone_cfg.get("tide_station"), ZoneInfo(tzname)),
         "sst": fetch_sst(src, lat, lon),
         "chla": fetch_chla(src, lat, lon),
         "kd490": fetch_kd490(src, lat, lon),
@@ -1101,6 +1280,7 @@ def compute_features(w, fetches, zone_cfg, t_now):
         "wind_window_eff_kn": max(wind_eff_window) if wind_eff_window else None,
         "tide_range_ft": trange,
         "month": w["start"].month,
+        "first_flush_months": zone_cfg.get("first_flush_months"),
         "obs_frac": (obs_fraction(w["start"], fc["wind_lookback_h"], t_now)
                      + obs_fraction(w["start"], fc["swell_lookback_h"], t_now)) / 2.0,
         "missing": [k for k, f in fetches.items() if not f.ok],
@@ -1156,7 +1336,10 @@ def score_window(feats, creek_adjacent=False):
     if feats["dry_hours"] is not None and feats["dry_hours"] < rain_lb:
         c = rain_cap
         # first flush: dry-season rain carries months of grime in one pulse
-        if feats.get("month") in sc["first_flush_months"]:
+        ff_months = feats.get("first_flush_months")
+        if ff_months is None:
+            ff_months = sc["first_flush_months"]
+        if feats.get("month") in ff_months:
             c = min(c, sc["first_flush_cap"])
             flags.append("first-flush")
         if cap is None or c < cap:
@@ -2381,7 +2564,9 @@ def cmd_share(args):
 
 BUOY_POSITIONS = {"46253": (33.576, -118.181), "46254": (32.868, -117.267),
                   "46240": (36.626, -121.907), "46086": (32.499, -118.052),
-                  "46042": (36.785, -122.398)}
+                  "46042": (36.785, -122.398), "46221": (33.855, -118.633),
+                  "46239": (36.342, -122.102), "46054": (34.265, -120.477),
+                  "51201": (21.673, -158.117), "51003": (19.196, -160.639)}
 
 
 def cmd_validate(args):
