@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy — The Dive Bell</title>
+<meta name="description" content="The bell knows one thing about you: a phone number and which water you dive. Nothing is sold, shared, or tracked.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 4 C 8 4 5 12 5 20 L 5 25 L 27 25 L 27 20 C 27 12 24 4 16 4 Z' fill='%230a2a4a' stroke='%237fd4ff' stroke-width='1.6'/%3E%3Ccircle cx='16' cy='29' r='2.2' fill='%23ffd98a'/%3E%3C/svg%3E">
+<style>
+  :root { --glow:#7fd4ff; --sand:#e8dcc3; --dim:#64809b; --gold:#ffd98a; --ink:#a9c2d6; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { color:var(--sand); font-family:Georgia,'Times New Roman',serif; line-height:1.75;
+    background: radial-gradient(140% 55% at 50% -12%, rgba(127,212,255,.14), transparent 60%),
+      linear-gradient(180deg,#0d3355 0%,#0a2a4a 18%,#071d36 40%,#051526 65%,#030913 100%);
+    min-height:100vh; }
+  main { max-width:600px; margin:0 auto; padding:7vh 26px 12vh; }
+  .back { font-family:ui-monospace,Menlo,monospace; font-size:.75rem; letter-spacing:.2em;
+    text-transform:uppercase; color:var(--dim); text-decoration:none; }
+  h1 { font-weight:normal; font-size:clamp(2rem,6.5vw,2.7rem); margin:26px 0 8px; }
+  .sub { font-style:italic; color:var(--glow); margin-bottom:40px; }
+  h2 { font-family:ui-monospace,Menlo,monospace; font-size:.86rem; letter-spacing:.22em;
+    text-transform:uppercase; color:var(--gold); font-weight:normal; margin:38px 0 12px; }
+  p { color:var(--ink); margin-bottom:16px; }
+  p b { color:var(--sand); font-weight:normal; }
+  ul { color:var(--ink); margin:0 0 16px 20px; }
+  li { margin-bottom:8px; }
+  .vow { border-left:2px solid rgba(255,217,138,.5); padding-left:18px; font-style:italic;
+    color:var(--sand); margin:26px 0; }
+  a { color:var(--glow); }
+  .date { color:var(--dim); font-size:.84rem; margin-top:40px; }
+  footer { margin-top:8vh; color:var(--dim); font-size:.82rem; text-align:center; }
+  footer a { color:var(--dim); }
+</style>
+</head>
+<body>
+<main>
+  <a class="back" href="/">← the bell</a>
+  <h1>Privacy</h1>
+  <div class="sub">The bell knows almost nothing about you. That&rsquo;s by design, not by promise.</div>
+
+  <h2>What it knows</h2>
+  <p>If you text the bell, exactly two things exist about you:</p>
+  <ul>
+    <li>Your phone number, because you texted it</li>
+    <li>Which water you asked for, because you named it</li>
+  </ul>
+  <p>If you dive and text back a verdict — REEF, BUDDY, FINS — the bell keeps the
+    <b>verdict</b> and the morning it applied to, with no number attached to it. That is how
+    it learns its water without learning you.</p>
+
+  <h2>Where it lives</h2>
+  <p>Phone numbers live only in the message history of our telephone provider
+    (<a href="https://www.twilio.com/legal/privacy">Twilio</a>), which is how the bell knows
+    who to ring. They are never written into the project&rsquo;s files.</p>
+  <p class="vow">The project&rsquo;s code and data are public — anyone can read every line
+    at any time. A phone number in there would be a phone number the whole world could read.
+    So there are none. That is the strongest privacy promise we can make: not a policy, an
+    architecture.</p>
+
+  <h2>What it never does</h2>
+  <ul>
+    <li>Never sells, rents, or shares your number with anyone</li>
+    <li>Never sends marketing — only the conditions you asked for</li>
+    <li>No advertising, no third-party analytics, no tracking pixels, no cookies</li>
+    <li>No location access. The bell knows the water you named, not where you are</li>
+  </ul>
+
+  <h2>Getting forgotten</h2>
+  <p>Reply <b>STOP</b> to any message. Messages end immediately and your number stops being
+    part of the list. To have the message history itself deleted, ask through
+    <a href="https://github.com/PacificVanguard/dive-alert/issues">the project&rsquo;s public
+    issues</a> and it will be removed from the provider.</p>
+
+  <h2>The website</h2>
+  <p>thedivebell.com is a static site on GitHub Pages. It sets no cookies and runs no
+    analytics. GitHub may log requests as any web host does — see
+    <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement">their
+    privacy statement</a>.</p>
+
+  <h2>Children</h2>
+  <p>The service is not directed to anyone under 13, and no such use is knowingly permitted.</p>
+
+  <div class="date">Last updated 17 August 2026.</div>
+
+  <footer>
+    The Dive Bell · <a href="/">thedivebell.com</a> ·
+    <a href="/sms/">sms</a> · <a href="/terms/">terms</a>
+  </footer>
+</main>
+</body>
+</html>

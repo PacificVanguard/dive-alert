@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Terms — The Dive Bell</title>
+<meta name="description" content="The Dive Bell describes conditions. It does not certify safety. Every dive decision is yours.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 4 C 8 4 5 12 5 20 L 5 25 L 27 25 L 27 20 C 27 12 24 4 16 4 Z' fill='%230a2a4a' stroke='%237fd4ff' stroke-width='1.6'/%3E%3Ccircle cx='16' cy='29' r='2.2' fill='%23ffd98a'/%3E%3C/svg%3E">
+<style>
+  :root { --glow:#7fd4ff; --sand:#e8dcc3; --dim:#64809b; --gold:#ffd98a; --ink:#a9c2d6; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { color:var(--sand); font-family:Georgia,'Times New Roman',serif; line-height:1.75;
+    background: radial-gradient(140% 55% at 50% -12%, rgba(127,212,255,.14), transparent 60%),
+      linear-gradient(180deg,#0d3355 0%,#0a2a4a 18%,#071d36 40%,#051526 65%,#030913 100%);
+    min-height:100vh; }
+  main { max-width:600px; margin:0 auto; padding:7vh 26px 12vh; }
+  .back { font-family:ui-monospace,Menlo,monospace; font-size:.75rem; letter-spacing:.2em;
+    text-transform:uppercase; color:var(--dim); text-decoration:none; }
+  h1 { font-weight:normal; font-size:clamp(2rem,6.5vw,2.7rem); margin:26px 0 8px; }
+  .sub { font-style:italic; color:var(--glow); margin-bottom:40px; }
+  h2 { font-family:ui-monospace,Menlo,monospace; font-size:.86rem; letter-spacing:.22em;
+    text-transform:uppercase; color:var(--gold); font-weight:normal; margin:38px 0 12px; }
+  p { color:var(--ink); margin-bottom:16px; }
+  p b { color:var(--sand); font-weight:normal; }
+  .vow { border-left:2px solid rgba(255,217,138,.5); padding-left:18px; font-style:italic;
+    color:var(--sand); margin:26px 0; }
+  a { color:var(--glow); }
+  .date { color:var(--dim); font-size:.84rem; margin-top:40px; }
+  footer { margin-top:8vh; color:var(--dim); font-size:.82rem; text-align:center; }
+  footer a { color:var(--dim); }
+</style>
+</head>
+<body>
+<main>
+  <a class="back" href="/">← the bell</a>
+  <h1>Terms</h1>
+  <div class="sub">Short, because the service is small and honest about it.</div>
+
+  <h2>What this is</h2>
+  <p>The Dive Bell reads public ocean data — swell, wind, rain, tide, cloud — and scores
+    diving conditions at named sites. When a site&rsquo;s conditions meet its published
+    threshold, subscribers get a message. It is free, it is a personal project, and it sells
+    nothing.</p>
+
+  <h2>What it is not</h2>
+  <p>The bell describes conditions. <b>It does not certify safety.</b> It cannot see rip
+    currents, boat traffic, your gear, your training, your buddy, or your lungs. It has
+    never been in the water.</p>
+  <p class="vow">Every dive decision is yours. Check the water with your own eyes before you
+    enter it, and turn the dive whenever something feels wrong. The bell will still be there
+    tomorrow.</p>
+  <p>Forecasts are wrong sometimes — ours included, and we publish
+    <a href="/#join">how often</a>. Use the bell as one input among many: your own look at
+    the water, local knowledge, and your training always outrank it.</p>
+
+  <h2>No warranty</h2>
+  <p>The service is provided as-is, without warranty of any kind. Data comes from third
+    parties (NOAA, national buoy networks, weather models) and may be late, wrong, or
+    missing. To the fullest extent permitted by law, the operator is not liable for any
+    injury, loss, or damage arising from use of the service or from any dive undertaken
+    after receiving a message.</p>
+
+  <h2>Messages</h2>
+  <p>SMS is opt-in only: nobody receives a message who did not text the bell first. Reply
+    <b>STOP</b> to any message to end it, or <b>HELP</b> for help. Message and data rates
+    may apply. Carriers are not liable for delayed or undelivered messages. Details on the
+    <a href="/sms/">SMS page</a>.</p>
+
+  <h2>Fair use</h2>
+  <p>Don&rsquo;t resell the alerts, don&rsquo;t automate abuse of the number, and don&rsquo;t
+    represent the bell as a safety authority. Access may be ended for any of the above.</p>
+
+  <h2>Changes</h2>
+  <p>These terms may change; the current version always lives at this address. Questions go
+    through <a href="https://github.com/PacificVanguard/dive-alert/issues">the project&rsquo;s
+    public issues</a>, where the whole method is open to read.</p>
+
+  <div class="date">Last updated 17 August 2026.</div>
+
+  <footer>
+    The Dive Bell · <a href="/">thedivebell.com</a> ·
+    <a href="/sms/">sms</a> · <a href="/privacy/">privacy</a>
+  </footer>
+</main>
+</body>
+</html>

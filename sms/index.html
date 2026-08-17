@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Text the bell — The Dive Bell</title>
+<meta name="description" content="Text a dive site name to 833-858-BELL and the bell will tell you when its water lines up. About a dozen messages a year. Free.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 4 C 8 4 5 12 5 20 L 5 25 L 27 25 L 27 20 C 27 12 24 4 16 4 Z' fill='%230a2a4a' stroke='%237fd4ff' stroke-width='1.6'/%3E%3Ccircle cx='16' cy='29' r='2.2' fill='%23ffd98a'/%3E%3C/svg%3E">
+<style>
+  :root { --glow:#7fd4ff; --sand:#e8dcc3; --dim:#64809b; --gold:#ffd98a; --ink:#a9c2d6; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { color:var(--sand); font-family:Georgia,'Times New Roman',serif; line-height:1.7;
+    background: radial-gradient(140% 55% at 50% -12%, rgba(127,212,255,.16), transparent 60%),
+      linear-gradient(180deg,#0d3355 0%,#0a2a4a 18%,#071d36 40%,#051526 65%,#030913 100%);
+    min-height:100vh; }
+  main { max-width:620px; margin:0 auto; padding:7vh 26px 12vh; }
+  .back { font-family:ui-monospace,Menlo,monospace; font-size:.75rem; letter-spacing:.2em;
+    text-transform:uppercase; color:var(--dim); text-decoration:none; }
+  h1 { font-weight:normal; font-size:clamp(2.1rem,7vw,3rem); margin:26px 0 10px; }
+  .sub { font-style:italic; color:var(--glow); font-size:1.12rem; margin-bottom:44px; }
+  h2 { font-family:ui-monospace,Menlo,monospace; font-size:.95rem; letter-spacing:.24em;
+    text-transform:uppercase; color:var(--dim); font-weight:normal; margin:0 0 16px; }
+  .card { border:1px solid rgba(255,217,138,.28); border-radius:14px; padding:28px 30px;
+    background:rgba(4,14,28,.55); margin-bottom:40px; }
+  .bignum { font-family:ui-monospace,Menlo,monospace; font-size:clamp(1.5rem,5.5vw,2.1rem);
+    color:var(--gold); letter-spacing:.06em; margin:6px 0 4px; display:block;
+    text-decoration:none; }
+  .digits { color:var(--dim); font-size:.9rem; font-family:ui-monospace,Menlo,monospace; }
+  .keys { display:flex; flex-wrap:wrap; gap:8px; margin:22px 0 6px; }
+  .key { font-family:ui-monospace,Menlo,monospace; font-size:.8rem; letter-spacing:.1em;
+    color:var(--glow); border:1px solid rgba(127,212,255,.32); border-radius:999px;
+    padding:6px 13px; }
+  .row { display:flex; gap:16px; padding:13px 0; border-bottom:1px solid rgba(100,128,155,.16);
+    align-items:baseline; }
+  .row:last-child { border-bottom:0; }
+  .row .k { font-family:ui-monospace,Menlo,monospace; color:var(--gold); font-size:.74rem;
+    letter-spacing:.18em; flex:0 0 108px; text-transform:uppercase; }
+  .row .v { color:var(--ink); font-size:.96rem; }
+  p { color:var(--ink); margin-bottom:18px; }
+  p b { color:var(--sand); font-weight:normal; }
+  a { color:var(--glow); }
+  footer { margin-top:10vh; color:var(--dim); font-size:.82rem; text-align:center; }
+  footer a { color:var(--dim); }
+  @media (max-width:520px){ .row{flex-direction:column;gap:2px;} .row .k{flex:none;} }
+</style>
+</head>
+<body>
+<main>
+  <a class="back" href="/">← the bell</a>
+  <h1>Text the bell.</h1>
+  <div class="sub">One text gets you on. One text gets you off.</div>
+
+  <div class="card">
+    <h2>The number</h2>
+    <a class="bignum" href="sms:+18338582355">833‑858‑BELL</a>
+    <span class="digits">+1 833 858 2355 · text only</span>
+    <p style="margin-top:20px">Text the name of the water you dive. That&rsquo;s the whole
+      signup — no account, no app, no form.</p>
+    <div class="keys">
+      <span class="key">LAGUNA</span><span class="key">DANA</span><span class="key">JOLLA</span>
+      <span class="key">MONTEREY</span><span class="key">CATALINA</span><span class="key">PALOS</span>
+      <span class="key">LOBOS</span><span class="key">BARBARA</span><span class="key">OAHU</span>
+      <span class="key">KONA</span><span class="key">BONAIRE</span><span class="key">MALIBU</span>
+      <span class="key">VENTURA</span><span class="key">SYDNEY</span><span class="key">MAUI</span>
+    </div>
+  </div>
+
+  <h2>What you&rsquo;re agreeing to</h2>
+  <div class="card">
+    <div class="row"><span class="k">Program</span><span class="v">The Dive Bell — dive
+      conditions alerts</span></div>
+    <div class="row"><span class="k">You get</span><span class="v">A confirmation when you
+      join, then a message only on the mornings your water&rsquo;s conditions meet the
+      <a href="/#join">published threshold</a> — recurring, roughly a dozen times a
+      year.</span></div>
+    <div class="row"><span class="k">Frequency</span><span class="v">About 15 messages per
+      year. The bell is built to stay quiet.</span></div>
+    <div class="row"><span class="k">Cost</span><span class="v">Free. Message and data rates
+      may apply.</span></div>
+    <div class="row"><span class="k">To stop</span><span class="v">Reply <b>STOP</b> to any
+      message and it ends immediately. Reply <b>HELP</b> for help.</span></div>
+    <div class="row"><span class="k">Carriers</span><span class="v">Carriers are not liable
+      for delayed or undelivered messages.</span></div>
+    <div class="row"><span class="k">The rest</span><span class="v"><a href="/terms/">Terms</a>
+      · <a href="/privacy/">Privacy</a></span></div>
+  </div>
+
+  <h2>After a dive</h2>
+  <p>Text back one word — <b>REEF</b> if you saw the whole thing, <b>BUDDY</b> if you could
+    see across the reef, <b>FINS</b> if you couldn&rsquo;t. That&rsquo;s how the bell learns
+    its water. It has never been in the ocean; you have.</p>
+
+  <footer>
+    The Dive Bell · <a href="/">thedivebell.com</a> ·
+    <a href="/terms/">terms</a> · <a href="/privacy/">privacy</a>
+  </footer>
+</main>
+</body>
+</html>
