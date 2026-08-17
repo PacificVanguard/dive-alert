@@ -2,19 +2,19 @@ name: dive-alert
 
 on:
   schedule:
-    # Morning run ~4am Pacific, evening run ~6pm Pacific.
-    # Dual UTC offsets cover PST/PDT; a guard step keeps exactly one of each
-    # pair. Scheduled runs fire 15-60 min late — nothing depends on exactness.
-    - cron: "0 11 * * *"   # 4am PDT  / 3am PST (guarded out in PST)
-    - cron: "0 12 * * *"   # 5am PDT (guarded out) / 4am PST
-    - cron: "0 1 * * *"    # 6pm PDT  / 5pm PST (guarded out)
-    - cron: "0 2 * * *"    # 7pm PDT (guarded out) / 6pm PST
-    - cron: "0 18 * * *"   # 11am PDT / 10am PST (guarded out) — feedback ingest only
-    - cron: "0 19 * * *"   # noon PDT (guarded out) / 11am PST — feedback ingest only
-    # Weekly digest, Wednesday ~7am Pacific. Wednesday because 3-4 day forecast
-    # skill makes the coming weekend genuinely readable.
-    - cron: "0 14 * * 3"   # 7am PDT / 6am PST (guarded out)
-    - cron: "0 15 * * 3"   # 8am PDT (guarded out) / 7am PST
+    # LESSON (2026-08-14, learned in production): GitHub fires crons up to
+    # HOURS late, and an exact-hour guard silently skipped the run each time.
+    # Bellwatch caught the resulting two-day silence. Now: one cron per slot,
+    # a WIDE local-hour window per slot, and windows sized so PST/PDT drift
+    # and multi-hour lateness both land inside them.
+    - cron: "30 11 * * *"  # morning: 4:30am PDT / 3:30am PST -> window 3-5
+    - cron: "0 23 * * *"   # evening: 4pm PDT / 3pm PST -> window 14-19.
+                           # Deliberately early: at 6pm the next dawn sat at
+                           # ~12.2h lead, a 20-min-late cron lost the morning
+                           # alert entirely. From 4pm, dawn is ~14h out and
+                           # hours of lateness still clear the 12h floor.
+    - cron: "30 18 * * *"  # ingest: 11:30am PDT / 10:30am PST -> window 10-13
+    - cron: "30 14 * * 3"  # weekly: Wed 7:30am PDT / 6:30am PST -> window 6-9
   workflow_dispatch: {}    # manual runs always allowed
 
 permissions:
@@ -34,19 +34,24 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Pacific-hour guard (skip the DST twin)
+      - name: Pacific-window guard (lateness-tolerant)
         id: guard
         run: |
           H=$(TZ=America/Los_Angeles date +%-H)
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "$H" = "4" ] || [ "$H" = "18" ]; then
+          DOW=$(TZ=America/Los_Angeles date +%u)
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "go=yes" >> "$GITHUB_OUTPUT"
-          elif [ "$H" = "7" ] && [ "$(TZ=America/Los_Angeles date +%u)" = "3" ]; then
+          elif [ "$DOW" = "3" ] && [ "$H" -ge 6 ] && [ "$H" -le 9 ]; then
             echo "go=weekly" >> "$GITHUB_OUTPUT"   # Wednesday: the week-ahead ritual
-          elif [ "$H" = "11" ]; then
-            echo "go=ingest" >> "$GITHUB_OUTPUT"   # midday: fold in feedback button presses
+          elif [ "$H" -ge 3 ] && [ "$H" -le 5 ]; then
+            echo "go=yes" >> "$GITHUB_OUTPUT"      # the dawn read
+          elif [ "$H" -ge 14 ] && [ "$H" -le 19 ]; then
+            echo "go=yes" >> "$GITHUB_OUTPUT"      # the afternoon read
+          elif [ "$H" -ge 10 ] && [ "$H" -le 13 ]; then
+            echo "go=ingest" >> "$GITHUB_OUTPUT"   # midday: fold in button presses
           else
             echo "go=no" >> "$GITHUB_OUTPUT"
-            echo "Skipping: local hour $H is the DST twin of this cron."
+            echo "Skipping: local hour $H outside every window."
           fi
 
       - name: Run dive_alert
