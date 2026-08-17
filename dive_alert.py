@@ -2232,7 +2232,12 @@ def bell_keyword_map():
         BELL_KEYWORDS = {}
         for zk, zc in CONFIG["zones"].items():
             if zc.get("enabled"):
-                word = zc["bell"]["name"].split()[0].upper()
+                words = zc["bell"]["name"].upper().split()
+                # 'LA'/'POINT'/'SANTA' would match half of English (and each
+                # other) — take the first DISTINCTIVE word, min 4 letters
+                word = next((w for w in words if len(w) >= 4
+                             and w not in ("POINT", "SANTA", "NORTH", "SHORE", "COUNTY")),
+                            words[-1])
                 BELL_KEYWORDS[word] = zk
     return BELL_KEYWORDS
 
@@ -3598,7 +3603,8 @@ def cmd_test(args):
     check("(ff2) 10pm in Maui is not", not sms_quiet_ok(zc_hi, late_hi))
     kw = bell_keyword_map()
     check("(ff3) keywords route to bells", kw.get("LAGUNA") == "A" and kw.get("MAUI") == "P"
-          and kw.get("SYDNEY") == "O", str(sorted(kw))[:60])
+          and kw.get("JOLLA") == "D" and kw.get("BARBARA") == "I"
+          and all(len(k) >= 4 for k in kw), str(sorted(kw))[:70])
     check("(ff4) no env, no subscribers", sms_subscribers() == {})
 
     # fixture suite: degraded + disagreement
