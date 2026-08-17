@@ -27,7 +27,16 @@ exports.handler = async function (context, event, callback) {
   const verdict = Object.keys(VERDICTS).find((v) => body.includes(v));
   const bellWord = Object.keys(BELLS).find((b) => body.includes(b));
 
-  if (verdict) {
+  // HELP is normally intercepted by Twilio Advanced Opt-Out before this runs;
+  // handled here too so the reply is identical either way (and so the text
+  // matches the toll-free verification submission exactly).
+  if (body === "HELP" || body === "INFO") {
+    twiml.message(
+      "The Dive Bell: dive conditions alerts for the water you chose. " +
+      "About 15 msgs/yr. Info: thedivebell.com. Msg&data rates may apply. " +
+      "Reply STOP to end."
+    );
+  } else if (verdict) {
     try {
       await fetch("https://ntfy.sh/" + FB_TOPIC, {
         method: "POST", body: VERDICTS[verdict] + "|sms",
@@ -38,16 +47,16 @@ exports.handler = async function (context, event, callback) {
     );
   } else if (bellWord) {
     twiml.message(
-      "You're on the " + BELLS[bellWord] + " bell. It stays quiet on purpose - " +
-      "most mornings the ocean says no. When everything lines up, it rings. " +
-      "After a dive, text REEF (saw it all), BUDDY, or FINS. " +
-      "thedivebell.com  Reply STOP to end."
+      "The Dive Bell: you're on the " + BELLS[bellWord] + " bell. Most mornings " +
+      "the ocean says no; when it says yes, it rings - about 15 msgs/yr. " +
+      "After a dive text REEF, BUDDY or FINS. thedivebell.com " +
+      "Msg&data rates may apply. Reply HELP for help, STOP to end."
     );
   } else {
     twiml.message(
       "The Dive Bell: text a water to get on its bell - LAGUNA, MONTEREY, " +
-      "CATALINA, MAUI, BONAIRE, SYDNEY... The full board: thedivebell.com " +
-      "Reply STOP to end."
+      "CATALINA, MAUI, BONAIRE, SYDNEY... Full board: thedivebell.com " +
+      "Msg&data rates may apply. Reply HELP for help, STOP to end."
     );
   }
   return callback(null, twiml);
