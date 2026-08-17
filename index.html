@@ -163,17 +163,30 @@
 
   /* the bell board */
   .board { padding: 4vh 0 2vh; }
-  .brow { display: flex; align-items: center; gap: 16px; padding: 14px 6px;
-          border-bottom: 1px solid rgba(100,128,155,.16); text-decoration: none;
-          color: var(--sand); }
-  .brow:hover { background: rgba(10,42,74,.25); }
+  .btally { color: var(--dim); font-size: .88rem; margin: -14px 0 22px;
+            font-style: italic; }
+  .bregion { font-family: ui-monospace, Menlo, monospace; font-size: .68rem;
+             letter-spacing: .28em; color: rgba(100,128,155,.75);
+             text-transform: uppercase; margin: 26px 0 6px; }
+  .bregion:first-of-type { margin-top: 0; }
+  .brow { display: flex; align-items: center; gap: 14px; padding: 11px 8px;
+          border-bottom: 1px solid rgba(100,128,155,.13); text-decoration: none;
+          color: var(--sand); border-radius: 8px; transition: background .2s; }
+  .brow:hover { background: rgba(10,42,74,.4); }
+  .brow.here { background: rgba(10,42,74,.3); box-shadow: inset 2px 0 0 var(--glow); }
   .brow .bno { font-family: ui-monospace, Menlo, monospace; color: var(--dim);
-               font-size: .75rem; letter-spacing: .15em; flex: 0 0 34px; }
-  .brow .bname { flex: 1; }
-  .brow .bname small { display: block; color: var(--dim); font-size: .78rem; }
-  .brow .bstate { font-family: ui-monospace, Menlo, monospace; font-size: .78rem;
-                  letter-spacing: .18em; color: var(--dim); text-transform: uppercase; }
-  .brow.ringing .bstate { color: var(--gold); text-shadow: 0 0 14px rgba(255,217,138,.4); }
+               font-size: .72rem; letter-spacing: .12em; flex: 0 0 30px; }
+  .brow .bname { flex: 1 1 auto; font-size: .98rem; }
+  .brow .bbar { flex: 0 0 74px; height: 4px; border-radius: 2px;
+                background: rgba(100,128,155,.2); overflow: hidden; }
+  .brow .bbar i { display: block; height: 100%; background: var(--glow);
+                  border-radius: 2px; }
+  .brow .bsc { font-family: ui-monospace, Menlo, monospace; font-size: .82rem;
+               color: var(--ink); flex: 0 0 30px; text-align: right; }
+  .brow.ringing { background: rgba(255,217,138,.07); }
+  .brow.ringing .bname, .brow.ringing .bsc { color: var(--gold); }
+  .brow.ringing .bbar i { background: var(--gold); box-shadow: 0 0 10px rgba(255,217,138,.6); }
+  @media (max-width: 480px) { .brow .bbar { flex-basis: 46px; } }
   .tierline { margin-top: 12px; color: rgba(255,217,138,.75); font-size: .88rem;
               font-style: italic; }
 
@@ -228,13 +241,18 @@
     <div class="tierline" id="tierline" style="display:none">Newly cast and not yet
       sworn — this bell watches and speaks, but its ring is still locked.</div>
     <div class="state-live" id="keeperline" style="margin-top:10px"></div>
-    <div style="margin-top:16px"><a href="#join" style="color:var(--glow);font-size:.92rem;
-      text-decoration:none;border-bottom:1px solid rgba(127,212,255,.35)">get on this bell ↓</a></div>
+    <div style="margin-top:18px;font-size:.92rem">
+      <a href="#join" style="color:var(--glow);text-decoration:none;
+        border-bottom:1px solid rgba(127,212,255,.35)">get on this bell ↓</a>
+      <span style="color:var(--dim)"> &nbsp;·&nbsp; or text its name to
+        <a href="sms:+18338582355" style="color:var(--gold);text-decoration:none;
+        border-bottom:1px solid rgba(255,217,138,.35)">833-858-BELL</a></span></div>
     <a class="down" href="#descend">▾</a>
   </div>
 
   <div class="board" id="board" style="display:none">
     <h2>The bells</h2>
+    <div class="btally" id="btally"></div>
     <div id="boardrows"></div>
   </div>
 
@@ -257,8 +275,8 @@
 
   <div class="stanza">
     <span class="depth">30 ft</span>
-    <p>But some mornings — <b>December mornings, mostly</b>,
-       after the Santa Anas have swept the sea flat —
+    <p>But some mornings — <b id="seasonnote">December mornings, mostly,
+       after the Santa Anas have swept the sea flat</b> —
        every knowable thing lines up at once.<br><br>
        Those mornings, the bell rings.</p>
   </div>
@@ -515,36 +533,79 @@
       const el = document.getElementById(id);
       if (el) el.href = "https://ntfy.sh/" + z.topic;
     });
+    const sn = document.getElementById("seasonnote");
+    if (sn && z.season_note) sn.textContent = z.season_note;
     document.getElementById("foundry").innerHTML =
       "№" + z.bell.no + " · Cast " + (z.bell.cast || "2026").slice(0, 4) + " · " +
       z.bell.name + " · <b>one of one</b>";
   }
 
-  function buildBoard(updated) {
+  const REGION_ORDER = ["Southern California", "Central Coast", "Hawaii",
+                        "Caribbean", "Australia", "Elsewhere"];
+
+  function buildBoard() {
     const rows = document.getElementById("boardrows");
     rows.innerHTML = "";
+    const here = curKey();
+    let ringing = 0;
+    const byRegion = {};
     ORDER.forEach(k => {
-      const z = BELLS[k], st = bellState(z);
-      const a = document.createElement("a");
-      a.className = "brow" + (st.ringing ? " ringing" : "");
-      a.href = "#" + slug(z.bell.name);
-      a.innerHTML = "<span class='bno'>№" + z.bell.no + "</span>" +
-        "<span class='bname'>" + z.bell.name +
-        "<small>" + (z.tier === "provisional" ? "provisional · " : "") +
-        silenceLine(z) + "</small></span>" +
-        "<span class='bstate'>" + (st.ringing ? "ringing" : "quiet") + "</span>";
-      rows.appendChild(a);
+      const r = BELLS[k].region || "Elsewhere";
+      (byRegion[r] = byRegion[r] || []).push(k);
     });
+    REGION_ORDER.filter(r => byRegion[r]).forEach(region => {
+      const h = document.createElement("div");
+      h.className = "bregion";
+      h.textContent = region;
+      rows.appendChild(h);
+      byRegion[region].forEach(k => {
+        const z = BELLS[k], st = bellState(z);
+        if (st.ringing) ringing++;
+        const sc = st.top ? st.top.score : 0;
+        const a = document.createElement("a");
+        a.className = "brow" + (st.ringing ? " ringing" : "") + (k === here ? " here" : "");
+        a.href = "#" + slug(z.bell.name);
+        a.title = z.bell.name + (z.tier === "provisional" ? " · provisional" : "") +
+                  " · " + silenceLine(z);
+        a.innerHTML =
+          "<span class='bno'>№" + z.bell.no + "</span>" +
+          "<span class='bname'>" + z.bell.name + (st.ringing ? " ✨" : "") + "</span>" +
+          "<span class='bbar'><i style='width:" + Math.round(Math.min(sc, 10) * 10) +
+          "%'></i></span>" +
+          "<span class='bsc'>" + sc.toFixed(1) + "</span>";
+        rows.appendChild(a);
+      });
+    });
+    document.getElementById("btally").textContent =
+      ORDER.length + " waters watched · " +
+      (ringing ? ringing + (ringing === 1 ? " is ringing" : " are ringing")
+               : "all of them quiet");
     document.getElementById("board").style.display = ORDER.length > 1 ? "block" : "none";
+  }
+
+  // Your nearest bell, found by your own clock — no location prompt, no
+  // permission, no tracking. A diver in Sydney lands on the Sydney bell.
+  function nearestKey() {
+    try {
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const hit = ORDER.find(k => BELLS[k].tz === tz);
+      if (hit) return hit;
+    } catch (e) {}
+    return ORDER[0];
   }
 
   fetch("data/zones.json").then(r => r.json()).then(d => {
     BELLS = d.zones;
     ORDER = Object.keys(BELLS).sort((a, b) => (BELLS[a].bell.no || 9) - (BELLS[b].bell.no || 9));
-    buildBoard(d.updated);
+    if (!location.hash) {
+      const n = nearestKey();
+      if (n !== ORDER[0]) location.replace("#" + slug(BELLS[n].bell.name));
+    }
+    buildBoard();
     render(d.updated);
     window.addEventListener("hashchange", () => {
       render(d.updated);
+      buildBoard();
       document.querySelector(".surface").scrollIntoView({ behavior: "smooth" });
     });
   }).catch(() => {

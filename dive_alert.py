@@ -59,6 +59,8 @@ CONFIG = {
             # sworn = buoy-validated + hindcast-fitted; its gate may ring.
             # provisional = newly cast; it watches and speaks but cannot ring.
             "tier": "sworn",
+            "region": 'Southern California',
+            "season_note": 'December mornings, mostly, after the Santa Anas have swept the sea flat',
             "lat": 33.542, "lon": -117.785,   # Open-Meteo query point, just offshore of Heisler
             # Direction exposure map: swell direction (deg true, coming-from) -> 0..1
             # exposure of the Laguna coves. Coast faces ~SW; strong S/SW exposure,
@@ -156,6 +158,8 @@ CONFIG = {
             # Laguna's pocket coves — less protection than Laguna's 0.62.
             # CALIBRATION: set from the casting hindcast; retune on verdicts.
             "cove_damage_factor": 0.75,
+            "region": 'Southern California',
+            "season_note": 'winter mornings, when the swell finally lets the headland rest',
             "lat": 33.460, "lon": -117.714,
             "exposure": [(0, 0.10), (90, 0.20), (157, 0.70), (180, 1.00),
                          (220, 1.00), (245, 0.90), (270, 0.55), (285, 0.35),
@@ -185,6 +189,8 @@ CONFIG = {
             "tide_station": "9410230", "buoy": "46254", "buoy_offshore": "46086",
             "offshore_dir": 75,
             "cove_damage_factor": 0.62,   # the Cove is a true pocket, Laguna-like
+            "region": 'Southern California',
+            "season_note": 'the cold clear mornings after a north swell fades out',
             "lat": 32.850, "lon": -117.272,
             # Point La Jolla shelters the south; the Cove faces W-NW.
             # CALIBRATION: drafted from coast geometry, unconfirmed by a local.
@@ -232,6 +238,8 @@ CONFIG = {
             # ways (in-band range was 0.50-0.70, not a knife-edge).
             # CALIBRATION: first verdicts from a Monterey keeper judge it.
             "marine_height_scale": 0.55,
+            "region": 'Central Coast',
+            "season_note": "the bay's still mornings, when the peninsula holds the ocean off",
             "lat": 36.611, "lon": -121.898,
             # North-facing shore inside the bay: only wrapped NW-N energy
             # arrives. CALIBRATION: drafted from geometry, unconfirmed by a local.
@@ -263,6 +271,8 @@ CONFIG = {
             # Fit on this bell's own casting evidence (model cell already sits in the island's lee my exposure map discounts
             # again — the scale RAISES effective height to undo the double count).
             "marine_height_scale": 1.60,
+            "region": 'Southern California',
+            "season_note": "the island's quiet mornings, in the lee where the channel goes glass",
             "lat": 33.345, "lon": -118.325,
             "exposure": [(0, 0.45), (45, 0.60), (90, 0.40), (157, 0.15),
                          (200, 0.10), (245, 0.06), (285, 0.06), (330, 0.20), (360, 0.45)],
@@ -289,6 +299,8 @@ CONFIG = {
             "cove_damage_factor": 0.70,
             # Fit on this bell's own casting evidence (near-band first pour; light ease).
             "marine_height_scale": 0.85,
+            "region": 'Southern California',
+            "season_note": 'December mornings, when the point stops taking the swell',
             "lat": 33.738, "lon": -118.396,
             "exposure": [(0, 0.10), (90, 0.12), (157, 0.50), (180, 0.80),
                          (220, 0.90), (245, 0.85), (270, 0.70), (285, 0.50),
@@ -318,6 +330,8 @@ CONFIG = {
             "perfect_gate_overrides": {"min_sst_c": 11.5},
             # Fit on this bell's own casting evidence (bay-mouth shelter deeper than pre-set).
             "marine_height_scale": 0.49,
+            "region": 'Central Coast',
+            "season_note": 'the rare still mornings inside Carmel Bay',
             "lat": 36.522, "lon": -121.940,
             "exposure": [(0, 0.55), (30, 0.45), (90, 0.15), (157, 0.05),
                          (220, 0.08), (270, 0.25), (300, 0.50), (330, 0.60), (360, 0.55)],
@@ -346,6 +360,8 @@ CONFIG = {
             "perfect_gate_overrides": {"min_sst_c": 13.5},
             # Fit on this bell's own casting evidence (Point Conception + island shadow double-counted with exposure; raised).
             "marine_height_scale": 1.15,
+            "region": 'Central Coast',
+            "season_note": 'the mornings the islands hold the swell offshore',
             "lat": 34.462, "lon": -120.070,
             "exposure": [(0, 0.10), (90, 0.15), (157, 0.70), (180, 0.90),
                          (220, 0.85), (245, 0.50), (270, 0.20), (285, 0.10),
@@ -376,6 +392,8 @@ CONFIG = {
             "cove_damage_factor": 0.62,
             # Fit on this bell's own casting evidence (the cell drinks the full N Pacific winter Shark's Cove never swims in).
             "marine_height_scale": 0.45,
+            "region": 'Hawaii',
+            "season_note": 'summer mornings, when the winter giants are half a world away',
             "lat": 21.655, "lon": -158.063,
             "exposure": [(0, 0.85), (45, 0.50), (90, 0.20), (157, 0.10),
                          (200, 0.15), (245, 0.30), (285, 0.70), (315, 1.00),
@@ -406,6 +424,8 @@ CONFIG = {
             "cove_damage_factor": 0.62,
             # Fit on this bell's own casting evidence (lee of the lee; raised to undo the double count).
             "marine_height_scale": 1.40,
+            "region": 'Hawaii',
+            "season_note": 'the leeward mornings, when the island keeps the trades off the water',
             "lat": 19.421, "lon": -155.913,
             "exposure": [(0, 0.10), (90, 0.08), (157, 0.15), (200, 0.35),
                          (245, 0.50), (270, 0.45), (300, 0.25), (330, 0.12), (360, 0.10)],
@@ -437,6 +457,8 @@ CONFIG = {
             # count, the Catalina pattern; offline sweep said 1.3, pipeline
             # gap says land lower band).
             "marine_height_scale": 1.30,
+            "region": 'Caribbean',
+            "season_note": 'the mornings the trades ease and the lee goes to glass',
             "lat": 12.16, "lon": -68.29,
             "exposure": [(0, 0.35), (45, 0.20), (90, 0.08), (157, 0.10),
                          (200, 0.25), (245, 0.50), (285, 0.70), (315, 0.60),
@@ -462,6 +484,8 @@ CONFIG = {
             "tide_station": "9410840", "buoy": "46221", "buoy_offshore": "46086",
             "offshore_dir": 30,
             "cove_damage_factor": 0.70,
+            "region": 'Southern California',
+            "season_note": 'the offshore mornings, when the canyons breathe out to sea',
             "lat": 33.990, "lon": -118.805,
             "exposure": [(0, 0.10), (90, 0.12), (157, 0.55), (180, 0.85),
                          (220, 0.90), (245, 0.80), (270, 0.55), (285, 0.35),
@@ -487,6 +511,8 @@ CONFIG = {
             "tide_station": "9411189", "buoy": "46217", "buoy_offshore": "46054",
             "offshore_dir": 40,
             "cove_damage_factor": 0.80,   # open reef coast, little pocket shelter
+            "region": 'Southern California',
+            "season_note": 'winter mornings, between the swells that feed the point',
             "lat": 34.051, "lon": -118.964,
             "exposure": [(0, 0.10), (90, 0.12), (157, 0.60), (180, 0.80),
                          (220, 0.85), (245, 0.70), (270, 0.50), (285, 0.35),
@@ -515,6 +541,8 @@ CONFIG = {
             "offshore_dir": 240,
             "cove_damage_factor": 0.55,
             "perfect_gate_overrides": {"min_sst_c": 15.0},
+            "region": 'Australia',
+            "season_note": 'the winter mornings, when the southerly finally sleeps',
             "lat": -33.800, "lon": 151.297,
             "exposure": [(0, 0.70), (30, 0.60), (60, 0.40), (90, 0.25),
                          (135, 0.12), (180, 0.08), (225, 0.10), (270, 0.15),
@@ -540,6 +568,8 @@ CONFIG = {
             "tide_station": "1615680", "buoy": "51205", "buoy_offshore": "51003",
             "offshore_dir": 70,
             "cove_damage_factor": 0.62,
+            "region": 'Hawaii',
+            "season_note": "the leeward mornings, in the island's own wind shadow",
             "lat": 20.938, "lon": -156.694,
             "exposure": [(0, 0.30), (45, 0.15), (90, 0.08), (157, 0.15),
                          (200, 0.40), (245, 0.60), (285, 0.55), (315, 0.45),
@@ -2518,6 +2548,9 @@ def cmd_run(args):
             state["last_ring"][zk] = max(gate_days_seen)
         board[zk] = {
             "keeper": zc.get("keeper"),
+            "region": zc.get("region", "Elsewhere"),
+            "season_note": zc.get("season_note"),
+            "tz": zc.get("tz", "America/Los_Angeles"),
             "record": dict(rec),
             "bell": zc.get("bell", {}), "tier": zc.get("tier", "provisional"),
             "topic": ztopic, "name": zc["name"],
