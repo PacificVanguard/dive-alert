@@ -2191,6 +2191,121 @@ def notify(payload, dry_run, topic=None):
     return True
 
 
+# =====================================================================
+# SMS — the ring, by text. Design constraints, in order:
+#   1. The repo is PUBLIC: phone numbers never touch it. Twilio's own
+#      message history is the subscriber list — anyone who texted in is
+#      subscribed; their latest bell keyword names their bell; Twilio's
+#      Advanced Opt-Out enforces STOP at the carrier.
+#   2. SMS carries ONLY the ring (and the Function's welcome). ~15 msgs
+#      per subscriber per year. Digests stay on free channels.
+#   3. TCPA quiet hours: rings send only 8am-9pm in the BELL's timezone
+#      (the best proxy we have for its subscribers). A dawn-run ring
+#      defers; the afternoon run re-sees the window and sends then.
+# Env: TWILIO_ACCOUNT_SID / TWILIO_AUTH_TOKEN / TWILIO_FROM. Absent env
+# = SMS layer silently off; nothing else changes.
+# =====================================================================
+
+def _twilio_env():
+    sid = os.environ.get("TWILIO_ACCOUNT_SID")
+    tok = os.environ.get("TWILIO_AUTH_TOKEN")
+    frm = os.environ.get("TWILIO_FROM")
+    return (sid, tok, frm) if (sid and tok and frm) else None
+
+
+def _twilio_req(path, sid, tok, data=None):
+    import base64
+    url = "https://api.twilio.com/2010-04-01/Accounts/%s/%s" % (sid, path)
+    body = urllib.parse.urlencode(data).encode() if data else None
+    req = urllib.request.Request(url, data=body)
+    req.add_header("Authorization", "Basic " +
+                   base64.b64encode(("%s:%s" % (sid, tok)).encode()).decode())
+    with urllib.request.urlopen(req, timeout=30) as r:
+        return json.loads(r.read())
+
+
+BELL_KEYWORDS = None   # built lazily: LAGUNA->A, MAUI->P, ...
+
+def bell_keyword_map():
+    global BELL_KEYWORDS
+    if BELL_KEYWORDS is None:
+        BELL_KEYWORDS = {}
+        for zk, zc in CONFIG["zones"].items():
+            if zc.get("enabled"):
+                word = zc["bell"]["name"].split()[0].upper()
+                BELL_KEYWORDS[word] = zk
+    return BELL_KEYWORDS
+
+
+def sms_subscribers():
+    """{zone_key: [numbers]} from Twilio's inbound history. The latest bell
+    keyword a number texted decides its bell; numbers with no recognizable
+    keyword ride Bell No.1. Returns {} when SMS env is absent."""
+    env = _twilio_env()
+    if not env:
+        return {}
+    sid, tok, frm = env
+    kw = bell_keyword_map()
+    latest = {}
+    page = "Messages.json?" + urllib.parse.urlencode({"To": frm, "PageSize": 400})
+    for _ in range(20):   # paginate, bounded
+        d = _twilio_req(page, sid, tok)
+        for m in d.get("messages", []):
+            num, body = m.get("from"), (m.get("body") or "").strip().upper()
+            if not num:
+                continue
+            zk = next((z for w, z in kw.items() if w in body), None)
+            if num not in latest or (zk and latest[num] is None):
+                latest[num] = zk
+        nxt = d.get("next_page_uri")
+        if not nxt:
+            break
+        page = nxt.split("/%s/" % sid, 1)[-1]
+    out = {}
+    for num, zk in latest.items():
+        out.setdefault(zk or "A", []).append(num)
+    return out
+
+
+def sms_quiet_ok(zone_cfg, when=None):
+    h = (when or datetime.now(tz=zone_tz(zone_cfg))).astimezone(zone_tz(zone_cfg)).hour
+    return 8 <= h < 21
+
+
+def sms_ring(zone_key, zone_cfg, payload, state, dry_run):
+    """One segment, the ring only, deduped per window, quiet-hours safe.
+    Twilio refuses opted-out numbers on its own."""
+    env = _twilio_env()
+    if not env:
+        return
+    wkey = payload["w"]["key"]
+    sent = state.setdefault("sms_rung", {})
+    if sent.get(zone_key) == wkey or not sms_quiet_ok(zone_cfg):
+        return
+    subs = sms_subscribers().get(zone_key, [])
+    if not subs:
+        sent[zone_key] = wkey
+        return
+    body = ("THE BELL IS RINGING - %s. %s. In by %s at %s. thedivebell.com "
+            "Reply STOP to end.") % (
+        zone_cfg["bell"]["name"], payload["w"]["label"],
+        payload["w"]["start"].strftime("%-I:%M%p").lower(),
+        payload["entries"][0] if payload["entries"] else "your cove")
+    sid, tok, frm = env
+    ok = 0
+    for num in subs:
+        try:
+            if not dry_run:
+                _twilio_req("Messages.json", sid, tok,
+                            {"To": num, "From": frm, "Body": body})
+            ok += 1
+        except Exception as e:
+            print("sms to %s… failed: %s" % (num[:6], str(e)[:60]), file=sys.stderr)
+    sent[zone_key] = wkey
+    print("sms ring (%s): %d/%d sent%s" % (zone_key, ok, len(subs),
+                                           " [dry]" if dry_run else ""))
+
+
 def notify_ops(payload, dry_run):
     """Plumbing news goes to the keeper channel, never to divers."""
     return notify(payload, dry_run, topic=ops_topic())
@@ -2378,6 +2493,8 @@ def cmd_run(args):
                                    actions=feedback_actions(payload["w"]["key"], zc),
                                    gate=payload.get("gate"))
                 notify(msg, args.dry_run, topic=ztopic)
+                if payload.get("gate"):
+                    sms_ring(zk, zc, payload, state, args.dry_run)
                 rec["promises"] += 1
                 for r in rows:
                     if r["window_key"] == payload["w"]["key"]:
@@ -3471,6 +3588,18 @@ def cmd_test(args):
     check("(ee4) anchored damage scales ~1.69x",
           1.6 <= ft_a["damage"] / ft_b["damage"] <= 1.8,
           "ratio=%.2f" % (ft_a["damage"] / ft_b["damage"]))
+
+    # (ff) SMS layer: quiet hours by the bell's clock; keywords name bells;
+    # no env means no sends, ever.
+    zc_hi = CONFIG["zones"]["P"]
+    noon_hi = datetime(2026, 8, 17, 12, 0, tzinfo=ZoneInfo("Pacific/Honolulu"))
+    late_hi = datetime(2026, 8, 17, 22, 0, tzinfo=ZoneInfo("Pacific/Honolulu"))
+    check("(ff) noon in Maui is sendable", sms_quiet_ok(zc_hi, noon_hi))
+    check("(ff2) 10pm in Maui is not", not sms_quiet_ok(zc_hi, late_hi))
+    kw = bell_keyword_map()
+    check("(ff3) keywords route to bells", kw.get("LAGUNA") == "A" and kw.get("MAUI") == "P"
+          and kw.get("SYDNEY") == "O", str(sorted(kw))[:60])
+    check("(ff4) no env, no subscribers", sms_subscribers() == {})
 
     # fixture suite: degraded + disagreement
     print("fixture tests:")
