@@ -30,6 +30,11 @@ jobs:
           for Z in A D E F H I J K; do
             python dive_alert.py validate --zone $Z --notify || true
           done
+      - name: Grade the bell's own foresight
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+        run: python dive_alert.py skill --notify
+
       - name: Grade the bell's promises
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}

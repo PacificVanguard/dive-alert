@@ -420,6 +420,141 @@ CONFIG = {
                  "note": "turtle cleaning stations in snorkel depth"},
             ],
         },
+        "L": {
+            "name": "Bonaire",
+            "enabled": True,
+            # BELL No.11 — the shore-diving capital of Earth, and the first
+            # bell beyond US waters. No NDBC ear, no NOAA tide — and honestly
+            # tideless: Caribbean microtides barely move. Model-read forever
+            # until the world grows instruments here.
+            "bell": {"no": 11, "name": "Bonaire", "cast": "2026-08-17"},
+            "topic": "bonaire-dive-c06b33ce", "tier": "provisional", "keeper": None,
+            "tz": "America/Kralendijk", "first_flush_months": [],
+            "tide_station": "none", "buoy": "none", "buoy_offshore": "none",
+            "offshore_dir": 90,           # trades cross the island from the east
+            "cove_damage_factor": 0.62,
+            # Fit on this bell's own casting evidence (eternal-lee double
+            # count, the Catalina pattern; offline sweep said 1.3, pipeline
+            # gap says land lower band).
+            "marine_height_scale": 1.30,
+            "lat": 12.16, "lon": -68.29,
+            "exposure": [(0, 0.35), (45, 0.20), (90, 0.08), (157, 0.10),
+                         (200, 0.25), (245, 0.50), (285, 0.70), (315, 0.60),
+                         (340, 0.45), (360, 0.35)],
+            "sites": [
+                {"name": "Bari Reef", "depth_ft": 40, "take_allowed": False,
+                 "creek_adjacent": False, "shelter": 0.3, "tide": "any",
+                 "entry": "dock steps at Sand Dollar",
+                 "note": "the most fish-counted reef in the Caribbean; tanks by the door"},
+                {"name": "1000 Steps", "depth_ft": 35, "take_allowed": False,
+                 "creek_adjacent": False, "shelter": 0.2, "tide": "any",
+                 "entry": "67 limestone steps that feel like 1000 with tanks",
+                 "note": "elkhorn stands and turtle traffic; the stairs earn the name on exit"},
+            ],
+        },
+        "M": {
+            "name": "Malibu",
+            "enabled": True,
+            # BELL No.12 — Point Dume's cove and pinnacles; Santa Monica Bay's
+            # western gate. SoCal swell family, Santa Anas down the canyons.
+            "bell": {"no": 12, "name": "Malibu", "cast": "2026-08-17"},
+            "topic": "malibu-dive-139a19c8", "tier": "provisional", "keeper": None,
+            "tide_station": "9410840", "buoy": "46221", "buoy_offshore": "46086",
+            "offshore_dir": 30,
+            "cove_damage_factor": 0.70,
+            "lat": 33.990, "lon": -118.805,
+            "exposure": [(0, 0.10), (90, 0.12), (157, 0.55), (180, 0.85),
+                         (220, 0.90), (245, 0.80), (270, 0.55), (285, 0.35),
+                         (300, 0.25), (330, 0.12), (360, 0.10)],
+            "sites": [
+                {"name": "Point Dume Cove", "depth_ft": 30, "take_allowed": False,
+                 "creek_adjacent": False, "shelter": 0.2, "tide": "mid-high",
+                 "entry": "the stairs then sand, east of the point",
+                 "note": "pinnacles off the point hold the life; seals patrol the wall"},
+                {"name": "Leo Carrillo (Sequit Point)", "depth_ft": 25, "take_allowed": False,
+                 "creek_adjacent": True, "shelter": 0.1, "tide": "any",
+                 "entry": "sand west of the point, kelp close in",
+                 "note": "Arroyo Sequit runs after rain — the creek rule earns its keep here"},
+            ],
+        },
+        "N": {
+            "name": "Ventura County",
+            "enabled": True,
+            # BELL No.13 — County Line's kelp reef and the La Jenelle wreck.
+            # The Anacapa Passage buoy is the right ear for this water.
+            "bell": {"no": 13, "name": "Ventura County", "cast": "2026-08-17"},
+            "topic": "ventura-dive-b1a44410", "tier": "provisional", "keeper": None,
+            "tide_station": "9411189", "buoy": "46217", "buoy_offshore": "46054",
+            "offshore_dir": 40,
+            "cove_damage_factor": 0.80,   # open reef coast, little pocket shelter
+            "lat": 34.051, "lon": -118.964,
+            "exposure": [(0, 0.10), (90, 0.12), (157, 0.60), (180, 0.80),
+                         (220, 0.85), (245, 0.70), (270, 0.50), (285, 0.35),
+                         (300, 0.30), (330, 0.12), (360, 0.10)],
+            "sites": [
+                {"name": "County Line Reef (Yerba Buena)", "depth_ft": 25, "take_allowed": False,
+                 "creek_adjacent": False, "shelter": 0.1, "tide": "mid-high",
+                 "entry": "sand beside the point, watch the surfers' lineup",
+                 "note": "kelp rows over low reef fingers; share the water politely"},
+                {"name": "La Jenelle (Port Hueneme)", "depth_ft": 20, "take_allowed": False,
+                 "creek_adjacent": False, "shelter": 0.2, "tide": "any",
+                 "entry": "beach beside the jetty at Silver Strand",
+                 "note": "the liner that beached in '70 — her bones make the jetty's south arm"},
+            ],
+        },
+        "O": {
+            "name": "Sydney",
+            "enabled": True,
+            # BELL No.14 — Shelly Beach, Cabbage Tree Bay. Southern hemisphere:
+            # seasons inverted, Sydney clock, no NDBC ear (BOM's buoys speak
+            # another network). Model-read until an Australian keeper appears.
+            "bell": {"no": 14, "name": "Sydney", "cast": "2026-08-17"},
+            "topic": "sydney-dive-75fdf41a", "tier": "provisional", "keeper": None,
+            "tz": "Australia/Sydney", "first_flush_months": [],
+            "tide_station": "none", "buoy": "none", "buoy_offshore": "none",
+            "offshore_dir": 240,
+            "cove_damage_factor": 0.55,
+            "perfect_gate_overrides": {"min_sst_c": 15.0},
+            "lat": -33.800, "lon": 151.297,
+            "exposure": [(0, 0.70), (30, 0.60), (60, 0.40), (90, 0.25),
+                         (135, 0.12), (180, 0.08), (225, 0.10), (270, 0.15),
+                         (315, 0.40), (350, 0.65), (360, 0.70)],
+            "sites": [
+                {"name": "Shelly Beach (Cabbage Tree Bay)", "depth_ft": 20, "take_allowed": False,
+                 "creek_adjacent": False, "shelter": 0.3, "tide": "any",
+                 "entry": "sand walk-in off the promenade",
+                 "note": "aquatic reserve — dusky whalers, blue gropers, weedy seadragons"},
+                {"name": "Fairy Bower", "depth_ft": 25, "take_allowed": False,
+                 "creek_adjacent": False, "shelter": 0.2, "tide": "mid-high",
+                 "entry": "the bower steps, swim the pipeline out",
+                 "note": "sponge gardens along the wall toward Manly"},
+            ],
+        },
+        "P": {
+            "name": "Maui",
+            "enabled": True,
+            # BELL No.15 — Kahekili and Black Rock, leeward West Maui.
+            "bell": {"no": 15, "name": "Maui", "cast": "2026-08-17"},
+            "topic": "maui-dive-134339c2", "tier": "provisional", "keeper": None,
+            "tz": "Pacific/Honolulu", "first_flush_months": [],
+            "tide_station": "1615680", "buoy": "51205", "buoy_offshore": "51003",
+            "offshore_dir": 70,
+            "cove_damage_factor": 0.62,
+            "lat": 20.938, "lon": -156.694,
+            "exposure": [(0, 0.30), (45, 0.15), (90, 0.08), (157, 0.15),
+                         (200, 0.40), (245, 0.60), (285, 0.55), (315, 0.45),
+                         (340, 0.35), (360, 0.30)],
+            "sites": [
+                {"name": "Kahekili (Airport Beach)", "depth_ft": 30, "take_allowed": False,
+                 "creek_adjacent": False, "shelter": 0.3, "tide": "any",
+                 "entry": "sand, reef starts at your fins",
+                 "note": "herbivore reserve — the healthiest coral on the west side"},
+                {"name": "Black Rock (Pu'u Keka'a)", "depth_ft": 25, "take_allowed": False,
+                 "creek_adjacent": False, "shelter": 0.2, "tide": "any",
+                 "entry": "off the sand at Ka'anapali's north end",
+                 "note": "the wall wraps the point; turtles thick by the cliff jumpers"},
+            ],
+        },
     },
 
     # ---- windows ------------------------------------------------------
@@ -903,6 +1038,8 @@ def parse_ndbc(text: str):
 
 
 def fetch_ndbc(src: Sources, station: str, key: str) -> Fetch:
+    if station in (None, "none"):
+        return Fetch(key, False, error="no buoy for this water")
     try:
         url = CONFIG["sources"]["ndbc_url"].format(station=station)
         rows = parse_ndbc(src.get(key, url, timeout=20))
@@ -1227,7 +1364,35 @@ def tide_range_ft(tides, w):
     return (max(fts) - min(fts)) if len(fts) >= 2 else None
 
 
-def compute_features(w, fetches, zone_cfg, t_now):
+def buoy_anchor(fetches, t_now):
+    """Rolling correction of the model against the zone's own buoy: median of
+    obs/model height over the last 48h of matched hours. The casting scale
+    says how this GEOGRAPHY differs from the model; the anchor says how THIS
+    WEEK'S SWELL differs. Clamped hard (0.6-1.6) and defaulting to 1.0 on any
+    doubt — a correction must never be able to do more damage than the error
+    it corrects. Absent from hindcasts by necessity (no archived realtime
+    buoy): a live-accuracy layer, centered on 1.0 by construction."""
+    mp, ma = fetches.get("ndbc_primary"), fetches.get("marine")
+    if not (mp and mp.ok and ma and ma.ok):
+        return 1.0
+    model = ma.data.get("wave_height", {})
+    ratios = []
+    for r in mp.data.get("rows", []):
+        if r["wvht_m"] is None:
+            continue
+        hr = r["t"].astimezone(PT).replace(minute=0, second=0, microsecond=0)
+        if (t_now - hr).total_seconds() > 48 * 3600:
+            continue
+        mv = model.get(hr)
+        if mv and mv > 0.15:
+            ratios.append(r["wvht_m"] / mv)
+    if len(ratios) < 12:
+        return 1.0
+    ratios.sort()
+    return round(max(0.6, min(1.6, ratios[len(ratios) // 2])), 3)
+
+
+def compute_features(w, fetches, zone_cfg, t_now, anchor=1.0):
     fc = CONFIG["features"]
     marine = fetches["marine"].data if fetches["marine"].ok else {}
     wx = fetches["weather"].data if fetches["weather"].ok else {}
@@ -1244,13 +1409,13 @@ def compute_features(w, fetches, zone_cfg, t_now):
 
     def swell_fn_pair():
         total = 0.0
-        anchor = floor_hour(w["start"])
-        t = anchor - timedelta(hours=fc["swell_lookback_h"])
-        while t < anchor:
+        t0h = floor_hour(w["start"])   # hour-snap (see floor_hour); NOT the buoy anchor
+        t = t0h - timedelta(hours=fc["swell_lookback_h"])
+        while t < t0h:
             h, p = swell_series.get(t), swell_per.get(t)
             if h is not None and p is not None:
-                age = (anchor - t).total_seconds() / 3600.0
-                hs = m_to_ft(h) * zone_cfg.get("marine_height_scale", 1.0)
+                age = (t0h - t).total_seconds() / 3600.0
+                hs = m_to_ft(h) * zone_cfg.get("marine_height_scale", 1.0) * anchor
                 total += (0.5 ** (age / fc["swell_half_life_h"])) * (hs ** 2) * p
             t += timedelta(hours=1)
         return total
@@ -1259,7 +1424,7 @@ def compute_features(w, fetches, zone_cfg, t_now):
     dry = dry_hours(precip, w["start"], fc["rain_lookback_h"], fc["rain_threshold_in"]) if precip else None
     dmg, dmg_parts = swell_damage(marine, w, zone_cfg["exposure"],
                                   zone_cfg.get("cove_damage_factor", 1.0),
-                                  zone_cfg.get("marine_height_scale", 1.0))
+                                  zone_cfg.get("marine_height_scale", 1.0) * anchor)
     wind_in_window = [wind.get(t) for t in window_hours(w)]
     wind_in_window = [v for v in wind_in_window if v is not None]
     wind_eff_window = [wind_eff.get(t) for t in window_hours(w)]
@@ -1281,6 +1446,7 @@ def compute_features(w, fetches, zone_cfg, t_now):
         "tide_range_ft": trange,
         "month": w["start"].month,
         "first_flush_months": zone_cfg.get("first_flush_months"),
+        "buoy_anchor": anchor,
         "obs_frac": (obs_fraction(w["start"], fc["wind_lookback_h"], t_now)
                      + obs_fraction(w["start"], fc["swell_lookback_h"], t_now)) / 2.0,
         "missing": [k for k, f in fetches.items() if not f.ok],
@@ -2096,8 +2262,9 @@ def score_zone(zone_key, zone_cfg, fetches, t_now, horizon_h=72):
     windows = build_windows(fetches["weather"], t_now, zone_cfg, horizon_h)
     tides = fetches["tides"].data if fetches["tides"].ok else []
     scored = []
+    anchor = buoy_anchor(fetches, t_now)
     for w in windows:
-        feats = compute_features(w, fetches, zone_cfg, t_now)
+        feats = compute_features(w, fetches, zone_cfg, t_now, anchor)
         creek = False  # zone-level scoring; creek rule applies per-site when Zone B wakes
         score, breakdown, cap_reason, flags = score_window(feats, creek)
         conf_word, comp, agree, notes = confidence(fetches, feats, t_now)
@@ -2681,6 +2848,92 @@ def cmd_cast(args):
 
 
 # =====================================================================
+# skill — the system grades its own forecasts
+# =====================================================================
+
+def cmd_skill(args):
+    """We calibrate on archive (analysis) data but ALERT on forecasts, and the
+    error between them at 12-48h lead was never measured until this. For every
+    logged window old enough to have an archive truth (>2 days past), rebuild
+    it from the archive at t_now=window_start and compare with what we
+    predicted at each lead. Truth here = the model's own analysis — this
+    measures FORECAST error, the thing confidence words claim to know."""
+    rows = [r for r in _read_csv(LOG_PATH) if r.get("lead_h")]
+    cutoff_lo = now_pt() - timedelta(days=45)
+    cutoff_hi = now_pt() - timedelta(days=2)
+    by_zone = {}
+    for r in rows:
+        try:
+            ws = datetime.fromisoformat(r["window_start"])
+            lead = float(r["lead_h"])
+        except (ValueError, KeyError):
+            continue
+        if cutoff_lo <= ws <= cutoff_hi and lead >= 6:
+            by_zone.setdefault(r.get("zone", "A"), []).append((ws, lead, float(r["score"]), r["window_kind"]))
+    errs = []   # (zone, lead_bucket, predicted, truth)
+    for zk, entries in by_zone.items():
+        zc = CONFIG["zones"].get(zk)
+        if not zc or len(entries) < 6:
+            continue
+        d0 = min(e[0] for e in entries).date() - timedelta(days=4)
+        d1 = max(e[0] for e in entries).date()
+        try:
+            tzname = zc.get("tz", "America/Los_Angeles")
+            tz = ZoneInfo(tzname)
+            def arch(url, extra):
+                q = dict(latitude=zc["lat"], longitude=zc["lon"], start_date=str(d0),
+                         end_date=str(d1), timezone=tzname)
+                q.update(extra)
+                return json.loads(http_get(url + "?" + urllib.parse.urlencode(q), 120))["hourly"]
+            mh = arch(CONFIG["sources"]["marine"],
+                      {"hourly": "wave_height,wave_period,swell_wave_height,swell_wave_period,"
+                                 "swell_wave_direction,wind_wave_height,wind_wave_period,"
+                                 "wind_wave_direction"})
+            wh = arch(CONFIG["sources"]["weather_archive"],
+                      {"hourly": "wind_speed_10m,wind_direction_10m,precipitation,cloud_cover",
+                       "wind_speed_unit": "kn", "precipitation_unit": "inch"})
+        except Exception as e:
+            print("  %s: archive unavailable (%s)" % (zk, str(e)[:60]))
+            continue
+        marine = {k: hourly_map(mh["time"], mh[k], tz) for k in mh if k != "time"}
+        wx = {k: hourly_map(wh["time"], wh[k], tz) for k in wh if k != "time"}
+        F = {"marine": Fetch("m", True, marine),
+             "weather": Fetch("w", True, dict(wx, sunrise=[], sunset=[])),
+             **{k: Fetch(k, False, error="skill") for k in
+                ("ndbc_primary", "ndbc_offshore", "ndbc_spec", "tides", "sst", "chla", "kd490")}}
+        for ws, lead, predicted, kind in entries:
+            wnd = {"kind": kind, "start": ws, "end": ws + timedelta(hours=3 if kind == "dawn" else 2),
+                   "label": "x", "key": "x"}
+            truth, _, _, _ = score_window(compute_features(wnd, F, zc, ws))
+            bucket = "12-24h" if lead < 24 else ("24-48h" if lead <= 48 else ">48h")
+            errs.append((zk, bucket, predicted, truth))
+    if not errs:
+        print("SKILL: no windows old enough to grade yet")
+        return
+    print("FORECAST SKILL — predicted vs archive truth, %d graded windows" % len(errs))
+    out_rows = []
+    for bucket in ("12-24h", "24-48h", ">48h"):
+        e = [(p, t) for _, b, p, t in errs if b == bucket]
+        if not e:
+            continue
+        mae = sum(abs(p - t) for p, t in e) / len(e)
+        bias = sum(p - t for p, t in e) / len(e)
+        big = 100 * sum(1 for p, t in e if abs(p - t) >= 1.5) / len(e)
+        print("  %-7s n=%-3d MAE %.2f  bias %+.2f  |err|>=1.5: %.0f%%" % (bucket, len(e), mae, bias, big))
+        out_rows.append({"date": now_pt().date().isoformat(), "bucket": bucket,
+                         "n": len(e), "mae": round(mae, 2), "bias": round(bias, 2),
+                         "big_miss_pct": round(big, 1)})
+    append_log(os.path.join(DATA, "skill_log.csv"),
+               ["date", "bucket", "n", "mae", "bias", "big_miss_pct"], out_rows, dry_run=False)
+    worst = max((r["mae"] for r in out_rows), default=0)
+    if getattr(args, "notify", False) and worst >= 1.2:
+        notify_ops({"title": "The bell's foresight is slipping 🔎",
+                    "message": "Forecast MAE reached %.2f points. data/skill_log.csv has "
+                               "the trend; confidence words may be overclaiming." % worst,
+                    "priority": 3}, dry_run=False)
+
+
+# =====================================================================
 # report — the recursive ratchet: promises vs. what the water gave
 # =====================================================================
 
@@ -3195,6 +3448,30 @@ def cmd_test(args):
     check("(dd2) and the turbidity memory too",
           0.2 <= ft_shel["swell_energy_72h"] / ft_open["swell_energy_72h"] <= 0.3)
 
+    # (ee) THE DYNAMIC ANCHOR: live buoy truth corrects the forecast series,
+    # clamped, and defaulting to 1.0 on any doubt.
+    f_an = _mk_fetches(t0, swell_ft=2.0, per_s=12, dir_deg=200, wind_kn=5)
+    model_h = f_an["marine"].data["wave_height"]
+    rows_13 = [{"t": (t0 - timedelta(hours=hh)).astimezone(timezone.utc),
+                "wvht_m": model_h[t0 - timedelta(hours=hh)] * 1.3,
+                "dpd_s": 12.0, "mwd_deg": 200.0} for hh in range(1, 30)]
+    f_an["ndbc_primary"] = Fetch("ndbc_primary", True,
+                                 {"rows": rows_13, "station": "46253",
+                                  "latest": rows_13[0]})
+    a13 = buoy_anchor(f_an, t0)
+    check("(ee) buoy 1.3x model -> anchor ~1.3", 1.25 <= a13 <= 1.35, "a=%.3f" % a13)
+    rows_9 = [dict(r, wvht_m=r["wvht_m"] * 9) for r in rows_13]
+    f_an["ndbc_primary"] = Fetch("ndbc_primary", True,
+                                 {"rows": rows_9, "station": "46253", "latest": rows_9[0]})
+    check("(ee2) wild ratios clamp at 1.6", buoy_anchor(f_an, t0) == 1.6)
+    f_an["ndbc_primary"] = Fetch("ndbc_primary", False, error="gone")
+    check("(ee3) no buoy -> anchor 1.0", buoy_anchor(f_an, t0) == 1.0)
+    ft_a = compute_features(w, _mk_fetches(t0, swell_ft=2.0, per_s=12, dir_deg=200), zc, t0, 1.3)
+    ft_b = compute_features(w, _mk_fetches(t0, swell_ft=2.0, per_s=12, dir_deg=200), zc, t0, 1.0)
+    check("(ee4) anchored damage scales ~1.69x",
+          1.6 <= ft_a["damage"] / ft_b["damage"] <= 1.8,
+          "ratio=%.2f" % (ft_a["damage"] / ft_b["damage"]))
+
     # fixture suite: degraded + disagreement
     print("fixture tests:")
     for name in ("degraded", "disagreement"):
@@ -3258,6 +3535,8 @@ def main():
     p_val.add_argument("--zone", default="A")
     p_rep = sub.add_parser("report")
     p_rep.add_argument("--notify", action="store_true")
+    p_skill = sub.add_parser("skill")
+    p_skill.add_argument("--notify", action="store_true")
     sub.add_parser("ingest")
     sub.add_parser("share")
     p_setup = sub.add_parser("setup")
@@ -3294,6 +3573,8 @@ def main():
         cmd_validate(args)
     elif args.cmd == "report":
         cmd_report(args)
+    elif args.cmd == "skill":
+        cmd_skill(args)
     elif args.cmd == "cast":
         cmd_cast(args)
     elif args.cmd == "setup":
