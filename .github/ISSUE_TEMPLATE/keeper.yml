@@ -1,0 +1,23 @@
+name: "🔔 Become a bell keeper"
+description: Claim stewardship of a bell — you know this water; help it tell the truth.
+title: "Keeper: <your water>"
+labels: [keeper]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A keeper is a diver the bell answers to: you confirm its reads against
+        the real water, press the verdict buttons, and tend its site notes.
+        No coding required — the repo does the git.
+  - type: input
+    id: water
+    attributes: { label: "Which bell (or which water needs one)?", placeholder: "Monterey / Shelly Beach, Sydney / ..." }
+    validations: { required: true }
+  - type: input
+    id: name
+    attributes: { label: "Name to engrave on the plate", placeholder: "first name or handle" }
+    validations: { required: true }
+  - type: textarea
+    id: bona
+    attributes: { label: "Your history with this water", placeholder: "How often you dive it, entries you know, years in it" }
+    validations: { required: true }

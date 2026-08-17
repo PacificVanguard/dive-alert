@@ -2,6 +2,11 @@
  "updated": "2026-08-17T11:00:00-07:00",
  "zones": {
   "A": {
+   "keeper": "Curtis",
+   "record": {
+    "promises": 0,
+    "rings": 0
+   },
    "bell": {
     "no": 1,
     "name": "Laguna Beach",
@@ -82,6 +87,11 @@
    ]
   },
   "C": {
+   "keeper": null,
+   "record": {
+    "promises": 0,
+    "rings": 0
+   },
    "bell": {
     "no": 2,
     "name": "Dana Point",
@@ -156,6 +166,91 @@
      "entries": [
       "Dana Point Harbor breakwall (outside)",
       "Salt Creek"
+     ],
+     "gate": false
+    }
+   ]
+  },
+  "D": {
+   "keeper": null,
+   "record": {
+    "promises": 0,
+    "rings": 0
+   },
+   "bell": {
+    "no": 3,
+    "name": "La Jolla",
+    "cast": "2026-08-17"
+   },
+   "tier": "provisional",
+   "topic": "lajolla-dive-8ee44bdc",
+   "name": "La Jolla",
+   "last_ring": null,
+   "sst_f": 73,
+   "windows": [
+    {
+     "label": "Mon dusk",
+     "start": "2026-08-17T17:31:00-07:00",
+     "score": 2.7,
+     "conf": "medium",
+     "entries": [
+      "La Jolla Cove",
+      "La Jolla Shores (Canyon)"
+     ],
+     "gate": false
+    },
+    {
+     "label": "Tue dawn",
+     "start": "2026-08-18T05:44:00-07:00",
+     "score": 1.4,
+     "conf": "medium",
+     "entries": [
+      "La Jolla Cove",
+      "La Jolla Shores (Canyon)"
+     ],
+     "gate": false
+    },
+    {
+     "label": "Tue dusk",
+     "start": "2026-08-18T17:30:00-07:00",
+     "score": 1.0,
+     "conf": "medium",
+     "entries": [
+      "La Jolla Cove",
+      "La Jolla Shores (Canyon)"
+     ],
+     "gate": false
+    },
+    {
+     "label": "Wed dawn",
+     "start": "2026-08-19T05:45:00-07:00",
+     "score": 1.9,
+     "conf": "medium",
+     "entries": [
+      "La Jolla Cove",
+      "La Jolla Shores (Canyon)"
+     ],
+     "gate": false
+    },
+    {
+     "label": "Wed dusk",
+     "start": "2026-08-19T17:29:00-07:00",
+     "score": 2.3,
+     "conf": "medium",
+     "entries": [
+      "La Jolla Cove",
+      "La Jolla Shores (Canyon)"
+     ],
+     "gate": false
+    },
+    {
+     "label": "Thu dawn",
+     "start": "2026-08-20T05:45:00-07:00",
+     "score": 2.9,
+     "conf": "medium",
+     "entries": [
+      "La Jolla Cove",
+      "La Jolla Shores (Canyon)"
      ],
      "gate": false
     }

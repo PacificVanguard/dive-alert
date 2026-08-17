@@ -1,0 +1,16 @@
+name: "💡 Add or fix a tip"
+description: Local knowledge for a site — entries, life, hazards, the good lines.
+title: "Tip: <site name>"
+labels: [tip]
+body:
+  - type: input
+    id: site
+    attributes: { label: "Site", placeholder: "Shaw's Cove / Breakwater / ..." }
+    validations: { required: true }
+  - type: textarea
+    id: tip
+    attributes: { label: "The tip, in your words", placeholder: "One or two sentences a buddy would actually use" }
+    validations: { required: true }
+  - type: input
+    id: when
+    attributes: { label: "When does it apply?", placeholder: "low tide / big viz days / winter / always" }

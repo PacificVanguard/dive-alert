@@ -227,6 +227,7 @@
     <div class="state-live" id="statelive"></div>
     <div class="tierline" id="tierline" style="display:none">Newly cast and not yet
       sworn — this bell watches and speaks, but its ring is still locked.</div>
+    <div class="state-live" id="keeperline" style="margin-top:10px"></div>
     <a class="down" href="#descend">▾</a>
   </div>
 
@@ -471,6 +472,15 @@
     }
     document.getElementById("tierline").style.display =
       z.tier === "provisional" ? "block" : "none";
+    const kl = document.getElementById("keeperline");
+    const rec = z.record || {};
+    const recTxt = (rec.rings || rec.promises)
+      ? "The record: " + (rec.rings || 0) + " rings · " + (rec.promises || 0) +
+        " promises · awaiting verdicts.  " : "";
+    kl.innerHTML = recTxt + (z.keeper
+      ? "Kept by " + z.keeper + "."
+      : "<a style='color:var(--gold)' href='https://github.com/PacificVanguard/" +
+        "dive-alert/issues/new?template=keeper.yml'>This bell needs a keeper →</a>");
 
     const strip = document.getElementById("strip");
     strip.innerHTML = "";

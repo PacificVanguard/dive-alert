@@ -52,6 +52,10 @@ CONFIG = {
             # remains as an override for Zone A only, for continuity.
             "bell": {"no": 1, "name": "Laguna Beach", "cast": "2026-08-11"},
             "topic": "laguna-dive-86dd82e0",
+            "keeper": "Curtis",
+            # per-zone instruments: the same seam that lets Monterey's cold
+            # water in later lets a tideless international coast in (Phase 3)
+            "tide_station": "9410580", "buoy": "46253", "buoy_offshore": "46086",
             # sworn = buoy-validated + hindcast-fitted; its gate may ring.
             # provisional = newly cast; it watches and speaks but cannot ring.
             "tier": "sworn",
@@ -145,6 +149,8 @@ CONFIG = {
             "bell": {"no": 2, "name": "Dana Point", "cast": "2026-08-17"},
             "topic": "danapoint-dive-8952a5b5",
             "tier": "provisional",
+            "keeper": None,
+            "tide_station": "9410580", "buoy": "46253", "buoy_offshore": "46086",
             "offshore_dir": 40,
             # Salt Creek is open beach, the headland shelters less than
             # Laguna's pocket coves — less protection than Laguna's 0.62.
@@ -163,6 +169,79 @@ CONFIG = {
                 {"name": "Dana Point Harbor breakwall (outside)", "depth_ft": 30, "take_allowed": False,
                  "creek_adjacent": False, "shelter": 0.2, "tide": "any",
                  "entry": "boat or long swim", "note": "VERIFY take rules before flipping take_allowed"},
+            ],
+        },
+
+        "D": {
+            "name": "La Jolla",
+            "enabled": True,
+            # BELL No.3 — cast 2026-08-17. A second pocket-cove water, new
+            # buoy (Scripps 46254) and tide station (9410230): the first bell
+            # whose instruments are entirely its own.
+            "bell": {"no": 3, "name": "La Jolla", "cast": "2026-08-17"},
+            "topic": "lajolla-dive-8ee44bdc",
+            "tier": "provisional",
+            "keeper": None,
+            "tide_station": "9410230", "buoy": "46254", "buoy_offshore": "46086",
+            "offshore_dir": 75,
+            "cove_damage_factor": 0.62,   # the Cove is a true pocket, Laguna-like
+            "lat": 32.850, "lon": -117.272,
+            # Point La Jolla shelters the south; the Cove faces W-NW.
+            # CALIBRATION: drafted from coast geometry, unconfirmed by a local.
+            "exposure": [(0, 0.12), (90, 0.12), (157, 0.35), (200, 0.55),
+                         (245, 0.80), (285, 1.00), (310, 0.90), (330, 0.40),
+                         (360, 0.15)],
+            "sites": [
+                # Matlahuayl SMR — no take, full stop.
+                {"name": "La Jolla Cove", "depth_ft": 25, "take_allowed": False,
+                 "creek_adjacent": False, "shelter": 0.3, "tide": "any",
+                 "entry": "steps to a small sand pocket",
+                 "note": "sea lions, leopard sharks over the sand in late summer"},
+                {"name": "La Jolla Shores (Canyon)", "depth_ft": 40, "take_allowed": False,
+                 "creek_adjacent": False, "shelter": 0.0, "tide": "any",
+                 "entry": "long flat sand walk-in",
+                 "note": "canyon head drops fast; navigate by the depth, not the sand"},
+            ],
+        },
+        "E": {
+            "name": "Monterey",
+            # CASTING FAILED 2026-08-17: median 1.4, only 5% >=7 — far outside
+            # the honesty band. Likely cause: the Open-Meteo grid point sees
+            # full NW ocean swell that the peninsula actually blocks, so the
+            # exposure map needs to be far lower (or the marine point moved
+            # inside the bay) before this bell can be trusted. Benched until a
+            # real calibration session; config preserved. hindcast_E.csv holds
+            # the evidence. This is the covenant working: a bell that cannot
+            # read its water does not get to speak.
+            "enabled": False,
+            # BELL No.4 — cast 2026-08-17. The first bell of a NEW WATER
+            # FAMILY: bay-sheltered and cold. The peninsula blocks the south
+            # entirely and blunts the NW; and 55°F is a fine morning here, so
+            # the gate's 'warm' threshold is overridden per-zone — cold water
+            # is this bell's normal, not a defect.
+            "bell": {"no": 4, "name": "Monterey", "cast": "2026-08-17"},
+            "topic": "monterey-dive-d01f1d8e",
+            "tier": "provisional",
+            "keeper": None,
+            "tide_station": "9413450", "buoy": "46240", "buoy_offshore": "46042",
+            "offshore_dir": 190,          # land lies south of the breakwater shore
+            "cove_damage_factor": 0.50,   # famously protected inside the bay
+            "perfect_gate_overrides": {"min_sst_c": 11.5},   # ~53°F: warm, for Monterey
+            "lat": 36.611, "lon": -121.898,
+            # North-facing shore inside the bay: only wrapped NW-N energy
+            # arrives. CALIBRATION: drafted from geometry, unconfirmed by a local.
+            "exposure": [(0, 0.50), (45, 0.35), (90, 0.15), (157, 0.05),
+                         (220, 0.05), (270, 0.15), (300, 0.35), (315, 0.55),
+                         (335, 0.62), (360, 0.50)],
+            "sites": [
+                {"name": "Breakwater (San Carlos)", "depth_ft": 30, "take_allowed": False,
+                 "creek_adjacent": False, "shelter": 0.3, "tide": "any",
+                 "entry": "sand ramp beside the wall",
+                 "note": "the wall to the sea lions, Metridium fields out over the sand"},
+                {"name": "McAbee Beach", "depth_ft": 25, "take_allowed": False,
+                 "creek_adjacent": False, "shelter": 0.1, "tide": "mid-high",
+                 "entry": "short sand pocket off Cannery Row",
+                 "note": "kelp thickens fast in summer — plan the swim-out lanes"},
             ],
         },
     },
@@ -652,7 +731,12 @@ def fetch_ndbc(src: Sources, station: str, key: str) -> Fetch:
         return Fetch(key, False, error=str(e))
 
 
-def fetch_tides(src: Sources, begin: datetime) -> Fetch:
+def fetch_tides(src: Sources, begin: datetime, station=None) -> Fetch:
+    # station "none" is a legitimate Phase-3 state (tideless international
+    # coasts): the tide term and entry-timing FYI degrade gracefully.
+    station = station or CONFIG["sources"]["tide_station"]
+    if station in (None, "none"):
+        return Fetch("tides", False, error="no tide station for this water")
     try:
         q = urllib.parse.urlencode({
             "product": "predictions", "application": "dive_alert",
@@ -660,7 +744,7 @@ def fetch_tides(src: Sources, begin: datetime) -> Fetch:
             # 8 days, not 4: the weekly digest reads a full week ahead, and a
             # short tide fetch silently degrades its far days to "steady tide"
             "end_date": (begin + timedelta(days=8)).strftime("%Y%m%d"),
-            "datum": "MLLW", "station": CONFIG["sources"]["tide_station"],
+            "datum": "MLLW", "station": station,
             "time_zone": "lst_ldt", "units": "english", "interval": "hilo", "format": "json"})
         d = json.loads(src.get("tides", CONFIG["sources"]["tides"] + "?" + q))
         ev = [{"t": datetime.strptime(p["t"], "%Y-%m-%d %H:%M").replace(tzinfo=PT),
@@ -773,19 +857,22 @@ def fetch_ndbc_spec(src: Sources, station: str) -> Fetch:
 def fetch_all(zone_cfg, offline=False, fixture_set="normal"):
     src = Sources(offline, fixture_set)
     lat, lon = zone_cfg["lat"], zone_cfg["lon"]
+    buoy = zone_cfg.get("buoy", CONFIG["sources"]["ndbc_primary"])
+    buoy_off = zone_cfg.get("buoy_offshore", CONFIG["sources"]["ndbc_offshore"])
     f = {
         "marine": fetch_marine(src, lat, lon),
         "weather": fetch_weather(src, lat, lon),
-        "ndbc_primary": fetch_ndbc(src, CONFIG["sources"]["ndbc_primary"], "ndbc_primary"),
-        "ndbc_offshore": fetch_ndbc(src, CONFIG["sources"]["ndbc_offshore"], "ndbc_offshore"),
-        "tides": fetch_tides(src, (src.fixture_now() or now_pt())),
+        "ndbc_primary": fetch_ndbc(src, buoy, "ndbc_primary"),
+        "ndbc_offshore": fetch_ndbc(src, buoy_off, "ndbc_offshore"),
+        "tides": fetch_tides(src, (src.fixture_now() or now_pt()),
+                             zone_cfg.get("tide_station")),
         "sst": fetch_sst(src, lat, lon),
         "chla": fetch_chla(src, lat, lon),
         "kd490": fetch_kd490(src, lat, lon),
         # observed swell/chop split — feeds agreement only, so it is
         # deliberately NOT in SOURCE_WEIGHTS (losing it must not dent
         # completeness; it's a bonus check, not a pipeline input)
-        "ndbc_spec": fetch_ndbc_spec(src, CONFIG["sources"]["ndbc_primary"]),
+        "ndbc_spec": fetch_ndbc_spec(src, buoy),
     }
     return f, src
 
@@ -1443,11 +1530,15 @@ def render_downgrade(w, old, new, feats):
     return {"title": msg.split(". ")[0], "message": msg, "priority": 3}
 
 
-def perfect_gate(feats, score, sst_c):
+def perfect_gate(feats, score, sst_c, zone_cfg=None):
     """Every knowable axis aligned, as a strict AND. Returns (passed, failures).
     Deliberately unforgiving: no partial credit, no averaging one axis against
-    another. If anything is unknown it fails — silence beats a false promise."""
-    g = CONFIG["perfect_gate"]
+    another. If anything is unknown it fails — silence beats a false promise.
+    Zones may override thresholds (Monterey's 53°F is its own warm); the AND
+    itself is never overridable."""
+    g = dict(CONFIG["perfect_gate"])
+    if zone_cfg:
+        g.update(zone_cfg.get("perfect_gate_overrides", {}))
     checks = [
         ("flat", feats.get("damage"), lambda v: v <= g["max_damage"]),
         ("glass", feats.get("wind_window_eff_kn", feats.get("wind_window_max_kn")),
@@ -1823,7 +1914,7 @@ def score_zone(zone_key, zone_cfg, fetches, t_now, horizon_h=72):
         entries, tide_fyi, band = best_entries(zone_cfg, w, tides, feats["damage"],
                                                (feats["dmg_parts"] or {}).get("per_s"))
         sstv = fetches["sst"].data["c"] if fetches["sst"].ok else None
-        gate_ok, _ = perfect_gate(feats, score, sstv)
+        gate_ok, _ = perfect_gate(feats, score, sstv, zone_cfg)
         # a provisional bell watches and speaks but cannot ring — it has not
         # been sworn (buoy check + first local verdicts) for this water
         if zone_cfg.get("tier") == "provisional":
@@ -1930,6 +2021,7 @@ def cmd_run(args):
                                    actions=feedback_actions(payload["w"]["key"], zc),
                                    gate=payload.get("gate"))
                 notify(msg, args.dry_run, topic=ztopic)
+                rec["promises"] += 1
                 for r in rows:
                     if r["window_key"] == payload["w"]["key"]:
                         r["alerted"] = action
@@ -1939,9 +2031,15 @@ def cmd_run(args):
         append_log(LOG_PATH, LOG_COLS, rows, args.dry_run)
         # the bell remembers: a gate day seen is a ring recorded
         gate_days_seen = [s["w"]["start"].date().isoformat() for s in scored if s.get("gate")]
+        rec = state.setdefault("record", {}).setdefault(zk, {"promises": 0, "rings": 0})
         if gate_days_seen:
-            state.setdefault("last_ring", {})[zk] = max(gate_days_seen)
+            prev = state.setdefault("last_ring", {}).get(zk)
+            if max(gate_days_seen) != prev:
+                rec["rings"] += 1
+            state["last_ring"][zk] = max(gate_days_seen)
         board[zk] = {
+            "keeper": zc.get("keeper"),
+            "record": dict(rec),
             "bell": zc.get("bell", {}), "tier": zc.get("tier", "provisional"),
             "topic": ztopic, "name": zc["name"],
             "last_ring": state.get("last_ring", {}).get(zk),
@@ -2042,7 +2140,8 @@ def cmd_hindcast(args):
                 "product": "predictions", "application": "dive_alert",
                 "begin_date": span_start.strftime("%Y%m%d"),
                 "end_date": span_end.strftime("%Y%m%d"),
-                "datum": "MLLW", "station": CONFIG["sources"]["tide_station"],
+                "datum": "MLLW",
+                "station": zc.get("tide_station", CONFIG["sources"]["tide_station"]),
                 "time_zone": "lst_ldt", "units": "english", "interval": "hilo",
                 "format": "json"})
             dd = json.loads(http_get(CONFIG["sources"]["tides"] + "?" + tq, timeout=60))
@@ -2273,14 +2372,20 @@ def cmd_share(args):
 # validate — pressure-test the swell model against 45 days of buoy truth
 # =====================================================================
 
+BUOY_POSITIONS = {"46253": (33.576, -118.181), "46254": (32.868, -117.267),
+                  "46240": (36.626, -121.907), "46086": (32.499, -118.052),
+                  "46042": (36.785, -122.398)}
+
+
 def cmd_validate(args):
-    st = CONFIG["sources"]["ndbc_primary"]
+    zc = CONFIG["zones"][getattr(args, "zone", "A")]
+    st = zc.get("buoy", CONFIG["sources"]["ndbc_primary"])
+    blat, blon = BUOY_POSITIONS.get(st, (zc["lat"], zc["lon"]))
     print("fetching %s buoy record (45d) and Open-Meteo model at the buoy..." % st)
     obs_rows = parse_ndbc(http_get(CONFIG["sources"]["ndbc_url"].format(station=st), 30))
-    # NDBC 46253 sits at 33.576N 118.181W — compare the model AT the buoy so
-    # we test the model, not the geography between San Pedro and Laguna.
+    # compare the model AT the buoy so we test the model, not the geography
     q = urllib.parse.urlencode({
-        "latitude": 33.576, "longitude": -118.181,
+        "latitude": blat, "longitude": blon,
         "hourly": "wave_height,wave_period", "past_days": 46, "forecast_days": 1,
         "timezone": "America/Los_Angeles"})
     d = json.loads(http_get(CONFIG["sources"]["marine"] + "?" + q, 40))["hourly"]
@@ -2946,6 +3051,7 @@ def main():
     sub.add_parser("record-fixtures")
     p_val = sub.add_parser("validate")
     p_val.add_argument("--notify", action="store_true")
+    p_val.add_argument("--zone", default="A")
     p_rep = sub.add_parser("report")
     p_rep.add_argument("--notify", action="store_true")
     sub.add_parser("ingest")

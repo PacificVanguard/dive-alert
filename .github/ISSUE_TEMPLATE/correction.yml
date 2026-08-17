@@ -1,0 +1,13 @@
+name: "🧭 The bell read the water wrong"
+description: A day the score and the ocean disagreed — the most valuable report there is.
+title: "Correction: <date, bell>"
+labels: [correction]
+body:
+  - type: input
+    id: when
+    attributes: { label: "Date and window", placeholder: "Aug 17 dawn, Laguna" }
+    validations: { required: true }
+  - type: textarea
+    id: what
+    attributes: { label: "What the bell said vs what the water gave", placeholder: "Scored 7.8; viz was 5ft of soup at Shaw's" }
+    validations: { required: true }

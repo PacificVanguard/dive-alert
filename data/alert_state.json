@@ -17,7 +17,7 @@
   "A:ndbc_offshore": 0,
   "A:tides": 0,
   "A:sst": 0,
-  "A:chla": 1,
+  "A:chla": 2,
   "A:kd490": 0,
   "A:ndbc_spec": 0,
   "C:marine": 0,
@@ -26,9 +26,32 @@
   "C:ndbc_offshore": 0,
   "C:tides": 0,
   "C:sst": 0,
-  "C:chla": 1,
+  "C:chla": 2,
   "C:kd490": 0,
-  "C:ndbc_spec": 0
+  "C:ndbc_spec": 0,
+  "D:marine": 0,
+  "D:weather": 0,
+  "D:ndbc_primary": 0,
+  "D:ndbc_offshore": 0,
+  "D:tides": 0,
+  "D:sst": 0,
+  "D:chla": 0,
+  "D:kd490": 0,
+  "D:ndbc_spec": 0
  },
- "fb_since_by_zone": {}
+ "fb_since_by_zone": {},
+ "record": {
+  "A": {
+   "promises": 0,
+   "rings": 0
+  },
+  "C": {
+   "promises": 0,
+   "rings": 0
+  },
+  "D": {
+   "promises": 0,
+   "rings": 0
+  }
+ }
 }
