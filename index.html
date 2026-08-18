@@ -71,6 +71,10 @@
     font-size: 1.3rem; opacity: .55; animation: bob 2.8s ease-in-out infinite; }
   @keyframes bob { 0%,100% { transform: translate(-50%,0); } 50% { transform: translate(-50%,8px); } }
 
+  .ember { margin-top: 22px; color: var(--gold); font-size: .95rem;
+           font-style: italic; opacity: .85; }
+  .ember a { color: var(--gold); }
+
   /* when the bell rings, the whole page knows */
   body.ringing h1 { color: var(--gold); text-shadow: 0 0 44px rgba(255,217,138,.35); }
   body.ringing .state-sub { color: var(--gold); }
@@ -247,6 +251,7 @@
     <div class="state-live" id="statelive"></div>
     <div class="tierline" id="tierline" style="display:none">Newly cast and not yet
       sworn — this bell watches and speaks, but its ring is still locked.</div>
+    <div class="ember" id="ember" style="display:none"></div>
     <div class="state-live" id="keeperline" style="margin-top:10px"></div>
     <div style="margin-top:14px"><a href="#" id="ringdemo" style="color:var(--dim);
       font-size:.85rem;font-style:italic;text-decoration:none;border-bottom:1px dotted
@@ -540,6 +545,20 @@
       const el = document.getElementById(id);
       if (el) el.href = "https://ntfy.sh/" + z.topic;
     });
+    // the ember: for three mornings after a ring, the quiet page carries the
+    // heat — missing a ring should sting a little, and honestly
+    const em = document.getElementById("ember");
+    em.style.display = "none";
+    if (!st.ringing && z.last_ring) {
+      const days = Math.round((Date.now() - new Date(z.last_ring + "T12:00")) / 864e5);
+      if (days >= 0 && days <= 3) {
+        em.innerHTML = "This page was gold " +
+          (days === 0 ? "this morning" : days === 1 ? "yesterday" : days + " mornings ago") +
+          " — the bell rang, and the ones who were on it knew. " +
+          "<a href='#join'>Be on it next time.</a>";
+        em.style.display = "block";
+      }
+    }
     const sn = document.getElementById("seasonnote");
     if (sn && z.season_note) sn.textContent = z.season_note;
     const wr = document.getElementById("warmrow");

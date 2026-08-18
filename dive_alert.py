@@ -2611,9 +2611,42 @@ def cmd_run(args):
                          "gate": bool(s.get("gate"))} for s in scored],
         }
 
-    # the website's heartbeat: one file for the board, and latest.json kept
-    # as Bell No.1's view for continuity (bellwatch reads its age)
+    # THE SHARE CARDS: a tiny page per bell whose OpenGraph tags carry the
+    # LIVE state, rewritten every run — so pasting a bell's link into any
+    # group chat unfurls today's truth ("quiet · best Thu dawn 6.2"), not a
+    # static slogan. The unfurl IS the viral object; the page itself just
+    # redirects into the board.
     if not args.dry_run and board:
+        for bzk, bz in board.items():
+            bslug = re.sub(r"[^a-z0-9]+", "-", bz["bell"]["name"].lower()).strip("-")
+            wins = bz.get("windows") or []
+            ringing = any(w.get("gate") for w in wins)
+            top = max(wins, key=lambda w: w["score"], default=None)
+            if ringing:
+                gd = next(w for w in wins if w.get("gate"))
+                og_state = "THE BELL IS RINGING — %s" % gd["label"]
+                og_desc = ("Everything just lined up. %s. A dozen mornings a year, "
+                           "the ocean says yes — this is one of them.") % (
+                          " / ".join(gd["entries"]))
+            else:
+                og_state = "The %s bell is quiet" % bz["bell"]["name"]
+                og_desc = ("Best window ahead: %s, %.1f of 10%s. It rings a dozen-some "
+                           "mornings a year; today is not one of them.") % (
+                          top["label"], top["score"],
+                          " (%s)" % top["limit"] if top.get("limit") else "") if top else                           "The bell keeps its silence."
+            stub = ("<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'>\n"
+                    "<title>%s</title>\n"
+                    "<meta property='og:title' content='%s'>\n"
+                    "<meta property='og:description' content='%s'>\n"
+                    "<meta property='og:site_name' content='The Dive Bell'>\n"
+                    "<meta name='description' content='%s'>\n"
+                    "<meta name='twitter:card' content='summary'>\n"
+                    "<meta http-equiv='refresh' content=\"0; url=/#%s\">\n"
+                    "</head><body style='background:#071d36'></body></html>\n") % (
+                    og_state, og_state, og_desc, og_desc, bslug)
+            os.makedirs(os.path.join(ROOT, bslug), exist_ok=True)
+            with open(os.path.join(ROOT, bslug, "index.html"), "w") as sf:
+                sf.write(stub)
         os.makedirs(DATA, exist_ok=True)
         with open(os.path.join(DATA, "zones.json"), "w") as jf:
             json.dump({"updated": t_now.isoformat(),
