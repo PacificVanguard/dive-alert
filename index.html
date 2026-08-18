@@ -248,6 +248,9 @@
     <div class="tierline" id="tierline" style="display:none">Newly cast and not yet
       sworn — this bell watches and speaks, but its ring is still locked.</div>
     <div class="state-live" id="keeperline" style="margin-top:10px"></div>
+    <div style="margin-top:14px"><a href="#" id="ringdemo" style="color:var(--dim);
+      font-size:.85rem;font-style:italic;text-decoration:none;border-bottom:1px dotted
+      rgba(100,128,155,.5)">see what a ring looks like</a></div>
     <div style="margin-top:18px;font-size:.92rem">
       <a href="#join" style="color:var(--glow);text-decoration:none;
         border-bottom:1px solid rgba(127,212,255,.35)">get on this bell ↓</a>
@@ -324,13 +327,11 @@
       <div class="cond"><span class="k">GLASS</span><span class="v">under seven knots of effective wind across the whole window</span></div>
       <div class="cond"><span class="k">DRY</span><span class="v">not a drop of rain in seventy-two hours — the creeks silent</span></div>
       <div class="cond"><span class="k">SUN</span><span class="v">a quarter of the sky clouded, at most — light on the kelp</span></div>
-      <div class="cond"><span class="k">WARM</span><span class="v">sixty-two degree water or better</span></div>
+      <div class="cond"><span class="k">WARM</span><span class="v" id="warmrow">sixty-two degree water or better</span></div>
       <div class="cond"><span class="k">SCORE</span><span class="v">and the full model must still call it 8.5 of 10</span></div>
       <div class="laws">All six, or silence. No partial credit. Nothing traded off.
         If any one of them is unknown, the bell stays down.</div>
-      <div class="rate">Held against three years of ocean: <b>41&nbsp;rings</b> — twenty-one
-        in the best year, five in the storm-wrecked El&nbsp;Ni&ntilde;o winter, nearly all
-        of them October through January. The bell answers to the ocean, not a quota.</div>
+      <div class="rate" id="platerate">Held against a year of its own ocean.</div>
     </div>
   </div>
 
@@ -514,8 +515,10 @@
         " promises · awaiting verdicts.  " : "";
     kl.innerHTML = recTxt + (z.keeper
       ? "Kept by " + z.keeper + "."
-      : "<a style='color:var(--gold)' href='https://github.com/PacificVanguard/" +
-        "dive-alert/issues/new?template=keeper.yml'>This bell needs a keeper →</a>");
+      : "This bell needs a keeper — a diver who knows this water, answers its " +
+        "verdict buttons, and tends its site notes. No coding; minutes a month. " +
+        "<a style='color:var(--gold)' href='https://github.com/PacificVanguard/" +
+        "dive-alert/issues/new?template=keeper.yml'>Claim it →</a>");
 
     const strip = document.getElementById("strip");
     strip.innerHTML = "";
@@ -541,6 +544,14 @@
     });
     const sn = document.getElementById("seasonnote");
     if (sn && z.season_note) sn.textContent = z.season_note;
+    const wr = document.getElementById("warmrow");
+    if (wr && z.warm_f) wr.textContent =
+      z.warm_f + "\u00b0 water or better \u2014 this water's own bar";
+    const pr = document.getElementById("platerate");
+    if (pr && z.casting) pr.innerHTML = z.casting.note ||
+      ("Cast against a year of its own ocean: <b>" + z.casting.pct7 +
+       "%</b> of mornings cleared 7, and the best of them came " +
+       z.casting.season + ". The bell answers to the ocean, not a quota.");
     document.getElementById("foundry").innerHTML =
       "№" + z.bell.no + " · Cast " + (z.bell.cast || "2026").slice(0, 4) + " · " +
       z.bell.name + " · <b>one of one</b>";
@@ -589,6 +600,26 @@
     document.getElementById("board").style.display = ORDER.length > 1 ? "block" : "none";
   }
 
+  // the ring, on demand — a preview, and it says so
+  let DEMO = false;
+  function demoRing(on, z) {
+    DEMO = on;
+    document.body.classList.toggle("ringing", on);
+    const link = document.getElementById("ringdemo");
+    if (on) {
+      document.getElementById("state").textContent = "The bell is ringing.";
+      document.getElementById("statesub").textContent =
+        "A dozen mornings a year, the ocean says yes. This is one of them.";
+      document.getElementById("statelive").textContent =
+        "A preview — today " + z.bell.name + " is quiet. On a real ring morning, " +
+        "this page turns gold on its own and names the cove and the hour.";
+      link.textContent = "enough — back to the quiet";
+      if (!matchMedia("(prefers-reduced-motion: reduce)").matches) strike(true);
+    } else {
+      link.textContent = "see what a ring looks like";
+    }
+  }
+
   // Your nearest bell, found by your own clock — no location prompt, no
   // permission, no tracking. A diver in Sydney lands on the Sydney bell.
   function nearestKey() {
@@ -631,7 +662,14 @@
     }
     buildBoard();
     render(d.updated);
+    document.getElementById("ringdemo").addEventListener("click", (e) => {
+      e.preventDefault();
+      const z = BELLS[curKey()];
+      if (DEMO) { demoRing(false, z); render(d.updated); }
+      else demoRing(true, z);
+    });
     window.addEventListener("hashchange", () => {
+      DEMO = false;
       render(d.updated);
       buildBoard();
       document.querySelector(".surface").scrollIntoView({ behavior: "smooth" });
