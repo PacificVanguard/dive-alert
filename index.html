@@ -513,12 +513,10 @@
     const recTxt = (rec.rings || rec.promises)
       ? "The record: " + (rec.rings || 0) + " rings · " + (rec.promises || 0) +
         " promises · awaiting verdicts.  " : "";
-    kl.innerHTML = recTxt + (z.keeper
-      ? "Kept by " + z.keeper + "."
-      : "This bell needs a keeper — a diver who knows this water, answers its " +
-        "verdict buttons, and tends its site notes. No coding; minutes a month. " +
-        "<a style='color:var(--gold)' href='https://github.com/PacificVanguard/" +
-        "dive-alert/issues/new?template=keeper.yml'>Claim it →</a>");
+    // a kept bell wears its keeper's name; an unkept one keeps its silence —
+    // recruiting happens in conversations, not carved into the bell
+    kl.innerHTML = recTxt + (z.keeper ? "Kept by " + z.keeper + "." : "");
+    kl.style.display = (recTxt || z.keeper) ? "" : "none";
 
     const strip = document.getElementById("strip");
     strip.innerHTML = "";
