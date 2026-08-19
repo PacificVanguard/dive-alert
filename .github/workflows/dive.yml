@@ -84,8 +84,19 @@ jobs:
         run: |
           git config user.name "dive-alert bot"
           git config user.email "actions@users.noreply.github.com"
-          git add data/
+          # -A, not data/: the run also rewrites the per-bell share cards
+          # (*/index.html). Leaving them unstaged made pull --rebase refuse
+          # ("unstaged changes") and killed every run with exit 128.
+          git add -A
           git diff --cached --quiet && exit 0
           git commit -m "data: scored windows $(date -u +%Y-%m-%dT%H:%M) [skip ci]"
-          git pull --rebase origin ${{ github.ref_name }}
-          git push
+          # a human may push while a 15-bell run is in flight; on conflict the
+          # replayed bot commit (generated files, newest state) wins, and the
+          # push retries the race up to three times
+          for i in 1 2 3; do
+            git pull --rebase -X theirs origin ${{ github.ref_name }} || { git rebase --abort || true; sleep 5; continue; }
+            git push && exit 0
+            sleep 5
+          done
+          echo "could not land the data commit after 3 attempts"
+          exit 1
