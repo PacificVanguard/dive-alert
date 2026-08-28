@@ -37,7 +37,27 @@
     "Shaw's Cove"
    ],
    "window_key": "20260829T0553-dawn",
-   "since": "2026-08-28T14:00:00-07:00",
+   "since": "2026-08-28T15:00:00-07:00",
+   "gate": false
+  },
+  "C": {
+   "score": 8.3,
+   "entries": [
+    "Dana Point Harbor breakwall (outside)",
+    "Salt Creek"
+   ],
+   "window_key": "20260829T1720-dusk",
+   "since": "2026-08-28T15:00:00-07:00",
+   "gate": false
+  },
+  "P": {
+   "score": 8.3,
+   "entries": [
+    "Kahekili (Airport Beach)",
+    "Black Rock (Pu'u Keka'a)"
+   ],
+   "window_key": "20260829T0539-dawn",
+   "since": "2026-08-28T15:00:00-07:00",
    "gate": false
   }
  },
@@ -61,7 +81,7 @@
   "A:chla": 1,
   "A:kd490": 1,
   "A:ndbc_spec": 0,
-  "C:marine": 0,
+  "C:marine": 1,
   "C:weather": 0,
   "C:ndbc_primary": 0,
   "C:ndbc_offshore": 0,
@@ -86,10 +106,10 @@
   "E:tides": 0,
   "E:sst": 1,
   "E:chla": 0,
-  "E:kd490": 1,
+  "E:kd490": 0,
   "E:ndbc_spec": 21,
   "F:marine": 0,
-  "F:weather": 0,
+  "F:weather": 1,
   "F:ndbc_primary": 0,
   "F:ndbc_offshore": 0,
   "F:tides": 0,
@@ -140,19 +160,19 @@
   "K:tides": 0,
   "K:sst": 1,
   "K:chla": 0,
-  "K:kd490": 1,
+  "K:kd490": 0,
   "K:ndbc_spec": 20,
-  "L:marine": 0,
+  "L:marine": 1,
   "L:weather": 0,
   "L:ndbc_primary": 19,
   "L:ndbc_offshore": 19,
   "L:tides": 19,
-  "L:sst": 1,
+  "L:sst": 0,
   "L:chla": 0,
-  "L:kd490": 1,
+  "L:kd490": 0,
   "L:ndbc_spec": 19,
   "M:marine": 0,
-  "M:weather": 0,
+  "M:weather": 2,
   "M:ndbc_primary": 0,
   "M:ndbc_offshore": 0,
   "M:tides": 0,
@@ -167,18 +187,18 @@
   "N:tides": 0,
   "N:sst": 1,
   "N:chla": 0,
-  "N:kd490": 1,
+  "N:kd490": 0,
   "N:ndbc_spec": 19,
   "O:marine": 0,
   "O:weather": 0,
   "O:ndbc_primary": 19,
   "O:ndbc_offshore": 19,
   "O:tides": 19,
-  "O:sst": 1,
+  "O:sst": 0,
   "O:chla": 0,
-  "O:kd490": 1,
+  "O:kd490": 0,
   "O:ndbc_spec": 19,
-  "P:marine": 0,
+  "P:marine": 1,
   "P:weather": 0,
   "P:ndbc_primary": 0,
   "P:ndbc_offshore": 19,
@@ -195,7 +215,7 @@
    "rings": 0
   },
   "C": {
-   "promises": 1,
+   "promises": 2,
    "rings": 0
   },
   "D": {
@@ -247,11 +267,11 @@
    "rings": 0
   },
   "P": {
-   "promises": 0,
+   "promises": 1,
    "rings": 0
   }
  },
- "hook_idx": 31,
+ "hook_idx": 33,
  "axis_blind": {
   "flat": 0,
   "glass": 0,
