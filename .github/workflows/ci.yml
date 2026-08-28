@@ -1,0 +1,21 @@
+name: ci
+
+# The hygiene we skipped for too long: the full suite on every push. The
+# rec-ordering crash hid for ten days partly because tests only ever ran on
+# one laptop — never in the environment that actually runs the bells.
+
+on:
+  push:
+    branches: [main]
+  pull_request: {}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: The suite, in the bells' own environment
+        run: python dive_alert.py test

@@ -1039,7 +1039,8 @@ def fetch_marine(src: Sources, lat, lon, tzname="America/Los_Angeles") -> Fetch:
             "latitude": lat, "longitude": lon,
             "hourly": "wave_height,wave_period,wave_direction,"
                       "swell_wave_height,swell_wave_period,swell_wave_direction,"
-                      "wind_wave_height,wind_wave_period,wind_wave_direction",
+                      "wind_wave_height,wind_wave_period,wind_wave_direction,"
+                      "sea_surface_temperature",
             "past_days": 4, "forecast_days": 8, "timezone": tzname})
         d = json.loads(src.get("marine", CONFIG["sources"]["marine"] + "?" + q))
         h = d["hourly"]
@@ -2449,6 +2450,24 @@ def append_log(path, cols, rows, dry_run):
 # run pipeline
 # =====================================================================
 
+def zone_sst(fetches, t_now):
+    """SST with a fallback chain. NOAA CoastWatch has started 403-ing GitHub
+    runner IPs, and the gate's WARM axis fails closed on unknown — without
+    this fallback, no bell could ever ring from CI. Open-Meteo's marine SST
+    answers from anywhere."""
+    f = fetches.get("sst")
+    if f is not None and f.ok:
+        return f.data["c"]
+    ma = fetches.get("marine")
+    if ma is not None and ma.ok:
+        series = ma.data.get("sea_surface_temperature", {})
+        for back in range(0, 7):
+            v = series.get(floor_hour(t_now) - timedelta(hours=back))
+            if v is not None:
+                return v
+    return None
+
+
 def score_zone(zone_key, zone_cfg, fetches, t_now, horizon_h=72):
     windows = build_windows(fetches["weather"], t_now, zone_cfg, horizon_h)
     tides = fetches["tides"].data if fetches["tides"].ok else []
@@ -2461,7 +2480,7 @@ def score_zone(zone_key, zone_cfg, fetches, t_now, horizon_h=72):
         conf_word, comp, agree, notes = confidence(fetches, feats, t_now)
         entries, tide_fyi, band = best_entries(zone_cfg, w, tides, feats["damage"],
                                                (feats["dmg_parts"] or {}).get("per_s"))
-        sstv = fetches["sst"].data["c"] if fetches["sst"].ok else None
+        sstv = zone_sst(fetches, t_now)
         gate_ok, _ = perfect_gate(feats, score, sstv, zone_cfg)
         # a provisional bell watches and speaks but cannot ring — it has not
         # been sworn (buoy check + first local verdicts) for this water
@@ -2509,7 +2528,7 @@ def cmd_run(args):
             continue
         horizon = 24 * CONFIG["alerting"]["digest_days"] if args.weekly else 72
         scored = score_zone(zk, zc, fetches, t_now, horizon)
-        sst = fetches["sst"].data["c"] if fetches["sst"].ok else None
+        sst = zone_sst(fetches, t_now)
         chla = fetches["chla"].data["mg_m3"] if fetches["chla"].ok else None
         rows = []
         for s in scored:
@@ -3722,6 +3741,17 @@ def cmd_test(args):
           and kw.get("JOLLA") == "D" and kw.get("BARBARA") == "I"
           and all(len(k) >= 4 for k in kw), str(sorted(kw))[:70])
     check("(ff4) no env, no subscribers", sms_subscribers() == {})
+
+    # (hh) THE WARM AXIS MUST SURVIVE A 403: NOAA sst dead + marine sst
+    # present -> the gate still knows the water temperature.
+    f_sst = _mk_fetches(t0, swell_ft=1.5, per_s=15, dir_deg=195, wind_kn=4)
+    f_sst["marine"].data["sea_surface_temperature"] = _flat_series(t0, 200, 19.5)
+    f_sst["sst"] = Fetch("sst", False, error="HTTP 403")
+    v = zone_sst(f_sst, t0)
+    check("(hh) marine SST answers when NOAA 403s", v is not None and 19.0 < v < 20.0,
+          "sst=%s" % v)
+    f_sst["marine"] = Fetch("marine", False, error="down")
+    check("(hh2) both dead -> None, gate fails closed", zone_sst(f_sst, t0) is None)
 
     # (gg) THE ALERT PATH, WALKED END TO END: the rec-ordering crash hid for
     # ten days because no test ever ran cmd_run's alert branch — unit tests
