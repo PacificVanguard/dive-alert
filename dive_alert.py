@@ -2487,6 +2487,7 @@ def cmd_run(args):
         if not args.offline:
             ingest_feedback(state, args.dry_run, zc, zk)
         ztopic = zone_topic(zc)
+        rec = state.setdefault("record", {}).setdefault(zk, {"promises": 0, "rings": 0})
         fetches, src = fetch_all(zc, offline=args.offline, fixture_set=args.fixtures)
         fx_now = src.fixture_now()
         if fx_now:
@@ -2582,7 +2583,6 @@ def cmd_run(args):
         append_log(LOG_PATH, LOG_COLS, rows, args.dry_run)
         # the bell remembers: a gate day seen is a ring recorded
         gate_days_seen = [s["w"]["start"].date().isoformat() for s in scored if s.get("gate")]
-        rec = state.setdefault("record", {}).setdefault(zk, {"promises": 0, "rings": 0})
         if gate_days_seen:
             prev = state.setdefault("last_ring", {}).get(zk)
             if max(gate_days_seen) != prev:
@@ -3722,6 +3722,29 @@ def cmd_test(args):
           and kw.get("JOLLA") == "D" and kw.get("BARBARA") == "I"
           and all(len(k) >= 4 for k in kw), str(sorted(kw))[:70])
     check("(ff4) no env, no subscribers", sms_subscribers() == {})
+
+    # (gg) THE ALERT PATH, WALKED END TO END: the rec-ordering crash hid for
+    # ten days because no test ever ran cmd_run's alert branch — unit tests
+    # called decide_alert directly, and live water stayed under 7 until it
+    # didn't. Drop the threshold so the offline fixtures alert, and the whole
+    # branch (render, notify, record, sms guard, board) must survive.
+    old_thresh = CONFIG["alerting"]["threshold"]
+    CONFIG["alerting"]["threshold"] = 1.0
+    try:
+        class _A:  # the argparse shape cmd_run expects
+            offline, dry_run, brief, weekly = True, True, False, False
+            fixtures = "normal"
+        try:
+            cmd_run(_A())
+            crashed = None
+        except SystemExit:
+            crashed = None      # degraded-fixture exit paths are fine
+        except Exception as e:
+            crashed = e
+        check("(gg) alert branch survives end to end", crashed is None,
+              "raised %r" % crashed)
+    finally:
+        CONFIG["alerting"]["threshold"] = old_thresh
 
     # fixture suite: degraded + disagreement
     print("fixture tests:")
