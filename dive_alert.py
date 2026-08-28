@@ -2383,6 +2383,35 @@ def sms_ring(zone_key, zone_cfg, payload, state, dry_run):
                                            " [dry]" if dry_run else ""))
 
 
+def capability_sentinel(state, blind_axes_by_zone):
+    """The lesson of the 403s: every component can degrade 'as designed' and
+    the composition still lobotomizes the fleet — SST dead + warm-fails-closed
+    meant no bell could EVER ring, with zero alarms. This watches capability,
+    not components: a gate axis unknowable across EVERY enabled zone for
+    ~3 days means the fleet cannot ring, and a human hears about it once."""
+    counts = state.setdefault("axis_blind", {})
+    zones = list(blind_axes_by_zone)
+    newly = []
+    for axis in ("flat", "glass", "dry", "sun", "warm"):
+        fleet_blind = bool(zones) and all(axis in blind_axes_by_zone[z] for z in zones)
+        if fleet_blind:
+            counts[axis] = counts.get(axis, 0) + 1
+            if counts[axis] == SENTINEL_RUNS:
+                newly.append(axis)
+        else:
+            counts[axis] = 0
+    return newly
+
+
+def gate_axis_blindness(feats, sst_c):
+    """Which gate axes are UNKNOWABLE (not failing — unknowable) right now."""
+    vals = {"flat": feats.get("damage"),
+            "glass": feats.get("wind_window_eff_kn", feats.get("wind_window_max_kn")),
+            "dry": feats.get("dry_hours"), "sun": feats.get("cloud_pct"),
+            "warm": sst_c}
+    return {a for a, v in vals.items() if v is None}
+
+
 def notify_ops(payload, dry_run):
     """Plumbing news goes to the keeper channel, never to divers."""
     return notify(payload, dry_run, topic=ops_topic())
@@ -2500,6 +2529,7 @@ def cmd_run(args):
     state = load_state()
     all_scored, any_swell_ok = [], False
     board = {}
+    blind_map = {}
     for zk, zc in CONFIG["zones"].items():
         if not zc["enabled"]:
             continue
@@ -2529,6 +2559,8 @@ def cmd_run(args):
         horizon = 24 * CONFIG["alerting"]["digest_days"] if args.weekly else 72
         scored = score_zone(zk, zc, fetches, t_now, horizon)
         sst = zone_sst(fetches, t_now)
+        if scored:
+            blind_map[zk] = gate_axis_blindness(scored[0]["feats"], sst)
         chla = fetches["chla"].data["mg_m3"] if fetches["chla"].ok else None
         rows = []
         for s in scored:
@@ -2675,6 +2707,14 @@ def cmd_run(args):
         with open(os.path.join(DATA, "latest.json"), "w") as jf:
             json.dump({"updated": t_now.isoformat(), "zone": "A",
                        "sst_f": first["sst_f"], "windows": first["windows"]}, jf, indent=1)
+
+    for axis in capability_sentinel(state, blind_map):
+        notify_ops({"title": "The fleet cannot ring 🔧",
+                    "message": "The gate's '%s' axis has been unknowable across every "
+                               "bell for ~3 days — no ring can pass while it is blind. "
+                               "Check the sources that feed it. "
+                               "github.com/PacificVanguard/dive-alert/actions" % axis,
+                    "priority": 5}, args.dry_run)
 
     save_state(state, args.dry_run)
     if not any_swell_ok:
@@ -3775,6 +3815,80 @@ def cmd_test(args):
               "raised %r" % crashed)
     finally:
         CONFIG["alerting"]["threshold"] = old_thresh
+
+    # (ii) THE CAPABILITY SENTINEL: fleet-wide axis blindness alarms once;
+    # one sighted bell resets the count. Component health is not capability.
+    st_cap = {}
+    blind_all = {"A": {"warm"}, "E": {"warm"}}
+    fired_cap = []
+    for _ in range(SENTINEL_RUNS + 2):
+        fired_cap += capability_sentinel(st_cap, blind_all)
+    check("(ii) fleet-blind axis alarms exactly once", fired_cap == ["warm"],
+          "fired=%s" % fired_cap)
+    capability_sentinel(st_cap, {"A": set(), "E": {"warm"}})
+    check("(ii2) one sighted bell resets the alarm", st_cap["axis_blind"]["warm"] == 0)
+    check("(ii3) blindness reads unknowable, not failing",
+          gate_axis_blindness({"damage": 5.0, "wind_window_eff_kn": None,
+                               "dry_hours": 72, "cloud_pct": None}, None)
+          == {"glass", "sun", "warm"})
+
+    # (gg2) THE RING, DRILLED: loosen the gate to trivial and the whole ring
+    # path — gold render, sms guard, last_ring bookkeeping — must survive.
+    class _A2:
+        offline, dry_run, brief, weekly = True, True, False, False
+        fixtures = "normal"
+    old_gate = dict(CONFIG["perfect_gate"])
+    old_thresh2 = CONFIG["alerting"]["threshold"]
+    CONFIG["perfect_gate"].update({"max_damage": 99, "max_wind_kn": 99,
+                                   "min_dry_hours": 0, "max_cloud_pct": 100,
+                                   "min_sst_c": -99, "min_score": 1.0})
+    CONFIG["alerting"]["threshold"] = 1.0
+    try:
+        try:
+            cmd_run(_A2()); rc = None
+        except SystemExit:
+            rc = None
+        except Exception as e:
+            rc = e
+        check("(gg2) ring path survives end to end", rc is None, "raised %r" % rc)
+    finally:
+        CONFIG["perfect_gate"].clear(); CONFIG["perfect_gate"].update(old_gate)
+        CONFIG["alerting"]["threshold"] = old_thresh2
+
+    # (gg3) THE DOWNGRADE, DRILLED: a seeded 9.0 streak + an impossible
+    # threshold forces cmd_run's downgrade branch.
+    import builtins
+    g = globals()
+    orig_load = g["load_state"]
+    g["load_state"] = lambda: {"streaks": {zk2: {"score": 9.0, "entries": ["X"],
+                               "window_key": "w", "since": t0.isoformat(), "gate": False}
+                               for zk2 in CONFIG["zones"]}}
+    CONFIG["alerting"]["threshold"] = 99.0
+    try:
+        try:
+            cmd_run(_A2()); rc = None
+        except SystemExit:
+            rc = None
+        except Exception as e:
+            rc = e
+        check("(gg3) downgrade path survives end to end", rc is None, "raised %r" % rc)
+    finally:
+        g["load_state"] = orig_load
+        CONFIG["alerting"]["threshold"] = old_thresh2
+
+    # (gg4) THE WEEKLY DIGEST, DRILLED.
+    class _A4(_A2):
+        weekly = True
+    try:
+        try:
+            cmd_run(_A4()); rc = None
+        except SystemExit:
+            rc = None
+        except Exception as e:
+            rc = e
+        check("(gg4) weekly digest path survives end to end", rc is None, "raised %r" % rc)
+    except Exception as e:
+        check("(gg4) weekly digest path survives end to end", False, repr(e))
 
     # fixture suite: degraded + disagreement
     print("fixture tests:")
