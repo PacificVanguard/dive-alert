@@ -10,14 +10,34 @@
    "since": "2026-08-23T16:00:00-07:00",
    "gate": false
   },
-  "H": {
-   "score": 7.8,
+  "D": {
+   "score": 8.6,
    "entries": [
-    "Whalers Cove",
-    "Bluefish Cove"
+    "La Jolla Cove",
+    "La Jolla Shores (Canyon)"
    ],
-   "window_key": "20260826T0604-dawn",
-   "since": "2026-08-25T16:00:00-07:00",
+   "window_key": "20260829T0551-dawn",
+   "since": "2026-08-27T21:00:00-07:00",
+   "gate": false
+  },
+  "J": {
+   "score": 8.8,
+   "entries": [
+    "Three Tables",
+    "Shark's Cove"
+   ],
+   "window_key": "20260829T0544-dawn",
+   "since": "2026-08-27T21:00:00-07:00",
+   "gate": false
+  },
+  "O": {
+   "score": 7.6,
+   "entries": [
+    "Shelly Beach (Cabbage Tree Bay)",
+    "Fairy Bower"
+   ],
+   "window_key": "20260829T1730-dusk",
+   "since": "2026-08-27T21:00:00-07:00",
    "gate": false
   }
  },
@@ -36,7 +56,7 @@
   "A:weather": 0,
   "A:ndbc_primary": 0,
   "A:ndbc_offshore": 0,
-  "A:tides": 1,
+  "A:tides": 0,
   "A:sst": 0,
   "A:chla": 0,
   "A:kd490": 0,
@@ -45,7 +65,7 @@
   "C:weather": 0,
   "C:ndbc_primary": 0,
   "C:ndbc_offshore": 0,
-  "C:tides": 1,
+  "C:tides": 0,
   "C:sst": 0,
   "C:chla": 0,
   "C:kd490": 0,
@@ -59,20 +79,20 @@
   "D:chla": 0,
   "D:kd490": 0,
   "D:ndbc_spec": 0,
-  "E:marine": 0,
+  "E:marine": 1,
   "E:weather": 0,
-  "E:ndbc_primary": 19,
+  "E:ndbc_primary": 20,
   "E:ndbc_offshore": 0,
   "E:tides": 0,
   "E:sst": 0,
   "E:chla": 0,
   "E:kd490": 0,
-  "E:ndbc_spec": 19,
+  "E:ndbc_spec": 20,
   "F:marine": 0,
   "F:weather": 0,
   "F:ndbc_primary": 0,
   "F:ndbc_offshore": 0,
-  "F:tides": 1,
+  "F:tides": 0,
   "F:sst": 0,
   "F:chla": 0,
   "F:kd490": 0,
@@ -95,8 +115,8 @@
   "H:chla": 0,
   "H:kd490": 0,
   "H:ndbc_spec": 0,
-  "I:marine": 1,
-  "I:weather": 0,
+  "I:marine": 0,
+  "I:weather": 1,
   "I:ndbc_primary": 0,
   "I:ndbc_offshore": 0,
   "I:tides": 0,
@@ -107,32 +127,32 @@
   "J:marine": 0,
   "J:weather": 0,
   "J:ndbc_primary": 0,
-  "J:ndbc_offshore": 18,
+  "J:ndbc_offshore": 19,
   "J:tides": 0,
   "J:sst": 0,
   "J:chla": 0,
   "J:kd490": 0,
   "J:ndbc_spec": 0,
   "K:marine": 0,
-  "K:weather": 1,
-  "K:ndbc_primary": 18,
-  "K:ndbc_offshore": 18,
-  "K:tides": 1,
+  "K:weather": 0,
+  "K:ndbc_primary": 19,
+  "K:ndbc_offshore": 19,
+  "K:tides": 0,
   "K:sst": 0,
   "K:chla": 0,
   "K:kd490": 0,
-  "K:ndbc_spec": 18,
+  "K:ndbc_spec": 19,
   "L:marine": 0,
   "L:weather": 0,
-  "L:ndbc_primary": 17,
-  "L:ndbc_offshore": 17,
-  "L:tides": 17,
+  "L:ndbc_primary": 18,
+  "L:ndbc_offshore": 18,
+  "L:tides": 18,
   "L:sst": 0,
   "L:chla": 0,
   "L:kd490": 0,
-  "L:ndbc_spec": 17,
+  "L:ndbc_spec": 18,
   "M:marine": 0,
-  "M:weather": 0,
+  "M:weather": 1,
   "M:ndbc_primary": 0,
   "M:ndbc_offshore": 0,
   "M:tides": 0,
@@ -142,26 +162,26 @@
   "M:ndbc_spec": 0,
   "N:marine": 0,
   "N:weather": 0,
-  "N:ndbc_primary": 17,
+  "N:ndbc_primary": 18,
   "N:ndbc_offshore": 0,
-  "N:tides": 1,
+  "N:tides": 0,
   "N:sst": 0,
   "N:chla": 0,
   "N:kd490": 0,
-  "N:ndbc_spec": 17,
+  "N:ndbc_spec": 18,
   "O:marine": 0,
-  "O:weather": 0,
-  "O:ndbc_primary": 17,
-  "O:ndbc_offshore": 17,
-  "O:tides": 17,
+  "O:weather": 1,
+  "O:ndbc_primary": 18,
+  "O:ndbc_offshore": 18,
+  "O:tides": 18,
   "O:sst": 0,
   "O:chla": 0,
   "O:kd490": 0,
-  "O:ndbc_spec": 17,
-  "P:marine": 1,
+  "O:ndbc_spec": 18,
+  "P:marine": 0,
   "P:weather": 0,
   "P:ndbc_primary": 0,
-  "P:ndbc_offshore": 17,
+  "P:ndbc_offshore": 18,
   "P:tides": 0,
   "P:sst": 0,
   "P:chla": 0,
@@ -179,7 +199,7 @@
    "rings": 0
   },
   "D": {
-   "promises": 5,
+   "promises": 6,
    "rings": 0
   },
   "E": {
@@ -203,7 +223,7 @@
    "rings": 0
   },
   "J": {
-   "promises": 0,
+   "promises": 1,
    "rings": 0
   },
   "K": {
@@ -223,7 +243,7 @@
    "rings": 0
   },
   "O": {
-   "promises": 1,
+   "promises": 2,
    "rings": 0
   },
   "P": {
@@ -231,5 +251,5 @@
    "rings": 0
   }
  },
- "hook_idx": 26
+ "hook_idx": 29
 }
