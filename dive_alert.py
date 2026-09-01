@@ -56,8 +56,10 @@ CONFIG = {
             # per-zone instruments: the same seam that lets Monterey's cold
             # water in later lets a tideless international coast in (Phase 3)
             "tide_station": "9410580", "buoy": "46253", "buoy_offshore": "46086",
-            # sworn = buoy-validated + hindcast-fitted; its gate may ring.
-            # provisional = newly cast; it watches and speaks but cannot ring.
+            # sworn = buoy-validated + hindcast-fitted + verdict-confirmed.
+            # provisional = newly cast; it rings on its casting alone, and
+            # every ring says so — the tier is an honesty label, not a lock
+            # (fleet-wide launch decision, 2026-09-01).
             "tier": "sworn",
             "region": 'Southern California',
             "season_note": 'December mornings, mostly, after the Santa Anas have swept the sea flat',
@@ -147,9 +149,8 @@ CONFIG = {
             "name": "Dana Point",
             "enabled": True,
             # BELL No. 2 — cast 2026-08-17. Provisional: no local diver has
-            # confirmed its water, so its gate is locked shut until it is
-            # sworn (buoy check + first verdicts). It scores, digests and
-            # alerts, and says on its plate that it is still earning its ring.
+            # confirmed its water. Its gate rings live like every bell's, and
+            # its plate says its word is unproven until verdicts swear it in.
             "bell": {"no": 2, "name": "Dana Point", "cast": "2026-08-17"},
             "topic": "danapoint-dive-8952a5b5",
             "tier": "provisional",
@@ -2511,10 +2512,9 @@ def score_zone(zone_key, zone_cfg, fetches, t_now, horizon_h=72):
                                                (feats["dmg_parts"] or {}).get("per_s"))
         sstv = zone_sst(fetches, t_now)
         gate_ok, _ = perfect_gate(feats, score, sstv, zone_cfg)
-        # a provisional bell watches and speaks but cannot ring — it has not
-        # been sworn (buoy check + first local verdicts) for this water
-        if zone_cfg.get("tier") == "provisional":
-            gate_ok = False
+        # every bell rings on its own evidence, sworn or not; a provisional
+        # bell's ring carries an honesty line instead of a lock (2026-09-01,
+        # after Sydney's 9.2 passed every axis and had to stay silent)
         scored.append({"zone": zone_key, "w": w, "score": score, "feats": feats,
                        "limit": limiting_factor(breakdown, cap_reason, score),
                        "breakdown": breakdown, "cap_reason": cap_reason, "flags": flags,
@@ -2583,7 +2583,7 @@ def cmd_run(args):
                 "cloud_pct": round(s["feats"]["cloud_pct"]) if s["feats"].get("cloud_pct") is not None else "",
                 "sst_c": sst if sst is not None else "", "chla_mg_m3": chla if chla is not None else "",
                 "kd490_m1": s["feats"].get("kd490") if s["feats"].get("kd490") is not None else "",
-                "perfect_gate": "PASS" if perfect_gate(s["feats"], s["score"], sst)[0] else "",
+                "perfect_gate": "PASS" if perfect_gate(s["feats"], s["score"], sst, zc)[0] else "",
                 "best_entries": " / ".join(s["entries"]), "alerted": "",
                 "flags": "; ".join(s["flags"])})
         all_scored += scored
@@ -2621,6 +2621,10 @@ def cmd_run(args):
                                    sst_c=sst, brag=superlative(payload["score"], t_now),
                                    actions=feedback_actions(payload["w"]["key"], zc),
                                    gate=payload.get("gate"))
+                if payload.get("gate") and zc.get("tier") == "provisional":
+                    msg["message"] += ("\n\nThis bell is newly cast. It rings on the "
+                                       "strength of its casting alone — no diver has "
+                                       "yet sworn to its word. Be its first witness.")
                 notify(msg, args.dry_run, topic=ztopic)
                 if payload.get("gate"):
                     sms_ring(zk, zc, payload, state, args.dry_run)
@@ -3889,6 +3893,21 @@ def cmd_test(args):
         check("(gg4) weekly digest path survives end to end", rc is None, "raised %r" % rc)
     except Exception as e:
         check("(gg4) weekly digest path survives end to end", False, repr(e))
+
+    # (gg5) THE UNSWORN RING: a provisional bell's gate is its own. The tier
+    # is an honesty label, not a lock — Sydney passed every axis at 9.2 and
+    # had to stay silent (2026-09-01). Never re-add the lock.
+    CONFIG["perfect_gate"].update({"max_damage": 99, "max_wind_kn": 99,
+                                   "min_dry_hours": 0, "max_cloud_pct": 100,
+                                   "min_sst_c": -99, "min_score": 1.0})
+    try:
+        zc5 = dict(zc); zc5["tier"] = "provisional"
+        fx5, src5 = fetch_all(zc5, offline=True, fixture_set="normal")
+        sc5 = score_zone("A", zc5, fx5, src5.fixture_now() or t0)
+        check("(gg5) provisional bell can ring", any(s["gate"] for s in sc5),
+              "gates=%s" % [s["gate"] for s in sc5])
+    finally:
+        CONFIG["perfect_gate"].clear(); CONFIG["perfect_gate"].update(old_gate)
 
     # fixture suite: degraded + disagreement
     print("fixture tests:")
