@@ -1,14 +1,14 @@
 {
  "streaks": {
   "O": {
-   "score": 8.6,
+   "score": 9.0,
    "entries": [
     "Shelly Beach (Cabbage Tree Bay)",
     "Fairy Bower"
    ],
-   "window_key": "20260830T1535-dusk",
+   "window_key": "20260903T1538-dusk",
    "since": "2026-08-27T21:00:00-07:00",
-   "gate": false
+   "gate": true
   },
   "H": {
    "score": 8.9,
@@ -28,16 +28,6 @@
    ],
    "window_key": "20260901T1735-dusk",
    "since": "2026-08-31T04:00:00-07:00",
-   "gate": false
-  },
-  "I": {
-   "score": 8.4,
-   "entries": [
-    "Refugio State Beach",
-    "Tajiguas Reef"
-   ],
-   "window_key": "20260901T1726-dusk",
-   "since": "2026-08-31T16:00:00-07:00",
    "gate": false
   }
  },
@@ -79,15 +69,15 @@
   "D:chla": 0,
   "D:kd490": 0,
   "D:ndbc_spec": 0,
-  "E:marine": 1,
+  "E:marine": 2,
   "E:weather": 0,
-  "E:ndbc_primary": 29,
+  "E:ndbc_primary": 30,
   "E:ndbc_offshore": 0,
   "E:tides": 0,
   "E:sst": 0,
   "E:chla": 0,
   "E:kd490": 0,
-  "E:ndbc_spec": 29,
+  "E:ndbc_spec": 30,
   "F:marine": 0,
   "F:weather": 0,
   "F:ndbc_primary": 0,
@@ -98,7 +88,7 @@
   "F:kd490": 0,
   "F:ndbc_spec": 0,
   "G:marine": 0,
-  "G:weather": 0,
+  "G:weather": 1,
   "G:ndbc_primary": 0,
   "G:ndbc_offshore": 0,
   "G:tides": 0,
@@ -115,7 +105,7 @@
   "H:chla": 0,
   "H:kd490": 0,
   "H:ndbc_spec": 0,
-  "I:marine": 2,
+  "I:marine": 0,
   "I:weather": 0,
   "I:ndbc_primary": 0,
   "I:ndbc_offshore": 0,
@@ -127,30 +117,30 @@
   "J:marine": 0,
   "J:weather": 0,
   "J:ndbc_primary": 0,
-  "J:ndbc_offshore": 28,
+  "J:ndbc_offshore": 29,
   "J:tides": 0,
   "J:sst": 0,
   "J:chla": 0,
   "J:kd490": 0,
   "J:ndbc_spec": 0,
   "K:marine": 0,
-  "K:weather": 2,
-  "K:ndbc_primary": 28,
-  "K:ndbc_offshore": 28,
+  "K:weather": 0,
+  "K:ndbc_primary": 29,
+  "K:ndbc_offshore": 29,
   "K:tides": 0,
   "K:sst": 0,
   "K:chla": 0,
   "K:kd490": 0,
-  "K:ndbc_spec": 28,
+  "K:ndbc_spec": 29,
   "L:marine": 0,
   "L:weather": 0,
-  "L:ndbc_primary": 27,
-  "L:ndbc_offshore": 27,
-  "L:tides": 27,
+  "L:ndbc_primary": 28,
+  "L:ndbc_offshore": 28,
+  "L:tides": 28,
   "L:sst": 0,
   "L:chla": 0,
   "L:kd490": 0,
-  "L:ndbc_spec": 27,
+  "L:ndbc_spec": 28,
   "M:marine": 0,
   "M:weather": 0,
   "M:ndbc_primary": 0,
@@ -160,28 +150,28 @@
   "M:chla": 0,
   "M:kd490": 0,
   "M:ndbc_spec": 0,
-  "N:marine": 2,
+  "N:marine": 3,
   "N:weather": 0,
-  "N:ndbc_primary": 27,
+  "N:ndbc_primary": 28,
   "N:ndbc_offshore": 0,
   "N:tides": 0,
   "N:sst": 0,
   "N:chla": 0,
   "N:kd490": 0,
-  "N:ndbc_spec": 27,
+  "N:ndbc_spec": 28,
   "O:marine": 0,
   "O:weather": 0,
-  "O:ndbc_primary": 27,
-  "O:ndbc_offshore": 27,
-  "O:tides": 27,
+  "O:ndbc_primary": 28,
+  "O:ndbc_offshore": 28,
+  "O:tides": 28,
   "O:sst": 0,
   "O:chla": 0,
   "O:kd490": 0,
-  "O:ndbc_spec": 27,
+  "O:ndbc_spec": 28,
   "P:marine": 0,
   "P:weather": 0,
   "P:ndbc_primary": 0,
-  "P:ndbc_offshore": 27,
+  "P:ndbc_offshore": 28,
   "P:tides": 0,
   "P:sst": 0,
   "P:chla": 0,
@@ -200,7 +190,7 @@
   },
   "D": {
    "promises": 7,
-   "rings": 0
+   "rings": 1
   },
   "E": {
    "promises": 4,
@@ -216,7 +206,7 @@
   },
   "H": {
    "promises": 3,
-   "rings": 0
+   "rings": 1
   },
   "I": {
    "promises": 7,
@@ -243,8 +233,8 @@
    "rings": 0
   },
   "O": {
-   "promises": 3,
-   "rings": 0
+   "promises": 4,
+   "rings": 1
   },
   "P": {
    "promises": 2,
@@ -258,5 +248,10 @@
   "dry": 0,
   "sun": 0,
   "warm": 0
+ },
+ "last_ring": {
+  "D": "2026-09-04",
+  "H": "2026-09-01",
+  "O": "2026-09-04"
  }
 }
