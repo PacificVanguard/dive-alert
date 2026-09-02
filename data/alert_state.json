@@ -30,25 +30,25 @@
    "since": "2026-08-31T04:00:00-07:00",
    "gate": false
   },
-  "C": {
-   "score": 8.7,
+  "L": {
+   "score": 7.0,
    "entries": [
-    "Dana Point Harbor breakwall (outside)",
-    "Salt Creek"
+    "Bari Reef",
+    "1000 Steps"
    ],
-   "window_key": "20260902T0555-dawn",
-   "since": "2026-09-01T16:00:00-07:00",
-   "gate": true
+   "window_key": "20260904T0552-dawn",
+   "since": "2026-09-02T04:00:00-07:00",
+   "gate": false
   },
-  "F": {
-   "score": 8.8,
+  "M": {
+   "score": 7.7,
    "entries": [
-    "Casino Point Dive Park",
-    "Lover's Cove"
+    "Point Dume Cove",
+    "Leo Carrillo (Sequit Point)"
    ],
-   "window_key": "20260902T0558-dawn",
-   "since": "2026-09-01T16:00:00-07:00",
-   "gate": true
+   "window_key": "20260903T0600-dawn",
+   "since": "2026-09-02T04:00:00-07:00",
+   "gate": false
   }
  },
  "last_tip_id": "db1",
@@ -71,7 +71,7 @@
   "A:chla": 0,
   "A:kd490": 0,
   "A:ndbc_spec": 0,
-  "C:marine": 1,
+  "C:marine": 0,
   "C:weather": 0,
   "C:ndbc_primary": 0,
   "C:ndbc_offshore": 0,
@@ -89,16 +89,16 @@
   "D:chla": 0,
   "D:kd490": 0,
   "D:ndbc_spec": 0,
-  "E:marine": 0,
+  "E:marine": 1,
   "E:weather": 0,
-  "E:ndbc_primary": 31,
+  "E:ndbc_primary": 32,
   "E:ndbc_offshore": 0,
   "E:tides": 0,
   "E:sst": 0,
   "E:chla": 0,
   "E:kd490": 0,
-  "E:ndbc_spec": 31,
-  "F:marine": 1,
+  "E:ndbc_spec": 32,
+  "F:marine": 0,
   "F:weather": 0,
   "F:ndbc_primary": 0,
   "F:ndbc_offshore": 0,
@@ -108,7 +108,7 @@
   "F:kd490": 0,
   "F:ndbc_spec": 0,
   "G:marine": 0,
-  "G:weather": 0,
+  "G:weather": 1,
   "G:ndbc_primary": 0,
   "G:ndbc_offshore": 0,
   "G:tides": 0,
@@ -134,10 +134,10 @@
   "I:chla": 0,
   "I:kd490": 0,
   "I:ndbc_spec": 0,
-  "J:marine": 0,
+  "J:marine": 1,
   "J:weather": 0,
   "J:ndbc_primary": 0,
-  "J:ndbc_offshore": 30,
+  "J:ndbc_offshore": 31,
   "J:tides": 0,
   "J:sst": 0,
   "J:chla": 0,
@@ -145,23 +145,23 @@
   "J:ndbc_spec": 0,
   "K:marine": 0,
   "K:weather": 0,
-  "K:ndbc_primary": 30,
-  "K:ndbc_offshore": 30,
+  "K:ndbc_primary": 31,
+  "K:ndbc_offshore": 31,
   "K:tides": 0,
   "K:sst": 0,
   "K:chla": 0,
   "K:kd490": 0,
-  "K:ndbc_spec": 30,
+  "K:ndbc_spec": 31,
   "L:marine": 0,
-  "L:weather": 1,
-  "L:ndbc_primary": 29,
-  "L:ndbc_offshore": 29,
-  "L:tides": 29,
+  "L:weather": 0,
+  "L:ndbc_primary": 30,
+  "L:ndbc_offshore": 30,
+  "L:tides": 30,
   "L:sst": 0,
   "L:chla": 0,
   "L:kd490": 0,
-  "L:ndbc_spec": 29,
-  "M:marine": 0,
+  "L:ndbc_spec": 30,
+  "M:marine": 1,
   "M:weather": 0,
   "M:ndbc_primary": 0,
   "M:ndbc_offshore": 0,
@@ -172,26 +172,26 @@
   "M:ndbc_spec": 0,
   "N:marine": 0,
   "N:weather": 0,
-  "N:ndbc_primary": 29,
+  "N:ndbc_primary": 30,
   "N:ndbc_offshore": 0,
   "N:tides": 0,
   "N:sst": 0,
   "N:chla": 0,
   "N:kd490": 0,
-  "N:ndbc_spec": 29,
+  "N:ndbc_spec": 30,
   "O:marine": 0,
-  "O:weather": 1,
-  "O:ndbc_primary": 29,
-  "O:ndbc_offshore": 29,
-  "O:tides": 29,
+  "O:weather": 2,
+  "O:ndbc_primary": 30,
+  "O:ndbc_offshore": 30,
+  "O:tides": 30,
   "O:sst": 0,
   "O:chla": 0,
   "O:kd490": 0,
-  "O:ndbc_spec": 29,
+  "O:ndbc_spec": 30,
   "P:marine": 0,
   "P:weather": 0,
   "P:ndbc_primary": 0,
-  "P:ndbc_offshore": 29,
+  "P:ndbc_offshore": 30,
   "P:tides": 0,
   "P:sst": 0,
   "P:chla": 0,
@@ -226,7 +226,7 @@
   },
   "H": {
    "promises": 3,
-   "rings": 1
+   "rings": 2
   },
   "I": {
    "promises": 7,
@@ -241,11 +241,11 @@
    "rings": 0
   },
   "L": {
-   "promises": 0,
+   "promises": 1,
    "rings": 0
   },
   "M": {
-   "promises": 0,
+   "promises": 1,
    "rings": 0
   },
   "N": {
@@ -261,7 +261,7 @@
    "rings": 0
   }
  },
- "hook_idx": 45,
+ "hook_idx": 47,
  "axis_blind": {
   "flat": 0,
   "glass": 0,
@@ -271,7 +271,7 @@
  },
  "last_ring": {
   "D": "2026-09-04",
-  "H": "2026-09-01",
+  "H": "2026-09-02",
   "O": "2026-09-04",
   "C": "2026-09-04",
   "E": "2026-09-01",
