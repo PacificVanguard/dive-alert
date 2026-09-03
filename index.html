@@ -308,7 +308,7 @@
   <div class="weighs">
     <span class="depth">50 ft</span>
     <h2>The instruments</h2>
-    <div class="wlist">
+    <div class="wlist" id="wlist">
       <div class="w"><b>Waverider buoy 46253 · San Pedro South</b>
         <span>the ocean itself, measured every thirty minutes. The forecast must argue with it twice a day</span></div>
       <div class="w"><b>The swell model</b>
@@ -436,6 +436,57 @@
     "Oahu North Shore": "OAHU", "Kona": "KONA", "Bonaire": "BONAIRE",
     "Malibu": "MALIBU", "Ventura County": "VENTURA", "Sydney": "SYDNEY",
     "Maui": "MAUI"};
+  // instrument names, verified against NDBC / NOAA station registries
+  const BUOY_NAME = {"46253": "San Pedro South", "46254": "Scripps Nearshore",
+    "46240": "Cabrillo Point, Monterey Bay", "46221": "Santa Monica Bay",
+    "46239": "Point Sur", "46054": "West Santa Barbara", "51201": "Waimea Bay",
+    "51003": "Western Hawaii", "51205": "Pauwela, Maui", "46217": "Anacapa Passage"};
+  const TIDE_NAME = {"9410580": "Newport Bay", "9410230": "La Jolla",
+    "9413450": "Monterey", "9410079": "Avalon, Catalina", "9410660": "Los Angeles",
+    "9411340": "Santa Barbara", "1612340": "Honolulu", "1617433": "Kawaihae",
+    "9410840": "Santa Monica", "9411189": "Ventura", "1615680": "Kahului, Maui"};
+
+  // the instruments plate is engraved per bell — each page names the actual
+  // hardware (or its honest absence) that rings it
+  function instruments(z) {
+    const inst = z.instruments;
+    if (!inst) return;   // pre-instruments zones.json: leave the static plate
+    const buoy = inst.buoy && inst.buoy !== "none" ? inst.buoy : null;
+    const tide = inst.tide && inst.tide !== "none" ? inst.tide : null;
+    const cards = [];
+    if (buoy) {
+      cards.push(["Waverider buoy " + buoy +
+        (BUOY_NAME[buoy] ? " · " + BUOY_NAME[buoy] : ""),
+        "the ocean itself, measured every thirty minutes. The forecast must argue with it twice a day"]);
+      cards.push(["The swell model", (z.bell || {}).no === 1
+        ? "held to 1,100 hours of buoy truth — correlation 0.86, its 11% shyness measured and corrected"
+        : "held to the buoy's truth live — a rolling 48-hour anchor measures the model's local bias here and corrects it every run"]);
+      cards.push(["The buoy&rsquo;s spectra",
+        "groundswell split from wind chop by instrument, not assumption — chop is what wrecks a morning"]);
+    } else {
+      cards.push(["No buoy stands in this water",
+        "the model reads it alone, and every message says so — confidence here is never called high"]);
+      cards.push(["The swell model",
+        "held to three years of its own hindcast — this bell&rsquo;s scores are relative to this water, nobody else&rsquo;s"]);
+      cards.push(["The swell, by its parts",
+        "groundswell weighed apart from wind chop in the model&rsquo;s bands — height, period and direction each judged on its own"]);
+    }
+    if (tide) {
+      cards.push(["NOAA station " + tide +
+        (TIDE_NAME[tide] ? " · " + TIDE_NAME[tide] : ""),
+        "the tide to the minute — which cove opens, spring swing from neap calm"]);
+    } else {
+      cards.push(["The tide, stood down",
+        "no gauge steers this bell — its windows stand on swell, wind and light alone"]);
+    }
+    cards.push(["VIIRS · 490 nanometers",
+      "water clarity read from orbit. Kept as witness, never as judge — we proved it cannot forecast"]);
+    cards.push(["The wind, by its vector", z.region === "Southern California"
+      ? "hour by hour, weighed by direction — a knot of Santa Ana counts a third of a knot of sea breeze"
+      : "hour by hour, weighed by direction — a knot off the land counts a third of a knot off the sea"]);
+    document.getElementById("wlist").innerHTML = cards.map(c =>
+      "<div class='w'><b>" + c[0] + "</b><span>" + c[1] + "</span></div>").join("");
+  }
   const curKey = () => {
     const h = location.hash.replace("#", "");
     return ORDER.find(k => slug(BELLS[k].bell.name) === h) || ORDER[0];
@@ -522,6 +573,7 @@
     // the joining keyword follows the bell you're standing on
     const kw = document.getElementById("jkw");
     if (kw) kw.textContent = SMS_WORD[z.bell.name] || "LAGUNA";
+    instruments(z);
     // the ember: for three mornings after a ring, the quiet page carries the
     // heat — missing a ring should sting a little, and honestly
     const em = document.getElementById("ember");

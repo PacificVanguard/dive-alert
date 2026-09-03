@@ -2655,6 +2655,7 @@ def cmd_run(args):
             "record": dict(rec),
             "bell": zc.get("bell", {}), "tier": zc.get("tier", "provisional"),
             "topic": ztopic, "name": zc["name"],
+            "instruments": {"buoy": zc.get("buoy"), "tide": zc.get("tide_station")},
             "last_ring": state.get("last_ring", {}).get(zk),
             "sst_f": round(sst * 9 / 5 + 32) if sst is not None else None,
             "windows": [{"label": s["w"]["label"],
