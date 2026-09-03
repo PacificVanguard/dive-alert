@@ -433,7 +433,7 @@
      "start": "2026-09-06T06:13:00-07:00",
      "kind": "dawn",
      "score": 7.9,
-     "conf": "low",
+     "conf": "medium",
      "limit": "swell",
      "entries": [
       "McAbee Beach",
@@ -566,7 +566,7 @@
    "tz": "America/Los_Angeles",
    "record": {
     "promises": 4,
-    "rings": 1
+    "rings": 0
    },
    "bell": {
     "no": 6,
@@ -587,7 +587,7 @@
      "label": "Thu dusk",
      "start": "2026-09-03T17:16:00-07:00",
      "kind": "dusk",
-     "score": 7.9,
+     "score": 4.1,
      "conf": "medium",
      "limit": "wind",
      "entries": [
@@ -600,7 +600,7 @@
      "label": "Fri dawn",
      "start": "2026-09-04T05:59:00-07:00",
      "kind": "dawn",
-     "score": 8.8,
+     "score": 5.2,
      "conf": "medium",
      "limit": "all clear",
      "entries": [
@@ -613,7 +613,7 @@
      "label": "Fri dusk",
      "start": "2026-09-04T17:15:00-07:00",
      "kind": "dusk",
-     "score": 8.2,
+     "score": 6.3,
      "conf": "medium",
      "limit": "wind",
      "entries": [
@@ -626,7 +626,7 @@
      "label": "Sat dawn",
      "start": "2026-09-05T06:00:00-07:00",
      "kind": "dawn",
-     "score": 8.8,
+     "score": 7.0,
      "conf": "medium",
      "limit": "all clear",
      "entries": [
@@ -639,7 +639,7 @@
      "label": "Sat dusk",
      "start": "2026-09-05T17:13:00-07:00",
      "kind": "dusk",
-     "score": 8.1,
+     "score": 6.0,
      "conf": "medium",
      "limit": "stirred up",
      "entries": [
@@ -652,7 +652,7 @@
      "label": "Sun dawn",
      "start": "2026-09-06T06:01:00-07:00",
      "kind": "dawn",
-     "score": 8.2,
+     "score": 4.0,
      "conf": "medium",
      "limit": "stirred up",
      "entries": [
@@ -820,7 +820,7 @@
      "label": "Fri dawn",
      "start": "2026-09-04T06:05:00-07:00",
      "kind": "dawn",
-     "score": 8.3,
+     "score": 6.6,
      "conf": "medium",
      "limit": "stirred up",
      "entries": [
@@ -833,7 +833,7 @@
      "label": "Fri dusk",
      "start": "2026-09-04T17:22:00-07:00",
      "kind": "dusk",
-     "score": 7.6,
+     "score": 4.2,
      "conf": "medium",
      "limit": "stirred up",
      "entries": [
@@ -846,7 +846,7 @@
      "label": "Sat dawn",
      "start": "2026-09-05T06:06:00-07:00",
      "kind": "dawn",
-     "score": 7.7,
+     "score": 4.1,
      "conf": "medium",
      "limit": "stirred up",
      "entries": [
@@ -859,7 +859,7 @@
      "label": "Sat dusk",
      "start": "2026-09-05T17:21:00-07:00",
      "kind": "dusk",
-     "score": 7.7,
+     "score": 2.0,
      "conf": "medium",
      "limit": "stirred up",
      "entries": [
@@ -872,7 +872,7 @@
      "label": "Sun dawn",
      "start": "2026-09-06T06:07:00-07:00",
      "kind": "dawn",
-     "score": 7.7,
+     "score": 1.2,
      "conf": "medium",
      "limit": "stirred up",
      "entries": [
@@ -1116,7 +1116,7 @@
    "tz": "America/Kralendijk",
    "record": {
     "promises": 3,
-    "rings": 1
+    "rings": 0
    },
    "bell": {
     "no": 11,
@@ -1130,16 +1130,16 @@
     "buoy": "none",
     "tide": "none"
    },
-   "last_ring": "2026-09-04",
+   "last_ring": null,
    "sst_f": 84,
    "windows": [
     {
      "label": "Fri dawn",
      "start": "2026-09-04T05:52:00-04:00",
      "kind": "dawn",
-     "score": 8.6,
+     "score": 6.8,
      "conf": "medium",
-     "limit": "all clear",
+     "limit": "swell",
      "entries": [
       "Bari Reef",
       "1000 Steps"
@@ -1150,22 +1150,22 @@
      "label": "Fri dusk",
      "start": "2026-09-04T16:41:00-04:00",
      "kind": "dusk",
-     "score": 8.7,
+     "score": 7.3,
      "conf": "medium",
-     "limit": "all clear",
+     "limit": "swell",
      "entries": [
       "Bari Reef",
       "1000 Steps"
      ],
-     "gate": true
+     "gate": false
     },
     {
      "label": "Sat dawn",
      "start": "2026-09-05T05:52:00-04:00",
      "kind": "dawn",
-     "score": 8.0,
+     "score": 6.9,
      "conf": "medium",
-     "limit": "stirred up",
+     "limit": "swell",
      "entries": [
       "Bari Reef",
       "1000 Steps"
@@ -1176,9 +1176,9 @@
      "label": "Sat dusk",
      "start": "2026-09-05T16:40:00-04:00",
      "kind": "dusk",
-     "score": 8.0,
+     "score": 7.0,
      "conf": "medium",
-     "limit": "stirred up",
+     "limit": "swell",
      "entries": [
       "Bari Reef",
       "1000 Steps"
@@ -1189,9 +1189,9 @@
      "label": "Sun dawn",
      "start": "2026-09-06T05:52:00-04:00",
      "kind": "dawn",
-     "score": 7.7,
+     "score": 5.9,
      "conf": "low",
-     "limit": "grey",
+     "limit": "swell",
      "entries": [
       "Bari Reef",
       "1000 Steps"
@@ -1202,9 +1202,9 @@
      "label": "Sun dusk",
      "start": "2026-09-06T16:40:00-04:00",
      "kind": "dusk",
-     "score": 8.4,
+     "score": 6.9,
      "conf": "low",
-     "limit": "stirred up",
+     "limit": "swell",
      "entries": [
       "Bari Reef",
       "1000 Steps"
@@ -1247,7 +1247,7 @@
      "label": "Thu dusk",
      "start": "2026-09-03T17:30:00-07:00",
      "kind": "dusk",
-     "score": 7.0,
+     "score": 5.1,
      "conf": "medium",
      "limit": "stirred up",
      "entries": [
@@ -1260,7 +1260,7 @@
      "label": "Fri dawn",
      "start": "2026-09-04T05:30:00-07:00",
      "kind": "dawn",
-     "score": 7.4,
+     "score": 5.9,
      "conf": "medium",
      "limit": "stirred up",
      "entries": [
@@ -1273,7 +1273,7 @@
      "label": "Fri dusk",
      "start": "2026-09-04T17:30:00-07:00",
      "kind": "dusk",
-     "score": 5.1,
+     "score": 2.9,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -1286,7 +1286,7 @@
      "label": "Sat dawn",
      "start": "2026-09-05T05:30:00-07:00",
      "kind": "dawn",
-     "score": 5.2,
+     "score": 5.0,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -1299,7 +1299,7 @@
      "label": "Sat dusk",
      "start": "2026-09-05T17:30:00-07:00",
      "kind": "dusk",
-     "score": 1.3,
+     "score": 1.6,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -1313,7 +1313,7 @@
      "start": "2026-09-06T05:30:00-07:00",
      "kind": "dawn",
      "score": 1.2,
-     "conf": "low",
+     "conf": "medium",
      "limit": "swell",
      "entries": [
       "Point Dume Cove",
