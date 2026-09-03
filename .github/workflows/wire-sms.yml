@@ -1,0 +1,17 @@
+# One-button SMS plumbing: deploys twilio/incoming.js and points the
+# toll-free number at it. Manual-only; re-run whenever incoming.js changes.
+name: wire-sms
+on:
+  workflow_dispatch: {}
+
+jobs:
+  wire:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Wire the bell's ear
+        env:
+          TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
+          TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
+          TWILIO_FROM: ${{ secrets.TWILIO_FROM }}
+        run: bash twilio/wire.sh
