@@ -552,7 +552,10 @@ CONFIG = {
             "bell": {"no": 14, "name": "Sydney", "cast": "2026-08-17"},
             "topic": "sydney-dive-75fdf41a", "tier": "provisional", "keeper": None,
             "tz": "Australia/Sydney", "first_flush_months": [],
+            # MHL's directional waverider off Sydney (85m depth), via the AODN
+            # near-real-time WFS — the first non-NDBC instrument in the fleet
             "tide_station": "none", "buoy": "none", "buoy_offshore": "none",
+            "buoy_aodn": "Sydney",
             "offshore_dir": 240,
             "cove_damage_factor": 0.55,
             "perfect_gate_overrides": {"min_sst_c": 15.0},
@@ -917,6 +920,9 @@ CONFIG = {
         "ndbc_primary": "46253",   # San Pedro South (CDIP 213) — nearest live buoy; 46223 Dana Point is decommissioned
         "ndbc_offshore": "46086",  # San Clemente Basin — offshore trend
         "ndbc_url": "https://www.ndbc.noaa.gov/data/realtime2/{station}.txt",
+        # AODN near-real-time wave WFS — carries the MHL (NSW) waveriders,
+        # Sydney's included. The international-instrument seam.
+        "aodn_wfs": "https://geoserver-123.aodn.org.au/geoserver/ows",
         "tide_station": "9410580",  # Newport Bay Entrance — closest CO-OPS station to Laguna
         "tides": "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter",
         "sst": "https://coastwatch.pfeg.noaa.gov/erddap/griddap/jplMURSST41.json",
@@ -1052,6 +1058,29 @@ def fetch_marine(src: Sources, lat, lon, tzname="America/Los_Angeles") -> Fetch:
         return Fetch("marine", False, error=str(e))
 
 
+def fetch_marine_alt(src: Sources, lat, lon, tzname="America/Los_Angeles") -> Fetch:
+    """The second voice: the same water asked of a different model (ECMWF WAM
+    instead of best_match). Two jobs: when the voices disagree materially,
+    confidence says so; when the first voice dies, this one carries the read
+    (marked, so the message admits it). Same shape as fetch_marine so it can
+    substitute wholesale."""
+    try:
+        q = urllib.parse.urlencode({
+            "latitude": lat, "longitude": lon,
+            "hourly": "wave_height,wave_period,wave_direction,"
+                      "swell_wave_height,swell_wave_period,swell_wave_direction,"
+                      "wind_wave_height,wind_wave_period,wind_wave_direction",
+            "models": "ecmwf_wam025",
+            "past_days": 4, "forecast_days": 8, "timezone": tzname})
+        d = json.loads(src.get("marine_alt", CONFIG["sources"]["marine"] + "?" + q))
+        h = d["hourly"]
+        tz = ZoneInfo(tzname)
+        data = {k: hourly_map(h["time"], h[k], tz) for k in h if k != "time"}
+        return Fetch("marine_alt", True, data)
+    except Exception as e:
+        return Fetch("marine_alt", False, error=str(e))
+
+
 def fetch_weather(src: Sources, lat, lon, tzname="America/Los_Angeles") -> Fetch:
     try:
         q = urllib.parse.urlencode({
@@ -1100,6 +1129,42 @@ def fetch_ndbc(src: Sources, station: str, key: str) -> Fetch:
         if not good:
             return Fetch(key, False, error="no valid rows")
         return Fetch(key, True, {"rows": rows, "latest": good[0], "station": station})
+    except Exception as e:
+        return Fetch(key, False, error=str(e))
+
+
+def fetch_aodn_buoy(src: Sources, site: str, key: str) -> Fetch:
+    """A non-NDBC instrument: AODN's near-real-time wave WFS, which carries
+    Manly Hydraulics' NSW waveriders (Sydney's directional buoy included).
+    Emitted in fetch_ndbc's exact shape — rows/latest/station with wvht_m,
+    dpd_s, mwd_deg — so the buoy anchor, confidence agreement and validate
+    all work on it unchanged. TIME is UTC per AODN convention (verified
+    against wall clock at wiring, 2026-09-03)."""
+    try:
+        import io
+        q = urllib.parse.urlencode({
+            "service": "WFS", "version": "1.0.0", "request": "GetFeature",
+            "typeName": "aodn:aodn_wave_nrt_v2_timeseries_data",
+            "outputFormat": "csv", "maxFeatures": 72, "sortBy": "TIME D",
+            "CQL_FILTER": "site_name='%s'" % site})
+        text = src.get(key, CONFIG["sources"]["aodn_wfs"] + "?" + q, timeout=60)
+        rows = []
+        for r in csv.DictReader(io.StringIO(text)):
+            try:
+                dt = datetime.fromisoformat(r["TIME"]).replace(tzinfo=timezone.utc)
+            except (KeyError, ValueError):
+                continue
+            def num(v):
+                try:
+                    return float(v)
+                except (TypeError, ValueError):
+                    return None
+            rows.append({"t": dt, "wvht_m": num(r.get("WHTH")),
+                         "dpd_s": num(r.get("WPPE")), "mwd_deg": num(r.get("WPDI"))})
+        good = [r for r in rows if r["wvht_m"] is not None]
+        if not good:
+            return Fetch(key, False, error="no valid rows")
+        return Fetch(key, True, {"rows": rows, "latest": good[0], "station": site})
     except Exception as e:
         return Fetch(key, False, error=str(e))
 
@@ -1236,7 +1301,9 @@ def fetch_all(zone_cfg, offline=False, fixture_set="normal"):
     f = {
         "marine": fetch_marine(src, lat, lon, tzname),
         "weather": fetch_weather(src, lat, lon, tzname),
-        "ndbc_primary": fetch_ndbc(src, buoy, "ndbc_primary"),
+        "ndbc_primary": (fetch_aodn_buoy(src, zone_cfg["buoy_aodn"], "ndbc_primary")
+                         if zone_cfg.get("buoy_aodn")
+                         else fetch_ndbc(src, buoy, "ndbc_primary")),
         "ndbc_offshore": fetch_ndbc(src, buoy_off, "ndbc_offshore"),
         "tides": fetch_tides(src, (src.fixture_now() or now_pt()),
                              zone_cfg.get("tide_station"), ZoneInfo(tzname)),
@@ -1247,7 +1314,13 @@ def fetch_all(zone_cfg, offline=False, fixture_set="normal"):
         # deliberately NOT in SOURCE_WEIGHTS (losing it must not dent
         # completeness; it's a bonus check, not a pipeline input)
         "ndbc_spec": fetch_ndbc_spec(src, buoy),
+        # the second voice — feeds agreement, and stands in below
+        "marine_alt": fetch_marine_alt(src, lat, lon, tzname),
     }
+    if not f["marine"].ok and f["marine_alt"].ok:
+        # the first voice is down; the second carries the read, marked so
+        # confidence caps agreement and the message admits the substitution
+        f["marine"] = Fetch("marine", True, dict(f["marine_alt"].data, _second_voice=True))
     return f, src
 
 
@@ -1638,11 +1711,37 @@ def confidence(fetches, feats, t_now):
     if chla and chla.ok and chla.data["mg_m3"] >= CONFIG["scoring"]["chla_bloom_mg_m3"]:
         bloom_note = "chlorophyll %.1f mg/m³ — bloom risk" % chla.data["mg_m3"]
 
+    # the two model voices, compared over the next 48h. Materially different
+    # answers to the same question are a fact the diver deserves — but model
+    # spread alone caps confidence at medium, never low (low is reserved for
+    # an instrument contradicting the model, not models debating each other).
+    voice_note = None
+    alt = fetches.get("marine_alt")
+    if (ma is not None and ma.ok and not ma.data.get("_second_voice")
+            and alt is not None and alt.ok):
+        t0v = floor_hour(t_now)
+        pv, av = [], []
+        for hh in range(0, 49):
+            a = ma.data.get("wave_height", {}).get(t0v + timedelta(hours=hh))
+            b = alt.data.get("wave_height", {}).get(t0v + timedelta(hours=hh))
+            if a is not None and b is not None:
+                pv.append(a); av.append(b)
+        if len(pv) >= 24:
+            mean_p, mean_a = sum(pv) / len(pv), sum(av) / len(av)
+            rel = abs(mean_p - mean_a) / max(mean_p, mean_a, 0.1)
+            if rel > 0.30:
+                agreement = min(agreement, max(0.5, 1.0 - rel))
+                voice_note = "wave models disagree: %.1fft vs %.1fft over 48h" % (
+                    m_to_ft(mean_p), m_to_ft(mean_a))
+    elif ma is not None and ma.ok and ma.data.get("_second_voice"):
+        agreement = min(agreement, 0.7)   # an unverified stand-in, honestly held
+        voice_note = "second voice carried the swell read — primary model down"
+
     level = min(completeness, agreement)
     if bloom_note:
         level = min(level, 0.6)  # bloom knocks confidence, never the score
     word = "high" if level >= 0.75 else ("medium" if level >= 0.45 else "low")
-    notes = [n for n in (disagree_note, bloom_note) if n]
+    notes = [n for n in (disagree_note, voice_note, bloom_note) if n]
     if feats["missing"]:
         notes.append("missing: " + ", ".join(feats["missing"]))
     return word, completeness, agreement, notes
@@ -1937,6 +2036,38 @@ def render_downgrade(w, old, new, feats):
     msg = CONFIG["voice"]["downgrade"].format(label=w["label"], old=old, new=new, why=why)
     # split on ". " (not ".") so decimal scores in the title survive
     return {"title": msg.split(". ")[0], "message": msg, "priority": 3}
+
+
+# The bell corrects what it has measured. cmd_skill grades every logged
+# window against archive truth; this reads the newest grading per lead
+# bucket and returns the sign-flipped bias as a live correction — capped,
+# n-gated, absent entirely until the evidence exists. score_log keeps the
+# RAW score so future gradings measure RESIDUAL bias and the loop
+# converges instead of oscillating against its own correction.
+SKILL_CORR_CAP = 0.5
+SKILL_CORR_MIN_N = 25
+
+def load_skill_correction(path=None):
+    try:
+        rows = _read_csv(path or os.path.join(DATA, "skill_log.csv"))
+    except Exception:
+        return {}
+    corr = {}
+    for r in rows:   # file is append-only: later rows overwrite, newest wins
+        try:
+            if int(float(r["n"])) >= SKILL_CORR_MIN_N:
+                corr[r["bucket"]] = max(-SKILL_CORR_CAP,
+                                        min(SKILL_CORR_CAP, round(-float(r["bias"]), 2)))
+        except (KeyError, ValueError):
+            continue
+    return corr
+
+
+def skill_bucket(lead_h):
+    """Mirrors cmd_skill's bucketing exactly — grade and correct must agree."""
+    if lead_h < 6:
+        return None
+    return "12-24h" if lead_h < 24 else ("24-48h" if lead_h <= 48 else ">48h")
 
 
 def perfect_gate(feats, score, sst_c, zone_cfg=None):
@@ -2498,7 +2629,7 @@ def zone_sst(fetches, t_now):
     return None
 
 
-def score_zone(zone_key, zone_cfg, fetches, t_now, horizon_h=72):
+def score_zone(zone_key, zone_cfg, fetches, t_now, horizon_h=72, skill_corr=None):
     windows = build_windows(fetches["weather"], t_now, zone_cfg, horizon_h)
     tides = fetches["tides"].data if fetches["tides"].ok else []
     scored = []
@@ -2507,6 +2638,13 @@ def score_zone(zone_key, zone_cfg, fetches, t_now, horizon_h=72):
         feats = compute_features(w, fetches, zone_cfg, t_now, anchor)
         creek = False  # zone-level scoring; creek rule applies per-site when Zone B wakes
         score, breakdown, cap_reason, flags = score_window(feats, creek)
+        raw_score = score
+        if skill_corr:
+            bucket = skill_bucket((w["start"] - t_now).total_seconds() / 3600.0)
+            adj = skill_corr.get(bucket, 0.0) if bucket else 0.0
+            if adj:
+                score = max(1.0, min(10.0, round(score + adj, 1)))
+                flags = list(flags) + ["skill%+.1f" % adj]
         conf_word, comp, agree, notes = confidence(fetches, feats, t_now)
         entries, tide_fyi, band = best_entries(zone_cfg, w, tides, feats["damage"],
                                                (feats["dmg_parts"] or {}).get("per_s"))
@@ -2515,7 +2653,8 @@ def score_zone(zone_key, zone_cfg, fetches, t_now, horizon_h=72):
         # every bell rings on its own evidence, sworn or not; a provisional
         # bell's ring carries an honesty line instead of a lock (2026-09-01,
         # after Sydney's 9.2 passed every axis and had to stay silent)
-        scored.append({"zone": zone_key, "w": w, "score": score, "feats": feats,
+        scored.append({"zone": zone_key, "w": w, "score": score, "score_raw": raw_score,
+                       "feats": feats,
                        "limit": limiting_factor(breakdown, cap_reason, score),
                        "breakdown": breakdown, "cap_reason": cap_reason, "flags": flags,
                        "conf": conf_word, "completeness": comp, "agreement": agree,
@@ -2530,6 +2669,9 @@ def cmd_run(args):
     all_scored, any_swell_ok = [], False
     board = {}
     blind_map = {}
+    skill_corr = load_skill_correction()
+    if skill_corr:
+        print("skill correction (measured lead bias, sign-flipped): %s" % skill_corr)
     for zk, zc in CONFIG["zones"].items():
         if not zc["enabled"]:
             continue
@@ -2557,7 +2699,7 @@ def cmd_run(args):
             print("zone %s: ALL swell sources failed" % zk, file=sys.stderr)
             continue
         horizon = 24 * CONFIG["alerting"]["digest_days"] if args.weekly else 72
-        scored = score_zone(zk, zc, fetches, t_now, horizon)
+        scored = score_zone(zk, zc, fetches, t_now, horizon, skill_corr=skill_corr)
         sst = zone_sst(fetches, t_now)
         if scored:
             blind_map[zk] = gate_axis_blindness(scored[0]["feats"], sst)
@@ -2569,7 +2711,10 @@ def cmd_run(args):
             rows.append({
                 "run_ts": t_now.isoformat(), "zone": zk, "window_key": s["w"]["key"],
                 "window_start": s["w"]["start"].isoformat(), "window_kind": s["w"]["kind"],
-                "lead_h": round(lead, 1), "score": s["score"], "cap_reason": s["cap_reason"] or "",
+                # RAW score logged: cmd_skill grades this against archive truth,
+                # so the correction loop measures residual bias, not itself
+                "lead_h": round(lead, 1), "score": s.get("score_raw", s["score"]),
+                "cap_reason": s["cap_reason"] or "",
                 "confidence": s["conf"], "completeness": round(s["completeness"], 2),
                 "agreement": round(s["agreement"], 2),
                 "damage": round(s["feats"]["damage"], 2) if s["feats"]["damage"] is not None else "",
@@ -2655,7 +2800,8 @@ def cmd_run(args):
             "record": dict(rec),
             "bell": zc.get("bell", {}), "tier": zc.get("tier", "provisional"),
             "topic": ztopic, "name": zc["name"],
-            "instruments": {"buoy": zc.get("buoy"), "tide": zc.get("tide_station")},
+            "instruments": {"buoy": zc.get("buoy_aodn") or zc.get("buoy"),
+                            "tide": zc.get("tide_station")},
             "last_ring": state.get("last_ring", {}).get(zk),
             "sst_f": round(sst * 9 / 5 + 32) if sst is not None else None,
             "windows": [{"label": s["w"]["label"],
@@ -3035,15 +3181,37 @@ BUOY_POSITIONS = {"46253": (33.576, -118.181), "46254": (32.868, -117.267),
                   "46240": (36.626, -121.907), "46086": (32.499, -118.052),
                   "46042": (36.785, -122.398), "46221": (33.855, -118.633),
                   "46239": (36.342, -122.102), "46054": (34.265, -120.477),
-                  "51201": (21.673, -158.117), "51003": (19.196, -160.639)}
+                  "51201": (21.673, -158.117), "51003": (19.196, -160.639),
+                  "51205": (21.018, -156.425), "46217": (34.167, -119.435),
+                  "Sydney": (-33.75, 151.4)}   # MHL waverider, via AODN WFS
 
 
 def cmd_validate(args):
     zc = CONFIG["zones"][getattr(args, "zone", "A")]
-    st = zc.get("buoy", CONFIG["sources"]["ndbc_primary"])
+    st = zc.get("buoy_aodn") or zc.get("buoy", CONFIG["sources"]["ndbc_primary"])
     blat, blon = BUOY_POSITIONS.get(st, (zc["lat"], zc["lon"]))
     print("fetching %s buoy record (45d) and Open-Meteo model at the buoy..." % st)
-    obs_rows = parse_ndbc(http_get(CONFIG["sources"]["ndbc_url"].format(station=st), 30))
+    if zc.get("buoy_aodn"):
+        # the AODN NRT layer, asked for the full 45 days (hourly ≈ 1100 rows)
+        q45 = urllib.parse.urlencode({
+            "service": "WFS", "version": "1.0.0", "request": "GetFeature",
+            "typeName": "aodn:aodn_wave_nrt_v2_timeseries_data",
+            "outputFormat": "csv", "maxFeatures": 1200, "sortBy": "TIME D",
+            "CQL_FILTER": "site_name='%s'" % st})
+        import io as _io
+        obs_rows = []
+        for r in csv.DictReader(_io.StringIO(
+                http_get(CONFIG["sources"]["aodn_wfs"] + "?" + q45, 90))):
+            try:
+                t = datetime.fromisoformat(r["TIME"]).replace(tzinfo=timezone.utc)
+                obs_rows.append({"t": t,
+                                 "wvht_m": float(r["WHTH"]) if r.get("WHTH") else None,
+                                 "dpd_s": float(r["WPPE"]) if r.get("WPPE") else None,
+                                 "mwd_deg": None})
+            except (KeyError, ValueError):
+                continue
+    else:
+        obs_rows = parse_ndbc(http_get(CONFIG["sources"]["ndbc_url"].format(station=st), 30))
     # compare the model AT the buoy so we test the model, not the geography
     q = urllib.parse.urlencode({
         "latitude": blat, "longitude": blon,
@@ -3909,6 +4077,93 @@ def cmd_test(args):
               "gates=%s" % [s["gate"] for s in sc5])
     finally:
         CONFIG["perfect_gate"].clear(); CONFIG["perfect_gate"].update(old_gate)
+
+    # (jj) THE SKILL LOOP: measured bias becomes live correction — capped,
+    # n-gated, newest grading wins, absent when the file is.
+    import tempfile
+    skp = os.path.join(tempfile.gettempdir(), "skill_corr_test.csv")
+    with open(skp, "w") as fh:
+        fh.write("date,bucket,n,mae,bias,big_miss_pct\n")
+        fh.write("2026-08-17,12-24h,6,1.03,-1.03,0.0\n")     # n too thin: ignored
+        fh.write("2026-08-17,24-48h,100,0.9,-0.9,0.0\n")
+        fh.write("2026-09-01,12-24h,404,0.95,-0.42,24.0\n")
+        fh.write("2026-09-01,24-48h,597,1.08,-0.47,29.5\n")
+        fh.write("2026-09-01,>48h,739,1.1,-2.0,29.9\n")      # wild bias: capped
+    cj = load_skill_correction(skp)
+    check("(jj) skill corr n-gate + newest wins",
+          cj.get("12-24h") == 0.42 and cj.get("24-48h") == 0.47, str(cj))
+    check("(jj) skill corr capped", cj.get(">48h") == SKILL_CORR_CAP, str(cj))
+    check("(jj) skill corr absent file -> {}", load_skill_correction("/nonexistent") == {})
+    check("(jj) bucket mirror", skill_bucket(3) is None and skill_bucket(18) == "12-24h"
+          and skill_bucket(48) == "24-48h" and skill_bucket(49) == ">48h")
+
+    # (jj2) the correction reaches live scores; the RAW score survives for
+    # the grader — the loop must measure residual bias, never itself.
+    fxJ, srcJ = fetch_all(zc, offline=True, fixture_set="normal")
+    tJ = srcJ.fixture_now() or t0
+    plain = score_zone("A", zc, fxJ, tJ)
+    corr = score_zone("A", zc, fxJ, tJ, skill_corr={"12-24h": 0.4, "24-48h": 0.4, ">48h": 0.4})
+    ok2 = []
+    for p, c in zip(plain, corr):
+        leadJ = (c["w"]["start"] - tJ).total_seconds() / 3600.0
+        exp = 0.4 if skill_bucket(leadJ) else 0.0   # inside 6h: honestly uncorrected
+        got = c["score"] - p["score"]
+        flagged = any(f.startswith("skill+") for f in c["flags"])
+        ok2.append((abs(got - exp) < 0.11 or c["score"] == 10.0)
+                   and flagged == bool(exp))
+    check("(jj2) correction applied per lead, 6h floor honored", all(ok2),
+          "%d/%d" % (sum(ok2), len(ok2)))
+    check("(jj2) raw score preserved for grading",
+          all(abs(c["score_raw"] - p["score"]) < 0.01 for p, c in zip(plain, corr)))
+
+    # (jj3) THE SECOND VOICE: model spread is a fact; a stand-in is admitted.
+    def _wh(m):
+        return {"wave_height": {floor_hour(t0) + timedelta(hours=h): m for h in range(50)}}
+    ftJ = {"obs_frac": 0.5, "missing": []}
+    two = {"marine": Fetch("marine", True, _wh(1.0)),
+           "marine_alt": Fetch("marine_alt", True, _wh(1.5))}
+    wd, _, agJ, nJ = confidence(two, ftJ, t0)
+    check("(jj3) model disagreement named", any("models disagree" in n for n in nJ), str(nJ))
+    check("(jj3) disagreement caps agreement", agJ <= 0.67, "agreement=%.2f" % agJ)
+    agree_two = {"marine": Fetch("marine", True, _wh(1.0)),
+                 "marine_alt": Fetch("marine_alt", True, _wh(1.05))}
+    _, _, agA, nA = confidence(agree_two, ftJ, t0)
+    check("(jj3) agreeing voices add no note", not any("disagree" in n for n in nA), str(nA))
+    sub = {"marine": Fetch("marine", True, dict(_wh(1.0), _second_voice=True))}
+    _, _, agS, nS = confidence(sub, ftJ, t0)
+    check("(jj3) stand-in admitted + capped",
+          any("second voice" in n for n in nS) and agS <= 0.7, "ag=%.2f %s" % (agS, nS))
+
+    # (jj4) substitution: first voice dead, second carries the read
+    g2 = globals()
+    _orig_fm = g2["fetch_marine"]
+    g2["fetch_marine"] = lambda *a, **k: Fetch("marine", False, error="drill")
+    _orig_fma = g2["fetch_marine_alt"]
+    g2["fetch_marine_alt"] = lambda *a, **k: Fetch("marine_alt", True, _wh(1.2))
+    try:
+        fS, _ = fetch_all(zc, offline=True, fixture_set="normal")
+        check("(jj4) second voice substitutes for dead primary",
+              fS["marine"].ok and fS["marine"].data.get("_second_voice") is True)
+    finally:
+        g2["fetch_marine"] = _orig_fm
+        g2["fetch_marine_alt"] = _orig_fma
+
+    # (jj5) THE FOREIGN INSTRUMENT: AODN CSV parses into fetch_ndbc's exact
+    # shape — quoted commas, UTC times, blank fields and all.
+    class _SrcStub:
+        def get(self, key, url, timeout=None):
+            return ('FID,site_name,TIME,LATITUDE,LONGITUDE,WPPE,WPDI,WHTH\n'
+                    'x.1,"Sydney",2026-09-03T20:00:00,-33.75,151.4,14.8,160,1.1\n'
+                    'x.2,"Sydney",2026-09-03T19:00:00,-33.75,151.4,14.8,160,\n'
+                    'x.3,"Sydney",2026-09-03T18:00:00,-33.75,151.4,12.9,148,0.92\n')
+    fa = fetch_aodn_buoy(_SrcStub(), "Sydney", "ndbc_primary")
+    check("(jj5) AODN buoy parses to NDBC shape",
+          fa.ok and fa.data["station"] == "Sydney"
+          and fa.data["latest"]["wvht_m"] == 1.1
+          and fa.data["latest"]["dpd_s"] == 14.8
+          and fa.data["latest"]["t"].tzinfo is timezone.utc
+          and len(fa.data["rows"]) == 3,
+          fa.error or str(fa.data["latest"]))
 
     # fixture suite: degraded + disagreement
     print("fixture tests:")

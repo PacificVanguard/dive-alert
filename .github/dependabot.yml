@@ -1,0 +1,10 @@
+# The slow rust: pinned Action versions (checkout@v4, setup-python@v5)
+# deprecate over years. Dependabot opens a PR when they do; CI runs the
+# full suite against it; merging is a one-click yearly chore instead of a
+# surprise outage in 2029.
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"

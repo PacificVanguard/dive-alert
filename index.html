@@ -440,7 +440,8 @@
   const BUOY_NAME = {"46253": "San Pedro South", "46254": "Scripps Nearshore",
     "46240": "Cabrillo Point, Monterey Bay", "46221": "Santa Monica Bay",
     "46239": "Point Sur", "46054": "West Santa Barbara", "51201": "Waimea Bay",
-    "51003": "Western Hawaii", "51205": "Pauwela, Maui", "46217": "Anacapa Passage"};
+    "51003": "Western Hawaii", "51205": "Pauwela, Maui", "46217": "Anacapa Passage",
+    "Sydney": "Sydney offshore — Manly Hydraulics"};
   const TIDE_NAME = {"9410580": "Newport Bay", "9410230": "La Jolla",
     "9413450": "Monterey", "9410079": "Avalon, Catalina", "9410660": "Los Angeles",
     "9411340": "Santa Barbara", "1612340": "Honolulu", "1617433": "Kawaihae",
@@ -455,8 +456,9 @@
     const tide = inst.tide && inst.tide !== "none" ? inst.tide : null;
     const cards = [];
     if (buoy) {
-      cards.push(["Waverider buoy " + buoy +
-        (BUOY_NAME[buoy] ? " · " + BUOY_NAME[buoy] : ""),
+      cards.push([/^\d+$/.test(buoy)
+        ? "Waverider buoy " + buoy + (BUOY_NAME[buoy] ? " · " + BUOY_NAME[buoy] : "")
+        : "Waverider buoy · " + (BUOY_NAME[buoy] || buoy),
         "the ocean itself, measured every thirty minutes. The forecast must argue with it twice a day"]);
       cards.push(["The swell model", (z.bell || {}).no === 1
         ? "held to 1,100 hours of buoy truth — correlation 0.86, its 11% shyness measured and corrected"

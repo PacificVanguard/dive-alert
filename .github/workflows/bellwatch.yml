@@ -51,3 +51,48 @@ jobs:
                   timeout=20)
           sys.exit("stale: last run %.0f hours ago" % age_h)
           EOF
+
+      # ntfy is the alarm bell for every other alarm — if it dies, this step
+      # fails the workflow LOUDLY, and GitHub's own failure email (a channel
+      # that doesn't ride ntfy) becomes the messenger. Deliberate crossing
+      # of channels: each watchdog's failure mode is covered by the other.
+      - name: The alarm channel itself must answer
+        run: curl -sf -m 20 -o /dev/null https://ntfy.sh/v1/health
+
+      # SMS dies silently at $0 — Twilio just stops sending, and no sentinel
+      # inside the engine would ever see it. Checked here daily; whispers to
+      # ops when the purse runs low.
+      - name: The bell's purse must not run dry
+        env:
+          TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
+          TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+        run: |
+          python3 - <<'EOF'
+          import base64, json, os, sys, urllib.request
+          sid, tok = os.environ.get("TWILIO_ACCOUNT_SID"), os.environ.get("TWILIO_AUTH_TOKEN")
+          if not sid or not tok:
+              print("no Twilio secrets — purse unwatched"); sys.exit(0)
+          req = urllib.request.Request(
+              "https://api.twilio.com/2010-04-01/Accounts/%s/Balance.json" % sid,
+              headers={"Authorization": "Basic " + base64.b64encode(
+                  ("%s:%s" % (sid, tok)).encode()).decode()})
+          try:
+              d = json.load(urllib.request.urlopen(req, timeout=20))
+              bal = float(d["balance"])
+          except Exception as e:
+              sys.exit("balance check failed: %s" % e)
+          print("balance: %.2f %s" % (bal, d.get("currency", "USD")))
+          if bal < 5.0 and os.environ.get("NTFY_TOPIC"):
+              body = json.dumps({
+                  "topic": os.environ["NTFY_TOPIC"] + "-ops",
+                  "title": "The bell's purse runs low 🔧",
+                  "message": "Twilio balance %.2f %s — below 5. SMS rings stop "
+                             "silently at zero. Top up or set auto-recharge."
+                             % (bal, d.get("currency", "USD")),
+                  "priority": 4}).encode()
+              urllib.request.urlopen(
+                  urllib.request.Request("https://ntfy.sh", data=body,
+                                         headers={"Content-Type": "application/json"}),
+                  timeout=20)
+          EOF
