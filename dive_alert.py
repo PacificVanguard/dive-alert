@@ -722,7 +722,7 @@ CONFIG = {
     # Flip to True the day carrier verification clears. Until then the site
     # must not invite anyone to text a number that cannot answer — a broken
     # promise on the signup page poisons a product built on kept ones.
-    "sms_live": False,
+    "sms_live": True,
 
     # ---- the conjunction gate: what "perfect" means --------------------
     # A weighted average lets one strong axis hide a fatal one — which is how
