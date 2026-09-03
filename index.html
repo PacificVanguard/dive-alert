@@ -259,8 +259,7 @@
       rgba(100,128,155,.5)">see what a ring looks like</a></div>
     <div style="margin-top:18px;font-size:.92rem">
       <a href="#join" style="color:var(--glow);text-decoration:none;
-        border-bottom:1px solid rgba(127,212,255,.35)">get on this bell ↓</a>
-      <span id="smsline" style="color:var(--dim)"></span></div>
+        border-bottom:1px solid rgba(127,212,255,.35)">get on this bell ↓</a></div>
     <a class="down" href="#descend">▾</a>
   </div>
 
@@ -370,46 +369,28 @@
     </div>
     <div class="ringhint">ring it</div>
     <a class="cta" href="#join">Get on the bell</a>
-    <div class="cta-sub">Free · no account · ~one message a week</div>
+    <div class="cta-sub">Free · one text · about 15 messages a year</div>
   </div>
 
-  <!-- the joining: the whole ceremony happens here, on the bell's own ground -->
+  <!-- the joining: one text, on the bell's own ground -->
   <div class="join" id="join">
     <h2>Getting on the bell</h2>
-    <div class="jstep" id="jsms"><span class="jn">☎</span>
-      <div><b id="jsmsh">By text — the short way.</b>
-        <span id="jsmsb"></span></div></div>
-    <div class="jstep"><span class="jn">1</span>
-      <div><b>Get ntfy — the bell's messenger.</b>
-        <span>A small open-source app: free, no account, no tracking. It exists
-        so things like the bell can reach you without owning your data.</span>
-        <div class="jlinks">
-          <a href="https://apps.apple.com/app/ntfy/id1625396347">App Store</a>
-          <a href="https://play.google.com/store/apps/details?id=io.heckel.ntfy">Google Play</a>
-        </div></div></div>
-    <div class="jstep"><span class="jn">2</span>
-      <div><b>Tap +, and give it the bell&rsquo;s address.</b>
-        <div class="addr"><code id="topic">laguna-dive-86dd82e0</code>
-          <button class="copy" id="copybtn">copy</button></div>
-        <span>The strange string is deliberate — the bell&rsquo;s address is
-        unlisted, like a good dive spot. Only people who were told can listen,
-        and no one else can speak on it to you.</span></div></div>
-    <div class="jstep"><span class="jn">3</span>
-      <div><b>That&rsquo;s it. The bell knows you&rsquo;re listening.</b>
-        <span>Its first word reaches you by Wednesday&rsquo;s week-ahead —
-        sooner if the water turns on. Divers roam: subscribe to every bell
-        you dive; neighbors often ring the same mornings, so your phone
-        won&rsquo;t drown. On a computer or Android you can skip the app entirely:
-        <a id="chanlink" href="https://ntfy.sh/laguna-dive-86dd82e0">open the
-        bell&rsquo;s channel</a> and allow notifications. On iPhone, the app is
-        the way.</span>
+    <div class="jstep"><span class="jn">☎</span>
+      <div><b>Text <span id="jkw" style="color:var(--gold)">LAGUNA</span> to
+        <a href="sms:+18338582355" style="color:var(--gold);text-decoration:none;
+        border-bottom:1px solid rgba(255,217,138,.35)">833&#8209;858&#8209;BELL</a>.</b>
+        <span>That&rsquo;s the whole ceremony — no app, no account, no form.
+        The bell answers in seconds, then keeps its silence until this water
+        lines up: about 15 messages a year, each one worth clearing a morning
+        for. After a dive, text REEF, BUDDY or FINS — the bell learns from
+        every diver who answers. Reply STOP to end any time. Msg &amp; data
+        rates may apply. <a href="/sms/">How it works →</a></span>
       </div></div>
   </div>
 
   <div class="foundry">
     <div class="mark" id="foundry">№1 · Cast 2026 · Laguna Beach · <b>one of one</b></div>
     <div class="fine">rung by open ocean data · answers to no one ·
-      <a id="footchan" href="https://ntfy.sh/laguna-dive-86dd82e0">the bell</a> ·
       <a href="/sms/">sms</a> · <a href="/terms/">terms</a> · <a href="/privacy/">privacy</a></div>
   </div>
 
@@ -445,19 +426,16 @@
   }
   document.getElementById("bellwrap").addEventListener("click", () => strike(false));
 
-  // the address, one tap to take
-  document.getElementById("copybtn").addEventListener("click", () => {
-    navigator.clipboard.writeText(document.getElementById("topic").textContent)
-      .then(() => {
-        const b = document.getElementById("copybtn");
-        b.textContent = "copied ✓";
-        setTimeout(() => { b.textContent = "copy"; }, 2200);
-      }).catch(() => {});
-  });
-
   // ── the living pages: every bell, one descent ──────────────────────
   let BELLS = null, ORDER = [];
   const slug = n => n.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+  // each bell's joining word — mirrors twilio/incoming.js
+  const SMS_WORD = {"Laguna Beach": "LAGUNA", "Dana Point": "DANA",
+    "La Jolla": "JOLLA", "Monterey": "MONTEREY", "Catalina": "CATALINA",
+    "Palos Verdes": "PALOS", "Point Lobos": "LOBOS", "Santa Barbara": "BARBARA",
+    "Oahu North Shore": "OAHU", "Kona": "KONA", "Bonaire": "BONAIRE",
+    "Malibu": "MALIBU", "Ventura County": "VENTURA", "Sydney": "SYDNEY",
+    "Maui": "MAUI"};
   const curKey = () => {
     const h = location.hash.replace("#", "");
     return ORDER.find(k => slug(BELLS[k].bell.name) === h) || ORDER[0];
@@ -541,11 +519,9 @@
       : "A quiet stretch. The bell is listening.";
     document.getElementById("week").style.display = st.days.length ? "block" : "none";
 
-    document.getElementById("topic").textContent = z.topic;
-    ["chanlink", "footchan"].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.href = "https://ntfy.sh/" + z.topic;
-    });
+    // the joining keyword follows the bell you're standing on
+    const kw = document.getElementById("jkw");
+    if (kw) kw.textContent = SMS_WORD[z.bell.name] || "LAGUNA";
     // the ember: for three mornings after a ring, the quiet page carries the
     // heat — missing a ring should sting a little, and honestly
     const em = document.getElementById("ember");
@@ -649,30 +625,8 @@
     return ORDER[0];
   }
 
-  function smsCopy(live) {
-    const line = document.getElementById("smsline");
-    const h = document.getElementById("jsmsh"), b = document.getElementById("jsmsb");
-    if (live) {
-      line.innerHTML = " &nbsp;·&nbsp; or text its name to <a href='sms:+18338582355' " +
-        "style='color:var(--gold);text-decoration:none;border-bottom:1px solid " +
-        "rgba(255,217,138,.35)'>833-858-BELL</a>";
-      h.textContent = "By text — the short way.";
-      b.innerHTML = "Text the name of your water to <a href='sms:+18338582355' " +
-        "style='color:var(--gold)'>833-858-BELL</a> and you're on. No app, no account. " +
-        "About 15 messages a year; reply STOP to end any time. Msg &amp; data rates may " +
-        "apply. <a href='/sms/'>How it works →</a>";
-    } else {
-      line.innerHTML = "";
-      h.textContent = "By text — soon.";
-      b.innerHTML = "<span class='smssoon'>The bell has its number — 833-858-BELL — and " +
-        "is waiting on carrier verification before it can answer. Until then, the app " +
-        "below is the way in.</span> <a href='/sms/'>What&rsquo;s coming →</a>";
-    }
-  }
-
   fetch("data/zones.json").then(r => r.json()).then(d => {
     BELLS = d.zones;
-    smsCopy(!!d.sms_live);
     ORDER = Object.keys(BELLS).sort((a, b) => (BELLS[a].bell.no || 9) - (BELLS[b].bell.no || 9));
     if (!location.hash) {
       const n = nearestKey();
