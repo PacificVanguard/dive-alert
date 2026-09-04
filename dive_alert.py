@@ -461,6 +461,7 @@ CONFIG = {
             # until the world grows instruments here.
             "bell": {"no": 11, "name": "Bonaire", "cast": "2026-08-17"},
             "topic": "bonaire-dive-c06b33ce", "tier": "provisional", "keeper": None,
+            "sms": False,   # beyond the toll-free number's reach — rings by app
             "tz": "America/Kralendijk", "first_flush_months": [],
             "tide_station": "none", "buoy": "none", "buoy_offshore": "none",
             "offshore_dir": 90,           # trades cross the island from the east
@@ -551,6 +552,7 @@ CONFIG = {
             # another network). Model-read until an Australian keeper appears.
             "bell": {"no": 14, "name": "Sydney", "cast": "2026-08-17"},
             "topic": "sydney-dive-75fdf41a", "tier": "provisional", "keeper": None,
+            "sms": False,   # beyond the toll-free number's reach — rings by app
             "tz": "Australia/Sydney", "first_flush_months": [],
             # MHL's directional waverider off Sydney (85m depth), via the AODN
             # near-real-time WFS — the first non-NDBC instrument in the fleet
@@ -2802,6 +2804,7 @@ def cmd_run(args):
             "topic": ztopic, "name": zc["name"],
             "instruments": {"buoy": zc.get("buoy_aodn") or zc.get("buoy"),
                             "tide": zc.get("tide_station")},
+            "sms": zc.get("sms", True),
             "last_ring": state.get("last_ring", {}).get(zk),
             "sst_f": round(sst * 9 / 5 + 32) if sst is not None else None,
             "windows": [{"label": s["w"]["label"],

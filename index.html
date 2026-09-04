@@ -372,20 +372,10 @@
     <div class="cta-sub">Free · one text · about 15 messages a year</div>
   </div>
 
-  <!-- the joining: one text, on the bell's own ground -->
+  <!-- the joining: each bell offers its own door -->
   <div class="join" id="join">
     <h2>Getting on the bell</h2>
-    <div class="jstep"><span class="jn">☎</span>
-      <div><b>Text <span id="jkw" style="color:var(--gold)">LAGUNA</span> to
-        <a href="sms:+18338582355" style="color:var(--gold);text-decoration:none;
-        border-bottom:1px solid rgba(255,217,138,.35)">833&#8209;858&#8209;BELL</a>.</b>
-        <span>That&rsquo;s the whole ceremony — no app, no account, no form.
-        The bell answers in seconds, then keeps its silence until this water
-        lines up: about 15 messages a year, each one worth clearing a morning
-        for. After a dive, text REEF, BUDDY or FINS — the bell learns from
-        every diver who answers. Reply STOP to end any time. Msg &amp; data
-        rates may apply. <a href="/sms/">How it works →</a></span>
-      </div></div>
+    <div id="joinstep"></div>
   </div>
 
   <div class="foundry">
@@ -446,6 +436,54 @@
     "9413450": "Monterey", "9410079": "Avalon, Catalina", "9410660": "Los Angeles",
     "9411340": "Santa Barbara", "1612340": "Honolulu", "1617433": "Kawaihae",
     "9410840": "Santa Monica", "9411189": "Ventura", "1615680": "Kahului, Maui"};
+
+  // each bell offers its own door: US waters join by one text; waters beyond
+  // the toll-free number's reach ring by app instead (US carriers can't
+  // reliably carry a toll-free SMS across the border in either direction)
+  function joinCeremony(z) {
+    const el = document.getElementById("joinstep");
+    const sub = document.querySelector(".cta-sub");
+    if (z.sms !== false) {
+      const word = SMS_WORD[z.bell.name] || "LAGUNA";
+      if (sub) sub.textContent = "Free · one text · about 15 messages a year";
+      el.innerHTML =
+        "<div class='jstep'><span class='jn'>☎</span>" +
+        "<div><b>Text <span style='color:var(--gold)'>" + word + "</span> to " +
+        "<a href='sms:+18338582355' style='color:var(--gold);text-decoration:none;" +
+        "border-bottom:1px solid rgba(255,217,138,.35)'>833&#8209;858&#8209;BELL</a>.</b> " +
+        "<span>That&rsquo;s the whole ceremony — no app, no account, no form. " +
+        "The bell answers in seconds, then keeps its silence until this water " +
+        "lines up: about 15 messages a year, each one worth clearing a morning " +
+        "for. Text <b>WEEK</b> any time and the bell answers with the week " +
+        "ahead. After a dive, text REEF, BUDDY or FINS — the bell learns from " +
+        "every diver who answers. Reply STOP to end any time. Msg &amp; data " +
+        "rates may apply. <a href='/sms/'>How it works →</a></span></div></div>";
+    } else {
+      if (sub) sub.textContent = "Free · no account · about 15 messages a year";
+      el.innerHTML =
+        "<div class='jstep'><span class='jn'>🔔</span>" +
+        "<div><b>This water lies beyond the number&rsquo;s reach — the bell " +
+        "rings here by app.</b> " +
+        "<span>Get <b>ntfy</b>, a small open-source messenger — free, no " +
+        "account, no tracking: " +
+        "<a href='https://apps.apple.com/app/ntfy/id1625396347'>App&nbsp;Store</a> · " +
+        "<a href='https://play.google.com/store/apps/details?id=io.heckel.ntfy'>Google&nbsp;Play</a>. " +
+        "Tap +, and give it this bell&rsquo;s address:</span>" +
+        "<div class='addr'><code id='jtopic'>" + z.topic + "</code>" +
+        "<button class='copy' id='jcopy'>copy</button></div>" +
+        "<span>The strange string is deliberate — the address is unlisted, " +
+        "like a good dive spot. That&rsquo;s the whole ceremony: the bell " +
+        "knows you&rsquo;re listening, and speaks only when this water lines " +
+        "up.</span></div></div>";
+      const btn = document.getElementById("jcopy");
+      if (btn) btn.addEventListener("click", () => {
+        navigator.clipboard.writeText(z.topic).then(() => {
+          btn.textContent = "copied ✓";
+          setTimeout(() => { btn.textContent = "copy"; }, 2200);
+        }).catch(() => {});
+      });
+    }
+  }
 
   // the instruments plate is engraved per bell — each page names the actual
   // hardware (or its honest absence) that rings it
@@ -572,9 +610,7 @@
       : "A quiet stretch. The bell is listening.";
     document.getElementById("week").style.display = st.days.length ? "block" : "none";
 
-    // the joining keyword follows the bell you're standing on
-    const kw = document.getElementById("jkw");
-    if (kw) kw.textContent = SMS_WORD[z.bell.name] || "LAGUNA";
+    joinCeremony(z);
     instruments(z);
     // the ember: for three mornings after a ring, the quiet page carries the
     // heat — missing a ring should sting a little, and honestly
