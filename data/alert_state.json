@@ -11,57 +11,37 @@
    "gate": false
   },
   "E": {
-   "score": 7.0,
+   "score": 7.8,
    "entries": [
-    "Breakwater (San Carlos)",
-    "McAbee Beach"
+    "McAbee Beach",
+    "Breakwater (San Carlos)"
    ],
-   "window_key": "20260905T0612-dawn",
+   "window_key": "20260906T0530-dawn",
    "since": "2026-08-31T04:00:00-07:00",
    "gate": false
   },
-  "G": {
-   "score": 7.0,
-   "entries": [
-    "Terranea (Old Marineland)",
-    "Christmas Tree Cove"
-   ],
-   "window_key": "20260905T0600-dawn",
-   "since": "2026-09-03T16:00:00-07:00",
-   "gate": false
-  },
   "H": {
-   "score": 8.3,
+   "score": 8.5,
    "entries": [
     "Whalers Cove",
     "Bluefish Cove"
    ],
    "window_key": "20260905T1730-dusk",
    "since": "2026-09-03T16:00:00-07:00",
-   "gate": false
+   "gate": true
   },
-  "D": {
-   "score": 7.3,
+  "C": {
+   "score": 7.6,
    "entries": [
-    "La Jolla Cove",
-    "La Jolla Shores (Canyon)"
+    "Dana Point Harbor breakwall (outside)",
+    "Salt Creek"
    ],
-   "window_key": "20260905T0556-dawn",
-   "since": "2026-09-04T16:00:00-07:00",
-   "gate": false
-  },
-  "K": {
-   "score": 7.3,
-   "entries": [
-    "Two Step (Honaunau)",
-    "Kahalu'u"
-   ],
-   "window_key": "20260905T0539-dawn",
-   "since": "2026-09-04T16:00:00-07:00",
+   "window_key": "20260905T1710-dusk",
+   "since": "2026-09-05T04:00:00-07:00",
    "gate": false
   }
  },
- "last_tip_id": "db2",
+ "last_tip_id": "db1",
  "src_fail": {
   "marine": 0,
   "weather": 0,
@@ -100,14 +80,14 @@
   "D:kd490": 0,
   "D:ndbc_spec": 0,
   "E:marine": 0,
-  "E:weather": 0,
-  "E:ndbc_primary": 41,
+  "E:weather": 1,
+  "E:ndbc_primary": 42,
   "E:ndbc_offshore": 0,
   "E:tides": 0,
   "E:sst": 0,
   "E:chla": 0,
   "E:kd490": 0,
-  "E:ndbc_spec": 41,
+  "E:ndbc_spec": 42,
   "F:marine": 0,
   "F:weather": 0,
   "F:ndbc_primary": 0,
@@ -127,7 +107,7 @@
   "G:kd490": 0,
   "G:ndbc_spec": 0,
   "H:marine": 0,
-  "H:weather": 1,
+  "H:weather": 0,
   "H:ndbc_primary": 0,
   "H:ndbc_offshore": 0,
   "H:tides": 0,
@@ -147,7 +127,7 @@
   "J:marine": 0,
   "J:weather": 0,
   "J:ndbc_primary": 0,
-  "J:ndbc_offshore": 40,
+  "J:ndbc_offshore": 41,
   "J:tides": 0,
   "J:sst": 0,
   "J:chla": 0,
@@ -155,22 +135,22 @@
   "J:ndbc_spec": 0,
   "K:marine": 0,
   "K:weather": 0,
-  "K:ndbc_primary": 40,
-  "K:ndbc_offshore": 40,
+  "K:ndbc_primary": 41,
+  "K:ndbc_offshore": 41,
   "K:tides": 0,
   "K:sst": 0,
   "K:chla": 0,
   "K:kd490": 0,
-  "K:ndbc_spec": 40,
+  "K:ndbc_spec": 41,
   "L:marine": 0,
   "L:weather": 0,
-  "L:ndbc_primary": 39,
-  "L:ndbc_offshore": 39,
-  "L:tides": 39,
+  "L:ndbc_primary": 40,
+  "L:ndbc_offshore": 40,
+  "L:tides": 40,
   "L:sst": 0,
   "L:chla": 0,
   "L:kd490": 0,
-  "L:ndbc_spec": 39,
+  "L:ndbc_spec": 40,
   "M:marine": 0,
   "M:weather": 0,
   "M:ndbc_primary": 0,
@@ -182,43 +162,43 @@
   "M:ndbc_spec": 0,
   "N:marine": 0,
   "N:weather": 0,
-  "N:ndbc_primary": 39,
+  "N:ndbc_primary": 40,
   "N:ndbc_offshore": 0,
   "N:tides": 0,
   "N:sst": 0,
   "N:chla": 0,
   "N:kd490": 0,
-  "N:ndbc_spec": 39,
+  "N:ndbc_spec": 40,
   "O:marine": 0,
   "O:weather": 0,
   "O:ndbc_primary": 0,
-  "O:ndbc_offshore": 39,
-  "O:tides": 39,
+  "O:ndbc_offshore": 40,
+  "O:tides": 40,
   "O:sst": 0,
   "O:chla": 0,
   "O:kd490": 0,
-  "O:ndbc_spec": 39,
+  "O:ndbc_spec": 40,
   "P:marine": 0,
   "P:weather": 0,
   "P:ndbc_primary": 0,
-  "P:ndbc_offshore": 39,
+  "P:ndbc_offshore": 40,
   "P:tides": 0,
   "P:sst": 0,
   "P:chla": 0,
   "P:kd490": 0,
   "P:ndbc_spec": 0,
   "A:marine_alt": 0,
-  "C:marine_alt": 1,
+  "C:marine_alt": 0,
   "D:marine_alt": 0,
-  "E:marine_alt": 1,
+  "E:marine_alt": 0,
   "F:marine_alt": 0,
-  "G:marine_alt": 0,
+  "G:marine_alt": 1,
   "H:marine_alt": 0,
-  "I:marine_alt": 0,
+  "I:marine_alt": 1,
   "J:marine_alt": 0,
-  "K:marine_alt": 0,
+  "K:marine_alt": 1,
   "L:marine_alt": 0,
-  "M:marine_alt": 1,
+  "M:marine_alt": 2,
   "N:marine_alt": 0,
   "O:marine_alt": 0,
   "P:marine_alt": 0
@@ -230,15 +210,15 @@
    "rings": 0
   },
   "C": {
-   "promises": 4,
-   "rings": 1
+   "promises": 5,
+   "rings": 2
   },
   "D": {
    "promises": 9,
    "rings": 1
   },
   "E": {
-   "promises": 7,
+   "promises": 8,
    "rings": 3
   },
   "F": {
@@ -250,8 +230,8 @@
    "rings": 0
   },
   "H": {
-   "promises": 5,
-   "rings": 4
+   "promises": 6,
+   "rings": 5
   },
   "I": {
    "promises": 8,
@@ -286,7 +266,7 @@
    "rings": 0
   }
  },
- "hook_idx": 61,
+ "hook_idx": 63,
  "axis_blind": {
   "flat": 0,
   "glass": 0,
@@ -296,9 +276,9 @@
  },
  "last_ring": {
   "D": "2026-09-04",
-  "H": "2026-09-06",
+  "H": "2026-09-05",
   "O": "2026-09-06",
-  "C": "2026-09-04",
+  "C": "2026-09-05",
   "E": "2026-09-07",
   "F": "2026-09-04",
   "I": "2026-09-07",
