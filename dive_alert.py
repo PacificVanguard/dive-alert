@@ -2543,6 +2543,39 @@ def sms_ring(zone_key, zone_cfg, payload, state, dry_run):
                                            " [dry]" if dry_run else ""))
 
 
+def digest_morning_ok(zone_cfg, when=None):
+    """A weekly reading should arrive with the bell's own morning coffee —
+    6am to 1pm local. Before this, every digest fired on the Wednesday-
+    Pacific clock, which put Sydney's at 2am."""
+    h = (when or datetime.now(tz=zone_tz(zone_cfg))).astimezone(zone_tz(zone_cfg)).hour
+    return 6 <= h < 13
+
+
+def ntfy_digest(zk, zc, scored, state, t_now, dry_run, weekly, sst=None):
+    """The app-channel weekly reading, owed on Wednesdays and paid by the
+    first run that lands in the bell's own morning — the same due-queue
+    discipline as the SMS digest. Pacific bells pay on the spot; Sydney's
+    reading arrives ~9am Thursday its time (Pacific Wednesday), which is
+    the honest cost of running on one hemisphere's cron."""
+    week = "%d-W%02d" % (datetime.now(tz=zone_tz(zc)).isocalendar()[:2])
+    due = state.setdefault("ntfy_digest_due", {})
+    sent = state.setdefault("ntfy_digest_sent", {})
+    if weekly:
+        due[zk] = week
+    if due.get(zk) != week or sent.get(zk) == week:
+        return
+    if not digest_morning_ok(zc, t_now):
+        print("digest (%s): held for the bell's own morning" % zk)
+        return
+    tip = select_tip(scored[0]["entries"] if scored else [], best_of(scored),
+                     None, "any", t_now, state) if scored else None
+    notify(render_digest(scored, t_now, state, sst_c=sst, tip=tip,
+                         actions=feedback_actions("digest-%s" % t_now.date(), zc)),
+           dry_run, topic=zone_topic(zc))
+    due.pop(zk, None)
+    sent[zk] = week
+
+
 def sms_digest_text(zone_cfg, scored):
     """The Wednesday reading, sized for a phone: each day's best window, the
     week's best starred, rings named, one read line. GSM-7 only — a single
@@ -2847,11 +2880,7 @@ def cmd_run(args):
                 ("  [%s]" % s["cap_reason"]) if s["cap_reason"] else ""))
 
         if args.weekly:
-            tip = select_tip(scored[0]["entries"] if scored else [], best_of(scored),
-                             None, "any", t_now, state) if scored else None
-            notify(render_digest(scored, t_now, state, sst_c=sst, tip=tip,
-                                 actions=feedback_actions("digest-%s" % t_now.date(), zc)),
-                   args.dry_run, topic=ztopic)
+            ntfy_digest(zk, zc, scored, state, t_now, args.dry_run, weekly=True, sst=sst)
         elif args.brief:
             best = max(scored, key=lambda s: s["score"]) if scored else None
             if best:
@@ -2861,6 +2890,16 @@ def cmd_run(args):
                 notify({"title": "Dive brief — Zone %s" % zk, "message": txt, "priority": 2},
                        args.dry_run, topic=ztopic)
         else:
+            # a weekly reading deferred past its bell's night is paid here, by
+            # the first ordinary run in that bell's morning — re-scored at the
+            # digest horizon, since ordinary runs only look 72h out
+            if (state.get("ntfy_digest_due", {}).get(zk)
+                    and digest_morning_ok(zc, t_now)):
+                wide = score_zone(zk, zc, fetches, t_now,
+                                  24 * CONFIG["alerting"]["digest_days"],
+                                  skill_corr=skill_corr)
+                ntfy_digest(zk, zc, wide, state, t_now, args.dry_run,
+                            weekly=False, sst=sst)
             action, payload = decide_alert(scored, t_now, state, zk)
             if action == "alert" or action == "quiet_alert":
                 tip = select_tip(payload["entries"], payload["score"], payload["feats"]["damage"],
@@ -4278,7 +4317,9 @@ def cmd_test(args):
     def _win(day, label, score, gate=False, limit=None):
         return {"w": {"start": t0.replace(hour=6) + timedelta(days=day), "label": label,
                       "kind": "dawn", "key": "k%d" % day},
-                "score": score, "gate": gate, "limit": limit,
+                "score": score, "gate": gate, "limit": limit, "tide_fyi": None,
+                "conf": "medium", "conf_notes": [], "band": "any", "flags": [],
+                "feats": {"kd490": None, "damage": 0.3},
                 "entries": ["Fisherman's Cove"]}
     ring_week = [_win(0, "Wed dawn", 5.0), _win(1, "Thu dawn", 8.9, gate=True)]
     quiet_week = [_win(0, "Wed dawn", 4.1, limit="swell"), _win(1, "Thu dawn", 5.0, limit="swell")]
@@ -4317,6 +4358,29 @@ def cmd_test(args):
     finally:
         for n, fn in saved.items():
             g3[n] = fn
+
+    # (kk3) THE BELL'S OWN MORNING: the app-channel digest defers past a
+    # foreign night and pays once at local morning — Sydney's 2am fix.
+    g4 = globals()
+    saved4 = {n: g4[n] for n in ("digest_morning_ok", "notify")}
+    notes4 = []
+    g4["notify"] = lambda msg, dry, topic=None: notes4.append(topic)
+    st_n = {}
+    try:
+        g4["digest_morning_ok"] = lambda zcfg, when=None: False   # 2am in Sydney
+        ntfy_digest("O", CONFIG["zones"]["O"], ring_week, st_n, t0, True, weekly=True)
+        check("(kk3) foreign night defers the reading",
+              st_n["ntfy_digest_due"].get("O") and not notes4)
+        g4["digest_morning_ok"] = lambda zcfg, when=None: True    # 9am Thursday
+        ntfy_digest("O", CONFIG["zones"]["O"], ring_week, st_n, t0, True, weekly=False)
+        check("(kk3) local morning pays it", len(notes4) == 1
+              and "O" not in st_n["ntfy_digest_due"]
+              and st_n["ntfy_digest_sent"].get("O"))
+        ntfy_digest("O", CONFIG["zones"]["O"], ring_week, st_n, t0, True, weekly=False)
+        check("(kk3) paid once, not twice", len(notes4) == 1)
+    finally:
+        for n, fn in saved4.items():
+            g4[n] = fn
 
     # fixture suite: degraded + disagreement
     print("fixture tests:")
