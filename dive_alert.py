@@ -2448,34 +2448,60 @@ def bell_keyword_map():
     return BELL_KEYWORDS
 
 
-def sms_subscribers():
-    """{zone_key: [numbers]} from Twilio's inbound history. The latest bell
-    keyword a number texted decides its bell; numbers with no recognizable
-    keyword ride Bell No.1. Returns {} when SMS env is absent."""
+_SMS_SCAN = None   # one history scan per process — the run's snapshot
+
+
+def _sms_history():
+    """[(number, BODY)] newest-first from Twilio's inbound history — the
+    subscriber database, read once per run. [] when SMS env is absent."""
+    global _SMS_SCAN
+    if _SMS_SCAN is not None:
+        return _SMS_SCAN
     env = _twilio_env()
     if not env:
-        return {}
+        return []
     sid, tok, frm = env
-    kw = bell_keyword_map()
-    latest = {}
+    rows = []
     page = "Messages.json?" + urllib.parse.urlencode({"To": frm, "PageSize": 400})
     for _ in range(20):   # paginate, bounded
         d = _twilio_req(page, sid, tok)
         for m in d.get("messages", []):
-            num, body = m.get("from"), (m.get("body") or "").strip().upper()
-            if not num:
-                continue
-            zk = next((z for w, z in kw.items() if w in body), None)
-            if num not in latest or (zk and latest[num] is None):
-                latest[num] = zk
+            num = m.get("from")
+            if num:
+                rows.append((num, (m.get("body") or "").strip().upper()))
         nxt = d.get("next_page_uri")
         if not nxt:
             break
         page = nxt.split("/%s/" % sid, 1)[-1]
+    _SMS_SCAN = rows
+    return rows
+
+
+def sms_subscribers():
+    """{zone_key: [numbers]}. The latest bell keyword a number texted decides
+    its bell; numbers with no recognizable keyword ride Bell No.1."""
+    kw = bell_keyword_map()
+    latest = {}
+    for num, body in _sms_history():
+        zk = next((z for w, z in kw.items() if w in body), None)
+        if num not in latest or (zk and latest[num] is None):
+            latest[num] = zk
     out = {}
     for num, zk in latest.items():
         out.setdefault(zk or "A", []).append(num)
     return out
+
+
+def sms_digest_optins():
+    """Numbers whose newest DIGEST instruction is 'on'. 'DIGEST OFF' (or
+    NODIGEST) ends the weekly reading without touching ring membership;
+    history is newest-first, so the first instruction seen per number wins."""
+    state = {}
+    for num, body in _sms_history():
+        if num in state or "DIGEST" not in body:
+            continue
+        state[num] = not ("DIGEST OFF" in body or "NODIGEST" in body)
+    return {n for n, on in state.items() if on}
 
 
 def sms_quiet_ok(zone_cfg, when=None):
@@ -2515,6 +2541,83 @@ def sms_ring(zone_key, zone_cfg, payload, state, dry_run):
     sent[zone_key] = wkey
     print("sms ring (%s): %d/%d sent%s" % (zone_key, ok, len(subs),
                                            " [dry]" if dry_run else ""))
+
+
+def sms_digest_text(zone_cfg, scored):
+    """The Wednesday reading, sized for a phone: each day's best window, the
+    week's best starred, rings named, one read line. GSM-7 only — a single
+    styled character silently halves every segment."""
+    by_day, order = {}, []
+    for s in scored:
+        d = s["w"]["start"].date()
+        if d not in by_day:
+            by_day[d] = s
+            order.append(d)
+        elif s["score"] > by_day[d]["score"]:
+            by_day[d] = s
+    if not order:
+        return None
+    best = max((by_day[d] for d in order), key=lambda s: s["score"])
+    parts = []
+    for d in order[:7]:
+        s = by_day[d]
+        p = "%s %.1f" % (s["w"]["start"].strftime("%a"), s["score"])
+        if s is best:
+            p += "*"
+        if s.get("gate"):
+            p += " RINGING"
+        parts.append(p)
+    if best.get("gate"):
+        read = "The gate stands open %s - %s is the door." % (
+            best["w"]["label"], (best["entries"] or ["your cove"])[0])
+    elif best["score"] >= 7:
+        lim = best.get("limit")
+        read = "%s is the one to watch%s" % (
+            best["w"]["label"],
+            "." if lim in (None, "all clear") else " - held by %s." % lim)
+    else:
+        read = "A quiet week. The bell keeps its silence for a reason."
+    return ("THE WEDNESDAY READING - %s\n%s\n%s Text WEEK for detail. "
+            "Reply DIGEST OFF to end the reading, STOP to end all.") % (
+        zone_cfg["bell"]["name"].upper(), " / ".join(parts), read)
+
+
+def sms_digest(zone_key, zone_cfg, scored, state, dry_run, weekly=False):
+    """The weekly reading by text, for those who asked (DIGEST opt-in).
+    The Wednesday run can land inside quiet hours for the very bells it
+    serves, so delivery is a DUE-QUEUE: the weekly run marks the week owed,
+    and the first quiet-legal run that week pays it. Deduped per ISO week."""
+    if zone_cfg.get("sms", True) is False:
+        return
+    week = "%d-W%02d" % (datetime.now(tz=zone_tz(zone_cfg)).isocalendar()[:2])
+    due = state.setdefault("sms_digest_due", {})
+    sent = state.setdefault("sms_digest_sent", {})
+    if weekly:
+        due[zone_key] = week
+    if due.get(zone_key) != week or sent.get(zone_key) == week:
+        return
+    if not _twilio_env() or not sms_quiet_ok(zone_cfg):
+        return   # stays due; a later run this week delivers
+    subs = set(sms_subscribers().get(zone_key, [])) & sms_digest_optins()
+    due.pop(zone_key, None)
+    sent[zone_key] = week
+    if not subs:
+        return
+    body = sms_digest_text(zone_cfg, scored)
+    if not body:
+        return
+    sid, tok, frm = _twilio_env()
+    ok = 0
+    for num in sorted(subs):
+        try:
+            if not dry_run:
+                _twilio_req("Messages.json", sid, tok,
+                            {"To": num, "From": frm, "Body": body})
+            ok += 1
+        except Exception as e:
+            print("sms digest to %s… failed: %s" % (num[:6], str(e)[:60]), file=sys.stderr)
+    print("sms digest (%s): %d/%d sent%s" % (zone_key, ok, len(subs),
+                                             " [dry]" if dry_run else ""))
 
 
 def capability_sentinel(state, blind_axes_by_zone):
@@ -2782,6 +2885,9 @@ def cmd_run(args):
             elif action == "downgrade":
                 notify(render_downgrade(payload["w"], payload["old"], payload["new"], payload["feats"]),
                        args.dry_run, topic=ztopic)
+        # the weekly reading by text: marked due on Wednesdays, delivered by
+        # the first quiet-legal run of the week (see sms_digest)
+        sms_digest(zk, zc, scored, state, args.dry_run, weekly=bool(args.weekly))
         append_log(LOG_PATH, LOG_COLS, rows, args.dry_run)
         # the bell remembers: a gate day seen is a ring recorded
         gate_days_seen = [s["w"]["start"].date().isoformat() for s in scored if s.get("gate")]
@@ -4167,6 +4273,50 @@ def cmd_test(args):
           and fa.data["latest"]["t"].tzinfo is timezone.utc
           and len(fa.data["rows"]) == 3,
           fa.error or str(fa.data["latest"]))
+
+    # (kk) THE WEDNESDAY READING BY TEXT: composer cases + the due-queue.
+    def _win(day, label, score, gate=False, limit=None):
+        return {"w": {"start": t0.replace(hour=6) + timedelta(days=day), "label": label,
+                      "kind": "dawn", "key": "k%d" % day},
+                "score": score, "gate": gate, "limit": limit,
+                "entries": ["Fisherman's Cove"]}
+    ring_week = [_win(0, "Wed dawn", 5.0), _win(1, "Thu dawn", 8.9, gate=True)]
+    quiet_week = [_win(0, "Wed dawn", 4.1, limit="swell"), _win(1, "Thu dawn", 5.0, limit="swell")]
+    txt_r = sms_digest_text(zc, ring_week)
+    txt_q = sms_digest_text(zc, quiet_week)
+    check("(kk) ring week reads the gate", "RINGING" in txt_r and "gate stands open" in txt_r
+          and "8.9*" in txt_r, txt_r.split("\n")[1])
+    check("(kk) quiet week keeps its silence", "keeps its silence" in txt_q and "*" in txt_q)
+    check("(kk) GSM-7 only", all(ord(ch) < 128 for ch in txt_r + txt_q))
+
+    # (kk2) due-queue: weekly marks due; quiet hours defer; the first legal
+    # run pays once and only once.
+    g3 = globals()
+    saved = {n: g3[n] for n in ("_twilio_env", "sms_quiet_ok", "sms_subscribers",
+                                "sms_digest_optins")}
+    g3["_twilio_env"] = lambda: ("sid", "tok", "+1833")
+    g3["sms_subscribers"] = lambda: {"A": ["+15550001111"]}
+    g3["sms_digest_optins"] = lambda: {"+15550001111"}
+    st_k = {}
+    try:
+        g3["sms_quiet_ok"] = lambda zcfg, when=None: False   # 7:42am: too early
+        sms_digest("A", zc, ring_week, st_k, dry_run=True, weekly=True)
+        wk = list(st_k["sms_digest_due"].values())[0]
+        check("(kk2) quiet hours defer, debt recorded",
+              st_k["sms_digest_due"].get("A") == wk and "A" not in st_k.get("sms_digest_sent", {}))
+        g3["sms_quiet_ok"] = lambda zcfg, when=None: True    # a later run pays
+        sms_digest("A", zc, ring_week, st_k, dry_run=True, weekly=False)
+        check("(kk2) first legal run pays the debt",
+              st_k["sms_digest_sent"].get("A") == wk and "A" not in st_k["sms_digest_due"])
+        sms_digest("A", zc, ring_week, st_k, dry_run=True, weekly=False)
+        check("(kk2) paid once, not twice", st_k["sms_digest_sent"].get("A") == wk
+              and "A" not in st_k["sms_digest_due"])
+        st_o = {}
+        sms_digest("O", CONFIG["zones"]["O"], ring_week, st_o, dry_run=True, weekly=True)
+        check("(kk2) app-only bells owe no text", not st_o.get("sms_digest_due"))
+    finally:
+        for n, fn in saved.items():
+            g3[n] = fn
 
     # fixture suite: degraded + disagreement
     print("fixture tests:")

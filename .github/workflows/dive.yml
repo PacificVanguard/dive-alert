@@ -14,7 +14,10 @@ on:
                            # alert entirely. From 4pm, dawn is ~14h out and
                            # hours of lateness still clear the 12h floor.
     - cron: "30 18 * * *"  # ingest: 11:30am PDT / 10:30am PST -> window 10-13
-    - cron: "30 14 * * 3"  # weekly: Wed 7:30am PDT / 6:30am PST -> window 6-9
+    - cron: "0 16 * * 3"   # weekly: Wed 9am PDT / 8am PST -> window 6-10.
+                           # At/after 8am local so the SMS digest clears TCPA
+                           # quiet hours for Pacific bells on the spot; Hawaii
+                           # bells stay due until the 4pm read (~1pm HST).
   workflow_dispatch: {}    # manual runs always allowed
 
 permissions:
@@ -41,7 +44,7 @@ jobs:
           DOW=$(TZ=America/Los_Angeles date +%u)
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "go=yes" >> "$GITHUB_OUTPUT"
-          elif [ "$DOW" = "3" ] && [ "$H" -ge 6 ] && [ "$H" -le 9 ]; then
+          elif [ "$DOW" = "3" ] && [ "$H" -ge 6 ] && [ "$H" -le 10 ]; then
             echo "go=weekly" >> "$GITHUB_OUTPUT"   # Wednesday: the week-ahead ritual
           elif [ "$H" -ge 3 ] && [ "$H" -le 5 ]; then
             echo "go=yes" >> "$GITHUB_OUTPUT"      # the dawn read

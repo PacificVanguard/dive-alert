@@ -100,6 +100,18 @@ exports.handler = async function (context, event, callback) {
     twiml.message(
       "Noted - " + verdict.toLowerCase() + " it is. The bell learns from every dive."
     );
+  } else if (body.includes("DIGEST OFF") || body.includes("NODIGEST")) {
+    twiml.message(
+      "The weekly reading ends here. Rings still come when your water says " +
+      "yes. Text DIGEST to start the reading again."
+    );
+  } else if (body.includes("DIGEST")) {
+    twiml.message(
+      (bellWord ? "You're on the " + BELLS[bellWord] + " bell, and the " : "The ") +
+      "Wednesday reading is yours - your water's week ahead by text, every " +
+      "week, about 52 msgs/yr on top of rings. Reply DIGEST OFF to end the " +
+      "reading, STOP to end everything. Msg&data rates may apply."
+    );
   } else if (body.includes("WEEK")) {
     let name = bellWord ? BELLS[bellWord] : null;
     if (!name) {
