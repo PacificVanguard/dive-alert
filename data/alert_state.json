@@ -10,16 +10,6 @@
    "since": "2026-09-08T04:00:00-07:00",
    "gate": false
   },
-  "C": {
-   "score": 8.3,
-   "entries": [
-    "Dana Point Harbor breakwall (outside)",
-    "Salt Creek"
-   ],
-   "window_key": "20260911T1702-dusk",
-   "since": "2026-09-10T16:00:00-07:00",
-   "gate": false
-  },
   "A": {
    "score": 7.4,
    "entries": [
@@ -28,6 +18,36 @@
    ],
    "window_key": "20260911T1702-dusk",
    "since": "2026-09-11T04:00:00-07:00",
+   "gate": false
+  },
+  "E": {
+   "score": 7.0,
+   "entries": [
+    "Breakwater (San Carlos)",
+    "McAbee Beach"
+   ],
+   "window_key": "20260913T0618-dawn",
+   "since": "2026-09-11T16:00:00-07:00",
+   "gate": false
+  },
+  "H": {
+   "score": 9.0,
+   "entries": [
+    "Whalers Cove",
+    "Bluefish Cove"
+   ],
+   "window_key": "20260913T0618-dawn",
+   "since": "2026-09-11T16:00:00-07:00",
+   "gate": false
+  },
+  "J": {
+   "score": 8.0,
+   "entries": [
+    "Three Tables",
+    "Shark's Cove"
+   ],
+   "window_key": "20260912T1730-dusk",
+   "since": "2026-09-11T16:00:00-07:00",
    "gate": false
   }
  },
@@ -71,13 +91,13 @@
   "D:ndbc_spec": 0,
   "E:marine": 0,
   "E:weather": 0,
-  "E:ndbc_primary": 55,
+  "E:ndbc_primary": 56,
   "E:ndbc_offshore": 0,
   "E:tides": 0,
   "E:sst": 0,
   "E:chla": 0,
   "E:kd490": 0,
-  "E:ndbc_spec": 55,
+  "E:ndbc_spec": 56,
   "F:marine": 0,
   "F:weather": 0,
   "F:ndbc_primary": 0,
@@ -97,7 +117,7 @@
   "G:kd490": 0,
   "G:ndbc_spec": 0,
   "H:marine": 0,
-  "H:weather": 1,
+  "H:weather": 0,
   "H:ndbc_primary": 0,
   "H:ndbc_offshore": 0,
   "H:tides": 0,
@@ -115,9 +135,9 @@
   "I:kd490": 0,
   "I:ndbc_spec": 0,
   "J:marine": 0,
-  "J:weather": 0,
+  "J:weather": 1,
   "J:ndbc_primary": 0,
-  "J:ndbc_offshore": 54,
+  "J:ndbc_offshore": 55,
   "J:tides": 0,
   "J:sst": 0,
   "J:chla": 0,
@@ -125,22 +145,22 @@
   "J:ndbc_spec": 0,
   "K:marine": 0,
   "K:weather": 0,
-  "K:ndbc_primary": 54,
-  "K:ndbc_offshore": 54,
+  "K:ndbc_primary": 55,
+  "K:ndbc_offshore": 55,
   "K:tides": 0,
   "K:sst": 0,
   "K:chla": 0,
   "K:kd490": 0,
-  "K:ndbc_spec": 54,
+  "K:ndbc_spec": 55,
   "L:marine": 0,
   "L:weather": 0,
-  "L:ndbc_primary": 53,
-  "L:ndbc_offshore": 53,
-  "L:tides": 53,
+  "L:ndbc_primary": 54,
+  "L:ndbc_offshore": 54,
+  "L:tides": 54,
   "L:sst": 0,
   "L:chla": 0,
   "L:kd490": 0,
-  "L:ndbc_spec": 53,
+  "L:ndbc_spec": 54,
   "M:marine": 0,
   "M:weather": 0,
   "M:ndbc_primary": 0,
@@ -152,45 +172,45 @@
   "M:ndbc_spec": 0,
   "N:marine": 0,
   "N:weather": 0,
-  "N:ndbc_primary": 53,
+  "N:ndbc_primary": 54,
   "N:ndbc_offshore": 0,
   "N:tides": 0,
   "N:sst": 0,
   "N:chla": 0,
   "N:kd490": 0,
-  "N:ndbc_spec": 53,
+  "N:ndbc_spec": 54,
   "O:marine": 0,
   "O:weather": 0,
   "O:ndbc_primary": 0,
-  "O:ndbc_offshore": 53,
-  "O:tides": 53,
+  "O:ndbc_offshore": 54,
+  "O:tides": 54,
   "O:sst": 0,
   "O:chla": 0,
   "O:kd490": 0,
-  "O:ndbc_spec": 53,
+  "O:ndbc_spec": 54,
   "P:marine": 0,
   "P:weather": 0,
   "P:ndbc_primary": 0,
-  "P:ndbc_offshore": 53,
+  "P:ndbc_offshore": 54,
   "P:tides": 0,
   "P:sst": 0,
   "P:chla": 0,
   "P:kd490": 0,
   "P:ndbc_spec": 0,
   "A:marine_alt": 0,
-  "C:marine_alt": 0,
+  "C:marine_alt": 1,
   "D:marine_alt": 0,
-  "E:marine_alt": 0,
+  "E:marine_alt": 1,
   "F:marine_alt": 0,
   "G:marine_alt": 0,
   "H:marine_alt": 0,
   "I:marine_alt": 0,
   "J:marine_alt": 0,
   "K:marine_alt": 0,
-  "L:marine_alt": 0,
+  "L:marine_alt": 1,
   "M:marine_alt": 0,
-  "N:marine_alt": 2,
-  "O:marine_alt": 0,
+  "N:marine_alt": 3,
+  "O:marine_alt": 1,
   "P:marine_alt": 0
  },
  "fb_since_by_zone": {},
@@ -208,7 +228,7 @@
    "rings": 5
   },
   "E": {
-   "promises": 10,
+   "promises": 11,
    "rings": 4
   },
   "F": {
@@ -220,15 +240,15 @@
    "rings": 1
   },
   "H": {
-   "promises": 9,
-   "rings": 9
+   "promises": 10,
+   "rings": 10
   },
   "I": {
    "promises": 8,
    "rings": 1
   },
   "J": {
-   "promises": 4,
+   "promises": 5,
    "rings": 0
   },
   "K": {
@@ -256,7 +276,7 @@
    "rings": 0
   }
  },
- "hook_idx": 75,
+ "hook_idx": 78,
  "axis_blind": {
   "flat": 0,
   "glass": 0,
@@ -266,7 +286,7 @@
  },
  "last_ring": {
   "D": "2026-09-10",
-  "H": "2026-09-12",
+  "H": "2026-09-14",
   "O": "2026-09-06",
   "C": "2026-09-13",
   "E": "2026-09-10",
