@@ -18,7 +18,47 @@
    ],
    "window_key": "20260913T1659-dusk",
    "since": "2026-09-12T04:00:00-07:00",
-   "gate": true
+   "gate": false
+  },
+  "D": {
+   "score": 7.1,
+   "entries": [
+    "La Jolla Cove",
+    "La Jolla Shores (Canyon)"
+   ],
+   "window_key": "20260915T0602-dawn",
+   "since": "2026-09-13T14:00:00-07:00",
+   "gate": false
+  },
+  "K": {
+   "score": 7.9,
+   "entries": [
+    "Two Step (Honaunau)",
+    "Kahalu'u"
+   ],
+   "window_key": "20260915T0530-dawn",
+   "since": "2026-09-13T14:00:00-07:00",
+   "gate": false
+  },
+  "N": {
+   "score": 7.5,
+   "entries": [
+    "County Line Reef (Yerba Buena)",
+    "La Jenelle (Port Hueneme)"
+   ],
+   "window_key": "20260915T0609-dawn",
+   "since": "2026-09-13T14:00:00-07:00",
+   "gate": false
+  },
+  "P": {
+   "score": 9.0,
+   "entries": [
+    "Kahekili (Airport Beach)",
+    "Black Rock (Pu'u Keka'a)"
+   ],
+   "window_key": "20260915T0543-dawn",
+   "since": "2026-09-13T14:00:00-07:00",
+   "gate": false
   }
  },
  "last_tip_id": "db2",
@@ -61,13 +101,13 @@
   "D:ndbc_spec": 0,
   "E:marine": 0,
   "E:weather": 0,
-  "E:ndbc_primary": 58,
+  "E:ndbc_primary": 59,
   "E:ndbc_offshore": 0,
   "E:tides": 0,
   "E:sst": 0,
   "E:chla": 0,
   "E:kd490": 0,
-  "E:ndbc_spec": 58,
+  "E:ndbc_spec": 59,
   "F:marine": 0,
   "F:weather": 0,
   "F:ndbc_primary": 0,
@@ -107,30 +147,30 @@
   "J:marine": 0,
   "J:weather": 0,
   "J:ndbc_primary": 0,
-  "J:ndbc_offshore": 57,
+  "J:ndbc_offshore": 58,
   "J:tides": 0,
   "J:sst": 0,
   "J:chla": 0,
   "J:kd490": 0,
   "J:ndbc_spec": 0,
   "K:marine": 0,
-  "K:weather": 0,
-  "K:ndbc_primary": 57,
-  "K:ndbc_offshore": 57,
+  "K:weather": 1,
+  "K:ndbc_primary": 58,
+  "K:ndbc_offshore": 58,
   "K:tides": 0,
   "K:sst": 0,
   "K:chla": 0,
   "K:kd490": 0,
-  "K:ndbc_spec": 57,
+  "K:ndbc_spec": 58,
   "L:marine": 0,
   "L:weather": 0,
-  "L:ndbc_primary": 56,
-  "L:ndbc_offshore": 56,
-  "L:tides": 56,
+  "L:ndbc_primary": 57,
+  "L:ndbc_offshore": 57,
+  "L:tides": 57,
   "L:sst": 0,
   "L:chla": 0,
   "L:kd490": 0,
-  "L:ndbc_spec": 56,
+  "L:ndbc_spec": 57,
   "M:marine": 0,
   "M:weather": 0,
   "M:ndbc_primary": 0,
@@ -142,26 +182,26 @@
   "M:ndbc_spec": 0,
   "N:marine": 0,
   "N:weather": 0,
-  "N:ndbc_primary": 56,
+  "N:ndbc_primary": 57,
   "N:ndbc_offshore": 0,
   "N:tides": 0,
   "N:sst": 0,
   "N:chla": 0,
   "N:kd490": 0,
-  "N:ndbc_spec": 56,
+  "N:ndbc_spec": 57,
   "O:marine": 0,
   "O:weather": 0,
   "O:ndbc_primary": 0,
-  "O:ndbc_offshore": 56,
-  "O:tides": 56,
+  "O:ndbc_offshore": 57,
+  "O:tides": 57,
   "O:sst": 0,
   "O:chla": 0,
   "O:kd490": 0,
-  "O:ndbc_spec": 56,
+  "O:ndbc_spec": 57,
   "P:marine": 0,
   "P:weather": 0,
   "P:ndbc_primary": 0,
-  "P:ndbc_offshore": 56,
+  "P:ndbc_offshore": 57,
   "P:tides": 0,
   "P:sst": 0,
   "P:chla": 0,
@@ -169,16 +209,16 @@
   "P:ndbc_spec": 0,
   "A:marine_alt": 0,
   "C:marine_alt": 0,
-  "D:marine_alt": 0,
+  "D:marine_alt": 1,
   "E:marine_alt": 0,
-  "F:marine_alt": 0,
+  "F:marine_alt": 1,
   "G:marine_alt": 0,
   "H:marine_alt": 0,
   "I:marine_alt": 0,
   "J:marine_alt": 0,
-  "K:marine_alt": 2,
+  "K:marine_alt": 0,
   "L:marine_alt": 0,
-  "M:marine_alt": 2,
+  "M:marine_alt": 3,
   "N:marine_alt": 0,
   "O:marine_alt": 0,
   "P:marine_alt": 0
@@ -191,11 +231,11 @@
   },
   "C": {
    "promises": 9,
-   "rings": 6
+   "rings": 7
   },
   "D": {
-   "promises": 12,
-   "rings": 5
+   "promises": 13,
+   "rings": 6
   },
   "E": {
    "promises": 11,
@@ -219,10 +259,10 @@
   },
   "J": {
    "promises": 6,
-   "rings": 1
+   "rings": 2
   },
   "K": {
-   "promises": 1,
+   "promises": 2,
    "rings": 0
   },
   "L": {
@@ -234,7 +274,7 @@
    "rings": 1
   },
   "N": {
-   "promises": 6,
+   "promises": 7,
    "rings": 1
   },
   "O": {
@@ -242,11 +282,11 @@
    "rings": 4
   },
   "P": {
-   "promises": 3,
+   "promises": 4,
    "rings": 1
   }
  },
- "hook_idx": 79,
+ "hook_idx": 83,
  "axis_blind": {
   "flat": 0,
   "glass": 0,
@@ -255,10 +295,10 @@
   "warm": 0
  },
  "last_ring": {
-  "D": "2026-09-10",
+  "D": "2026-09-16",
   "H": "2026-09-14",
   "O": "2026-09-06",
-  "C": "2026-09-15",
+  "C": "2026-09-16",
   "E": "2026-09-10",
   "F": "2026-09-04",
   "I": "2026-09-07",
@@ -267,7 +307,7 @@
   "A": "2026-09-16",
   "M": "2026-09-16",
   "N": "2026-09-16",
-  "J": "2026-09-14",
+  "J": "2026-09-15",
   "P": "2026-09-14"
  },
  "sms_rung": {
