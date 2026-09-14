@@ -2155,11 +2155,25 @@ def render_digest(scored, t_now, state, sst_c=None, tip=None, actions=None):
     # details a diver plans around: time in the water, the cove, the tide,
     # the temperature. A fact in every sentence, or the sentence goes.
     suit = wetsuit_phrase(sst_c)
+    far_gate = False
     if gate_days:
         gd = by_day[gate_days[0]]
+        # a gate seen past ~3 days is a forecast, not a promise — this week's
+        # lesson (2026-09-14): Tuesday's 8.9 at six days became 5.2 by Sunday.
+        # Past 72h the bell says "forming", names the distance, and reserves
+        # its sworn word for inside two days.
+        far_gate = (gd["w"]["start"] - t_now).total_seconds() / 3600.0 > 72
         headline = "✨ %s — everything lines up" % gd["w"]["label"]
-        lead = "%s: flat, dry, sunny, warm — the rare kind. In the water by %s" \
-               % (sentence_case(day_name(gd)), in_by(gd))
+        if far_gate:
+            lead = ("%s stands perfect at %d days' distance — flat, dry, sunny, "
+                    "warm, every axis holding. The bell swears to nothing this far "
+                    "out; if the forecast holds, it rings inside two days. "
+                    "In the water by %s") % (
+                sentence_case(day_name(gd)),
+                round((gd["w"]["start"] - t_now).total_seconds() / 86400.0), in_by(gd))
+        else:
+            lead = "%s: flat, dry, sunny, warm — the rare kind. In the water by %s" \
+                   % (sentence_case(day_name(gd)), in_by(gd))
         if gd["entries"]:
             lead += " at %s" % gd["entries"][0]
         if gd["tide_fyi"]:
@@ -2194,8 +2208,12 @@ def render_digest(scored, t_now, state, sst_c=None, tip=None, actions=None):
         body[1] += " (%s.)" % sentence_case(brag)
     if tip:
         body.append("Tip: " + tip)
-    # a ringing bell doesn't share the week-ahead frame — it IS the news
-    title = ("✨ The bell rings %s %s" % (day_name(best), v["emoji"]) if gate_days
+    # a ringing bell doesn't share the week-ahead frame — it IS the news;
+    # a far gate is forming, not sworn, and the title says which
+    title = (("✨ Perfect is forming — %s %s" % (day_name(best), v["emoji"]))
+             if gate_days and far_gate
+             else ("✨ The bell rings %s %s" % (day_name(best), v["emoji"]))
+             if gate_days
              else "The week ahead — %s %s" % (headline, v["emoji"]))
     return {"title": title, "message": "\n".join(body),
             "priority": 4 if gate_days else 3, "actions": actions or []}
@@ -2574,6 +2592,67 @@ def ntfy_digest(zk, zc, scored, state, t_now, dry_run, weekly, sst=None):
            dry_run, topic=zone_topic(zc))
     due.pop(zk, None)
     sent[zk] = week
+    # the reading's word is a debt: every gate day it names is remembered,
+    # and if the ocean later takes one back, check_retraction says so
+    gds = sorted({s["w"]["start"].date().isoformat() for s in scored if s.get("gate")})
+    if gds:
+        state.setdefault("digest_promise", {})[zk] = {"days": gds, "week": week}
+
+
+def check_retraction(zk, zc, scored, state, t_now, dry_run):
+    """When the weekly reading names a perfect day and the ocean later takes
+    it back, the bell says so — once, plainly, on both channels. A promise
+    withdrawn in silence is a lie by omission (learned 2026-09-14: Tuesday's
+    promised 8.9 quietly became 5.2 and nobody was told)."""
+    pr = state.get("digest_promise", {}).get(zk)
+    if not pr or pr.get("retracted"):
+        return
+    today = t_now.astimezone(zone_tz(zc)).date().isoformat()
+    live = [d for d in pr.get("days", []) if d >= today]
+    if not live:
+        state["digest_promise"].pop(zk, None)   # the promise expired on its own
+        return
+    by_day = {}
+    for s in scored:
+        by_day.setdefault(s["w"]["start"].date().isoformat(), []).append(s)
+    vis = [d for d in live if d in by_day]
+    if len(vis) < len(live):
+        return   # part of the promise is still over the horizon — wait
+    if any(any(s.get("gate") for s in by_day[d]) for d in vis):
+        return   # a promised day still stands sworn
+    # the whole promise is visible and none of it holds: withdraw it
+    day0 = datetime.fromisoformat(vis[0]).strftime("%A")
+    db = max(by_day[vis[0]], key=lambda s: s["score"])
+    why = db.get("limit") or "the forecast moved"
+    body = ("%s's perfect morning washed out — %s filled in where the promise "
+            "stood. The bell only rings when every knowable thing holds, and it "
+            "no longer does." % (day0, why))
+    best = max(scored, key=lambda s: s["score"]) if scored else None
+    if best and best["score"] >= 6.5 and best["w"]["start"].date().isoformat() not in vis:
+        body += " The week's next hope: %s at %.1f." % (best["w"]["label"], best["score"])
+    notify({"title": "The bell takes back its word", "message": body,
+            "priority": 3, "tags": ["wave"]}, dry_run, topic=zone_topic(zc))
+    env = _twilio_env()
+    if env and zc.get("sms", True) is not False and sms_quiet_ok(zc):
+        subs = set(sms_subscribers().get(zk, [])) & sms_digest_optins()
+        sid, tok, frm = env
+        sbody = ("THE BELL TAKES BACK ITS WORD - %s washed out; %s filled in. "
+                 "It only rings when it's sure." % (day0, why))
+        if best and best["score"] >= 6.5:
+            sbody += " Next hope %s %.1f." % (best["w"]["label"], best["score"])
+        sbody += " Reply STOP to end."
+        for num in sorted(subs):
+            try:
+                if not dry_run:
+                    _twilio_req("Messages.json", sid, tok,
+                                {"To": num, "From": frm, "Body": sbody})
+            except Exception as e:
+                print("sms retraction to %s… failed: %s" % (num[:6], str(e)[:60]),
+                      file=sys.stderr)
+        if subs:
+            print("sms retraction (%s): %d sent%s" % (zk, len(subs),
+                                                      " [dry]" if dry_run else ""))
+    pr["retracted"] = True
 
 
 def sms_digest_text(zone_cfg, scored):
@@ -2900,6 +2979,7 @@ def cmd_run(args):
                                   skill_corr=skill_corr)
                 ntfy_digest(zk, zc, wide, state, t_now, args.dry_run,
                             weekly=False, sst=sst)
+            check_retraction(zk, zc, scored, state, t_now, args.dry_run)
             action, payload = decide_alert(scored, t_now, state, zk)
             if action == "alert" or action == "quiet_alert":
                 tip = select_tip(payload["entries"], payload["score"], payload["feats"]["damage"],
@@ -3469,6 +3549,34 @@ def cmd_cast(args):
 # skill — the system grades its own forecasts
 # =====================================================================
 
+def gate_hold_rates(log_rows):
+    """From score_log history: of the windows the gate PASSED at lead L,
+    how many still passed at the final near reading (<=14h)? Every run logs
+    every window's gate verdict, so the data was already being collected —
+    it just was never asked this question."""
+    per = {}
+    for r in log_rows:
+        try:
+            lead = float(r["lead_h"])
+        except (KeyError, ValueError, TypeError):
+            continue
+        per.setdefault((r.get("zone", "A"), r.get("window_start")), []).append(
+            (lead, r.get("perfect_gate") == "PASS"))
+    hold = {}
+    for lst in per.values():
+        lst.sort()
+        truth_lead, truth = lst[0]
+        if truth_lead > 14:
+            continue   # no near-final reading: this window can't grade anyone
+        for lead, passed in lst:
+            if lead < 24 or not passed:
+                continue
+            b = "24-72h" if lead <= 72 else ">72h"
+            n, h = hold.get(b, (0, 0))
+            hold[b] = (n + 1, h + (1 if truth else 0))
+    return hold
+
+
 def cmd_skill(args):
     """We calibrate on archive (analysis) data but ALERT on forecasts, and the
     error between them at 12-48h lead was never measured until this. For every
@@ -3543,6 +3651,20 @@ def cmd_skill(args):
                          "big_miss_pct": round(big, 1)})
     append_log(os.path.join(DATA, "skill_log.csv"),
                ["date", "bucket", "n", "mae", "bias", "big_miss_pct"], out_rows, dry_run=False)
+    # gate promises vs what the morning delivered — the number that governs
+    # how far out the digest may speak (Tuesday 2026-09-15 was promised at
+    # six days and washed out; this measures how often that happens)
+    hold = gate_hold_rates(_read_csv(LOG_PATH))
+    hold_rows = []
+    for b in ("24-72h", ">72h"):
+        if b in hold:
+            n, h = hold[b]
+            print("  gate hold-rate %-6s %d/%d held (%.0f%%)" % (b, h, n, 100.0 * h / n))
+            hold_rows.append({"date": now_pt().date().isoformat(), "bucket": b,
+                              "n": n, "held": h, "held_pct": round(100.0 * h / n, 1)})
+    if hold_rows:
+        append_log(os.path.join(DATA, "gate_skill.csv"),
+                   ["date", "bucket", "n", "held", "held_pct"], hold_rows, dry_run=False)
     worst = max((r["mae"] for r in out_rows), default=0)
     if getattr(args, "notify", False) and worst >= 1.2:
         notify_ops({"title": "The bell's foresight is slipping 🔎",
@@ -4381,6 +4503,54 @@ def cmd_test(args):
     finally:
         for n, fn in saved4.items():
             g4[n] = fn
+
+    # (mm) FAR GATES ARE FORMING, NOT SWORN: past 72h the digest hedges and
+    # names the distance; inside 72h it rings as before.
+    far_week = [_win(0, "Wed dawn", 5.0), _win(5, "Mon dawn", 9.0, gate=True)]
+    near_week = [_win(0, "Wed dawn", 5.0), _win(1, "Thu dawn", 9.0, gate=True)]
+    dg_far = render_digest(far_week, t0, {})
+    dg_near = render_digest(near_week, t0, {})
+    check("(mm) far gate says forming", "Perfect is forming" in dg_far["title"]
+          and "swears to nothing" in dg_far["message"], dg_far["title"])
+    check("(mm) near gate still rings", "The bell rings" in dg_near["title"]
+          and "swears to nothing" not in dg_near["message"], dg_near["title"])
+
+    # (mm2) THE RETRACTION: a promised day that washes out is withdrawn once,
+    # aloud; a promise still standing (or still over the horizon) is not.
+    g5 = globals()
+    _n5 = g5["notify"]; notes5 = []
+    g5["notify"] = lambda msg, dry, topic=None: notes5.append(msg["title"])
+    try:
+        pday = (t0 + timedelta(days=2)).date().isoformat()
+        washed = [_win(2, "Fri dawn", 5.2, limit="swell")]
+        st5 = {"digest_promise": {"A": {"days": [pday], "week": "w"}}}
+        check_retraction("A", zc, washed, st5, t0, dry_run=True)
+        check("(mm2) washed-out promise withdrawn", notes5 == ["The bell takes back its word"]
+              and st5["digest_promise"]["A"].get("retracted"), str(notes5))
+        check_retraction("A", zc, washed, st5, t0, dry_run=True)
+        check("(mm2) withdrawn once, not twice", len(notes5) == 1)
+        held = [_win(2, "Fri dawn", 9.0, gate=True)]
+        st5b = {"digest_promise": {"A": {"days": [pday], "week": "w"}}}
+        check_retraction("A", zc, held, st5b, t0, dry_run=True)
+        check("(mm2) a standing promise is left alone", len(notes5) == 1
+              and not st5b["digest_promise"]["A"].get("retracted"))
+        st5c = {"digest_promise": {"A": {"days": [(t0 + timedelta(days=6)).date().isoformat()],
+                                         "week": "w"}}}
+        check_retraction("A", zc, washed, st5c, t0, dry_run=True)
+        check("(mm2) over-the-horizon promise waits", len(notes5) == 1)
+    finally:
+        g5["notify"] = _n5
+
+    # (mm3) GATE HOLD-RATE: graded from the log's own gate verdicts.
+    lr = [{"zone": "A", "window_start": "W1", "lead_h": "60", "perfect_gate": "PASS"},
+          {"zone": "A", "window_start": "W1", "lead_h": "100", "perfect_gate": "PASS"},
+          {"zone": "A", "window_start": "W1", "lead_h": "10", "perfect_gate": "PASS"},
+          {"zone": "A", "window_start": "W2", "lead_h": "90", "perfect_gate": "PASS"},
+          {"zone": "A", "window_start": "W2", "lead_h": "8", "perfect_gate": ""},
+          {"zone": "A", "window_start": "W3", "lead_h": "50", "perfect_gate": "PASS"}]
+    hr = gate_hold_rates(lr)
+    check("(mm3) hold-rate: near bucket 1/1, far 1/2, ungraded dropped",
+          hr.get("24-72h") == (1, 1) and hr.get(">72h") == (2, 1), str(hr))
 
     # fixture suite: degraded + disagreement
     print("fixture tests:")
