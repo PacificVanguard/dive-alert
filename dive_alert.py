@@ -1337,8 +1337,9 @@ def build_windows(weather: Fetch, t_now: datetime, zone_cfg, horizon_h=72):
     if weather.ok:
         sunrises, sunsets = weather.data["sunrise"], weather.data["sunset"]
     else:
-        # degraded: fixed approximations, flagged via weather.ok upstream
-        base = t_now.replace(hour=6, minute=0)
+        # degraded: fixed approximations IN THE ZONE'S OWN CLOCK (audit repair
+        # 2026-09-14: a Pacific-clock fallback made Oahu's "dawn" 2:30am HST)
+        base = t_now.astimezone(zone_tz(zone_cfg)).replace(hour=6, minute=0)
         sunrises = [base + timedelta(days=i) for i in range(9)]
         sunsets = [base.replace(hour=19, minute=30) + timedelta(days=i) for i in range(9)]
     wc = CONFIG["windows"]
@@ -1422,14 +1423,23 @@ def obs_fraction(start: datetime, lookback_h: int, t_now: datetime) -> float:
 
 
 def dry_hours(precip, start: datetime, lookback_h: int, thresh_in: float):
-    """Hours from the last rain event (rolling 24h sum >= thresh) to window start."""
-    last_wet = None
+    """Hours from the last rain event (rolling 24h sum >= thresh) to window
+    start. AUDIT REPAIR (2026-09-14): certifying N dry hours requires actually
+    seeing them — missing samples used to read as dry, so one rainfall sample
+    could certify three dry days. Coverage below 80% of the span (including
+    the 24 antecedent hours the rolling sum needs) returns unknown."""
     start = floor_hour(start)
+    span = lookback_h + 24
+    present = sum(1 for k in range(span)
+                  if precip.get(start - timedelta(hours=k + 1)) is not None)
+    if present < 0.8 * span:
+        return None
+    last_wet = None
     t = start - timedelta(hours=lookback_h)
     while t < start:
         s = 0.0
         for k in range(24):
-            s += precip.get(t - timedelta(hours=k), 0.0)
+            s += precip.get(t - timedelta(hours=k)) or 0.0
         if s >= thresh_in:
             last_wet = t
         t += timedelta(hours=1)
@@ -1453,9 +1463,9 @@ def swell_damage(marine, w, exposure_map, cove_factor=1.0, h_scale=1.0):
     direction always interact, never scored independently."""
     pf = CONFIG["scoring"]["period_factor"]
     hours = window_hours(w)
-    tot, cnt, parts = 0.0, 0, {"hgt_ft": 0.0, "per_s": 0.0, "dir": 0.0}
+    tot, covered, parts = 0.0, 0, {"hgt_ft": 0.0, "per_s": 0.0, "dir": 0.0}
     for t in hours:
-        d = 0.0
+        d, has = 0.0, False
         sh = marine.get("swell_wave_height", {}).get(t)
         sp = marine.get("swell_wave_period", {}).get(t)
         sd = marine.get("swell_wave_direction", {}).get(t)
@@ -1463,17 +1473,24 @@ def swell_damage(marine, w, exposure_map, cove_factor=1.0, h_scale=1.0):
         if sh is not None and sp is not None and sd is not None:
             d += (m_to_ft(sh) * scale) ** 2 * piecewise(sp, pf) * piecewise(sd % 360, exposure_map)
             parts["hgt_ft"] += m_to_ft(sh) * scale; parts["per_s"] += sp; parts["dir"] += sd
+            has = True
         wh = marine.get("wind_wave_height", {}).get(t)
         wp = marine.get("wind_wave_period", {}).get(t)
         wd = marine.get("wind_wave_direction", {}).get(t)
         if wh is not None and wp is not None and wd is not None:
             d += (m_to_ft(wh) * scale) ** 2 * piecewise(max(wp, 3.0), pf) * piecewise(wd % 360, exposure_map)
-        tot += d; cnt += 1
-    if cnt == 0:
+            has = True
+        if has:
+            tot += d; covered += 1
+    # AUDIT REPAIR (2026-09-14): hours with no usable partition data used to
+    # inflate the divisor, so an EMPTY ocean scored as a FLAT ocean — 74 of
+    # the first 208 production gate passes were flat-by-absence. Missing is
+    # unknown, never zero; unknown fails the gate.
+    if covered < max(1, math.ceil(0.8 * len(hours))):
         return None, parts
     for k in parts:
-        parts[k] /= cnt
-    return (tot / cnt) * cove_factor, parts
+        parts[k] /= covered
+    return (tot / covered) * cove_factor, parts
 
 
 def wind_dir_factor(wdir, zone_cfg):
@@ -1513,7 +1530,11 @@ def buoy_anchor(fetches, t_now):
             continue
         mv = model.get(hr)
         if mv and mv > 0.15:
-            ratios.append(r["wvht_m"] / mv)
+            # the anchor corrects the RESIDUAL after the static global scale
+            # (audit repair 2026-09-14: obs/raw-model was then multiplied by
+            # the static 1.13 again downstream — the same bias counted twice;
+            # this ratio is 1.0 when the already-scaled model matches the buoy)
+            ratios.append(r["wvht_m"] / (mv * CONFIG["scoring"]["model_height_scale"]))
     if len(ratios) < 12:
         return 1.0
     ratios.sort()
@@ -1550,27 +1571,39 @@ def compute_features(w, fetches, zone_cfg, t_now, anchor=1.0):
 
     swell_e = swell_fn_pair()
     dry = dry_hours(precip, w["start"], fc["rain_lookback_h"], fc["rain_threshold_in"]) if precip else None
+    # AUDIT REPAIR (2026-09-14): the rain check used to stop at window start —
+    # 0.4" DURING the dive still scored 9.8. Rain through the window's end is
+    # part of "dry"; missing window coverage makes dry unknowable.
+    win_hrs = window_hours(w)
+    rain_win = [precip.get(t) for t in win_hrs]
+    rain_window_in = sum(rain_win) if rain_win and all(v is not None for v in rain_win) else None
+    if rain_window_in is None:
+        dry = None
+    elif rain_window_in >= 0.1:
+        dry = 0.0   # it is raining on the dive itself
     dmg, dmg_parts = swell_damage(marine, w, zone_cfg["exposure"],
                                   zone_cfg.get("cove_damage_factor", 1.0),
                                   zone_cfg.get("marine_height_scale", 1.0) * anchor)
-    wind_in_window = [wind.get(t) for t in window_hours(w)]
-    wind_in_window = [v for v in wind_in_window if v is not None]
-    wind_eff_window = [wind_eff.get(t) for t in window_hours(w)]
-    wind_eff_window = [v for v in wind_eff_window if v is not None]
+    # window wind/cloud need EVERY hour of a 2-3h window — one lucky sample
+    # cannot certify glass or sun (audit repair, same date)
+    wind_in_window = [wind.get(t) for t in win_hrs]
+    wind_complete = bool(wind_in_window) and all(v is not None for v in wind_in_window)
+    wind_eff_window = [wind_eff.get(t) for t in win_hrs]
+    eff_complete = bool(wind_eff_window) and all(v is not None for v in wind_eff_window)
     tides_f = fetches.get("tides")
     trange = tide_range_ft(tides_f.data if (tides_f is not None and tides_f.ok) else None, w)
     kd = fetches.get("kd490")
-    clouds = [wx.get("cloud_cover", {}).get(t) for t in window_hours(w)]
-    clouds = [c for c in clouds if c is not None]
+    clouds = [wx.get("cloud_cover", {}).get(t) for t in win_hrs]
+    clouds_complete = bool(clouds) and all(c is not None for c in clouds)
     feats = {
-        "cloud_pct": (sum(clouds) / len(clouds)) if clouds else None,
+        "cloud_pct": (sum(clouds) / len(clouds)) if clouds_complete else None,
         "wind_energy_48h": wind_e if wind else None,
         "swell_energy_72h": swell_e if swell_series else None,
-        "dry_hours": dry,
+        "dry_hours": dry, "rain_window_in": rain_window_in,
         "damage": dmg, "dmg_parts": dmg_parts,
         "kd490": kd.data["m1"] if (kd is not None and kd.ok) else None,
-        "wind_window_max_kn": max(wind_in_window) if wind_in_window else None,
-        "wind_window_eff_kn": max(wind_eff_window) if wind_eff_window else None,
+        "wind_window_max_kn": max(wind_in_window) if wind_complete else None,
+        "wind_window_eff_kn": max(wind_eff_window) if eff_complete else None,
         "tide_range_ft": trange,
         "month": w["start"].month,
         "first_flush_months": zone_cfg.get("first_flush_months"),
@@ -1621,10 +1654,15 @@ def score_window(feats, creek_adjacent=False):
     score = max(1.0, min(10.0, score))
 
     cap, cap_reason = None, None
-    # hard rules override the weighted score (wind cap on the direction-
-    # weighted speed: a 16kt Santa Ana flattens the coves, it doesn't cap them)
-    if eff_wind is not None and eff_wind >= sc["wind_cap_kt"]:
-        cap, cap_reason = sc["wind_cap_score"], "wind ≥%dkt in window" % sc["wind_cap_kt"]
+    # AUDIT REPAIR (2026-09-14): the hard cap now reads RAW sustained wind.
+    # The directional discount stays for surface-texture SCORING (a Santa Ana
+    # does flatten the coves), but 15kt+ sustained offshore is a surface-swim
+    # hazard regardless of texture — a hard limit must not be discountable.
+    raw_wind = feats.get("wind_window_max_kn")
+    if raw_wind is not None and raw_wind >= sc["wind_cap_kt"]:
+        cap, cap_reason = sc["wind_cap_score"], "wind ≥%dkt raw in window" % sc["wind_cap_kt"]
+    if feats.get("rain_window_in") is not None and feats["rain_window_in"] >= 0.1:
+        flags.append("rain during window")
     rain_lb = CONFIG["features"]["creek_rain_lookback_h"] if creek_adjacent else CONFIG["features"]["rain_lookback_h"]
     rain_cap = sc["creek_rain_cap"] if creek_adjacent else sc["rain_cap"]
     if feats["dry_hours"] is not None and feats["dry_hours"] < rain_lb:
@@ -2371,20 +2409,34 @@ def ingest_feedback(state, dry_run, zone_cfg=None, zone_key="A"):
             if m.get("event") != "message":
                 continue
             latest = max(latest or 0, m.get("time", 0))
-            parts = (m.get("message") or "").split("|", 1)
-            if len(parts) != 2 or parts[0] not in FEEDBACK_MAP:
+            parts = (m.get("message") or "").split("|")
+            if len(parts) < 2 or parts[0] not in FEEDBACK_MAP:
                 continue
-            verdict, window_key = parts
-            viz, surge = FEEDBACK_MAP[verdict]
+            # verdict|window_key[|bell name] — SMS verdicts carry the bell's
+            # name since the sender's water isn't this topic's zone
+            verdict, window_key = parts[0], parts[1]
+            zk_row = zone_key
+            if len(parts) >= 3 and parts[2]:
+                zk_row = next((k for k, z in CONFIG["zones"].items()
+                               if z.get("bell", {}).get("name") == parts[2]), zone_key)
+            # AUDIT REPAIR (2026-09-14): a categorical verdict is a category,
+            # never a manufactured number of feet; an unresolvable window is
+            # quarantined (ts = ingestion time, marked), not invented.
+            resolved = True
             try:
-                ts = datetime.strptime(window_key.split("-")[0], "%Y%m%dT%H%M").replace(tzinfo=PT)
+                tzr = zone_tz(CONFIG["zones"].get(zk_row, zone_cfg or {}))
+                ts = datetime.strptime(window_key.split("-")[0],
+                                       "%Y%m%dT%H%M").replace(tzinfo=tzr)
             except ValueError:
-                ts = now_pt()
-            rows.append({"ts": ts.isoformat(), "site": "(alert feedback)",
-                         "viz_ft": viz, "surge": surge,
-                         "notes": "feedback:%s window:%s" % (verdict, window_key)})
+                ts, resolved = now_pt(), False
+            rows.append({"ts": ts.isoformat(), "zone": zk_row,
+                         "site": "(alert feedback)", "category": verdict,
+                         "viz_ft": "", "surge": "",
+                         "notes": "feedback:%s window:%s%s" % (
+                             verdict, window_key, "" if resolved else " unresolved")})
         if rows:
-            append_log(DIVE_LOG, ["ts", "site", "viz_ft", "surge", "notes"], rows, dry_run)
+            append_log(DIVE_LOG, ["ts", "zone", "site", "category",
+                                  "viz_ft", "surge", "notes"], rows, dry_run)
             print("ingested %d feedback verdict(s)" % len(rows))
         if latest:
             since_map[zone_key] = str(latest + 1)
@@ -2535,11 +2587,20 @@ def sms_ring(zone_key, zone_cfg, payload, state, dry_run):
         return
     wkey = payload["w"]["key"]
     sent = state.setdefault("sms_rung", {})
-    if sent.get(zone_key) == wkey or not sms_quiet_ok(zone_cfg):
+    if sent.get(zone_key) == wkey:
+        return
+    # AUDIT REPAIR (2026-09-14): delivery is now decoupled from the alert
+    # decision. A quiet-hours block records a DEBT (retried by later runs
+    # while the gate still holds — see the retry hook in cmd_run), and a
+    # partial failure no longer marks the whole window sent: each number's
+    # delivery is tracked, so retries reach only the ones still owed.
+    if not sms_quiet_ok(zone_cfg):
+        state.setdefault("sms_ring_due", {})[zone_key] = wkey
         return
     subs = sms_subscribers().get(zone_key, [])
     if not subs:
         sent[zone_key] = wkey
+        state.setdefault("sms_ring_due", {}).pop(zone_key, None)
         return
     body = ("THE BELL IS RINGING - %s. %s. In by %s at %s. thedivebell.com "
             "Reply STOP to end.") % (
@@ -2547,18 +2608,25 @@ def sms_ring(zone_key, zone_cfg, payload, state, dry_run):
         payload["w"]["start"].strftime("%-I:%M%p").lower(),
         payload["entries"][0] if payload["entries"] else "your cove")
     sid, tok, frm = env
-    ok = 0
+    done = state.setdefault("sms_rung_nums", {}).setdefault(
+        "%s:%s" % (zone_key, wkey), [])
     for num in subs:
+        if num in done:
+            continue
         try:
             if not dry_run:
                 _twilio_req("Messages.json", sid, tok,
                             {"To": num, "From": frm, "Body": body})
-            ok += 1
+            done.append(num)
         except Exception as e:
             print("sms to %s… failed: %s" % (num[:6], str(e)[:60]), file=sys.stderr)
-    sent[zone_key] = wkey
-    print("sms ring (%s): %d/%d sent%s" % (zone_key, ok, len(subs),
-                                           " [dry]" if dry_run else ""))
+    if all(n in done for n in subs):
+        sent[zone_key] = wkey
+        state.setdefault("sms_ring_due", {}).pop(zone_key, None)
+    else:
+        state.setdefault("sms_ring_due", {})[zone_key] = wkey
+    print("sms ring (%s): %d/%d delivered%s" % (zone_key, len(done), len(subs),
+                                                " [dry]" if dry_run else ""))
 
 
 def digest_morning_ok(zone_cfg, when=None):
@@ -2859,6 +2927,10 @@ def score_zone(zone_key, zone_cfg, fetches, t_now, horizon_h=72, skill_corr=None
         if skill_corr:
             bucket = skill_bucket((w["start"] - t_now).total_seconds() / 3600.0)
             adj = skill_corr.get(bucket, 0.0) if bucket else 0.0
+            # a learned correction may never lift a hard cap (audit repair
+            # 2026-09-14: a rain-capped 3.0 was becoming 3.5)
+            if adj > 0 and cap_reason:
+                adj = 0.0
             if adj:
                 score = max(1.0, min(10.0, round(score + adj, 1)))
                 flags = list(flags) + ["skill%+.1f" % adj]
@@ -2980,6 +3052,17 @@ def cmd_run(args):
                 ntfy_digest(zk, zc, wide, state, t_now, args.dry_run,
                             weekly=False, sst=sst)
             check_retraction(zk, zc, scored, state, t_now, args.dry_run)
+            # a ring text owed from quiet hours or partial failure is paid
+            # here while the window still stands and its gate still holds
+            due_ring = state.get("sms_ring_due", {}).get(zk)
+            if due_ring:
+                cand = next((s for s in scored
+                             if s["w"]["key"] == due_ring and s.get("gate")), None)
+                if cand and (cand["w"]["start"] - t_now).total_seconds() > 6 * 3600:
+                    sms_ring(zk, zc, cand, state, args.dry_run)
+                else:
+                    # the window closed its gate or drew too near — cancel
+                    state["sms_ring_due"].pop(zk, None)
             action, payload = decide_alert(scored, t_now, state, zk)
             if action == "alert" or action == "quiet_alert":
                 tip = select_tip(payload["entries"], payload["score"], payload["feats"]["damage"],
@@ -3008,8 +3091,13 @@ def cmd_run(args):
         # the first quiet-legal run of the week (see sms_digest)
         sms_digest(zk, zc, scored, state, args.dry_run, weekly=bool(args.weekly))
         append_log(LOG_PATH, LOG_COLS, rows, args.dry_run)
-        # the bell remembers: a gate day seen is a ring recorded
-        gate_days_seen = [s["w"]["start"].date().isoformat() for s in scored if s.get("gate")]
+        # the bell remembers: a ring is recorded only when its DAY HAS COME —
+        # a qualifying forecast is a promise, not history (audit repair
+        # 2026-09-14: nine bells were publishing future dates as past rings)
+        today_loc = t_now.astimezone(zone_tz(zc)).date().isoformat()
+        gate_days_seen = [s["w"]["start"].date().isoformat() for s in scored
+                          if s.get("gate")
+                          and s["w"]["start"].date().isoformat() <= today_loc]
         if gate_days_seen:
             prev = state.setdefault("last_ring", {}).get(zk)
             if max(gate_days_seen) != prev:
@@ -3560,6 +3648,8 @@ def gate_hold_rates(log_rows):
             lead = float(r["lead_h"])
         except (KeyError, ValueError, TypeError):
             continue
+        if "no swell" in (r.get("flags") or ""):
+            continue   # flat-by-absence rows (pre-repair) must not grade anyone
         per.setdefault((r.get("zone", "A"), r.get("window_start")), []).append(
             (lead, r.get("perfect_gate") == "PASS"))
     hold = {}
@@ -3704,20 +3794,33 @@ def cmd_report(args):
     a trap: you only dive on days the bell praised, so it can never learn it
     was wrong about the days it dismissed. This names that, too."""
     dives = _read_csv(DIVE_LOG)
-    hist = {r["window_key"]: r for r in _read_csv(LOG_PATH) if r.get("window_key")}
+    # join on (zone, window_key): 240 of the first 808 window keys were
+    # shared across zones, so key-alone joins could grade the wrong coast
+    hist = {(r.get("zone", "A"), r["window_key"]): r
+            for r in _read_csv(LOG_PATH) if r.get("window_key")}
     graded, low_side = [], 0
     for d in dives:
         wk = None
         for tok in (d.get("notes") or "").split():
             if tok.startswith("window:"):
                 wk = tok.split(":", 1)[1]
-        row = hist.get(wk)
+        if "unresolved" in (d.get("notes") or ""):
+            continue   # quarantined until a human resolves it
+        row = hist.get((d.get("zone", "A"), wk))
         if row is None:
             continue
-        score, viz = float(row["score"]), float(d["viz_ft"])
+        score = float(row["score"])
         if score < 7.0:
             low_side += 1
-        kept = promise_kept(score, viz)
+        cat = (d.get("category") or "").strip()
+        if cat in PROMISE_ORDER:
+            kept = PROMISE_ORDER[cat] >= PROMISE_ORDER[promise_tier(score)]
+            viz = cat
+        elif d.get("viz_ft"):
+            viz = float(d["viz_ft"])
+            kept = promise_kept(score, viz)
+        else:
+            continue
         if kept is not None:
             graded.append((score, viz, kept))
     n = len(graded)
@@ -4069,8 +4172,12 @@ def cmd_test(args):
     f_cap_off = _mk_fetches(t0, swell_ft=1.5, per_s=15, dir_deg=195, wind_kn=16, wind_dir=45)
     s_c_on, _, cap_on, _ = score_window(compute_features(w, f_cap_on, zc, t0))
     s_c_off, _, cap_off, _ = score_window(compute_features(w, f_cap_off, zc, t0))
-    check("(u2) 16kt onshore caps at 5; Santa Ana doesn't",
-          cap_on is not None and s_c_on <= 5.0 and cap_off is None and s_c_off > 6.5,
+    # POLICY CHANGE 2026-09-14 (audit): the hard cap reads RAW wind — 16kt
+    # sustained is a surface hazard from any direction. The directional
+    # discount survives in the weighted SCORE, where offshore still beats
+    # onshore (test u above), just no longer past the cap.
+    check("(u2) 16kt caps at 5 from any direction",
+          cap_on is not None and s_c_on <= 5.0 and cap_off is not None and s_c_off <= 5.0,
           "on=%.1f(%s) off=%.1f(%s)" % (s_c_on, cap_on, s_c_off, cap_off))
 
     # (v) PERIOD REACHES DEEPER THAN CHOP: orbital survival physics.
@@ -4199,7 +4306,11 @@ def cmd_test(args):
                                  {"rows": rows_13, "station": "46253",
                                   "latest": rows_13[0]})
     a13 = buoy_anchor(f_an, t0)
-    check("(ee) buoy 1.3x model -> anchor ~1.3", 1.25 <= a13 <= 1.35, "a=%.3f" % a13)
+    # residual semantics (audit repair): the anchor divides out the static
+    # model_height_scale, so obs=1.3x raw model -> 1.3/1.13 ~ 1.15
+    exp13 = 1.3 / CONFIG["scoring"]["model_height_scale"]
+    check("(ee) buoy 1.3x model -> residual anchor ~%.2f" % exp13,
+          abs(a13 - exp13) <= 0.05, "a=%.3f" % a13)
     rows_9 = [dict(r, wvht_m=r["wvht_m"] * 9) for r in rows_13]
     f_an["ndbc_primary"] = Fetch("ndbc_primary", True,
                                  {"rows": rows_9, "station": "46253", "latest": rows_9[0]})

@@ -19,3 +19,5 @@ jobs:
           python-version: "3.12"
       - name: The suite, in the bells' own environment
         run: python dive_alert.py test
+      - name: The external audit's checks (2026-09-10), kept green forever
+        run: python audit_checks.py .

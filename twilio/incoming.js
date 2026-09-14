@@ -75,6 +75,22 @@ async function weekMessage(name) {
   }
 }
 
+async function senderBell(context, event) {
+  // the sender's water, from the message history that is the subscriber db
+  try {
+    const client = context.getTwilioClient();
+    const msgs = await client.messages.list({
+      from: event.From, to: event.To, limit: 500,
+    });
+    for (const m of msgs) {
+      const b = (m.body || "").toUpperCase();
+      const hit = Object.keys(BELLS).find((k) => b.includes(k));
+      if (hit) return BELLS[hit];
+    }
+  } catch (e) {}
+  return null;
+}
+
 exports.handler = async function (context, event, callback) {
   const twiml = new Twilio.twiml.MessagingResponse();
   const body = (event.Body || "").trim().toUpperCase();
@@ -92,9 +108,12 @@ exports.handler = async function (context, event, callback) {
       "Msg&data rates may apply. Reply STOP to end."
     );
   } else if (verdict) {
+    // verdict|sms|<bell name> — the water travels with the verdict, so the
+    // calibration river knows which coast is speaking
+    const water = (bellWord ? BELLS[bellWord] : null) || (await senderBell(context, event)) || "";
     try {
       await fetch("https://ntfy.sh/" + FB_TOPIC, {
-        method: "POST", body: VERDICTS[verdict] + "|sms",
+        method: "POST", body: VERDICTS[verdict] + "|sms|" + water,
       });
     } catch (e) {}
     twiml.message(
@@ -113,21 +132,7 @@ exports.handler = async function (context, event, callback) {
       "reading, STOP to end everything. Msg&data rates may apply."
     );
   } else if (body.includes("WEEK")) {
-    let name = bellWord ? BELLS[bellWord] : null;
-    if (!name) {
-      // whose bell? the message history remembers — newest word wins
-      try {
-        const client = context.getTwilioClient();
-        const msgs = await client.messages.list({
-          from: event.From, to: event.To, limit: 500,
-        });
-        for (const m of msgs) {
-          const b = (m.body || "").toUpperCase();
-          const hit = Object.keys(BELLS).find((k) => b.includes(k));
-          if (hit) { name = BELLS[hit]; break; }
-        }
-      } catch (e) {}
-    }
+    let name = bellWord ? BELLS[bellWord] : await senderBell(context, event);
     if (name) {
       twiml.message(await weekMessage(name));
     } else {
