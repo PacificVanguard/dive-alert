@@ -1013,10 +1013,20 @@ def http_get(url: str, timeout: int = 25) -> str:
 class Sources:
     """Live or fixture-backed raw responses. Raw text in, parsing downstream."""
 
+    # A dead host must not be re-dialed fifteen times. CoastWatch outages made
+    # a run take 18 minutes instead of 3 — every zone waiting out the same
+    # timeouts (sst 2x30s + chla 2x20s + kd490 30s, each zone, all doomed).
+    # After this many consecutive failures the host is declared down FOR THIS
+    # RUN and later zones fail instantly. Per-process only: the next run dials
+    # again, and each zone still records its own failure, so the source
+    # sentinel and confidence math see exactly what they saw before.
+    HOST_FAIL_LIMIT = 2
+
     def __init__(self, offline=False, fixture_set="normal"):
         self.offline = offline
         self.dir = os.path.join(FIXTURES, fixture_set)
         self.recorded = {}
+        self.host_fails = {}
 
     def get(self, key: str, url: str, timeout: int = 25) -> str:
         if self.offline:
@@ -1027,7 +1037,16 @@ class Sources:
                     with open(p) as f:
                         return f.read()
             raise FileNotFoundError("fixture missing: %s (%s)" % (key, path))
-        body = http_get(url, timeout)
+        host = urllib.parse.urlsplit(url).netloc
+        if self.host_fails.get(host, 0) >= self.HOST_FAIL_LIMIT:
+            raise OSError("%s declared down for this run after %d failures"
+                          % (host, self.host_fails[host]))
+        try:
+            body = http_get(url, timeout)
+        except Exception:
+            self.host_fails[host] = self.host_fails.get(host, 0) + 1
+            raise
+        self.host_fails[host] = 0
         self.recorded[key] = body
         return body
 
@@ -4760,6 +4779,42 @@ def cmd_test(args):
     check("(nn) a dropped column keeps its old values",
           back2[1]["c"] == "5" and back2[2]["a"] == "6", str(back2[-2:]))
     os.remove(lp)
+
+    # (oo) THE DEAD-HOST BREAKER: one outage must not cost fifteen zones'
+    # worth of timeouts. After HOST_FAIL_LIMIT failures a host is down for
+    # the run; a live host is never tripped, and recovery resets the count.
+    class _CountingSrc(Sources):
+        def __init__(self, fail):
+            Sources.__init__(self, offline=False)
+            self.calls, self._fail = 0, fail
+
+    _oh = globals()["http_get"]
+    try:
+        s_oo = _CountingSrc(True)
+        calls = {"n": 0}
+
+        def _counted(url, timeout=25):
+            calls["n"] += 1
+            raise OSError("unreachable")
+        globals()["http_get"] = _counted
+        attempts = 0
+        for _ in range(15):        # fifteen zones asking the same dead host
+            try:
+                s_oo.get("sst", "https://coastwatch.example/x", timeout=1)
+            except Exception:
+                attempts += 1
+        check("(oo) every zone still sees a failure", attempts == 15)
+        check("(oo) but the dead host is dialed only %d times" % Sources.HOST_FAIL_LIMIT,
+              calls["n"] == Sources.HOST_FAIL_LIMIT, "dialed %d" % calls["n"])
+        # a different host is unaffected by its neighbour's outage
+        calls["n"] = 0
+        globals()["http_get"] = lambda url, timeout=25: "ok"
+        s_oo.host_fails.clear()
+        for _ in range(4):
+            s_oo.get("marine", "https://api.open-meteo.com/v1/marine", timeout=1)
+        check("(oo) a healthy host is never tripped", s_oo.host_fails.get("api.open-meteo.com") == 0)
+    finally:
+        globals()["http_get"] = _oh
 
     # fixture suite: degraded + disagreement
     print("fixture tests:")
