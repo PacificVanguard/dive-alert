@@ -1513,13 +1513,14 @@ def buoy_anchor(fetches, t_now):
     """Rolling correction of the model against the zone's own buoy: median of
     obs/model height over the last 48h of matched hours. The casting scale
     says how this GEOGRAPHY differs from the model; the anchor says how THIS
-    WEEK'S SWELL differs. Clamped hard (0.6-1.6) and defaulting to 1.0 on any
-    doubt — a correction must never be able to do more damage than the error
-    it corrects. Absent from hindcasts by necessity (no archived realtime
-    buoy): a live-accuracy layer, centered on 1.0 by construction."""
+    WEEK'S SWELL differs. Clamped hard (0.6-1.6); returns None on any doubt —
+    a correction must never be able to do more damage than the error it
+    corrects, and "no measurement" must stay distinguishable from "measured
+    1.0" (the two consumers scale differently). Absent from hindcasts by
+    necessity (no archived realtime buoy): a live-accuracy layer."""
     mp, ma = fetches.get("ndbc_primary"), fetches.get("marine")
     if not (mp and mp.ok and ma and ma.ok):
-        return 1.0
+        return None
     model = ma.data.get("wave_height", {})
     ratios = []
     for r in mp.data.get("rows", []):
@@ -1536,13 +1537,26 @@ def buoy_anchor(fetches, t_now):
             # this ratio is 1.0 when the already-scaled model matches the buoy)
             ratios.append(r["wvht_m"] / (mv * CONFIG["scoring"]["model_height_scale"]))
     if len(ratios) < 12:
-        return 1.0
+        return None
     ratios.sort()
     return round(max(0.6, min(1.6, ratios[len(ratios) // 2])), 3)
 
 
-def compute_features(w, fetches, zone_cfg, t_now, anchor=1.0):
+def compute_features(w, fetches, zone_cfg, t_now, anchor=None):
+    """`anchor` is buoy_anchor()'s RESIDUAL correction — obs / (raw_model *
+    model_height_scale) — or None when no live buoy measurement exists.
+
+    The two consumers of the anchor scale differently, which is easy to get
+    wrong (and was, for one commit on 2026-09-14): swell_damage applies
+    model_height_scale itself, so it wants the residual; the turbidity term
+    below never applied the static scale at all, so it wants the FULL ratio
+    (obs/raw) — residual * static. Feeding the residual to both silently cut
+    turbidity energy ~22% and inflated anchored scores ~0.7. With no
+    measurement, BOTH stay at 1.0 — never 1.13 — so hindcasts and castings
+    keep the calibration they were fit against."""
     fc = CONFIG["features"]
+    anchor_dmg = 1.0 if anchor is None else anchor
+    anchor_turb = 1.0 if anchor is None else anchor * CONFIG["scoring"]["model_height_scale"]
     marine = fetches["marine"].data if fetches["marine"].ok else {}
     wx = fetches["weather"].data if fetches["weather"].ok else {}
     wind = wx.get("wind_speed_10m", {})
@@ -1564,7 +1578,7 @@ def compute_features(w, fetches, zone_cfg, t_now, anchor=1.0):
             h, p = swell_series.get(t), swell_per.get(t)
             if h is not None and p is not None:
                 age = (t0h - t).total_seconds() / 3600.0
-                hs = m_to_ft(h) * zone_cfg.get("marine_height_scale", 1.0) * anchor
+                hs = m_to_ft(h) * zone_cfg.get("marine_height_scale", 1.0) * anchor_turb
                 total += (0.5 ** (age / fc["swell_half_life_h"])) * (hs ** 2) * p
             t += timedelta(hours=1)
         return total
@@ -1583,7 +1597,7 @@ def compute_features(w, fetches, zone_cfg, t_now, anchor=1.0):
         dry = 0.0   # it is raining on the dive itself
     dmg, dmg_parts = swell_damage(marine, w, zone_cfg["exposure"],
                                   zone_cfg.get("cove_damage_factor", 1.0),
-                                  zone_cfg.get("marine_height_scale", 1.0) * anchor)
+                                  zone_cfg.get("marine_height_scale", 1.0) * anchor_dmg)
     # window wind/cloud need EVERY hour of a 2-3h window — one lucky sample
     # cannot certify glass or sun (audit repair, same date)
     wind_in_window = [wind.get(t) for t in win_hrs]
@@ -1607,7 +1621,7 @@ def compute_features(w, fetches, zone_cfg, t_now, anchor=1.0):
         "tide_range_ft": trange,
         "month": w["start"].month,
         "first_flush_months": zone_cfg.get("first_flush_months"),
-        "buoy_anchor": anchor,
+        "buoy_anchor": anchor_dmg,
         "obs_frac": (obs_fraction(w["start"], fc["wind_lookback_h"], t_now)
                      + obs_fraction(w["start"], fc["swell_lookback_h"], t_now)) / 2.0,
         "missing": [k for k, f in fetches.items() if not f.ok],
@@ -2860,6 +2874,9 @@ LOG_COLS = ["run_ts", "zone", "window_key", "window_start", "window_kind", "lead
             "score", "cap_reason", "confidence", "completeness", "agreement",
             "damage", "swell_hgt_ft", "swell_per_s", "swell_dir",
             "wind_energy_48h", "swell_energy_72h", "dry_hours", "wind_window_max_kn",
+            # both winds: the hard cap reads RAW, the score reads EFFECTIVE —
+            # logging one made the cap decision unauditable after the fact
+            "wind_window_eff_kn",
             "obs_frac", "cloud_pct", "sst_c", "chla_mg_m3", "kd490_m1",
             "perfect_gate", "best_entries", "alerted", "flags"]
 
@@ -2880,10 +2897,37 @@ def save_state(state, dry_run):
 
 
 def append_log(path, cols, rows, dry_run):
+    """Append rows, self-healing when the column set has changed.
+
+    The header is written only for a NEW file, so adding a column to an
+    existing log used to append N+1 values under an N-column header — every
+    later row silently misaligned, and CSV gives no error. Any schema change
+    now triggers a one-time rewrite that preserves old rows (missing fields
+    blank) before appending. Costly exactly once per schema change."""
     if dry_run:
         return
     os.makedirs(DATA, exist_ok=True)
     new = not os.path.exists(path)
+    if not new:
+        try:
+            with open(path, newline="") as f:
+                old_cols = next(csv.reader(f), None)
+        except OSError:
+            old_cols = None
+        if old_cols and old_cols != list(cols):
+            merged = list(cols) + [c for c in old_cols if c not in cols]
+            old_rows = _read_csv(path)
+            tmp = path + ".migrating"
+            with open(tmp, "w", newline="") as f:
+                wr = csv.DictWriter(f, fieldnames=merged, extrasaction="ignore")
+                wr.writeheader()
+                for r in old_rows:
+                    wr.writerow(r)
+            os.replace(tmp, path)
+            print("migrated %s: %d rows, columns %d -> %d"
+                  % (os.path.basename(path), len(old_rows), len(old_cols), len(merged)),
+                  file=sys.stderr)
+            cols = merged
     with open(path, "a", newline="") as f:
         wr = csv.DictWriter(f, fieldnames=cols, extrasaction="ignore")
         if new:
@@ -3013,6 +3057,7 @@ def cmd_run(args):
                 "swell_energy_72h": round(s["feats"]["swell_energy_72h"], 0) if s["feats"]["swell_energy_72h"] is not None else "",
                 "dry_hours": round(s["feats"]["dry_hours"], 0) if s["feats"]["dry_hours"] is not None else "",
                 "wind_window_max_kn": round(s["feats"]["wind_window_max_kn"], 1) if s["feats"]["wind_window_max_kn"] is not None else "",
+                "wind_window_eff_kn": round(s["feats"]["wind_window_eff_kn"], 1) if s["feats"].get("wind_window_eff_kn") is not None else "",
                 "obs_frac": round(s["feats"]["obs_frac"], 2),
                 "cloud_pct": round(s["feats"]["cloud_pct"]) if s["feats"].get("cloud_pct") is not None else "",
                 "sst_c": sst if sst is not None else "", "chla_mg_m3": chla if chla is not None else "",
@@ -4316,12 +4361,42 @@ def cmd_test(args):
                                  {"rows": rows_9, "station": "46253", "latest": rows_9[0]})
     check("(ee2) wild ratios clamp at 1.6", buoy_anchor(f_an, t0) == 1.6)
     f_an["ndbc_primary"] = Fetch("ndbc_primary", False, error="gone")
-    check("(ee3) no buoy -> anchor 1.0", buoy_anchor(f_an, t0) == 1.0)
+    check("(ee3) no buoy -> no measurement (None, not 1.0)",
+          buoy_anchor(f_an, t0) is None)
     ft_a = compute_features(w, _mk_fetches(t0, swell_ft=2.0, per_s=12, dir_deg=200), zc, t0, 1.3)
-    ft_b = compute_features(w, _mk_fetches(t0, swell_ft=2.0, per_s=12, dir_deg=200), zc, t0, 1.0)
+    ft_b = compute_features(w, _mk_fetches(t0, swell_ft=2.0, per_s=12, dir_deg=200), zc, t0, None)
     check("(ee4) anchored damage scales ~1.69x",
           1.6 <= ft_a["damage"] / ft_b["damage"] <= 1.8,
           "ratio=%.2f" % (ft_a["damage"] / ft_b["damage"]))
+
+    # (ee5) THE TWO CONSUMERS AGREE: swell_damage applies model_height_scale
+    # itself and wants the RESIDUAL; the turbidity term never applies it and
+    # wants the FULL ratio. Feeding one value to both silently cut turbidity
+    # ~22% and inflated anchored scores ~0.7 (regression, 2026-09-14). Both
+    # must end at the same effective height correction — and at exactly 1.0
+    # when nothing was measured, or every casting is invalidated.
+    # The two paths have different BASELINES (turbidity never applied the
+    # static scale), so compare how each RESPONDS to the same measurement:
+    # a buoy saying "1.3x the model" must move both by 1.3^2, or one consumer
+    # is scaling differently from the other.
+    _static = CONFIG["scoring"]["model_height_scale"]
+    _mk = lambda: _mk_fetches(t0, swell_ft=2.0, per_s=12, dir_deg=200, wind_kn=5)
+    ft_13 = compute_features(w, _mk(), zc, t0, 1.3 / _static)   # measured: obs = 1.3x raw
+    ft_10 = compute_features(w, _mk(), zc, t0, 1.0 / _static)   # measured: model exactly right
+    dmg_ratio = ft_13["damage"] / ft_10["damage"]
+    turb_ratio = ft_13["swell_energy_72h"] / ft_10["swell_energy_72h"]
+    check("(ee5) damage and turbidity answer a measurement identically",
+          abs(dmg_ratio - turb_ratio) / dmg_ratio < 0.02,
+          "damage x%.3f vs turbidity x%.3f" % (dmg_ratio, turb_ratio))
+    check("(ee5) and both by 1.3^2, as the buoy said",
+          abs(turb_ratio - 1.3 ** 2) < 0.06 and abs(dmg_ratio - 1.3 ** 2) < 0.06,
+          "dmg x%.3f turb x%.3f" % (dmg_ratio, turb_ratio))
+    ft_none = compute_features(w, _mk(), zc, t0, None)
+    ft_one = compute_features(w, _mk(), zc, t0, 1.0)
+    check("(ee5) no measurement never inflates turbidity by the static scale",
+          abs(ft_none["swell_energy_72h"] - ft_one["swell_energy_72h"] / _static ** 2)
+          < 0.01 * ft_none["swell_energy_72h"],
+          "none=%.0f one=%.0f" % (ft_none["swell_energy_72h"], ft_one["swell_energy_72h"]))
 
     # (ff) SMS layer: quiet hours by the bell's clock; keywords name bells;
     # no env means no sends, ever.
@@ -4662,6 +4737,29 @@ def cmd_test(args):
     hr = gate_hold_rates(lr)
     check("(mm3) hold-rate: near bucket 1/1, far 1/2, ungraded dropped",
           hr.get("24-72h") == (1, 1) and hr.get(">72h") == (2, 1), str(hr))
+
+    # (nn) THE SCHEMA LANDMINE: append_log wrote a header only for NEW files,
+    # so adding a column appended N+1 values under an N-column header and
+    # every later row read back shifted — silently, forever. A schema change
+    # must migrate, never misalign.
+    import tempfile
+    lp = os.path.join(tempfile.gettempdir(), "append_log_drill.csv")
+    if os.path.exists(lp):
+        os.remove(lp)
+    append_log(lp, ["a", "b"], [{"a": "1", "b": "2"}], dry_run=False)
+    append_log(lp, ["a", "b", "c"], [{"a": "3", "b": "4", "c": "5"}], dry_run=False)
+    back = _read_csv(lp)
+    check("(nn) old rows survive a column addition",
+          back[0]["a"] == "1" and back[0]["b"] == "2" and back[0].get("c", "") == "",
+          str(back[0]))
+    check("(nn) new rows land in the right columns",
+          back[1]["a"] == "3" and back[1]["c"] == "5", str(back[1]))
+    # a removed column must not silently drop its history either
+    append_log(lp, ["a"], [{"a": "6"}], dry_run=False)
+    back2 = _read_csv(lp)
+    check("(nn) a dropped column keeps its old values",
+          back2[1]["c"] == "5" and back2[2]["a"] == "6", str(back2[-2:]))
+    os.remove(lp)
 
     # fixture suite: degraded + disagreement
     print("fixture tests:")
