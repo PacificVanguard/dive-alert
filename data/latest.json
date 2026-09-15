@@ -1,26 +1,13 @@
 {
- "updated": "2026-09-14T14:00:00-07:00",
+ "updated": "2026-09-14T18:00:00-07:00",
  "zone": "A",
  "sst_f": 74,
  "windows": [
   {
-   "label": "Mon dusk",
-   "start": "2026-09-14T17:30:00-07:00",
-   "kind": "dusk",
-   "score": 4.5,
-   "conf": "medium",
-   "limit": "swell",
-   "entries": [
-    "Shaw's Cove",
-    "Divers Cove"
-   ],
-   "gate": false
-  },
-  {
    "label": "Tue dawn",
-   "start": "2026-09-15T05:30:00-07:00",
+   "start": "2026-09-15T06:04:00-07:00",
    "kind": "dawn",
-   "score": 5.4,
+   "score": 5.1,
    "conf": "medium",
    "limit": "swell",
    "entries": [
@@ -31,9 +18,9 @@
   },
   {
    "label": "Tue dusk",
-   "start": "2026-09-15T17:30:00-07:00",
+   "start": "2026-09-15T16:57:00-07:00",
    "kind": "dusk",
-   "score": 5.9,
+   "score": 6.0,
    "conf": "medium",
    "limit": "swell",
    "entries": [
@@ -44,11 +31,11 @@
   },
   {
    "label": "Wed dawn",
-   "start": "2026-09-16T05:30:00-07:00",
+   "start": "2026-09-16T06:05:00-07:00",
    "kind": "dawn",
-   "score": 7.9,
+   "score": 7.7,
    "conf": "medium",
-   "limit": "stirred up",
+   "limit": "grey",
    "entries": [
     "Fisherman's Cove",
     "Shaw's Cove"
@@ -57,23 +44,36 @@
   },
   {
    "label": "Wed dusk",
-   "start": "2026-09-16T17:30:00-07:00",
+   "start": "2026-09-16T16:55:00-07:00",
    "kind": "dusk",
-   "score": 6.1,
-   "conf": "low",
+   "score": 6.8,
+   "conf": "medium",
    "limit": "swell",
    "entries": [
-    "Shaw's Cove",
-    "Divers Cove"
+    "Fisherman's Cove",
+    "Shaw's Cove"
    ],
    "gate": false
   },
   {
    "label": "Thu dawn",
-   "start": "2026-09-17T05:30:00-07:00",
+   "start": "2026-09-17T06:05:00-07:00",
    "kind": "dawn",
-   "score": 5.7,
-   "conf": "low",
+   "score": 6.6,
+   "conf": "medium",
+   "limit": "swell",
+   "entries": [
+    "Fisherman's Cove",
+    "Shaw's Cove"
+   ],
+   "gate": false
+  },
+  {
+   "label": "Thu dusk",
+   "start": "2026-09-17T16:54:00-07:00",
+   "kind": "dusk",
+   "score": 5.8,
+   "conf": "medium",
    "limit": "swell",
    "entries": [
     "Fisherman's Cove",
