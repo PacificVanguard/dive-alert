@@ -2894,6 +2894,38 @@ def cmd_smscheck(args):
           % (good, bad, sum(out.values()) - good - bad))
 
 
+# A gate seen once is a flicker; a gate seen twice running is a promise.
+# Measured: only ~27% of gates promised at 24-72h lead survive to the morning
+# (gate_hold_rates, n=81). Wed 2026-09-16 is the case in point — the gate was
+# open for a single hour at 42h lead, a text went out, and the morning came in
+# at 7.3. The physical conjunction is still recorded honestly as gate_raw; what
+# needs confirming is the PROMISE, because a promise is what costs a drive.
+GATE_CONFIRM_RUNS = 2
+
+
+def confirm_gates(zone_key, scored, state):
+    """Promote a window's gate only once it has held across consecutive runs.
+
+    Mutates each scored window: gate_raw keeps the physical answer, gate
+    becomes the ring-worthy one. A single failing run resets the count — the
+    axes must hold together, not merely visit."""
+    seen = state.setdefault("gate_streak", {}).setdefault(zone_key, {})
+    live = set()
+    for s in scored:
+        k = s["w"]["key"]
+        live.add(k)
+        s["gate_raw"] = bool(s.get("gate"))
+        if s["gate_raw"]:
+            seen[k] = seen.get(k, 0) + 1
+        else:
+            seen.pop(k, None)
+        s["gate"] = s["gate_raw"] and seen.get(k, 0) >= GATE_CONFIRM_RUNS
+    for k in list(seen):          # windows that have fallen off the horizon
+        if k not in live:
+            seen.pop(k, None)
+    return scored
+
+
 def capability_sentinel(state, blind_axes_by_zone):
     """The lesson of the 403s: every component can degrade 'as designed' and
     the composition still lobotomizes the fleet — SST dead + warm-fails-closed
@@ -2958,7 +2990,10 @@ LOG_COLS = ["run_ts", "zone", "window_key", "window_start", "window_kind", "lead
             # logging one made the cap decision unauditable after the fact
             "wind_window_eff_kn",
             "obs_frac", "cloud_pct", "sst_c", "chla_mg_m3", "kd490_m1",
-            "perfect_gate", "best_entries", "alerted", "flags"]
+            # perfect_gate stays the PHYSICAL answer (so gate_hold_rates keeps
+            # grading the same quantity across the change); rang records what
+            # the bell was actually willing to promise
+            "perfect_gate", "rang", "best_entries", "alerted", "flags"]
 
 
 def load_state():
@@ -3113,6 +3148,8 @@ def cmd_run(args):
             continue
         horizon = 24 * CONFIG["alerting"]["digest_days"] if args.weekly else 72
         scored = score_zone(zk, zc, fetches, t_now, horizon, skill_corr=skill_corr)
+        # only a gate that has held across runs may ring
+        confirm_gates(zk, scored, state)
         sst = zone_sst(fetches, t_now)
         if scored:
             blind_map[zk] = gate_axis_blindness(scored[0]["feats"], sst)
@@ -3143,6 +3180,7 @@ def cmd_run(args):
                 "sst_c": sst if sst is not None else "", "chla_mg_m3": chla if chla is not None else "",
                 "kd490_m1": s["feats"].get("kd490") if s["feats"].get("kd490") is not None else "",
                 "perfect_gate": "PASS" if perfect_gate(s["feats"], s["score"], sst, zc)[0] else "",
+                "rang": "RING" if s.get("gate") else "",
                 "best_entries": " / ".join(s["entries"]), "alerted": "",
                 "flags": "; ".join(s["flags"])})
         all_scored += scored
@@ -3251,7 +3289,11 @@ def cmd_run(args):
                          "score": s["score"], "conf": s["conf"],
                          "limit": s.get("limit"),
                          "entries": s["entries"][:2],
-                         "gate": bool(s.get("gate"))} for s in scored],
+                         "gate": bool(s.get("gate")),
+                         # every axis aligned this run, whether or not it has
+                         # held long enough to be worth a promise
+                         "aligned": bool(s.get("gate_raw", s.get("gate")))}
+                        for s in scored],
         }
 
     # THE SHARE CARDS: a tiny page per bell whose OpenGraph tags carry the
@@ -4552,6 +4594,11 @@ def cmd_test(args):
                                    "min_dry_hours": 0, "max_cloud_pct": 100,
                                    "min_sst_c": -99, "min_score": 1.0})
     CONFIG["alerting"]["threshold"] = 1.0
+    # the two-run confirmation is drilled on its own (pp); here it is set to 1
+    # so this drill keeps exercising the RING PATH in a single cmd_run — a
+    # confirmation rule must never quietly retire the drill it gates
+    g_conf = globals()["GATE_CONFIRM_RUNS"]
+    globals()["GATE_CONFIRM_RUNS"] = 1
     try:
         try:
             cmd_run(_A2()); rc = None
@@ -4561,6 +4608,7 @@ def cmd_test(args):
             rc = e
         check("(gg2) ring path survives end to end", rc is None, "raised %r" % rc)
     finally:
+        globals()["GATE_CONFIRM_RUNS"] = g_conf
         CONFIG["perfect_gate"].clear(); CONFIG["perfect_gate"].update(old_gate)
         CONFIG["alerting"]["threshold"] = old_thresh2
 
@@ -4876,6 +4924,35 @@ def cmd_test(args):
         check("(oo) a healthy host is never tripped", s_oo.host_fails.get("api.open-meteo.com") == 0)
     finally:
         globals()["http_get"] = _oh
+
+    # (pp) THE FLICKER RULE: a gate must hold across runs before it rings.
+    # Wed 2026-09-16 opened its gate for one hour at 42h lead, texted, and
+    # came in at 7.3. One sighting is weather noise; two is a promise.
+    def _sc(key, gate):
+        return {"w": {"key": key, "start": t0 + timedelta(hours=30),
+                      "label": "Wed dawn", "kind": "dawn"}, "gate": gate}
+    st_p = {}
+    r1 = confirm_gates("A", [_sc("w1", True)], st_p)
+    check("(pp) first sighting does not ring",
+          r1[0]["gate"] is False and r1[0]["gate_raw"] is True, str(r1[0]["gate"]))
+    r2 = confirm_gates("A", [_sc("w1", True)], st_p)
+    check("(pp) second consecutive sighting rings", r2[0]["gate"] is True)
+    r3 = confirm_gates("A", [_sc("w1", False)], st_p)
+    check("(pp) a failing run withdraws it", r3[0]["gate"] is False
+          and "w1" not in st_p["gate_streak"]["A"])
+    r4 = confirm_gates("A", [_sc("w1", True)], st_p)
+    check("(pp) and the count starts over — no ringing on the rebound",
+          r4[0]["gate"] is False, "streak=%s" % st_p["gate_streak"]["A"].get("w1"))
+    # the Sept 14 flicker, replayed: PASS then FAIL an hour later => silence
+    st_f = {}
+    flick = [confirm_gates("A", [_sc("wed", True)], st_f)[0]["gate"],
+             confirm_gates("A", [_sc("wed", False)], st_f)[0]["gate"]]
+    check("(pp) the 2026-09-16 flicker would have stayed silent",
+          flick == [False, False], str(flick))
+    # windows that fall off the horizon must not accumulate forever
+    confirm_gates("A", [_sc("later", True)], st_f)
+    check("(pp) departed windows are forgotten",
+          set(st_f["gate_streak"]["A"]) == {"later"}, str(st_f["gate_streak"]["A"]))
 
     # fixture suite: degraded + disagreement
     print("fixture tests:")

@@ -40,6 +40,22 @@ message history IS the subscriber database — zero PII in this repo.
 - **Second voice**: ECMWF wave model fetched alongside best_match;
   disagreement dents confidence, and it substitutes (marked, capped) when
   the primary dies.
+- **Flicker rule**: a gate must hold across `GATE_CONFIRM_RUNS` (2)
+  consecutive runs before it rings. `gate_raw` / the feed's `aligned` keep
+  the physical answer; `gate` is the promise. Only ~27% of gates seen at
+  24-72h lead survive to the morning, and Wed 2026-09-16 opened for a single
+  hour, texted, and came in at 7.3. Any failing run resets the count.
+  If you ever need the ring path in one run (drills), set GATE_CONFIRM_RUNS
+  to 1 around it — never delete the rule.
+
+## Is the bell actually texting?
+
+`smscheck` (workflow, manual) asks Twilio for real outbound STATUS and
+carrier error codes — statuses only, never numbers, because this repo's
+logs are public. Use it whenever someone says "no texts": our own logs
+count a 201 as delivery, and acceptance is not arrival. Also check the
+Weekly digest step still carries the TWILIO_* secrets — it silently
+shipped without them once, so DIGEST could never send.
 
 ## When things break (it will be one of these)
 
