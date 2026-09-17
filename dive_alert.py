@@ -1021,12 +1021,17 @@ class Sources:
     # again, and each zone still records its own failure, so the source
     # sentinel and confidence math see exactly what they saw before.
     HOST_FAIL_LIMIT = 2
+    # SHARED across every Sources in the process. fetch_all builds a fresh
+    # Sources per zone, so a per-instance ledger reset fifteen times and a
+    # dead host was still dialed twice per zone — chla alone cost 2×20s×15
+    # = 10 minutes on 2026-09-17. One run, one ledger.
+    _HOST_FAILS = {}
 
     def __init__(self, offline=False, fixture_set="normal"):
         self.offline = offline
         self.dir = os.path.join(FIXTURES, fixture_set)
         self.recorded = {}
-        self.host_fails = {}
+        self.host_fails = Sources._HOST_FAILS
 
     def get(self, key: str, url: str, timeout: int = 25) -> str:
         if self.offline:
@@ -4906,24 +4911,27 @@ def cmd_test(args):
             calls["n"] += 1
             raise OSError("unreachable")
         globals()["http_get"] = _counted
+        Sources._HOST_FAILS.clear()
         attempts = 0
-        for _ in range(15):        # fifteen zones asking the same dead host
+        # fifteen zones, each with its OWN Sources — exactly how fetch_all
+        # works, and exactly how the first breaker silently reset itself
+        for _ in range(15):
             try:
-                s_oo.get("sst", "https://coastwatch.example/x", timeout=1)
+                _CountingSrc(True).get("sst", "https://coastwatch.example/x", timeout=1)
             except Exception:
                 attempts += 1
         check("(oo) every zone still sees a failure", attempts == 15)
-        check("(oo) but the dead host is dialed only %d times" % Sources.HOST_FAIL_LIMIT,
+        check("(oo) but the dead host is dialed only %d times ACROSS zones" % Sources.HOST_FAIL_LIMIT,
               calls["n"] == Sources.HOST_FAIL_LIMIT, "dialed %d" % calls["n"])
         # a different host is unaffected by its neighbour's outage
         calls["n"] = 0
         globals()["http_get"] = lambda url, timeout=25: "ok"
-        s_oo.host_fails.clear()
         for _ in range(4):
             s_oo.get("marine", "https://api.open-meteo.com/v1/marine", timeout=1)
         check("(oo) a healthy host is never tripped", s_oo.host_fails.get("api.open-meteo.com") == 0)
     finally:
         globals()["http_get"] = _oh
+        Sources._HOST_FAILS.clear()   # never leak a tripped host into later tests
 
     # (pp) THE FLICKER RULE: a gate must hold across runs before it rings.
     # Wed 2026-09-16 opened its gate for one hour at 42h lead, texted, and
