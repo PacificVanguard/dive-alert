@@ -72,6 +72,12 @@ jobs:
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
           HEALTHCHECKS_URL: ${{ secrets.HEALTHCHECKS_URL }}
+          # the Wednesday reading is the ONE run that owes DIGEST texts, and
+          # it was the one run with no Twilio credentials — sms_digest could
+          # never send a single message (found 2026-09-17)
+          TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
+          TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
+          TWILIO_FROM: ${{ secrets.TWILIO_FROM }}
         run: python dive_alert.py run --weekly
 
       - name: Ingest feedback only

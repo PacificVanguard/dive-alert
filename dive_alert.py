@@ -2632,6 +2632,10 @@ def sms_ring(zone_key, zone_cfg, payload, state, dry_run):
         return
     subs = sms_subscribers().get(zone_key, [])
     if not subs:
+        # say so: an empty subscriber list and a successful send used to look
+        # identical in the logs (both silent), which cost three rounds of
+        # "still no texts" to tell apart
+        print("sms ring (%s): nobody on this bell — no text owed" % zone_key)
         sent[zone_key] = wkey
         state.setdefault("sms_ring_due", {}).pop(zone_key, None)
         return
@@ -2831,6 +2835,63 @@ def sms_digest(zone_key, zone_cfg, scored, state, dry_run, weekly=False):
             print("sms digest to %s… failed: %s" % (num[:6], str(e)[:60]), file=sys.stderr)
     print("sms digest (%s): %d/%d sent%s" % (zone_key, ok, len(subs),
                                              " [dry]" if dry_run else ""))
+
+
+def cmd_smscheck(args):
+    """What actually happened to the texts the bell believes it sent.
+
+    sms_ring counts a 201 from Twilio as 'delivered', but acceptance is not
+    arrival: a toll-free message can be accepted and then fail at the carrier
+    (unverified sender, filtering, landline). Nothing ever read the status
+    back, so a silent total delivery failure looked identical to success in
+    every log we keep. This reads the real outcome.
+
+    Prints STATUS AND ERROR CODES ONLY — never a subscriber's number. The
+    repo and its Actions logs are public."""
+    env = _twilio_env()
+    if not env:
+        print("no Twilio secrets in this environment — nothing to check")
+        return
+    sid, tok, frm = env
+    import collections
+    out, inb = collections.Counter(), 0
+    errs, recent = collections.Counter(), []
+    for direction, bucket in (("From", "out"), ("To", "in")):
+        page = "Messages.json?" + urllib.parse.urlencode({direction: frm, "PageSize": 200})
+        try:
+            d = _twilio_req(page, sid, tok)
+        except Exception as e:
+            print("%s lookup failed: %s" % (bucket, str(e)[:80]))
+            continue
+        for m in d.get("messages", []):
+            if bucket == "in":
+                inb += 1
+                continue
+            st = m.get("status") or "?"
+            out[st] += 1
+            code = m.get("error_code")
+            if code:
+                errs["%s (%s)" % (code, (m.get("error_message") or "")[:60])] += 1
+            if len(recent) < 12:
+                recent.append((m.get("date_sent") or m.get("date_created") or "",
+                               st, code or "", (m.get("body") or "")[:28]))
+    print("INBOUND to the bell (subscribers' texts): %d" % inb)
+    print("OUTBOUND from the bell, by status:")
+    for st, n in out.most_common():
+        print("  %-14s %d" % (st, n))
+    if errs:
+        print("CARRIER ERRORS:")
+        for e, n in errs.most_common():
+            print("  x%-3d %s" % (n, e))
+    else:
+        print("CARRIER ERRORS: none reported")
+    print("\nmost recent outbound (number withheld — public log):")
+    for dt, st, code, body in recent:
+        print("  %-30s %-12s %-7s %s" % (dt[:30], st, code, body))
+    bad = sum(n for s, n in out.items() if s in ("undelivered", "failed"))
+    good = sum(n for s, n in out.items() if s in ("delivered", "sent"))
+    print("\nVERDICT: %d arrived, %d failed at the carrier, %d still queued"
+          % (good, bad, sum(out.values()) - good - bad))
 
 
 def capability_sentinel(state, blind_axes_by_zone):
@@ -4883,6 +4944,7 @@ def main():
     p_skill.add_argument("--notify", action="store_true")
     sub.add_parser("ingest")
     sub.add_parser("share")
+    sub.add_parser("smscheck")
     p_setup = sub.add_parser("setup")
     p_setup.add_argument("--github", action="store_true")
     p_setup.add_argument("--topic", default=None)
@@ -4925,6 +4987,8 @@ def main():
         cmd_setup(args)
     elif args.cmd == "share":
         cmd_share(args)
+    elif args.cmd == "smscheck":
+        cmd_smscheck(args)
     elif args.cmd == "ingest":
         state = load_state()
         ingest_feedback(state, dry_run=False)
