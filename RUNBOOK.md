@@ -48,6 +48,16 @@ message history IS the subscriber database — zero PII in this repo.
   If you ever need the ring path in one run (drills), set GATE_CONFIRM_RUNS
   to 1 around it — never delete the rule.
 
+## The SMS vocabulary (keep it to two words)
+
+A diver needs their WATER to join and WEEK to ask. Everything else is
+revealed only when relevant: joining includes the Wednesday reading
+(`sms_digest_optins`: silence means yes); QUIET = rings only; WEEKLY
+brings the reading back (DIGEST is a silent alias); REEF/BUDDY/FINS after
+a dive; STOP/HELP are carrier-mandated. The welcome IS this week's
+reading. If you add a keyword, ask whether it exposes a developer's
+distinction — WEEK vs DIGEST (pull vs push) cost the founder the feature.
+
 ## Is the bell actually texting?
 
 `smscheck` (workflow, manual) asks Twilio for real outbound STATUS and
