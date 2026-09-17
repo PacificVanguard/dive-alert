@@ -1,5 +1,5 @@
 {
- "updated": "2026-09-16T17:00:00-07:00",
+ "updated": "2026-09-17T10:00:00-07:00",
  "sms_live": true,
  "zones": {
   "A": {
@@ -35,61 +35,37 @@
    "sst_f": 74,
    "windows": [
     {
-     "label": "Thu dawn",
-     "start": "2026-09-17T06:05:00-07:00",
-     "kind": "dawn",
-     "score": 6.4,
-     "conf": "medium",
-     "limit": "swell",
-     "entries": [
-      "Fisherman's Cove",
-      "Shaw's Cove"
-     ],
-     "gate": false
-    },
-    {
      "label": "Thu dusk",
      "start": "2026-09-17T16:54:00-07:00",
      "kind": "dusk",
-     "score": 6.6,
+     "score": 5.7,
      "conf": "medium",
      "limit": "swell",
      "entries": [
       "Fisherman's Cove",
       "Shaw's Cove"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Fri dawn",
      "start": "2026-09-18T06:06:00-07:00",
      "kind": "dawn",
-     "score": 6.9,
+     "score": 6.3,
      "conf": "medium",
      "limit": "swell",
      "entries": [
       "Fisherman's Cove",
       "Shaw's Cove"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Fri dusk",
      "start": "2026-09-18T16:52:00-07:00",
      "kind": "dusk",
-     "score": 7.5,
-     "conf": "medium",
-     "limit": "swell",
-     "entries": [
-      "Fisherman's Cove",
-      "Shaw's Cove"
-     ],
-     "gate": false
-    },
-    {
-     "label": "Sat dawn",
-     "start": "2026-09-19T06:07:00-07:00",
-     "kind": "dawn",
      "score": 7.1,
      "conf": "medium",
      "limit": "swell",
@@ -97,20 +73,50 @@
       "Fisherman's Cove",
       "Shaw's Cove"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
-     "label": "Sat dusk",
-     "start": "2026-09-19T16:51:00-07:00",
-     "kind": "dusk",
-     "score": 7.7,
+     "label": "Sat dawn",
+     "start": "2026-09-19T06:07:00-07:00",
+     "kind": "dawn",
+     "score": 7.0,
      "conf": "medium",
      "limit": "swell",
      "entries": [
       "Fisherman's Cove",
       "Shaw's Cove"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
+    },
+    {
+     "label": "Sat dusk",
+     "start": "2026-09-19T16:51:00-07:00",
+     "kind": "dusk",
+     "score": 7.9,
+     "conf": "medium",
+     "limit": "swell",
+     "entries": [
+      "Fisherman's Cove",
+      "Shaw's Cove"
+     ],
+     "gate": false,
+     "aligned": false
+    },
+    {
+     "label": "Sun dawn",
+     "start": "2026-09-20T06:07:00-07:00",
+     "kind": "dawn",
+     "score": 6.0,
+     "conf": "low",
+     "limit": "swell",
+     "entries": [
+      "Fisherman's Cove",
+      "Shaw's Cove"
+     ],
+     "gate": false,
+     "aligned": false
     }
    ]
   },
@@ -126,7 +132,7 @@
    "warm_f": 62,
    "tz": "America/Los_Angeles",
    "record": {
-    "promises": 12,
+    "promises": 13,
     "rings": 7
    },
    "bell": {
@@ -146,82 +152,88 @@
    "sst_f": 74,
    "windows": [
     {
-     "label": "Thu dawn",
-     "start": "2026-09-17T06:05:00-07:00",
-     "kind": "dawn",
-     "score": 5.0,
-     "conf": "medium",
-     "limit": "swell",
-     "entries": [
-      "Dana Point Harbor breakwall (outside)",
-      "Salt Creek"
-     ],
-     "gate": false
-    },
-    {
      "label": "Thu dusk",
      "start": "2026-09-17T16:54:00-07:00",
      "kind": "dusk",
-     "score": 5.1,
+     "score": 4.7,
      "conf": "medium",
      "limit": "swell",
      "entries": [
       "Dana Point Harbor breakwall (outside)",
       "Salt Creek"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Fri dawn",
      "start": "2026-09-18T06:06:00-07:00",
      "kind": "dawn",
-     "score": 6.0,
+     "score": 5.5,
      "conf": "medium",
      "limit": "swell",
      "entries": [
       "Dana Point Harbor breakwall (outside)",
       "Salt Creek"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Fri dusk",
      "start": "2026-09-18T16:52:00-07:00",
      "kind": "dusk",
-     "score": 6.8,
+     "score": 5.9,
      "conf": "medium",
      "limit": "swell",
      "entries": [
       "Dana Point Harbor breakwall (outside)",
       "Salt Creek"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Sat dawn",
      "start": "2026-09-19T06:07:00-07:00",
      "kind": "dawn",
-     "score": 6.6,
+     "score": 7.2,
      "conf": "medium",
      "limit": "swell",
      "entries": [
       "Dana Point Harbor breakwall (outside)",
       "Salt Creek"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Sat dusk",
      "start": "2026-09-19T16:51:00-07:00",
      "kind": "dusk",
-     "score": 7.0,
+     "score": 7.2,
      "conf": "medium",
      "limit": "swell",
      "entries": [
       "Dana Point Harbor breakwall (outside)",
       "Salt Creek"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
+    },
+    {
+     "label": "Sun dawn",
+     "start": "2026-09-20T06:07:00-07:00",
+     "kind": "dawn",
+     "score": 6.4,
+     "conf": "low",
+     "limit": "swell",
+     "entries": [
+      "Dana Point Harbor breakwall (outside)",
+      "Salt Creek"
+     ],
+     "gate": false,
+     "aligned": false
     }
    ]
   },
@@ -254,21 +266,8 @@
    },
    "sms": true,
    "last_ring": null,
-   "sst_f": 73,
+   "sst_f": 74,
    "windows": [
-    {
-     "label": "Thu dawn",
-     "start": "2026-09-17T06:04:00-07:00",
-     "kind": "dawn",
-     "score": 7.1,
-     "conf": "medium",
-     "limit": "swell",
-     "entries": [
-      "La Jolla Cove",
-      "La Jolla Shores (Canyon)"
-     ],
-     "gate": false
-    },
     {
      "label": "Thu dusk",
      "start": "2026-09-17T16:52:00-07:00",
@@ -280,20 +279,22 @@
       "La Jolla Cove",
       "La Jolla Shores (Canyon)"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Fri dawn",
      "start": "2026-09-18T06:04:00-07:00",
      "kind": "dawn",
-     "score": 7.4,
+     "score": 7.2,
      "conf": "medium",
-     "limit": "stirred up",
+     "limit": "swell",
      "entries": [
       "La Jolla Cove",
       "La Jolla Shores (Canyon)"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Fri dusk",
@@ -306,33 +307,50 @@
       "La Jolla Cove",
       "La Jolla Shores (Canyon)"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Sat dawn",
      "start": "2026-09-19T06:05:00-07:00",
      "kind": "dawn",
-     "score": 4.9,
+     "score": 5.8,
      "conf": "medium",
      "limit": "swell",
      "entries": [
       "La Jolla Cove",
       "La Jolla Shores (Canyon)"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Sat dusk",
      "start": "2026-09-19T16:49:00-07:00",
      "kind": "dusk",
-     "score": 5.6,
+     "score": 8.0,
      "conf": "medium",
+     "limit": "stirred up",
+     "entries": [
+      "La Jolla Cove",
+      "La Jolla Shores (Canyon)"
+     ],
+     "gate": false,
+     "aligned": false
+    },
+    {
+     "label": "Sun dawn",
+     "start": "2026-09-20T06:05:00-07:00",
+     "kind": "dawn",
+     "score": 7.0,
+     "conf": "low",
      "limit": "swell",
      "entries": [
       "La Jolla Cove",
       "La Jolla Shores (Canyon)"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     }
    ]
   },
@@ -348,7 +366,7 @@
    "warm_f": 53,
    "tz": "America/Los_Angeles",
    "record": {
-    "promises": 15,
+    "promises": 16,
     "rings": 4
    },
    "bell": {
@@ -365,85 +383,91 @@
    },
    "sms": true,
    "last_ring": "2026-09-10",
-   "sst_f": 62,
+   "sst_f": 61,
    "windows": [
-    {
-     "label": "Wed dusk",
-     "start": "2026-09-16T17:13:00-07:00",
-     "kind": "dusk",
-     "score": 6.2,
-     "conf": "medium",
-     "limit": "swell",
-     "entries": [
-      "Breakwater (San Carlos)",
-      "McAbee Beach"
-     ],
-     "gate": false
-    },
-    {
-     "label": "Thu dawn",
-     "start": "2026-09-17T06:21:00-07:00",
-     "kind": "dawn",
-     "score": 7.4,
-     "conf": "medium",
-     "limit": "swell",
-     "entries": [
-      "Breakwater (San Carlos)",
-      "McAbee Beach"
-     ],
-     "gate": false
-    },
     {
      "label": "Thu dusk",
      "start": "2026-09-17T17:11:00-07:00",
      "kind": "dusk",
-     "score": 8.4,
+     "score": 8.3,
      "conf": "medium",
      "limit": "swell",
      "entries": [
       "McAbee Beach",
       "Breakwater (San Carlos)"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Fri dawn",
      "start": "2026-09-18T06:22:00-07:00",
      "kind": "dawn",
-     "score": 7.9,
+     "score": 7.7,
      "conf": "medium",
      "limit": "grey",
      "entries": [
       "McAbee Beach",
       "Breakwater (San Carlos)"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Fri dusk",
      "start": "2026-09-18T17:10:00-07:00",
      "kind": "dusk",
-     "score": 8.7,
+     "score": 7.6,
      "conf": "medium",
-     "limit": "all clear",
+     "limit": "grey",
      "entries": [
       "McAbee Beach",
       "Breakwater (San Carlos)"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Sat dawn",
      "start": "2026-09-19T06:23:00-07:00",
      "kind": "dawn",
-     "score": 7.7,
+     "score": 7.8,
+     "conf": "medium",
+     "limit": "swell",
+     "entries": [
+      "Breakwater (San Carlos)",
+      "McAbee Beach"
+     ],
+     "gate": false,
+     "aligned": false
+    },
+    {
+     "label": "Sat dusk",
+     "start": "2026-09-19T17:08:00-07:00",
+     "kind": "dusk",
+     "score": 6.6,
      "conf": "low",
      "limit": "swell",
      "entries": [
       "Breakwater (San Carlos)",
       "McAbee Beach"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
+    },
+    {
+     "label": "Sun dawn",
+     "start": "2026-09-20T06:24:00-07:00",
+     "kind": "dawn",
+     "score": 6.9,
+     "conf": "low",
+     "limit": "swell",
+     "entries": [
+      "Breakwater (San Carlos)",
+      "McAbee Beach"
+     ],
+     "gate": false,
+     "aligned": false
     }
    ]
   },
@@ -476,46 +500,35 @@
    },
    "sms": true,
    "last_ring": "2026-09-04",
-   "sst_f": 73,
+   "sst_f": 72,
    "windows": [
-    {
-     "label": "Thu dawn",
-     "start": "2026-09-17T06:08:00-07:00",
-     "kind": "dawn",
-     "score": 6.6,
-     "conf": "medium",
-     "limit": "stirred up",
-     "entries": [
-      "Casino Point Dive Park",
-      "Lover's Cove"
-     ],
-     "gate": false
-    },
     {
      "label": "Thu dusk",
      "start": "2026-09-17T16:56:00-07:00",
      "kind": "dusk",
-     "score": 7.0,
+     "score": 7.5,
      "conf": "medium",
      "limit": "stirred up",
      "entries": [
       "Casino Point Dive Park",
       "Lover's Cove"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Fri dawn",
      "start": "2026-09-18T06:08:00-07:00",
      "kind": "dawn",
-     "score": 6.2,
+     "score": 7.3,
      "conf": "medium",
      "limit": "stirred up",
      "entries": [
       "Casino Point Dive Park",
       "Lover's Cove"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Fri dusk",
@@ -528,33 +541,50 @@
       "Casino Point Dive Park",
       "Lover's Cove"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Sat dawn",
      "start": "2026-09-19T06:09:00-07:00",
      "kind": "dawn",
-     "score": 7.2,
+     "score": 7.7,
      "conf": "medium",
      "limit": "stirred up",
      "entries": [
       "Casino Point Dive Park",
       "Lover's Cove"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Sat dusk",
      "start": "2026-09-19T16:53:00-07:00",
      "kind": "dusk",
-     "score": 7.5,
+     "score": 7.7,
      "conf": "medium",
      "limit": "stirred up",
      "entries": [
       "Casino Point Dive Park",
       "Lover's Cove"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
+    },
+    {
+     "label": "Sun dawn",
+     "start": "2026-09-20T06:10:00-07:00",
+     "kind": "dawn",
+     "score": 6.4,
+     "conf": "low",
+     "limit": "stirred up",
+     "entries": [
+      "Casino Point Dive Park",
+      "Lover's Cove"
+     ],
+     "gate": false,
+     "aligned": false
     }
    ]
   },
@@ -587,33 +617,21 @@
    },
    "sms": true,
    "last_ring": null,
-   "sst_f": 73,
+   "sst_f": 74,
    "windows": [
-    {
-     "label": "Thu dawn",
-     "start": "2026-09-17T06:08:00-07:00",
-     "kind": "dawn",
-     "score": 7.7,
-     "conf": "high",
-     "limit": "grey",
-     "entries": [
-      "Terranea (Old Marineland)",
-      "Christmas Tree Cove"
-     ],
-     "gate": false
-    },
     {
      "label": "Thu dusk",
      "start": "2026-09-17T16:56:00-07:00",
      "kind": "dusk",
-     "score": 7.9,
+     "score": 6.6,
      "conf": "medium",
      "limit": "swell",
      "entries": [
       "Terranea (Old Marineland)",
       "Christmas Tree Cove"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Fri dawn",
@@ -626,46 +644,64 @@
       "Terranea (Old Marineland)",
       "Christmas Tree Cove"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Fri dusk",
      "start": "2026-09-18T16:55:00-07:00",
      "kind": "dusk",
-     "score": 6.8,
+     "score": 6.1,
      "conf": "medium",
      "limit": "swell",
      "entries": [
       "Terranea (Old Marineland)",
       "Christmas Tree Cove"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Sat dawn",
      "start": "2026-09-19T06:09:00-07:00",
      "kind": "dawn",
-     "score": 5.7,
+     "score": 5.9,
      "conf": "medium",
      "limit": "swell",
      "entries": [
       "Terranea (Old Marineland)",
       "Christmas Tree Cove"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Sat dusk",
      "start": "2026-09-19T16:54:00-07:00",
      "kind": "dusk",
-     "score": 6.3,
+     "score": 5.6,
      "conf": "medium",
      "limit": "swell",
      "entries": [
       "Terranea (Old Marineland)",
       "Christmas Tree Cove"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
+    },
+    {
+     "label": "Sun dawn",
+     "start": "2026-09-20T06:10:00-07:00",
+     "kind": "dawn",
+     "score": 4.3,
+     "conf": "low",
+     "limit": "swell",
+     "entries": [
+      "Terranea (Old Marineland)",
+      "Christmas Tree Cove"
+     ],
+     "gate": false,
+     "aligned": false
     }
    ]
   },
@@ -681,7 +717,7 @@
    "warm_f": 53,
    "tz": "America/Los_Angeles",
    "record": {
-    "promises": 11,
+    "promises": 12,
     "rings": 10
    },
    "bell": {
@@ -698,46 +734,21 @@
    },
    "sms": true,
    "last_ring": null,
-   "sst_f": 62,
+   "sst_f": 61,
    "windows": [
-    {
-     "label": "Wed dusk",
-     "start": "2026-09-16T17:13:00-07:00",
-     "kind": "dusk",
-     "score": 4.0,
-     "conf": "medium",
-     "limit": "swell",
-     "entries": [
-      "Whalers Cove",
-      "Bluefish Cove"
-     ],
-     "gate": false
-    },
-    {
-     "label": "Thu dawn",
-     "start": "2026-09-17T06:21:00-07:00",
-     "kind": "dawn",
-     "score": 5.3,
-     "conf": "medium",
-     "limit": "swell",
-     "entries": [
-      "Whalers Cove",
-      "Bluefish Cove"
-     ],
-     "gate": false
-    },
     {
      "label": "Thu dusk",
      "start": "2026-09-17T17:11:00-07:00",
      "kind": "dusk",
-     "score": 6.8,
+     "score": 7.0,
      "conf": "medium",
      "limit": "swell",
      "entries": [
       "Whalers Cove",
       "Bluefish Cove"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Fri dawn",
@@ -750,33 +761,64 @@
       "Whalers Cove",
       "Bluefish Cove"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Fri dusk",
      "start": "2026-09-18T17:10:00-07:00",
      "kind": "dusk",
-     "score": 7.8,
+     "score": 7.3,
      "conf": "medium",
-     "limit": "swell",
+     "limit": "grey",
      "entries": [
       "Whalers Cove",
       "Bluefish Cove"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Sat dawn",
      "start": "2026-09-19T06:23:00-07:00",
      "kind": "dawn",
-     "score": 5.3,
+     "score": 5.2,
      "conf": "medium",
      "limit": "swell",
      "entries": [
       "Whalers Cove",
       "Bluefish Cove"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
+    },
+    {
+     "label": "Sat dusk",
+     "start": "2026-09-19T17:08:00-07:00",
+     "kind": "dusk",
+     "score": 4.7,
+     "conf": "medium",
+     "limit": "swell",
+     "entries": [
+      "Whalers Cove",
+      "Bluefish Cove"
+     ],
+     "gate": false,
+     "aligned": false
+    },
+    {
+     "label": "Sun dawn",
+     "start": "2026-09-20T06:24:00-07:00",
+     "kind": "dawn",
+     "score": 3.9,
+     "conf": "low",
+     "limit": "swell",
+     "entries": [
+      "Whalers Cove",
+      "Bluefish Cove"
+     ],
+     "gate": false,
+     "aligned": false
     }
    ]
   },
@@ -812,82 +854,88 @@
    "sst_f": 71,
    "windows": [
     {
-     "label": "Wed dusk",
-     "start": "2026-09-16T17:05:00-07:00",
-     "kind": "dusk",
-     "score": 4.2,
-     "conf": "medium",
-     "limit": "stirred up",
-     "entries": [
-      "Tajiguas Reef",
-      "Refugio State Beach"
-     ],
-     "gate": false
-    },
-    {
-     "label": "Thu dawn",
-     "start": "2026-09-17T06:14:00-07:00",
-     "kind": "dawn",
-     "score": 3.9,
-     "conf": "medium",
-     "limit": "stirred up",
-     "entries": [
-      "Tajiguas Reef",
-      "Refugio State Beach"
-     ],
-     "gate": false
-    },
-    {
      "label": "Thu dusk",
      "start": "2026-09-17T17:03:00-07:00",
      "kind": "dusk",
-     "score": 2.7,
+     "score": 2.8,
      "conf": "medium",
      "limit": "wind",
      "entries": [
       "Tajiguas Reef",
       "Refugio State Beach"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Fri dawn",
      "start": "2026-09-18T06:15:00-07:00",
      "kind": "dawn",
-     "score": 5.2,
+     "score": 4.5,
      "conf": "medium",
-     "limit": "stirred up",
+     "limit": "swell",
      "entries": [
       "Tajiguas Reef",
       "Refugio State Beach"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Fri dusk",
      "start": "2026-09-18T17:02:00-07:00",
      "kind": "dusk",
-     "score": 3.6,
+     "score": 2.2,
      "conf": "medium",
-     "limit": "swell",
+     "limit": "wind",
      "entries": [
       "Tajiguas Reef",
       "Refugio State Beach"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Sat dawn",
      "start": "2026-09-19T06:16:00-07:00",
      "kind": "dawn",
-     "score": 3.8,
+     "score": 5.0,
      "conf": "medium",
      "limit": "swell",
      "entries": [
       "Tajiguas Reef",
       "Refugio State Beach"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
+    },
+    {
+     "label": "Sat dusk",
+     "start": "2026-09-19T17:01:00-07:00",
+     "kind": "dusk",
+     "score": 2.0,
+     "conf": "medium",
+     "limit": "swell",
+     "entries": [
+      "Tajiguas Reef",
+      "Refugio State Beach"
+     ],
+     "gate": false,
+     "aligned": false
+    },
+    {
+     "label": "Sun dawn",
+     "start": "2026-09-20T06:17:00-07:00",
+     "kind": "dawn",
+     "score": 1.8,
+     "conf": "low",
+     "limit": "swell",
+     "entries": [
+      "Tajiguas Reef",
+      "Refugio State Beach"
+     ],
+     "gate": false,
+     "aligned": false
     }
    ]
   },
@@ -920,46 +968,21 @@
    },
    "sms": true,
    "last_ring": "2026-09-14",
-   "sst_f": 81,
+   "sst_f": 80,
    "windows": [
-    {
-     "label": "Wed dusk",
-     "start": "2026-09-16T16:34:00-10:00",
-     "kind": "dusk",
-     "score": 4.0,
-     "conf": "high",
-     "limit": "rain",
-     "entries": [
-      "Three Tables",
-      "Shark's Cove"
-     ],
-     "gate": false
-    },
-    {
-     "label": "Thu dawn",
-     "start": "2026-09-17T05:49:00-10:00",
-     "kind": "dawn",
-     "score": 4.0,
-     "conf": "high",
-     "limit": "rain",
-     "entries": [
-      "Three Tables",
-      "Shark's Cove"
-     ],
-     "gate": false
-    },
     {
      "label": "Thu dusk",
      "start": "2026-09-17T16:33:00-10:00",
      "kind": "dusk",
      "score": 4.0,
-     "conf": "medium",
+     "conf": "high",
      "limit": "rain",
      "entries": [
       "Three Tables",
       "Shark's Cove"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Fri dawn",
@@ -972,7 +995,8 @@
       "Three Tables",
       "Shark's Cove"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Fri dusk",
@@ -985,7 +1009,8 @@
       "Three Tables",
       "Shark's Cove"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Sat dawn",
@@ -998,7 +1023,36 @@
       "Three Tables",
       "Shark's Cove"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
+    },
+    {
+     "label": "Sat dusk",
+     "start": "2026-09-19T16:31:00-10:00",
+     "kind": "dusk",
+     "score": 4.0,
+     "conf": "medium",
+     "limit": "rain",
+     "entries": [
+      "Three Tables",
+      "Shark's Cove"
+     ],
+     "gate": false,
+     "aligned": false
+    },
+    {
+     "label": "Sun dawn",
+     "start": "2026-09-20T05:50:00-10:00",
+     "kind": "dawn",
+     "score": 4.0,
+     "conf": "low",
+     "limit": "rain",
+     "entries": [
+      "Three Tables",
+      "Shark's Cove"
+     ],
+     "gate": false,
+     "aligned": false
     }
    ]
   },
@@ -1034,43 +1088,18 @@
    "sst_f": 83,
    "windows": [
     {
-     "label": "Wed dusk",
-     "start": "2026-09-16T16:24:00-10:00",
-     "kind": "dusk",
-     "score": 7.6,
-     "conf": "medium",
-     "limit": "swell",
-     "entries": [
-      "Two Step (Honaunau)",
-      "Kahalu'u"
-     ],
-     "gate": false
-    },
-    {
-     "label": "Thu dawn",
-     "start": "2026-09-17T05:41:00-10:00",
-     "kind": "dawn",
-     "score": 8.4,
-     "conf": "medium",
-     "limit": "stirred up",
-     "entries": [
-      "Two Step (Honaunau)",
-      "Kahalu'u"
-     ],
-     "gate": false
-    },
-    {
      "label": "Thu dusk",
      "start": "2026-09-17T16:23:00-10:00",
      "kind": "dusk",
-     "score": 8.6,
+     "score": 8.5,
      "conf": "medium",
      "limit": "all clear",
      "entries": [
       "Two Step (Honaunau)",
       "Kahalu'u"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Fri dawn",
@@ -1083,20 +1112,22 @@
       "Two Step (Honaunau)",
       "Kahalu'u"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Fri dusk",
      "start": "2026-09-18T16:23:00-10:00",
      "kind": "dusk",
      "score": 4.0,
-     "conf": "low",
+     "conf": "medium",
      "limit": "rain",
      "entries": [
       "Two Step (Honaunau)",
       "Kahalu'u"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Sat dawn",
@@ -1109,7 +1140,36 @@
       "Two Step (Honaunau)",
       "Kahalu'u"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
+    },
+    {
+     "label": "Sat dusk",
+     "start": "2026-09-19T16:22:00-10:00",
+     "kind": "dusk",
+     "score": 4.0,
+     "conf": "low",
+     "limit": "rain",
+     "entries": [
+      "Two Step (Honaunau)",
+      "Kahalu'u"
+     ],
+     "gate": false,
+     "aligned": false
+    },
+    {
+     "label": "Sun dawn",
+     "start": "2026-09-20T05:42:00-10:00",
+     "kind": "dawn",
+     "score": 4.0,
+     "conf": "low",
+     "limit": "rain",
+     "entries": [
+      "Two Step (Honaunau)",
+      "Kahalu'u"
+     ],
+     "gate": false,
+     "aligned": false
     }
    ]
   },
@@ -1145,82 +1205,88 @@
    "sst_f": 84,
    "windows": [
     {
-     "label": "Thu dawn",
-     "start": "2026-09-17T05:52:00-04:00",
-     "kind": "dawn",
-     "score": 7.4,
+     "label": "Thu dusk",
+     "start": "2026-09-17T16:32:00-04:00",
+     "kind": "dusk",
+     "score": 6.0,
      "conf": "medium",
      "limit": "swell",
      "entries": [
       "Bari Reef",
       "1000 Steps"
      ],
-     "gate": false
-    },
-    {
-     "label": "Thu dusk",
-     "start": "2026-09-17T16:32:00-04:00",
-     "kind": "dusk",
-     "score": 5.0,
-     "conf": "medium",
-     "limit": "wind",
-     "entries": [
-      "Bari Reef",
-      "1000 Steps"
-     ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Fri dawn",
      "start": "2026-09-18T05:52:00-04:00",
      "kind": "dawn",
-     "score": 4.7,
+     "score": 4.6,
      "conf": "medium",
      "limit": "wind",
      "entries": [
       "Bari Reef",
       "1000 Steps"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Fri dusk",
      "start": "2026-09-18T16:31:00-04:00",
      "kind": "dusk",
-     "score": 4.7,
-     "conf": "low",
+     "score": 4.6,
+     "conf": "medium",
      "limit": "wind",
      "entries": [
       "Bari Reef",
       "1000 Steps"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Sat dawn",
      "start": "2026-09-19T05:52:00-04:00",
      "kind": "dawn",
-     "score": 5.4,
+     "score": 5.2,
      "conf": "low",
      "limit": "swell",
      "entries": [
       "Bari Reef",
       "1000 Steps"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Sat dusk",
      "start": "2026-09-19T16:31:00-04:00",
      "kind": "dusk",
-     "score": 6.7,
+     "score": 6.2,
      "conf": "low",
      "limit": "swell",
      "entries": [
       "Bari Reef",
       "1000 Steps"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
+    },
+    {
+     "label": "Sun dawn",
+     "start": "2026-09-20T05:52:00-04:00",
+     "kind": "dawn",
+     "score": 5.5,
+     "conf": "low",
+     "limit": "swell",
+     "entries": [
+      "Bari Reef",
+      "1000 Steps"
+     ],
+     "gate": false,
+     "aligned": false
     }
    ]
   },
@@ -1253,85 +1319,91 @@
    },
    "sms": true,
    "last_ring": null,
-   "sst_f": 72,
+   "sst_f": 73,
    "windows": [
-    {
-     "label": "Thu dawn",
-     "start": "2026-09-17T06:10:00-07:00",
-     "kind": "dawn",
-     "score": 6.1,
-     "conf": "high",
-     "limit": "swell",
-     "entries": [
-      "Point Dume Cove",
-      "Leo Carrillo (Sequit Point)"
-     ],
-     "gate": false
-    },
     {
      "label": "Thu dusk",
      "start": "2026-09-17T16:58:00-07:00",
      "kind": "dusk",
-     "score": 4.7,
+     "score": 4.4,
      "conf": "medium",
      "limit": "swell",
      "entries": [
       "Point Dume Cove",
       "Leo Carrillo (Sequit Point)"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Fri dawn",
      "start": "2026-09-18T06:10:00-07:00",
      "kind": "dawn",
-     "score": 5.3,
+     "score": 6.1,
      "conf": "medium",
      "limit": "swell",
      "entries": [
       "Point Dume Cove",
       "Leo Carrillo (Sequit Point)"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Fri dusk",
      "start": "2026-09-18T16:57:00-07:00",
      "kind": "dusk",
-     "score": 7.1,
+     "score": 4.5,
      "conf": "medium",
-     "limit": "swell",
+     "limit": "wind",
      "entries": [
       "Point Dume Cove",
       "Leo Carrillo (Sequit Point)"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Sat dawn",
      "start": "2026-09-19T06:11:00-07:00",
      "kind": "dawn",
-     "score": 5.3,
+     "score": 5.6,
      "conf": "medium",
      "limit": "swell",
      "entries": [
       "Point Dume Cove",
       "Leo Carrillo (Sequit Point)"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Sat dusk",
      "start": "2026-09-19T16:55:00-07:00",
      "kind": "dusk",
-     "score": 6.2,
+     "score": 5.9,
      "conf": "medium",
      "limit": "swell",
      "entries": [
       "Point Dume Cove",
       "Leo Carrillo (Sequit Point)"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
+    },
+    {
+     "label": "Sun dawn",
+     "start": "2026-09-20T06:12:00-07:00",
+     "kind": "dawn",
+     "score": 4.3,
+     "conf": "low",
+     "limit": "swell",
+     "entries": [
+      "Point Dume Cove",
+      "Leo Carrillo (Sequit Point)"
+     ],
+     "gate": false,
+     "aligned": false
     }
    ]
   },
@@ -1364,85 +1436,91 @@
    },
    "sms": true,
    "last_ring": null,
-   "sst_f": 72,
+   "sst_f": 73,
    "windows": [
-    {
-     "label": "Thu dawn",
-     "start": "2026-09-17T06:10:00-07:00",
-     "kind": "dawn",
-     "score": 5.4,
-     "conf": "medium",
-     "limit": "swell",
-     "entries": [
-      "County Line Reef (Yerba Buena)",
-      "La Jenelle (Port Hueneme)"
-     ],
-     "gate": false
-    },
     {
      "label": "Thu dusk",
      "start": "2026-09-17T16:59:00-07:00",
      "kind": "dusk",
-     "score": 5.2,
+     "score": 4.6,
      "conf": "medium",
      "limit": "swell",
      "entries": [
       "County Line Reef (Yerba Buena)",
       "La Jenelle (Port Hueneme)"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Fri dawn",
      "start": "2026-09-18T06:11:00-07:00",
      "kind": "dawn",
-     "score": 6.3,
+     "score": 6.2,
      "conf": "medium",
      "limit": "swell",
      "entries": [
       "County Line Reef (Yerba Buena)",
       "La Jenelle (Port Hueneme)"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Fri dusk",
      "start": "2026-09-18T16:57:00-07:00",
      "kind": "dusk",
-     "score": 6.3,
+     "score": 6.1,
      "conf": "medium",
      "limit": "swell",
      "entries": [
       "County Line Reef (Yerba Buena)",
       "La Jenelle (Port Hueneme)"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Sat dawn",
      "start": "2026-09-19T06:12:00-07:00",
      "kind": "dawn",
-     "score": 5.3,
-     "conf": "low",
+     "score": 5.8,
+     "conf": "medium",
      "limit": "swell",
      "entries": [
       "County Line Reef (Yerba Buena)",
       "La Jenelle (Port Hueneme)"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Sat dusk",
      "start": "2026-09-19T16:56:00-07:00",
      "kind": "dusk",
-     "score": 6.7,
+     "score": 5.7,
      "conf": "low",
      "limit": "swell",
      "entries": [
       "County Line Reef (Yerba Buena)",
       "La Jenelle (Port Hueneme)"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
+    },
+    {
+     "label": "Sun dawn",
+     "start": "2026-09-20T06:12:00-07:00",
+     "kind": "dawn",
+     "score": 4.2,
+     "conf": "low",
+     "limit": "swell",
+     "entries": [
+      "County Line Reef (Yerba Buena)",
+      "La Jenelle (Port Hueneme)"
+     ],
+     "gate": false,
+     "aligned": false
     }
    ]
   },
@@ -1458,7 +1536,7 @@
    "warm_f": 59,
    "tz": "Australia/Sydney",
    "record": {
-    "promises": 6,
+    "promises": 7,
     "rings": 4
    },
    "bell": {
@@ -1478,82 +1556,88 @@
    "sst_f": 64,
    "windows": [
     {
-     "label": "Thu dusk",
-     "start": "2026-09-17T15:47:00+10:00",
-     "kind": "dusk",
-     "score": 1.2,
-     "conf": "medium",
-     "limit": "swell",
-     "entries": [
-      "Shelly Beach (Cabbage Tree Bay)",
-      "Fairy Bower"
-     ],
-     "gate": false
-    },
-    {
      "label": "Fri dawn",
      "start": "2026-09-18T05:20:00+10:00",
      "kind": "dawn",
-     "score": 2.3,
+     "score": 2.9,
      "conf": "medium",
      "limit": "stirred up",
      "entries": [
       "Shelly Beach (Cabbage Tree Bay)",
       "Fairy Bower"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Fri dusk",
      "start": "2026-09-18T15:48:00+10:00",
      "kind": "dusk",
-     "score": 4.3,
+     "score": 4.4,
      "conf": "medium",
      "limit": "stirred up",
      "entries": [
       "Shelly Beach (Cabbage Tree Bay)",
       "Fairy Bower"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Sat dawn",
      "start": "2026-09-19T05:19:00+10:00",
      "kind": "dawn",
-     "score": 6.0,
+     "score": 6.2,
      "conf": "medium",
      "limit": "stirred up",
      "entries": [
       "Shelly Beach (Cabbage Tree Bay)",
       "Fairy Bower"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Sat dusk",
      "start": "2026-09-19T15:49:00+10:00",
      "kind": "dusk",
-     "score": 6.6,
+     "score": 7.1,
      "conf": "medium",
      "limit": "stirred up",
      "entries": [
       "Shelly Beach (Cabbage Tree Bay)",
       "Fairy Bower"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Sun dawn",
      "start": "2026-09-20T05:18:00+10:00",
      "kind": "dawn",
-     "score": 7.0,
+     "score": 7.2,
+     "conf": "medium",
+     "limit": "stirred up",
+     "entries": [
+      "Shelly Beach (Cabbage Tree Bay)",
+      "Fairy Bower"
+     ],
+     "gate": false,
+     "aligned": false
+    },
+    {
+     "label": "Sun dusk",
+     "start": "2026-09-20T15:49:00+10:00",
+     "kind": "dusk",
+     "score": 7.2,
      "conf": "low",
      "limit": "stirred up",
      "entries": [
       "Shelly Beach (Cabbage Tree Bay)",
       "Fairy Bower"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     }
    ]
   },
@@ -1589,82 +1673,88 @@
    "sst_f": 82,
    "windows": [
     {
-     "label": "Wed dusk",
-     "start": "2026-09-16T16:28:00-10:00",
-     "kind": "dusk",
-     "score": 4.0,
-     "conf": "medium",
-     "limit": "rain",
-     "entries": [
-      "Kahekili (Airport Beach)",
-      "Black Rock (Pu'u Keka'a)"
-     ],
-     "gate": false
-    },
-    {
-     "label": "Thu dawn",
-     "start": "2026-09-17T05:44:00-10:00",
-     "kind": "dawn",
-     "score": 3.6,
-     "conf": "medium",
-     "limit": "rain",
-     "entries": [
-      "Kahekili (Airport Beach)",
-      "Black Rock (Pu'u Keka'a)"
-     ],
-     "gate": false
-    },
-    {
      "label": "Thu dusk",
      "start": "2026-09-17T16:27:00-10:00",
      "kind": "dusk",
-     "score": 3.9,
-     "conf": "medium",
+     "score": 4.0,
+     "conf": "low",
      "limit": "rain",
      "entries": [
       "Kahekili (Airport Beach)",
       "Black Rock (Pu'u Keka'a)"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Fri dawn",
      "start": "2026-09-18T05:44:00-10:00",
      "kind": "dawn",
      "score": 4.0,
-     "conf": "medium",
+     "conf": "low",
      "limit": "rain",
      "entries": [
       "Kahekili (Airport Beach)",
       "Black Rock (Pu'u Keka'a)"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Fri dusk",
      "start": "2026-09-18T16:26:00-10:00",
      "kind": "dusk",
      "score": 4.0,
-     "conf": "medium",
+     "conf": "low",
      "limit": "rain",
      "entries": [
       "Kahekili (Airport Beach)",
       "Black Rock (Pu'u Keka'a)"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Sat dawn",
      "start": "2026-09-19T05:44:00-10:00",
      "kind": "dawn",
-     "score": 4.0,
-     "conf": "medium",
+     "score": 3.9,
+     "conf": "low",
      "limit": "rain",
      "entries": [
       "Kahekili (Airport Beach)",
       "Black Rock (Pu'u Keka'a)"
      ],
-     "gate": false
+     "gate": false,
+     "aligned": false
+    },
+    {
+     "label": "Sat dusk",
+     "start": "2026-09-19T16:25:00-10:00",
+     "kind": "dusk",
+     "score": 3.7,
+     "conf": "low",
+     "limit": "rain",
+     "entries": [
+      "Kahekili (Airport Beach)",
+      "Black Rock (Pu'u Keka'a)"
+     ],
+     "gate": false,
+     "aligned": false
+    },
+    {
+     "label": "Sun dawn",
+     "start": "2026-09-20T05:45:00-10:00",
+     "kind": "dawn",
+     "score": 4.0,
+     "conf": "low",
+     "limit": "rain",
+     "entries": [
+      "Kahekili (Airport Beach)",
+      "Black Rock (Pu'u Keka'a)"
+     ],
+     "gate": false,
+     "aligned": false
     }
    ]
   }

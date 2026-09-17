@@ -1,64 +1,40 @@
 {
- "updated": "2026-09-16T17:00:00-07:00",
+ "updated": "2026-09-17T10:00:00-07:00",
  "zone": "A",
  "sst_f": 74,
  "windows": [
   {
-   "label": "Thu dawn",
-   "start": "2026-09-17T06:05:00-07:00",
-   "kind": "dawn",
-   "score": 6.4,
-   "conf": "medium",
-   "limit": "swell",
-   "entries": [
-    "Fisherman's Cove",
-    "Shaw's Cove"
-   ],
-   "gate": false
-  },
-  {
    "label": "Thu dusk",
    "start": "2026-09-17T16:54:00-07:00",
    "kind": "dusk",
-   "score": 6.6,
+   "score": 5.7,
    "conf": "medium",
    "limit": "swell",
    "entries": [
     "Fisherman's Cove",
     "Shaw's Cove"
    ],
-   "gate": false
+   "gate": false,
+   "aligned": false
   },
   {
    "label": "Fri dawn",
    "start": "2026-09-18T06:06:00-07:00",
    "kind": "dawn",
-   "score": 6.9,
+   "score": 6.3,
    "conf": "medium",
    "limit": "swell",
    "entries": [
     "Fisherman's Cove",
     "Shaw's Cove"
    ],
-   "gate": false
+   "gate": false,
+   "aligned": false
   },
   {
    "label": "Fri dusk",
    "start": "2026-09-18T16:52:00-07:00",
    "kind": "dusk",
-   "score": 7.5,
-   "conf": "medium",
-   "limit": "swell",
-   "entries": [
-    "Fisherman's Cove",
-    "Shaw's Cove"
-   ],
-   "gate": false
-  },
-  {
-   "label": "Sat dawn",
-   "start": "2026-09-19T06:07:00-07:00",
-   "kind": "dawn",
    "score": 7.1,
    "conf": "medium",
    "limit": "swell",
@@ -66,20 +42,50 @@
     "Fisherman's Cove",
     "Shaw's Cove"
    ],
-   "gate": false
+   "gate": false,
+   "aligned": false
   },
   {
-   "label": "Sat dusk",
-   "start": "2026-09-19T16:51:00-07:00",
-   "kind": "dusk",
-   "score": 7.7,
+   "label": "Sat dawn",
+   "start": "2026-09-19T06:07:00-07:00",
+   "kind": "dawn",
+   "score": 7.0,
    "conf": "medium",
    "limit": "swell",
    "entries": [
     "Fisherman's Cove",
     "Shaw's Cove"
    ],
-   "gate": false
+   "gate": false,
+   "aligned": false
+  },
+  {
+   "label": "Sat dusk",
+   "start": "2026-09-19T16:51:00-07:00",
+   "kind": "dusk",
+   "score": 7.9,
+   "conf": "medium",
+   "limit": "swell",
+   "entries": [
+    "Fisherman's Cove",
+    "Shaw's Cove"
+   ],
+   "gate": false,
+   "aligned": false
+  },
+  {
+   "label": "Sun dawn",
+   "start": "2026-09-20T06:07:00-07:00",
+   "kind": "dawn",
+   "score": 6.0,
+   "conf": "low",
+   "limit": "swell",
+   "entries": [
+    "Fisherman's Cove",
+    "Shaw's Cove"
+   ],
+   "gate": false,
+   "aligned": false
   }
  ]
 }
