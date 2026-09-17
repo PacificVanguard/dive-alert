@@ -369,7 +369,7 @@
     </div>
     <div class="ringhint">ring it</div>
     <a class="cta" href="#join">Get on the bell</a>
-    <div class="cta-sub">Free · one text · about 15 messages a year</div>
+    <div class="cta-sub">Free · one text · a reading a week, a ring when it matters</div>
   </div>
 
   <!-- the joining: each bell offers its own door -->
@@ -445,22 +445,22 @@
     const sub = document.querySelector(".cta-sub");
     if (z.sms !== false) {
       const word = SMS_WORD[z.bell.name] || "LAGUNA";
-      if (sub) sub.textContent = "Free · one text · about 15 messages a year";
+      if (sub) sub.textContent = "Free · one text · a reading a week, a ring when it matters";
       el.innerHTML =
         "<div class='jstep'><span class='jn'>☎</span>" +
         "<div><b>Text <span style='color:var(--gold)'>" + word + "</span> to " +
         "<a href='sms:+18338582355' style='color:var(--gold);text-decoration:none;" +
         "border-bottom:1px solid rgba(255,217,138,.35)'>833&#8209;858&#8209;BELL</a>.</b> " +
         "<span>That&rsquo;s the whole ceremony — no app, no account, no form. " +
-        "The bell answers in seconds, then keeps its silence until this water " +
-        "lines up: about 15 messages a year, each one worth clearing a morning " +
-        "for. Text <b>WEEK</b> any time for the week ahead, or <b>DIGEST</b> " +
-        "once to make Wednesday's reading a weekly ritual. After a dive, " +
-        "text REEF, BUDDY or FINS — the bell learns from " +
-        "every diver who answers. Reply STOP to end any time. Msg &amp; data " +
-        "rates may apply. <a href='/sms/'>How it works →</a></span></div></div>";
+        "The bell answers in seconds with this week&rsquo;s reading, reads you " +
+        "the week every Wednesday, and texts the rare morning this water " +
+        "lines up and holds. Text <b>WEEK</b> any time to ask; <b>QUIET</b> " +
+        "for rings only. After a dive, text REEF, BUDDY or FINS — the bell " +
+        "learns from every diver who answers. Reply STOP to end any time. " +
+        "Msg &amp; data rates may apply. <a href='/sms/'>How it works →</a>" +
+        "</span></div></div>";
     } else {
-      if (sub) sub.textContent = "Free · no account · about 15 messages a year";
+      if (sub) sub.textContent = "Free · no account · a reading a week, a ring when it matters";
       el.innerHTML =
         "<div class='jstep'><span class='jn'>🔔</span>" +
         "<div><b>This water lies beyond the number&rsquo;s reach — the bell " +

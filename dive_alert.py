@@ -2600,16 +2600,35 @@ def sms_subscribers():
     return out
 
 
+SMS_WEEKLY_OFF = ("QUIET", "DIGEST OFF", "NODIGEST")
+SMS_WEEKLY_ON = ("WEEKLY", "DIGEST")
+
+
+def sms_weekly_wants(body):
+    """One text's verdict on the Wednesday reading: True (on), False (off),
+    or None (it said nothing about it). Off-words are checked first so
+    'DIGEST OFF' is not read as 'DIGEST'; 'WEEK' alone is a question, not
+    a subscription, and must never toggle anything."""
+    if any(w in body for w in SMS_WEEKLY_OFF):
+        return False
+    if any(w in body for w in SMS_WEEKLY_ON):
+        return True
+    return None
+
+
 def sms_digest_optins():
-    """Numbers whose newest DIGEST instruction is 'on'. 'DIGEST OFF' (or
-    NODIGEST) ends the weekly reading without touching ring membership;
-    history is newest-first, so the first instruction seen per number wins."""
+    """Numbers that get the Wednesday reading. Joining a bell includes it —
+    the ritual is the product, and its own founder didn't know he had to
+    ask for it (2026-09-17). QUIET drops a number to rings only; WEEKLY
+    brings the reading back. History is newest-first, so the first
+    instruction seen per number wins; silence means yes."""
     state = {}
     for num, body in _sms_history():
-        if num in state or "DIGEST" not in body:
-            continue
-        state[num] = not ("DIGEST OFF" in body or "NODIGEST" in body)
-    return {n for n, on in state.items() if on}
+        if num not in state:
+            state[num] = None
+        if state[num] is None:
+            state[num] = sms_weekly_wants(body)
+    return {n for n, on in state.items() if on is not False}
 
 
 def sms_quiet_ok(zone_cfg, when=None):
@@ -2800,7 +2819,7 @@ def sms_digest_text(zone_cfg, scored):
     else:
         read = "A quiet week. The bell keeps its silence for a reason."
     return ("THE WEDNESDAY READING - %s\n%s\n%s Text WEEK for detail. "
-            "Reply DIGEST OFF to end the reading, STOP to end all.") % (
+            "Text QUIET for rings only, STOP to end all.") % (
         zone_cfg["bell"]["name"].upper(), " / ".join(parts), read)
 
 
@@ -4961,6 +4980,34 @@ def cmd_test(args):
     confirm_gates("A", [_sc("later", True)], st_f)
     check("(pp) departed windows are forgotten",
           set(st_f["gate_streak"]["A"]) == {"later"}, str(st_f["gate_streak"]["A"]))
+
+    # (qq) THE RITUAL COMES WITH THE BELL: joining includes the Wednesday
+    # reading; QUIET is the exception; WEEKLY undoes QUIET; WEEK alone is a
+    # question and must never toggle anything. Newest instruction wins.
+    check("(qq) WEEK alone says nothing about the ritual",
+          sms_weekly_wants("WEEK") is None and sms_weekly_wants("MAUI WEEK") is None)
+    check("(qq) QUIET turns it off; DIGEST OFF still means off",
+          sms_weekly_wants("QUIET") is False and sms_weekly_wants("DIGEST OFF") is False)
+    check("(qq) WEEKLY turns it on; DIGEST still means on",
+          sms_weekly_wants("WEEKLY") is True and sms_weekly_wants("DIGEST") is True)
+    g6 = globals()
+    _hist = g6["_sms_history"]
+    g6["_sms_history"] = lambda: [   # newest first
+        ("+1A", "WEEK"), ("+1A", "LAGUNA"),           # never mentioned it: yes
+        ("+1B", "QUIET"), ("+1B", "LAGUNA"),          # opted out
+        ("+1C", "WEEKLY"), ("+1C", "QUIET"), ("+1C", "LAGUNA"),   # came back
+        ("+1D", "QUIET"), ("+1D", "WEEKLY"), ("+1D", "LAGUNA"),   # newest wins: out
+    ]
+    try:
+        on = sms_digest_optins()
+        check("(qq) silence means yes", "+1A" in on)
+        check("(qq) QUIET means rings only", "+1B" not in on)
+        check("(qq) WEEKLY brings the reading back", "+1C" in on)
+        check("(qq) the newest word wins", "+1D" not in on, str(on))
+    finally:
+        g6["_sms_history"] = _hist
+    check("(qq) the reading's footer teaches QUIET, not DIGEST",
+          "QUIET" in sms_digest_text(zc, ring_week) and "DIGEST" not in sms_digest_text(zc, ring_week))
 
     # fixture suite: degraded + disagreement
     print("fixture tests:")
