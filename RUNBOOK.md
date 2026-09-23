@@ -58,6 +58,19 @@ a dive; STOP/HELP are carrier-mandated. The welcome IS this week's
 reading. If you add a keyword, ask whether it exposes a developer's
 distinction — WEEK vs DIGEST (pull vs push) cost the founder the feature.
 
+## The Wednesday reading rides whichever cron lands (don't "fix" this)
+
+GitHub fires crons hours late — 3-4h has been normal. The guard classifies
+a run by the LOCAL HOUR it actually lands in, not by which cron fired it,
+so on Wednesdays the 4:30am "morning" cron arriving at ~8:30 becomes the
+weekly run, and the real 9:00 weekly cron often slides into the midday
+ingest window. Together they cover Wed 6-10 for anything from punctual
+to ~5.5h late, and the per-ISO-week dedupe (`ntfy_digest_sent`,
+`sms_digest_sent`) guarantees exactly one reading. Collapsing this to a
+single cron would make the ritual depend on GitHub's punctuality. If a
+Wednesday ever passes with no reading, check the run list for a gap in
+6-10 local before touching anything else.
+
 ## Is the bell actually texting?
 
 `smscheck` (workflow, manual) asks Twilio for real outbound STATUS and
