@@ -1,0 +1,19 @@
+{
+  "id": "/",
+  "name": "The Dive Bell",
+  "short_name": "Dive Bell",
+  "description": "Three hundred and fifty mornings a year, the bell keeps its silence. When the ocean says yes, it rings.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#071d36",
+  "theme_color": "#0d3355",
+  "categories": ["sports", "weather", "lifestyle"],
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

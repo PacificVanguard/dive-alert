@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Maskable variant: the bell sits inside the 80% safe circle so any
+       platform mask (circle, squircle, rounded square) never clips it. -->
+  <defs>
+    <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0d3355"/>
+      <stop offset="0.35" stop-color="#071d36"/>
+      <stop offset="1" stop-color="#02060d"/>
+    </linearGradient>
+    <radialGradient id="light" cx="0.5" cy="0" r="0.75">
+      <stop offset="0" stop-color="#7fd4ff" stop-opacity="0.28"/>
+      <stop offset="1" stop-color="#7fd4ff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="halo" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#7fd4ff" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#7fd4ff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#sea)"/>
+  <rect width="512" height="512" fill="url(#light)"/>
+  <ellipse cx="256" cy="262" rx="170" ry="180" fill="url(#halo)"/>
+  <g transform="translate(154,131) scale(1.36)">
+    <line x1="75" y1="-96" x2="75" y2="22" stroke="#64809b" stroke-width="3" stroke-opacity="0.7"/>
+    <path d="M75 22 C 36 22 22 62 22 103 L 22 133 L 128 133 L 128 103 C 128 62 114 22 75 22 Z"
+          fill="#081f38" stroke="#7fd4ff" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M40 42 C 32 56 29 72 29 86" stroke="#7fd4ff" stroke-opacity="0.4"
+          stroke-width="2.5" stroke-linecap="round" fill="none"/>
+    <rect x="16" y="133" width="118" height="9" rx="4.5" fill="#081f38" stroke="#7fd4ff" stroke-width="2.5"/>
+    <line x1="75" y1="142" x2="75" y2="162" stroke="#64809b" stroke-width="3"/>
+    <circle cx="75" cy="170" r="8" fill="#ffd98a"/>
+  </g>
+</svg>
