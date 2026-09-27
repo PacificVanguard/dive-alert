@@ -29,6 +29,26 @@
    "window_key": "20260927T1625-dusk",
    "since": "2026-09-26T18:00:00-07:00",
    "gate": false
+  },
+  "J": {
+   "score": 8.6,
+   "entries": [
+    "Three Tables",
+    "Shark's Cove"
+   ],
+   "window_key": "20260929T0553-dawn",
+   "since": "2026-09-27T14:00:00-07:00",
+   "gate": false
+  },
+  "P": {
+   "score": 7.9,
+   "entries": [
+    "Kahekili (Airport Beach)",
+    "Black Rock (Pu'u Keka'a)"
+   ],
+   "window_key": "20260929T0547-dawn",
+   "since": "2026-09-27T14:00:00-07:00",
+   "gate": false
   }
  },
  "last_tip_id": "fi1",
@@ -71,13 +91,13 @@
   "D:ndbc_spec": 0,
   "E:marine": 0,
   "E:weather": 0,
-  "E:ndbc_primary": 91,
+  "E:ndbc_primary": 92,
   "E:ndbc_offshore": 0,
   "E:tides": 0,
   "E:sst": 0,
   "E:chla": 0,
   "E:kd490": 0,
-  "E:ndbc_spec": 91,
+  "E:ndbc_spec": 92,
   "F:marine": 0,
   "F:weather": 0,
   "F:ndbc_primary": 0,
@@ -106,7 +126,7 @@
   "H:kd490": 0,
   "H:ndbc_spec": 0,
   "I:marine": 0,
-  "I:weather": 1,
+  "I:weather": 0,
   "I:ndbc_primary": 0,
   "I:ndbc_offshore": 0,
   "I:tides": 0,
@@ -134,13 +154,13 @@
   "K:ndbc_spec": 0,
   "L:marine": 0,
   "L:weather": 0,
-  "L:ndbc_primary": 89,
-  "L:ndbc_offshore": 89,
-  "L:tides": 89,
+  "L:ndbc_primary": 90,
+  "L:ndbc_offshore": 90,
+  "L:tides": 90,
   "L:sst": 0,
   "L:chla": 0,
   "L:kd490": 0,
-  "L:ndbc_spec": 89,
+  "L:ndbc_spec": 90,
   "M:marine": 0,
   "M:weather": 0,
   "M:ndbc_primary": 0,
@@ -152,34 +172,34 @@
   "M:ndbc_spec": 0,
   "N:marine": 0,
   "N:weather": 0,
-  "N:ndbc_primary": 89,
+  "N:ndbc_primary": 90,
   "N:ndbc_offshore": 0,
   "N:tides": 0,
   "N:sst": 0,
   "N:chla": 0,
   "N:kd490": 0,
-  "N:ndbc_spec": 89,
+  "N:ndbc_spec": 90,
   "O:marine": 0,
-  "O:weather": 0,
+  "O:weather": 1,
   "O:ndbc_primary": 0,
-  "O:ndbc_offshore": 89,
-  "O:tides": 89,
+  "O:ndbc_offshore": 90,
+  "O:tides": 90,
   "O:sst": 0,
   "O:chla": 0,
   "O:kd490": 0,
-  "O:ndbc_spec": 89,
+  "O:ndbc_spec": 90,
   "P:marine": 0,
   "P:weather": 0,
-  "P:ndbc_primary": 19,
-  "P:ndbc_offshore": 89,
+  "P:ndbc_primary": 20,
+  "P:ndbc_offshore": 90,
   "P:tides": 0,
   "P:sst": 0,
   "P:chla": 0,
   "P:kd490": 0,
-  "P:ndbc_spec": 19,
-  "A:marine_alt": 0,
+  "P:ndbc_spec": 20,
+  "A:marine_alt": 1,
   "C:marine_alt": 0,
-  "D:marine_alt": 1,
+  "D:marine_alt": 0,
   "E:marine_alt": 0,
   "F:marine_alt": 0,
   "G:marine_alt": 0,
@@ -187,7 +207,7 @@
   "I:marine_alt": 0,
   "J:marine_alt": 0,
   "K:marine_alt": 0,
-  "L:marine_alt": 1,
+  "L:marine_alt": 2,
   "M:marine_alt": 0,
   "N:marine_alt": 0,
   "O:marine_alt": 0,
@@ -228,7 +248,7 @@
    "rings": 1
   },
   "J": {
-   "promises": 8,
+   "promises": 9,
    "rings": 4
   },
   "K": {
@@ -252,11 +272,11 @@
    "rings": 4
   },
   "P": {
-   "promises": 6,
+   "promises": 7,
    "rings": 1
   }
  },
- "hook_idx": 134,
+ "hook_idx": 136,
  "axis_blind": {
   "flat": 0,
   "glass": 0,
@@ -342,12 +362,16 @@
   "G": {},
   "H": {},
   "I": {},
-  "J": {},
+  "J": {
+   "20260929T0553-dawn": 1
+  },
   "K": {},
   "L": {},
   "M": {},
   "N": {},
   "O": {},
-  "P": {}
+  "P": {
+   "20260930T0547-dawn": 1
+  }
  }
 }
