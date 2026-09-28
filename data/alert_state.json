@@ -10,16 +10,6 @@
    "since": "2026-09-25T18:00:00-07:00",
    "gate": false
   },
-  "D": {
-   "score": 7.0,
-   "entries": [
-    "La Jolla Cove",
-    "La Jolla Shores (Canyon)"
-   ],
-   "window_key": "20260928T0611-dawn",
-   "since": "2026-09-26T14:00:00-07:00",
-   "gate": false
-  },
   "L": {
    "score": 7.7,
    "entries": [
@@ -49,9 +39,29 @@
    "window_key": "20260929T0547-dawn",
    "since": "2026-09-27T14:00:00-07:00",
    "gate": false
+  },
+  "C": {
+   "score": 7.5,
+   "entries": [
+    "Dana Point Harbor breakwall (outside)",
+    "Salt Creek"
+   ],
+   "window_key": "20260929T1637-dusk",
+   "since": "2026-09-27T18:00:00-07:00",
+   "gate": false
+  },
+  "G": {
+   "score": 7.9,
+   "entries": [
+    "Terranea (Old Marineland)",
+    "Christmas Tree Cove"
+   ],
+   "window_key": "20260928T0615-dawn",
+   "since": "2026-09-27T18:00:00-07:00",
+   "gate": false
   }
  },
- "last_tip_id": "fi1",
+ "last_tip_id": "db1",
  "src_fail": {
   "marine": 0,
   "weather": 0,
@@ -91,13 +101,13 @@
   "D:ndbc_spec": 0,
   "E:marine": 0,
   "E:weather": 0,
-  "E:ndbc_primary": 92,
+  "E:ndbc_primary": 93,
   "E:ndbc_offshore": 0,
   "E:tides": 0,
   "E:sst": 0,
   "E:chla": 0,
   "E:kd490": 0,
-  "E:ndbc_spec": 92,
+  "E:ndbc_spec": 93,
   "F:marine": 0,
   "F:weather": 0,
   "F:ndbc_primary": 0,
@@ -154,13 +164,13 @@
   "K:ndbc_spec": 0,
   "L:marine": 0,
   "L:weather": 0,
-  "L:ndbc_primary": 90,
-  "L:ndbc_offshore": 90,
-  "L:tides": 90,
+  "L:ndbc_primary": 91,
+  "L:ndbc_offshore": 91,
+  "L:tides": 91,
   "L:sst": 0,
   "L:chla": 0,
   "L:kd490": 0,
-  "L:ndbc_spec": 90,
+  "L:ndbc_spec": 91,
   "M:marine": 0,
   "M:weather": 0,
   "M:ndbc_primary": 0,
@@ -172,45 +182,45 @@
   "M:ndbc_spec": 0,
   "N:marine": 0,
   "N:weather": 0,
-  "N:ndbc_primary": 90,
+  "N:ndbc_primary": 91,
   "N:ndbc_offshore": 0,
   "N:tides": 0,
   "N:sst": 0,
   "N:chla": 0,
   "N:kd490": 0,
-  "N:ndbc_spec": 90,
+  "N:ndbc_spec": 91,
   "O:marine": 0,
-  "O:weather": 1,
+  "O:weather": 0,
   "O:ndbc_primary": 0,
-  "O:ndbc_offshore": 90,
-  "O:tides": 90,
+  "O:ndbc_offshore": 91,
+  "O:tides": 91,
   "O:sst": 0,
   "O:chla": 0,
   "O:kd490": 0,
-  "O:ndbc_spec": 90,
+  "O:ndbc_spec": 91,
   "P:marine": 0,
   "P:weather": 0,
-  "P:ndbc_primary": 20,
-  "P:ndbc_offshore": 90,
+  "P:ndbc_primary": 21,
+  "P:ndbc_offshore": 91,
   "P:tides": 0,
   "P:sst": 0,
   "P:chla": 0,
   "P:kd490": 0,
-  "P:ndbc_spec": 20,
-  "A:marine_alt": 1,
+  "P:ndbc_spec": 21,
+  "A:marine_alt": 2,
   "C:marine_alt": 0,
-  "D:marine_alt": 0,
+  "D:marine_alt": 1,
   "E:marine_alt": 0,
-  "F:marine_alt": 0,
+  "F:marine_alt": 1,
   "G:marine_alt": 0,
-  "H:marine_alt": 0,
+  "H:marine_alt": 1,
   "I:marine_alt": 0,
   "J:marine_alt": 0,
   "K:marine_alt": 0,
-  "L:marine_alt": 2,
+  "L:marine_alt": 3,
   "M:marine_alt": 0,
   "N:marine_alt": 0,
-  "O:marine_alt": 0,
+  "O:marine_alt": 1,
   "P:marine_alt": 0
  },
  "fb_since_by_zone": {},
@@ -220,7 +230,7 @@
    "rings": 1
   },
   "C": {
-   "promises": 16,
+   "promises": 17,
    "rings": 7
   },
   "D": {
@@ -236,7 +246,7 @@
    "rings": 1
   },
   "G": {
-   "promises": 9,
+   "promises": 10,
    "rings": 1
   },
   "H": {
@@ -276,7 +286,7 @@
    "rings": 1
   }
  },
- "hook_idx": 136,
+ "hook_idx": 138,
  "axis_blind": {
   "flat": 0,
   "glass": 0,
@@ -362,16 +372,12 @@
   "G": {},
   "H": {},
   "I": {},
-  "J": {
-   "20260929T0553-dawn": 1
-  },
+  "J": {},
   "K": {},
   "L": {},
   "M": {},
   "N": {},
   "O": {},
-  "P": {
-   "20260930T0547-dawn": 1
-  }
+  "P": {}
  }
 }
