@@ -99,6 +99,16 @@ shipped without them once, so DIGEST could never send.
   Twilio console → the number → webhook still points at the Function.
 - **Editing the SMS welcome**: change `twilio/incoming.js`, then run the
   `wire-sms` workflow (manual). It redeploys the Function by API.
+- **A Wednesday passed with no reading** (a run died, GitHub skipped the
+  window): `gh workflow run dive.yml -f mode=weekly`. The per-week dedupe
+  means it is safe to run even if you're not sure — a reading already
+  sent this ISO week will not be sent twice. The app copy waits for the
+  bell's own morning (6am-1pm local); the text goes within 8am-9pm.
+- **One bell failed, the rest ran**: normal now. The failed bell keeps its
+  last plate on the board marked `stale`; ops (and the keeper's phone, if
+  `KEEPER_PHONE` is set) get "Bells failed this run". Look at the ZONE
+  line in the log; a whole-fleet failure is almost always the runner's
+  network, and the next run simply pays whatever was owed.
 
 ## Sacred invariants (tests enforce most; keep it that way)
 
