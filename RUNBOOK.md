@@ -121,5 +121,7 @@ on a slack-window scorer that doesn't exist yet — don't force them in.
 ## Secrets (Actions)
 
 `NTFY_TOPIC` · `TWILIO_ACCOUNT_SID` · `TWILIO_AUTH_TOKEN` · `TWILIO_FROM`
+· `KEEPER_PHONE` (the keeper's own number: every ops alarm and every
+workflow failure is also texted there; unset = app/email only)
 · `HEALTHCHECKS_URL` (optional ping). Rotate in the repo settings; nothing
 else holds credentials.

@@ -22,9 +22,28 @@ jobs:
       - name: The bell must have spoken within 30 hours
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
+          TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
+          TWILIO_FROM: ${{ secrets.TWILIO_FROM }}
+          KEEPER_PHONE: ${{ secrets.KEEPER_PHONE }}
         run: |
           python3 - <<'EOF'
-          import json, os, sys, urllib.request
+          import base64, json, os, sys, urllib.parse, urllib.request
+          def text_keeper(msg):
+              sid, tok, frm, to = (os.environ.get(k) for k in
+                  ("TWILIO_ACCOUNT_SID", "TWILIO_AUTH_TOKEN", "TWILIO_FROM", "KEEPER_PHONE"))
+              if not (sid and tok and frm and to):
+                  return
+              try:
+                  req = urllib.request.Request(
+                      "https://api.twilio.com/2010-04-01/Accounts/%s/Messages.json" % sid,
+                      data=urllib.parse.urlencode({"To": to, "From": frm,
+                                                   "Body": "DIVE BELL OPS - " + msg}).encode())
+                  req.add_header("Authorization", "Basic " + base64.b64encode(
+                      ("%s:%s" % (sid, tok)).encode()).decode())
+                  urllib.request.urlopen(req, timeout=20).read()
+              except Exception as e:
+                  print("keeper text failed: %s" % e)
           from datetime import datetime, timezone
           try:
               with open("data/latest.json") as f:
@@ -49,6 +68,8 @@ jobs:
                   urllib.request.Request("https://ntfy.sh", data=body,
                                          headers={"Content-Type": "application/json"}),
                   timeout=20)
+          text_keeper("the bell has gone silent - no scored run in %.0f hours. "
+                      "github.com/PacificVanguard/dive-alert/actions" % age_h)
           sys.exit("stale: last run %.0f hours ago" % age_h)
           EOF
 
@@ -66,10 +87,12 @@ jobs:
         env:
           TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
           TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
+          TWILIO_FROM: ${{ secrets.TWILIO_FROM }}
+          KEEPER_PHONE: ${{ secrets.KEEPER_PHONE }}
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
         run: |
           python3 - <<'EOF'
-          import base64, json, os, sys, urllib.request
+          import base64, json, os, sys, urllib.parse, urllib.request
           sid, tok = os.environ.get("TWILIO_ACCOUNT_SID"), os.environ.get("TWILIO_AUTH_TOKEN")
           if not sid or not tok:
               print("no Twilio secrets — purse unwatched"); sys.exit(0)
@@ -95,4 +118,36 @@ jobs:
                   urllib.request.Request("https://ntfy.sh", data=body,
                                          headers={"Content-Type": "application/json"}),
                   timeout=20)
+          if bal < 5.0:
+              to, frm = os.environ.get("KEEPER_PHONE"), os.environ.get("TWILIO_FROM")
+              if to and frm:
+                  try:
+                      req = urllib.request.Request(
+                          "https://api.twilio.com/2010-04-01/Accounts/%s/Messages.json" % sid,
+                          data=urllib.parse.urlencode({"To": to, "From": frm,
+                              "Body": "DIVE BELL OPS - the purse runs low: balance %.2f. "
+                                      "SMS stops silently at zero." % bal}).encode())
+                      req.add_header("Authorization", "Basic " + base64.b64encode(
+                          ("%s:%s" % (sid, tok)).encode()).decode())
+                      urllib.request.urlopen(req, timeout=20).read()
+                  except Exception as e:
+                      print("keeper text failed: %s" % e)
           EOF
+
+      # The keeper reads texts, not GitHub's email. On any failure, say so
+      # by SMS with the run link. Silent when KEEPER_PHONE is unset.
+      - name: Text the keeper on failure
+        if: failure()
+        env:
+          TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
+          TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
+          TWILIO_FROM: ${{ secrets.TWILIO_FROM }}
+          KEEPER_PHONE: ${{ secrets.KEEPER_PHONE }}
+        run: |
+          if [ -z "$KEEPER_PHONE" ] || [ -z "$TWILIO_AUTH_TOKEN" ]; then
+            echo "no KEEPER_PHONE/Twilio secrets - keeper not texted"; exit 0; fi
+          curl -s -o /dev/null -w "keeper texted: %{http_code}\n" \
+            -u "$TWILIO_ACCOUNT_SID:$TWILIO_AUTH_TOKEN" \
+            --data-urlencode "To=$KEEPER_PHONE" --data-urlencode "From=$TWILIO_FROM" \
+            --data-urlencode "Body=DIVE BELL OPS - the bellwatch run FAILED. ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            "https://api.twilio.com/2010-04-01/Accounts/$TWILIO_ACCOUNT_SID/Messages.json"

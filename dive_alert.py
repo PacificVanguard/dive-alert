@@ -2493,16 +2493,24 @@ def notify(payload, dry_run, topic=None):
         if payload.get("actions"):
             print("[buttons: %s]" % " · ".join(a["label"] for a in payload["actions"]))
         print("-------------------------")
-        return not dry_run and topic is None
+        return bool(dry_run)   # a dry run "delivers"; a missing topic does not
     msg = {"topic": topic, "title": payload["title"],
            "message": payload["message"], "priority": payload["priority"]}
     if payload.get("actions"):
         msg["actions"] = payload["actions"]
     req = urllib.request.Request(CONFIG["sources"]["ntfy"], data=json.dumps(msg).encode(),
                                  headers={"Content-Type": "application/json"})
-    with urllib.request.urlopen(req, timeout=20) as r:
-        r.read()
-    return True
+    # A bare urlopen here killed the Wednesday run of 2026-09-30 when the
+    # runner had no network: one lost send became a lost run, no state
+    # saved, no reading. Delivery failure is a False, never an exception —
+    # callers that owe something (the digest, a retraction) keep the debt.
+    try:
+        with urllib.request.urlopen(req, timeout=20) as r:
+            r.read()
+        return True
+    except Exception as e:
+        print("notify failed (%s): %s" % (topic, str(e)[:80]), file=sys.stderr)
+        return False
 
 
 # =====================================================================
@@ -2654,7 +2662,15 @@ def sms_ring(zone_key, zone_cfg, payload, state, dry_run):
     if not sms_quiet_ok(zone_cfg):
         state.setdefault("sms_ring_due", {})[zone_key] = wkey
         return
-    subs = sms_subscribers().get(zone_key, [])
+    try:
+        subs = sms_subscribers().get(zone_key, [])
+    except Exception as e:
+        # the ledger is unreadable, not empty: keep the ring owed and retry
+        # while the gate holds, rather than crash or silently forget it
+        print("sms ring (%s): subscriber lookup failed, still owed: %s"
+              % (zone_key, str(e)[:60]), file=sys.stderr)
+        state.setdefault("sms_ring_due", {})[zone_key] = wkey
+        return
     if not subs:
         # say so: an empty subscriber list and a successful send used to look
         # identical in the logs (both silent), which cost three rounds of
@@ -2716,9 +2732,11 @@ def ntfy_digest(zk, zc, scored, state, t_now, dry_run, weekly, sst=None):
         return
     tip = select_tip(scored[0]["entries"] if scored else [], best_of(scored),
                      None, "any", t_now, state) if scored else None
-    notify(render_digest(scored, t_now, state, sst_c=sst, tip=tip,
-                         actions=feedback_actions("digest-%s" % t_now.date(), zc)),
-           dry_run, topic=zone_topic(zc))
+    if not notify(render_digest(scored, t_now, state, sst_c=sst, tip=tip,
+                                actions=feedback_actions("digest-%s" % t_now.date(), zc)),
+                  dry_run, topic=zone_topic(zc)):
+        print("digest (%s): delivery failed — still owed" % zk)
+        return   # the debt stands; the next morning-legal run pays it
     due.pop(zk, None)
     sent[zk] = week
     # the reading's word is a debt: every gate day it names is remembered,
@@ -2759,11 +2777,17 @@ def check_retraction(zk, zc, scored, state, t_now, dry_run):
     best = max(scored, key=lambda s: s["score"]) if scored else None
     if best and best["score"] >= 6.5 and best["w"]["start"].date().isoformat() not in vis:
         body += " The week's next hope: %s at %.1f." % (best["w"]["label"], best["score"])
-    notify({"title": "The bell takes back its word", "message": body,
-            "priority": 3, "tags": ["wave"]}, dry_run, topic=zone_topic(zc))
+    ok = notify({"title": "The bell takes back its word", "message": body,
+                 "priority": 3, "tags": ["wave"]}, dry_run, topic=zone_topic(zc))
+    sent_n = 0
     env = _twilio_env()
     if env and zc.get("sms", True) is not False and sms_quiet_ok(zc):
-        subs = set(sms_subscribers().get(zk, [])) & sms_digest_optins()
+        try:
+            subs = set(sms_subscribers().get(zk, [])) & sms_digest_optins()
+        except Exception as e:
+            print("retraction (%s): subscriber lookup failed: %s" % (zk, str(e)[:60]),
+                  file=sys.stderr)
+            subs = set()
         sid, tok, frm = env
         sbody = ("THE BELL TAKES BACK ITS WORD - %s washed out; %s filled in. "
                  "It only rings when it's sure." % (day0, why))
@@ -2775,13 +2799,19 @@ def check_retraction(zk, zc, scored, state, t_now, dry_run):
                 if not dry_run:
                     _twilio_req("Messages.json", sid, tok,
                                 {"To": num, "From": frm, "Body": sbody})
+                sent_n += 1
             except Exception as e:
                 print("sms retraction to %s… failed: %s" % (num[:6], str(e)[:60]),
                       file=sys.stderr)
         if subs:
-            print("sms retraction (%s): %d sent%s" % (zk, len(subs),
-                                                      " [dry]" if dry_run else ""))
-    pr["retracted"] = True
+            print("sms retraction (%s): %d/%d sent%s" % (zk, sent_n, len(subs),
+                                                         " [dry]" if dry_run else ""))
+    # withdrawn only once someone actually heard it; otherwise it is still
+    # owed and the next run says it again
+    if ok or sent_n:
+        pr["retracted"] = True
+    else:
+        print("retraction (%s): undelivered — will retry" % zk)
 
 
 def sms_digest_text(zone_cfg, scored):
@@ -2839,7 +2869,12 @@ def sms_digest(zone_key, zone_cfg, scored, state, dry_run, weekly=False):
         return
     if not _twilio_env() or not sms_quiet_ok(zone_cfg):
         return   # stays due; a later run this week delivers
-    subs = set(sms_subscribers().get(zone_key, [])) & sms_digest_optins()
+    try:
+        subs = set(sms_subscribers().get(zone_key, [])) & sms_digest_optins()
+    except Exception as e:
+        print("sms digest (%s): subscriber lookup failed, still owed: %s"
+              % (zone_key, str(e)[:60]), file=sys.stderr)
+        return   # the debt stands
     due.pop(zone_key, None)
     sent[zone_key] = week
     if not subs:
@@ -2979,9 +3014,31 @@ def gate_axis_blindness(feats, sst_c):
     return {a for a, v in vals.items() if v is None}
 
 
+def sms_keeper(text, dry_run=False):
+    """Plumbing news by text, to the keeper's own phone. KEEPER_PHONE is a
+    repo secret and nothing else — the repo is public and holds no numbers.
+    Best-effort and silent when unset; never raises."""
+    env = _twilio_env()
+    to = get_secret("KEEPER_PHONE")
+    if not env or not to or dry_run:
+        return False
+    sid, tok, frm = env
+    body = "".join(ch for ch in text if ord(ch) < 128).strip()[:300]   # GSM-7
+    try:
+        _twilio_req("Messages.json", sid, tok,
+                    {"To": to, "From": frm, "Body": "DIVE BELL OPS - " + body})
+        return True
+    except Exception as e:
+        print("keeper text failed: %s" % str(e)[:80], file=sys.stderr)
+        return False
+
+
 def notify_ops(payload, dry_run):
-    """Plumbing news goes to the keeper channel, never to divers."""
-    return notify(payload, dry_run, topic=ops_topic())
+    """Plumbing news goes to the keeper channel, never to divers — and to
+    the keeper's phone, because the keeper reads texts, not the app."""
+    ok = notify(payload, dry_run, topic=ops_topic())
+    sms_keeper("%s: %s" % (payload.get("title", ""), payload.get("message", "")), dry_run)
+    return ok
 
 
 def ping_health(ok=True, msg=""):
@@ -3135,6 +3192,19 @@ def score_zone(zone_key, zone_cfg, fetches, t_now, horizon_h=72, skill_corr=None
     return scored
 
 
+def merge_board(board, prev_zones):
+    """A bell that failed this run keeps its last published plate rather
+    than vanishing from the board. Carried entries are marked stale so the
+    page can say so; fresh entries win outright. Only bells that still
+    exist in CONFIG are carried — a retired bell does not come back."""
+    merged = {}
+    for zk, z in (prev_zones or {}).items():
+        if zk not in board and zk in CONFIG["zones"] and CONFIG["zones"][zk].get("enabled"):
+            merged[zk] = dict(z, stale=True)
+    merged.update(board)
+    return merged
+
+
 def cmd_run(args):
     t_now = now_pt()
     state = load_state()
@@ -3144,182 +3214,198 @@ def cmd_run(args):
     skill_corr = load_skill_correction()
     if skill_corr:
         print("skill correction (measured lead bias, sign-flipped): %s" % skill_corr)
+    zone_errors = {}   # one bell's failure must not silence the other fourteen
     for zk, zc in CONFIG["zones"].items():
-        if not zc["enabled"]:
-            continue
-        if not args.offline:
-            ingest_feedback(state, args.dry_run, zc, zk)
-        ztopic = zone_topic(zc)
-        rec = state.setdefault("record", {}).setdefault(zk, {"promises": 0, "rings": 0})
-        fetches, src = fetch_all(zc, offline=args.offline, fixture_set=args.fixtures)
-        fx_now = src.fixture_now()
-        if fx_now:
-            t_now = fx_now
-        swell_ok = fetches["marine"].ok or fetches["ndbc_primary"].ok
-        any_swell_ok = any_swell_ok or swell_ok
-        for name, f in fetches.items():
-            if not f.ok:
-                print("degraded: %s failed (%s)" % (name, f.error), file=sys.stderr)
-        for dead in sentinel_update(state, fetches, zk):
-            notify_ops({"title": "An instrument went quiet 🔧",
-                        "message": "%s (bell %s) has failed %d straight runs (~3 days). "
-                                   "The bell scores on without it, at lower confidence. "
-                                   "github.com/PacificVanguard/dive-alert/actions"
-                                   % (dead, zc.get("bell", {}).get("name", zk), SENTINEL_RUNS),
-                        "priority": 4}, args.dry_run)
-        if not swell_ok:
-            print("zone %s: ALL swell sources failed" % zk, file=sys.stderr)
-            continue
-        horizon = 24 * CONFIG["alerting"]["digest_days"] if args.weekly else 72
-        scored = score_zone(zk, zc, fetches, t_now, horizon, skill_corr=skill_corr)
-        # only a gate that has held across runs may ring
-        confirm_gates(zk, scored, state)
-        sst = zone_sst(fetches, t_now)
-        if scored:
-            blind_map[zk] = gate_axis_blindness(scored[0]["feats"], sst)
-        chla = fetches["chla"].data["mg_m3"] if fetches["chla"].ok else None
-        rows = []
-        for s in scored:
-            lead = (s["w"]["start"] - t_now).total_seconds() / 3600.0
-            p = s["feats"]["dmg_parts"] or {}
-            rows.append({
-                "run_ts": t_now.isoformat(), "zone": zk, "window_key": s["w"]["key"],
-                "window_start": s["w"]["start"].isoformat(), "window_kind": s["w"]["kind"],
-                # RAW score logged: cmd_skill grades this against archive truth,
-                # so the correction loop measures residual bias, not itself
-                "lead_h": round(lead, 1), "score": s.get("score_raw", s["score"]),
-                "cap_reason": s["cap_reason"] or "",
-                "confidence": s["conf"], "completeness": round(s["completeness"], 2),
-                "agreement": round(s["agreement"], 2),
-                "damage": round(s["feats"]["damage"], 2) if s["feats"]["damage"] is not None else "",
-                "swell_hgt_ft": round(p.get("hgt_ft", 0), 1), "swell_per_s": round(p.get("per_s", 0), 1),
-                "swell_dir": round(p.get("dir", 0)),
-                "wind_energy_48h": round(s["feats"]["wind_energy_48h"], 0) if s["feats"]["wind_energy_48h"] is not None else "",
-                "swell_energy_72h": round(s["feats"]["swell_energy_72h"], 0) if s["feats"]["swell_energy_72h"] is not None else "",
-                "dry_hours": round(s["feats"]["dry_hours"], 0) if s["feats"]["dry_hours"] is not None else "",
-                "wind_window_max_kn": round(s["feats"]["wind_window_max_kn"], 1) if s["feats"]["wind_window_max_kn"] is not None else "",
-                "wind_window_eff_kn": round(s["feats"]["wind_window_eff_kn"], 1) if s["feats"].get("wind_window_eff_kn") is not None else "",
-                "obs_frac": round(s["feats"]["obs_frac"], 2),
-                "cloud_pct": round(s["feats"]["cloud_pct"]) if s["feats"].get("cloud_pct") is not None else "",
-                "sst_c": sst if sst is not None else "", "chla_mg_m3": chla if chla is not None else "",
-                "kd490_m1": s["feats"].get("kd490") if s["feats"].get("kd490") is not None else "",
-                "perfect_gate": "PASS" if perfect_gate(s["feats"], s["score"], sst, zc)[0] else "",
-                "rang": "RING" if s.get("gate") else "",
-                "best_entries": " / ".join(s["entries"]), "alerted": "",
-                "flags": "; ".join(s["flags"])})
-        all_scored += scored
+        try:
+            if not zc["enabled"]:
+                continue
+            if not args.offline:
+                ingest_feedback(state, args.dry_run, zc, zk)
+            ztopic = zone_topic(zc)
+            rec = state.setdefault("record", {}).setdefault(zk, {"promises": 0, "rings": 0})
+            fetches, src = fetch_all(zc, offline=args.offline, fixture_set=args.fixtures)
+            fx_now = src.fixture_now()
+            if fx_now:
+                t_now = fx_now
+            swell_ok = fetches["marine"].ok or fetches["ndbc_primary"].ok
+            any_swell_ok = any_swell_ok or swell_ok
+            for name, f in fetches.items():
+                if not f.ok:
+                    print("degraded: %s failed (%s)" % (name, f.error), file=sys.stderr)
+            for dead in sentinel_update(state, fetches, zk):
+                notify_ops({"title": "An instrument went quiet 🔧",
+                            "message": "%s (bell %s) has failed %d straight runs (~3 days). "
+                                       "The bell scores on without it, at lower confidence. "
+                                       "github.com/PacificVanguard/dive-alert/actions"
+                                       % (dead, zc.get("bell", {}).get("name", zk), SENTINEL_RUNS),
+                            "priority": 4}, args.dry_run)
+            if not swell_ok:
+                print("zone %s: ALL swell sources failed" % zk, file=sys.stderr)
+                continue
+            horizon = 24 * CONFIG["alerting"]["digest_days"] if args.weekly else 72
+            scored = score_zone(zk, zc, fetches, t_now, horizon, skill_corr=skill_corr)
+            # only a gate that has held across runs may ring
+            confirm_gates(zk, scored, state)
+            sst = zone_sst(fetches, t_now)
+            if scored:
+                blind_map[zk] = gate_axis_blindness(scored[0]["feats"], sst)
+            chla = fetches["chla"].data["mg_m3"] if fetches["chla"].ok else None
+            rows = []
+            for s in scored:
+                lead = (s["w"]["start"] - t_now).total_seconds() / 3600.0
+                p = s["feats"]["dmg_parts"] or {}
+                rows.append({
+                    "run_ts": t_now.isoformat(), "zone": zk, "window_key": s["w"]["key"],
+                    "window_start": s["w"]["start"].isoformat(), "window_kind": s["w"]["kind"],
+                    # RAW score logged: cmd_skill grades this against archive truth,
+                    # so the correction loop measures residual bias, not itself
+                    "lead_h": round(lead, 1), "score": s.get("score_raw", s["score"]),
+                    "cap_reason": s["cap_reason"] or "",
+                    "confidence": s["conf"], "completeness": round(s["completeness"], 2),
+                    "agreement": round(s["agreement"], 2),
+                    "damage": round(s["feats"]["damage"], 2) if s["feats"]["damage"] is not None else "",
+                    "swell_hgt_ft": round(p.get("hgt_ft", 0), 1), "swell_per_s": round(p.get("per_s", 0), 1),
+                    "swell_dir": round(p.get("dir", 0)),
+                    "wind_energy_48h": round(s["feats"]["wind_energy_48h"], 0) if s["feats"]["wind_energy_48h"] is not None else "",
+                    "swell_energy_72h": round(s["feats"]["swell_energy_72h"], 0) if s["feats"]["swell_energy_72h"] is not None else "",
+                    "dry_hours": round(s["feats"]["dry_hours"], 0) if s["feats"]["dry_hours"] is not None else "",
+                    "wind_window_max_kn": round(s["feats"]["wind_window_max_kn"], 1) if s["feats"]["wind_window_max_kn"] is not None else "",
+                    "wind_window_eff_kn": round(s["feats"]["wind_window_eff_kn"], 1) if s["feats"].get("wind_window_eff_kn") is not None else "",
+                    "obs_frac": round(s["feats"]["obs_frac"], 2),
+                    "cloud_pct": round(s["feats"]["cloud_pct"]) if s["feats"].get("cloud_pct") is not None else "",
+                    "sst_c": sst if sst is not None else "", "chla_mg_m3": chla if chla is not None else "",
+                    "kd490_m1": s["feats"].get("kd490") if s["feats"].get("kd490") is not None else "",
+                    "perfect_gate": "PASS" if perfect_gate(s["feats"], s["score"], sst, zc)[0] else "",
+                    "rang": "RING" if s.get("gate") else "",
+                    "best_entries": " / ".join(s["entries"]), "alerted": "",
+                    "flags": "; ".join(s["flags"])})
+            all_scored += scored
 
-        print("\n=== Zone %s (%s) — %s ===" % (zk, zc["name"], t_now.strftime("%a %Y-%m-%d %H:%M %Z")))
-        for s in scored:
-            lead = (s["w"]["start"] - t_now).total_seconds() / 3600.0
-            print("  %-10s %+5.0fh  score %-4.1f conf %-6s %s%s" % (
-                s["w"]["label"], lead, s["score"], s["conf"],
-                " / ".join(s["entries"]),
-                ("  [%s]" % s["cap_reason"]) if s["cap_reason"] else ""))
+            print("\n=== Zone %s (%s) — %s ===" % (zk, zc["name"], t_now.strftime("%a %Y-%m-%d %H:%M %Z")))
+            for s in scored:
+                lead = (s["w"]["start"] - t_now).total_seconds() / 3600.0
+                print("  %-10s %+5.0fh  score %-4.1f conf %-6s %s%s" % (
+                    s["w"]["label"], lead, s["score"], s["conf"],
+                    " / ".join(s["entries"]),
+                    ("  [%s]" % s["cap_reason"]) if s["cap_reason"] else ""))
 
-        if args.weekly:
-            ntfy_digest(zk, zc, scored, state, t_now, args.dry_run, weekly=True, sst=sst)
-        elif args.brief:
-            best = max(scored, key=lambda s: s["score"]) if scored else None
-            if best:
-                txt = "Zone %s best: %.1f/10 %s — %s. %s" % (
-                    zk, best["score"], best["w"]["label"], " / ".join(best["entries"]),
-                    best["tide_fyi"] or "")
-                notify({"title": "Dive brief — Zone %s" % zk, "message": txt, "priority": 2},
-                       args.dry_run, topic=ztopic)
-        else:
-            # a weekly reading deferred past its bell's night is paid here, by
-            # the first ordinary run in that bell's morning — re-scored at the
-            # digest horizon, since ordinary runs only look 72h out
-            if (state.get("ntfy_digest_due", {}).get(zk)
-                    and digest_morning_ok(zc, t_now)):
-                wide = score_zone(zk, zc, fetches, t_now,
-                                  24 * CONFIG["alerting"]["digest_days"],
-                                  skill_corr=skill_corr)
-                ntfy_digest(zk, zc, wide, state, t_now, args.dry_run,
-                            weekly=False, sst=sst)
-            check_retraction(zk, zc, scored, state, t_now, args.dry_run)
-            # a ring text owed from quiet hours or partial failure is paid
-            # here while the window still stands and its gate still holds
-            due_ring = state.get("sms_ring_due", {}).get(zk)
-            if due_ring:
-                cand = next((s for s in scored
-                             if s["w"]["key"] == due_ring and s.get("gate")), None)
-                if cand and (cand["w"]["start"] - t_now).total_seconds() > 6 * 3600:
-                    sms_ring(zk, zc, cand, state, args.dry_run)
-                else:
-                    # the window closed its gate or drew too near — cancel
-                    state["sms_ring_due"].pop(zk, None)
-            action, payload = decide_alert(scored, t_now, state, zk)
-            if action == "alert" or action == "quiet_alert":
-                tip = select_tip(payload["entries"], payload["score"], payload["feats"]["damage"],
-                                 payload["band"], payload["w"]["start"], state)
-                msg = render_alert(payload["w"], payload["score"], payload["feats"], payload["conf"],
-                                   payload["conf_notes"], payload["entries"], payload["tide_fyi"],
-                                   tip, state, quiet=(action == "quiet_alert"),
-                                   sst_c=sst, brag=superlative(payload["score"], t_now),
-                                   actions=feedback_actions(payload["w"]["key"], zc),
-                                   gate=payload.get("gate"))
-                if payload.get("gate") and zc.get("tier") == "provisional":
-                    msg["message"] += ("\n\nThis bell is newly cast. It rings on the "
-                                       "strength of its casting alone — no diver has "
-                                       "yet sworn to its word. Be its first witness.")
-                notify(msg, args.dry_run, topic=ztopic)
-                if payload.get("gate"):
-                    sms_ring(zk, zc, payload, state, args.dry_run)
-                rec["promises"] += 1
-                for r in rows:
-                    if r["window_key"] == payload["w"]["key"]:
-                        r["alerted"] = action
-            elif action == "downgrade":
-                notify(render_downgrade(payload["w"], payload["old"], payload["new"], payload["feats"]),
-                       args.dry_run, topic=ztopic)
-        # the weekly reading by text: marked due on Wednesdays, delivered by
-        # the first quiet-legal run of the week (see sms_digest)
-        sms_digest(zk, zc, scored, state, args.dry_run, weekly=bool(args.weekly))
-        append_log(LOG_PATH, LOG_COLS, rows, args.dry_run)
-        # the bell remembers: a ring is recorded only when its DAY HAS COME —
-        # a qualifying forecast is a promise, not history (audit repair
-        # 2026-09-14: nine bells were publishing future dates as past rings)
-        today_loc = t_now.astimezone(zone_tz(zc)).date().isoformat()
-        gate_days_seen = [s["w"]["start"].date().isoformat() for s in scored
-                          if s.get("gate")
-                          and s["w"]["start"].date().isoformat() <= today_loc]
-        if gate_days_seen:
-            prev = state.setdefault("last_ring", {}).get(zk)
-            if max(gate_days_seen) != prev:
-                rec["rings"] += 1
-            state["last_ring"][zk] = max(gate_days_seen)
-        board[zk] = {
-            "keeper": zc.get("keeper"),
-            "region": zc.get("region", "Elsewhere"),
-            "season_note": zc.get("season_note"),
-            "casting": zc.get("casting"),
-            "warm_f": round((dict(CONFIG["perfect_gate"],
-                                  **zc.get("perfect_gate_overrides", {}))["min_sst_c"])
-                            * 9 / 5 + 32),
-            "tz": zc.get("tz", "America/Los_Angeles"),
-            "record": dict(rec),
-            "bell": zc.get("bell", {}), "tier": zc.get("tier", "provisional"),
-            "topic": ztopic, "name": zc["name"],
-            "instruments": {"buoy": zc.get("buoy_aodn") or zc.get("buoy"),
-                            "tide": zc.get("tide_station")},
-            "sms": zc.get("sms", True),
-            "last_ring": state.get("last_ring", {}).get(zk),
-            "sst_f": round(sst * 9 / 5 + 32) if sst is not None else None,
-            "windows": [{"label": s["w"]["label"],
-                         "start": s["w"]["start"].isoformat(),
-                         "kind": s["w"].get("kind", "dawn"),
-                         "score": s["score"], "conf": s["conf"],
-                         "limit": s.get("limit"),
-                         "entries": s["entries"][:2],
-                         "gate": bool(s.get("gate")),
-                         # every axis aligned this run, whether or not it has
-                         # held long enough to be worth a promise
-                         "aligned": bool(s.get("gate_raw", s.get("gate")))}
-                        for s in scored],
-        }
+            if args.weekly:
+                ntfy_digest(zk, zc, scored, state, t_now, args.dry_run, weekly=True, sst=sst)
+            elif args.brief:
+                best = max(scored, key=lambda s: s["score"]) if scored else None
+                if best:
+                    txt = "Zone %s best: %.1f/10 %s — %s. %s" % (
+                        zk, best["score"], best["w"]["label"], " / ".join(best["entries"]),
+                        best["tide_fyi"] or "")
+                    notify({"title": "Dive brief — Zone %s" % zk, "message": txt, "priority": 2},
+                           args.dry_run, topic=ztopic)
+            else:
+                # a weekly reading deferred past its bell's night is paid here, by
+                # the first ordinary run in that bell's morning — re-scored at the
+                # digest horizon, since ordinary runs only look 72h out
+                if (state.get("ntfy_digest_due", {}).get(zk)
+                        and digest_morning_ok(zc, t_now)):
+                    wide = score_zone(zk, zc, fetches, t_now,
+                                      24 * CONFIG["alerting"]["digest_days"],
+                                      skill_corr=skill_corr)
+                    ntfy_digest(zk, zc, wide, state, t_now, args.dry_run,
+                                weekly=False, sst=sst)
+                check_retraction(zk, zc, scored, state, t_now, args.dry_run)
+                # a ring text owed from quiet hours or partial failure is paid
+                # here while the window still stands and its gate still holds
+                due_ring = state.get("sms_ring_due", {}).get(zk)
+                if due_ring:
+                    cand = next((s for s in scored
+                                 if s["w"]["key"] == due_ring and s.get("gate")), None)
+                    if cand and (cand["w"]["start"] - t_now).total_seconds() > 6 * 3600:
+                        sms_ring(zk, zc, cand, state, args.dry_run)
+                    else:
+                        # the window closed its gate or drew too near — cancel
+                        state["sms_ring_due"].pop(zk, None)
+                action, payload = decide_alert(scored, t_now, state, zk)
+                if action == "alert" or action == "quiet_alert":
+                    tip = select_tip(payload["entries"], payload["score"], payload["feats"]["damage"],
+                                     payload["band"], payload["w"]["start"], state)
+                    msg = render_alert(payload["w"], payload["score"], payload["feats"], payload["conf"],
+                                       payload["conf_notes"], payload["entries"], payload["tide_fyi"],
+                                       tip, state, quiet=(action == "quiet_alert"),
+                                       sst_c=sst, brag=superlative(payload["score"], t_now),
+                                       actions=feedback_actions(payload["w"]["key"], zc),
+                                       gate=payload.get("gate"))
+                    if payload.get("gate") and zc.get("tier") == "provisional":
+                        msg["message"] += ("\n\nThis bell is newly cast. It rings on the "
+                                           "strength of its casting alone — no diver has "
+                                           "yet sworn to its word. Be its first witness.")
+                    delivered = notify(msg, args.dry_run, topic=ztopic)
+                    if payload.get("gate"):
+                        sms_ring(zk, zc, payload, state, args.dry_run)
+                    if delivered:
+                        rec["promises"] += 1   # a promise nobody heard is not a promise
+                    for r in rows:
+                        if r["window_key"] == payload["w"]["key"]:
+                            r["alerted"] = action
+                elif action == "downgrade":
+                    notify(render_downgrade(payload["w"], payload["old"], payload["new"], payload["feats"]),
+                           args.dry_run, topic=ztopic)
+            # the weekly reading by text: marked due on Wednesdays, delivered by
+            # the first quiet-legal run of the week (see sms_digest)
+            sms_digest(zk, zc, scored, state, args.dry_run, weekly=bool(args.weekly))
+            append_log(LOG_PATH, LOG_COLS, rows, args.dry_run)
+            # the bell remembers: a ring is recorded only when its DAY HAS COME —
+            # a qualifying forecast is a promise, not history (audit repair
+            # 2026-09-14: nine bells were publishing future dates as past rings)
+            today_loc = t_now.astimezone(zone_tz(zc)).date().isoformat()
+            gate_days_seen = [s["w"]["start"].date().isoformat() for s in scored
+                              if s.get("gate")
+                              and s["w"]["start"].date().isoformat() <= today_loc]
+            if gate_days_seen:
+                prev = state.setdefault("last_ring", {}).get(zk)
+                if max(gate_days_seen) != prev:
+                    rec["rings"] += 1
+                state["last_ring"][zk] = max(gate_days_seen)
+            board[zk] = {
+                "keeper": zc.get("keeper"),
+                "region": zc.get("region", "Elsewhere"),
+                "season_note": zc.get("season_note"),
+                "casting": zc.get("casting"),
+                "warm_f": round((dict(CONFIG["perfect_gate"],
+                                      **zc.get("perfect_gate_overrides", {}))["min_sst_c"])
+                                * 9 / 5 + 32),
+                "tz": zc.get("tz", "America/Los_Angeles"),
+                "record": dict(rec),
+                "bell": zc.get("bell", {}), "tier": zc.get("tier", "provisional"),
+                "topic": ztopic, "name": zc["name"],
+                "instruments": {"buoy": zc.get("buoy_aodn") or zc.get("buoy"),
+                                "tide": zc.get("tide_station")},
+                "sms": zc.get("sms", True),
+                "last_ring": state.get("last_ring", {}).get(zk),
+                "sst_f": round(sst * 9 / 5 + 32) if sst is not None else None,
+                "windows": [{"label": s["w"]["label"],
+                             "start": s["w"]["start"].isoformat(),
+                             "kind": s["w"].get("kind", "dawn"),
+                             "score": s["score"], "conf": s["conf"],
+                             "limit": s.get("limit"),
+                             "entries": s["entries"][:2],
+                             "gate": bool(s.get("gate")),
+                             # every axis aligned this run, whether or not it has
+                             # held long enough to be worth a promise
+                             "aligned": bool(s.get("gate_raw", s.get("gate")))}
+                            for s in scored],
+            }
 
+        except Exception as e:
+            # 2026-09-30: a dead network on the runner raised out of one
+            # bell's push, the run died, nothing was saved, and the reading
+            # was never owed again. One bell's failure is one bell's failure:
+            # log it, count it, keep going, save state at the end.
+            zone_errors[zk] = str(e)[:120]
+            print("ZONE %s FAILED: %s" % (zk, e), file=sys.stderr)
+            traceback.print_exc()
+    if zone_errors:
+        notify_ops({"title": "Bells failed this run 🔧",
+                    "message": "%d of %d: %s" % (len(zone_errors), len(CONFIG["zones"]),
+                                                 "; ".join("%s %s" % kv for kv in zone_errors.items())),
+                    "priority": 4}, args.dry_run)
     # THE SHARE CARDS: a tiny page per bell whose OpenGraph tags carry the
     # LIVE state, rewritten every run — so pasting a bell's link into any
     # group chat unfurls today's truth ("quiet · best Thu dawn 6.2"), not a
@@ -3357,6 +3443,14 @@ def cmd_run(args):
             with open(os.path.join(ROOT, bslug, "index.html"), "w") as sf:
                 sf.write(stub)
         os.makedirs(DATA, exist_ok=True)
+        # a bell that failed this run keeps its last plate, marked stale —
+        # one dead fetch must not blank a bell off the public board
+        try:
+            with open(os.path.join(DATA, "zones.json")) as jf:
+                prev_zones = json.load(jf).get("zones", {})
+        except (OSError, ValueError):
+            prev_zones = {}
+        board = merge_board(board, prev_zones)
         with open(os.path.join(DATA, "zones.json"), "w") as jf:
             json.dump({"updated": t_now.isoformat(),
                        "sms_live": CONFIG.get("sms_live", False),
@@ -4824,7 +4918,7 @@ def cmd_test(args):
     g4 = globals()
     saved4 = {n: g4[n] for n in ("digest_morning_ok", "notify")}
     notes4 = []
-    g4["notify"] = lambda msg, dry, topic=None: notes4.append(topic)
+    g4["notify"] = lambda msg, dry, topic=None: notes4.append(topic) or True
     st_n = {}
     try:
         g4["digest_morning_ok"] = lambda zcfg, when=None: False   # 2am in Sydney
@@ -4857,7 +4951,7 @@ def cmd_test(args):
     # aloud; a promise still standing (or still over the horizon) is not.
     g5 = globals()
     _n5 = g5["notify"]; notes5 = []
-    g5["notify"] = lambda msg, dry, topic=None: notes5.append(msg["title"])
+    g5["notify"] = lambda msg, dry, topic=None: notes5.append(msg["title"]) or True
     try:
         pday = (t0 + timedelta(days=2)).date().isoformat()
         washed = [_win(2, "Fri dawn", 5.2, limit="swell")]
@@ -5008,6 +5102,96 @@ def cmd_test(args):
         g6["_sms_history"] = _hist
     check("(qq) the reading's footer teaches QUIET, not DIGEST",
           "QUIET" in sms_digest_text(zc, ring_week) and "DIGEST" not in sms_digest_text(zc, ring_week))
+
+    # (rr) A LOST SEND IS NOT A LOST RUN. 2026-09-30: the runner had no
+    # network, the Wednesday reading's push raised out of notify(), the run
+    # died before saving state, and the reading was never owed again.
+    g7 = globals()
+    _uo = urllib.request.urlopen
+
+    def _dead(*a, **k):
+        raise OSError(101, "Network is unreachable")
+    urllib.request.urlopen = _dead
+    try:
+        rc = notify({"title": "t", "message": "m", "priority": 3}, False, topic="drill")
+        check("(rr) notify returns False on a dead network, never raises", rc is False)
+    finally:
+        urllib.request.urlopen = _uo
+    check("(rr) a dry run counts as delivered",
+          notify({"title": "t", "message": "m", "priority": 3}, True, topic="drill") is True)
+
+    # (rr2) the digest keeps its debt through a failed delivery, pays once
+    # delivery works, and never pays twice
+    _n7 = g7["notify"]; _mo = g7["digest_morning_ok"]
+    g7["digest_morning_ok"] = lambda zcfg, when=None: True
+    st7 = {}
+    try:
+        g7["notify"] = lambda msg, dry, topic=None: False
+        ntfy_digest("A", zc, ring_week, st7, t0, True, weekly=True)
+        check("(rr2) failed delivery keeps the reading owed",
+              st7["ntfy_digest_due"].get("A") and "A" not in st7["ntfy_digest_sent"])
+        paid = []
+        g7["notify"] = lambda msg, dry, topic=None: paid.append(1) or True
+        ntfy_digest("A", zc, ring_week, st7, t0, True, weekly=False)
+        ntfy_digest("A", zc, ring_week, st7, t0, True, weekly=False)
+        check("(rr2) the next working delivery pays it exactly once",
+              len(paid) == 1 and "A" not in st7["ntfy_digest_due"]
+              and st7["ntfy_digest_sent"].get("A"))
+    finally:
+        g7["notify"] = _n7; g7["digest_morning_ok"] = _mo
+
+    # (rr3) a ring whose subscriber ledger can't be read stays owed
+    _ss = g7["sms_subscribers"]; _te = g7["_twilio_env"]; _qo = g7["sms_quiet_ok"]
+    g7["_twilio_env"] = lambda: ("sid", "tok", "+1833")
+    g7["sms_quiet_ok"] = lambda zcfg, when=None: True
+
+    def _boom():
+        raise OSError(101, "Network is unreachable")
+    g7["sms_subscribers"] = _boom
+    st8 = {}
+    try:
+        sms_ring("A", zc, ring_week[1], st8, dry_run=True)
+        check("(rr3) unreadable ledger => ring owed, not lost, not crashed",
+              st8.get("sms_ring_due", {}).get("A") == ring_week[1]["w"]["key"]
+              and "A" not in st8.get("sms_rung", {}))
+    finally:
+        g7["sms_subscribers"] = _ss; g7["_twilio_env"] = _te; g7["sms_quiet_ok"] = _qo
+
+    # (rr4) ONE BELL'S FAILURE IS ONE BELL'S FAILURE: a zone whose fetch
+    # raises is logged and skipped; the run finishes and saves.
+    _fa = g7["fetch_all"]
+
+    def _fa_boom(zone_cfg, offline=False, fixture_set="normal"):
+        if zone_cfg.get("bell", {}).get("no") == 2:
+            raise OSError(101, "Network is unreachable")
+        return _fa(zone_cfg, offline, fixture_set)
+    g7["fetch_all"] = _fa_boom
+
+    class _A9:
+        offline, dry_run, brief, weekly = True, True, False, False
+        fixtures = "normal"
+    try:
+        try:
+            cmd_run(_A9()); rc9 = None
+        except SystemExit:
+            rc9 = None
+        except Exception as e:
+            rc9 = e
+        check("(rr4) a raising bell does not abort the run", rc9 is None, "raised %r" % rc9)
+    finally:
+        g7["fetch_all"] = _fa
+
+    # (rr5) A FAILED BELL KEEPS ITS PLATE: the board carries last-known
+    # entries for bells that failed this run, marked stale; fresh wins;
+    # retired bells stay gone.
+    prev5 = {"A": {"name": "Laguna", "score": 1}, "C": {"name": "Dana", "score": 2},
+             "ZZ": {"name": "retired", "score": 9}}
+    m5 = merge_board({"A": {"name": "Laguna", "score": 7}}, prev5)
+    check("(rr5) fresh entry wins, unmarked", m5["A"]["score"] == 7 and "stale" not in m5["A"])
+    check("(rr5) failed bell carried and marked stale", m5.get("C", {}).get("stale") is True)
+    check("(rr5) a retired bell does not come back", "ZZ" not in m5)
+    check("(rr5) an empty history merges to the fresh board alone",
+          merge_board({"A": {"x": 1}}, {}) == {"A": {"x": 1}})
 
     # fixture suite: degraded + disagreement
     print("fixture tests:")

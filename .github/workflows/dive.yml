@@ -18,7 +18,13 @@ on:
                            # At/after 8am local so the SMS digest clears TCPA
                            # quiet hours for Pacific bells on the spot; Hawaii
                            # bells stay due until the 4pm read (~1pm HST).
-  workflow_dispatch: {}    # manual runs always allowed
+  workflow_dispatch:       # manual runs always allowed
+    inputs:
+      mode:
+        description: "run (default), or weekly to deliver the Wednesday reading now"
+        default: "run"
+        type: choice
+        options: [run, weekly]
 
 permissions:
   contents: write
@@ -43,7 +49,11 @@ jobs:
           H=$(TZ=America/Los_Angeles date +%-H)
           DOW=$(TZ=America/Los_Angeles date +%u)
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "go=yes" >> "$GITHUB_OUTPUT"
+            if [ "${{ github.event.inputs.mode }}" = "weekly" ]; then
+              echo "go=weekly" >> "$GITHUB_OUTPUT"   # a missed Wednesday, paid by hand
+            else
+              echo "go=yes" >> "$GITHUB_OUTPUT"
+            fi
           elif [ "$DOW" = "3" ] && [ "$H" -ge 6 ] && [ "$H" -le 10 ]; then
             echo "go=weekly" >> "$GITHUB_OUTPUT"   # Wednesday: the week-ahead ritual
           elif [ "$H" -ge 3 ] && [ "$H" -le 5 ]; then
@@ -65,6 +75,7 @@ jobs:
           TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
           TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
           TWILIO_FROM: ${{ secrets.TWILIO_FROM }}
+          KEEPER_PHONE: ${{ secrets.KEEPER_PHONE }}
         run: python dive_alert.py run
 
       - name: Weekly digest
@@ -78,6 +89,7 @@ jobs:
           TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
           TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
           TWILIO_FROM: ${{ secrets.TWILIO_FROM }}
+          KEEPER_PHONE: ${{ secrets.KEEPER_PHONE }}
         run: python dive_alert.py run --weekly
 
       - name: Ingest feedback only
@@ -109,3 +121,21 @@ jobs:
           done
           echo "could not land the data commit after 3 attempts"
           exit 1
+
+      # The keeper reads texts, not GitHub's email. On any failure, say so
+      # by SMS with the run link. Silent when KEEPER_PHONE is unset.
+      - name: Text the keeper on failure
+        if: failure()
+        env:
+          TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
+          TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
+          TWILIO_FROM: ${{ secrets.TWILIO_FROM }}
+          KEEPER_PHONE: ${{ secrets.KEEPER_PHONE }}
+        run: |
+          if [ -z "$KEEPER_PHONE" ] || [ -z "$TWILIO_AUTH_TOKEN" ]; then
+            echo "no KEEPER_PHONE/Twilio secrets - keeper not texted"; exit 0; fi
+          curl -s -o /dev/null -w "keeper texted: %{http_code}\n" \
+            -u "$TWILIO_ACCOUNT_SID:$TWILIO_AUTH_TOKEN" \
+            --data-urlencode "To=$KEEPER_PHONE" --data-urlencode "From=$TWILIO_FROM" \
+            --data-urlencode "Body=DIVE BELL OPS - the dive-alert run FAILED. ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            "https://api.twilio.com/2010-04-01/Accounts/$TWILIO_ACCOUNT_SID/Messages.json"
