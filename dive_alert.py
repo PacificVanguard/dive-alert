@@ -2912,6 +2912,10 @@ def cmd_smscheck(args):
         print("no Twilio secrets in this environment — nothing to check")
         return
     sid, tok, frm = env
+    kp = get_secret("KEEPER_PHONE")
+    print("KEEPER_PHONE: %s" % ("unset — ops alarms reach the app only" if not kp
+          else "set, +E.164 OK" if re.match(r"^\+[1-9]\d{6,14}$", kp)
+          else "SET BUT MALFORMED — not a +E.164 number; every keeper text fails"))
     import collections
     out, inb = collections.Counter(), 0
     errs, recent = collections.Counter(), []
@@ -3021,6 +3025,12 @@ def sms_keeper(text, dry_run=False):
     env = _twilio_env()
     to = get_secret("KEEPER_PHONE")
     if not env or not to or dry_run:
+        return False
+    if not re.match(r"^\+[1-9]\d{6,14}$", to):
+        # a placeholder pasted verbatim (it happened 2026-09-30) must be
+        # loud in the log, not a silent 400 on every alarm forever
+        print("KEEPER_PHONE is set but is not a +E.164 number — keeper texts "
+              "will all fail until it is fixed", file=sys.stderr)
         return False
     sid, tok, frm = env
     body = "".join(ch for ch in text if ord(ch) < 128).strip()[:300]   # GSM-7
@@ -5192,6 +5202,30 @@ def cmd_test(args):
     check("(rr5) a retired bell does not come back", "ZZ" not in m5)
     check("(rr5) an empty history merges to the fresh board alone",
           merge_board({"A": {"x": 1}}, {}) == {"A": {"x": 1}})
+
+    # (rr6) THE PLACEHOLDER PASTED VERBATIM: a KEEPER_PHONE that isn't a
+    # phone number is refused loudly and never dialed; a real one is texted
+    # with the OPS prefix. (2026-09-30: "+1YOURNUMBER" went into the secret.)
+    _gs = g7["get_secret"]; _tr = g7["_twilio_req"]; _te6 = g7["_twilio_env"]
+    dialed = []
+    g7["_twilio_env"] = lambda: ("sid", "tok", "+1833")
+    g7["_twilio_req"] = lambda path, sid, tok, data=None: dialed.append(data) or {}
+    try:
+        g7["get_secret"] = lambda name: "+1YOURNUMBER" if name == "KEEPER_PHONE" else _gs(name)
+        check("(rr6) a malformed KEEPER_PHONE is refused, not dialed",
+              sms_keeper("test") is False and not dialed)
+        g7["get_secret"] = lambda name: "+15551234567" if name == "KEEPER_PHONE" else _gs(name)
+        ok6 = sms_keeper("The bell has gone silent \U0001f527: 31h")
+        check("(rr6) a real keeper number is texted, GSM-7, OPS-prefixed",
+              ok6 is True and len(dialed) == 1
+              and dialed[0]["To"] == "+15551234567"
+              and dialed[0]["Body"].startswith("DIVE BELL OPS - ")
+              and all(ord(c) < 128 for c in dialed[0]["Body"]), str(dialed))
+        check("(rr6) unset means silent, not an error",
+              (g7.__setitem__("get_secret", lambda name: None if name == "KEEPER_PHONE" else _gs(name))
+               or sms_keeper("x")) is False)
+    finally:
+        g7["get_secret"] = _gs; g7["_twilio_req"] = _tr; g7["_twilio_env"] = _te6
 
     # fixture suite: degraded + disagreement
     print("fixture tests:")

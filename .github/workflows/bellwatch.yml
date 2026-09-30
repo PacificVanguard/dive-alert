@@ -92,7 +92,12 @@ jobs:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
         run: |
           python3 - <<'EOF'
-          import base64, json, os, sys, urllib.parse, urllib.request
+          import base64, json, os, re, sys, urllib.parse, urllib.request
+          # a KEEPER_PHONE that isn't a phone number fails the watch LOUDLY —
+          # GitHub's email is the one channel that doesn't depend on it
+          kp = os.environ.get("KEEPER_PHONE", "")
+          if kp and not re.match(r"^\+[1-9]\d{6,14}$", kp):
+              sys.exit("KEEPER_PHONE is set but is not a +E.164 number - fix the secret")
           sid, tok = os.environ.get("TWILIO_ACCOUNT_SID"), os.environ.get("TWILIO_AUTH_TOKEN")
           if not sid or not tok:
               print("no Twilio secrets — purse unwatched"); sys.exit(0)
