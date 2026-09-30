@@ -2916,6 +2916,11 @@ def cmd_smscheck(args):
     print("KEEPER_PHONE: %s" % ("unset — ops alarms reach the app only" if not kp
           else "set, +E.164 OK" if re.match(r"^\+[1-9]\d{6,14}$", kp)
           else "SET BUT MALFORMED — not a +E.164 number; every keeper text fails"))
+    if getattr(args, "ping", False):
+        # the only proof that matters is the phone buzzing
+        print("keeper ping: %s" % ("sent" if sms_keeper(
+            "keeper line test - this is how the bell's alarms will reach you")
+            else "NOT sent (see above)"))
     import collections
     out, inb = collections.Counter(), 0
     errs, recent = collections.Counter(), []
@@ -5294,7 +5299,9 @@ def main():
     p_skill.add_argument("--notify", action="store_true")
     sub.add_parser("ingest")
     sub.add_parser("share")
-    sub.add_parser("smscheck")
+    p_sc = sub.add_parser("smscheck")
+    p_sc.add_argument("--ping", action="store_true",
+                      help="also send one test text to KEEPER_PHONE")
     p_setup = sub.add_parser("setup")
     p_setup.add_argument("--github", action="store_true")
     p_setup.add_argument("--topic", default=None)

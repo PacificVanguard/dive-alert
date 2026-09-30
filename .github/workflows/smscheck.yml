@@ -3,7 +3,12 @@
 # this repo and its logs are public.
 name: smscheck
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      ping:
+        description: "also send one test text to KEEPER_PHONE"
+        type: boolean
+        default: false
 
 jobs:
   check:
@@ -19,4 +24,4 @@ jobs:
           TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
           TWILIO_FROM: ${{ secrets.TWILIO_FROM }}
           KEEPER_PHONE: ${{ secrets.KEEPER_PHONE }}
-        run: python dive_alert.py smscheck
+        run: python dive_alert.py smscheck ${{ inputs.ping == true && '--ping' || '' }}
