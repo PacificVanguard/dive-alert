@@ -1,22 +1,8 @@
 {
- "updated": "2026-10-01T15:00:00-07:00",
+ "updated": "2026-10-01T18:00:00-07:00",
  "zone": "A",
- "sst_f": 74,
+ "sst_f": 72,
  "windows": [
-  {
-   "label": "Thu dusk",
-   "start": "2026-10-01T16:35:00-07:00",
-   "kind": "dusk",
-   "score": 6.2,
-   "conf": "medium",
-   "limit": "swell",
-   "entries": [
-    "Shaw's Cove",
-    "Divers Cove"
-   ],
-   "gate": false,
-   "aligned": false
-  },
   {
    "label": "Fri dawn",
    "start": "2026-10-02T06:16:00-07:00",
@@ -35,7 +21,7 @@
    "label": "Fri dusk",
    "start": "2026-10-02T16:33:00-07:00",
    "kind": "dusk",
-   "score": 7.6,
+   "score": 7.9,
    "conf": "medium",
    "limit": "swell",
    "entries": [
@@ -49,7 +35,7 @@
    "label": "Sat dawn",
    "start": "2026-10-03T06:16:00-07:00",
    "kind": "dawn",
-   "score": 7.5,
+   "score": 7.2,
    "conf": "medium",
    "limit": "grey",
    "entries": [
@@ -63,9 +49,9 @@
    "label": "Sat dusk",
    "start": "2026-10-03T16:32:00-07:00",
    "kind": "dusk",
-   "score": 8.4,
+   "score": 8.1,
    "conf": "medium",
-   "limit": "stirred up",
+   "limit": "swell",
    "entries": [
     "Fisherman's Cove",
     "Shaw's Cove"
@@ -78,6 +64,20 @@
    "start": "2026-10-04T06:17:00-07:00",
    "kind": "dawn",
    "score": 8.2,
+   "conf": "medium",
+   "limit": "swell",
+   "entries": [
+    "Fisherman's Cove",
+    "Shaw's Cove"
+   ],
+   "gate": false,
+   "aligned": false
+  },
+  {
+   "label": "Sun dusk",
+   "start": "2026-10-04T16:31:00-07:00",
+   "kind": "dusk",
+   "score": 7.5,
    "conf": "medium",
    "limit": "swell",
    "entries": [
