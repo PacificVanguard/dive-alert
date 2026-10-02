@@ -1,24 +1,24 @@
 {
  "streaks": {
   "A": {
-   "score": 7.4,
+   "score": 8.8,
    "entries": [
     "Fisherman's Cove",
     "Shaw's Cove"
    ],
-   "window_key": "20261002T0616-dawn",
+   "window_key": "20261004T0617-dawn",
    "since": "2026-09-25T18:00:00-07:00",
    "gate": false
   },
   "D": {
-   "score": 9.0,
+   "score": 7.6,
    "entries": [
     "La Jolla Cove",
     "La Jolla Shores (Canyon)"
    ],
-   "window_key": "20261003T1630-dusk",
+   "window_key": "20261004T0615-dawn",
    "since": "2026-09-28T16:00:00-07:00",
-   "gate": true
+   "gate": false
   },
   "G": {
    "score": 8.5,
@@ -51,17 +51,17 @@
    "gate": false
   },
   "H": {
-   "score": 7.2,
+   "score": 8.4,
    "entries": [
     "Whalers Cove",
     "Bluefish Cove"
    ],
-   "window_key": "20261003T0634-dawn",
+   "window_key": "20261004T0635-dawn",
    "since": "2026-10-01T15:00:00-07:00",
    "gate": false
   },
   "M": {
-   "score": 8.0,
+   "score": 7.0,
    "entries": [
     "Point Dume Cove",
     "Leo Carrillo (Sequit Point)"
@@ -71,17 +71,37 @@
    "gate": false
   },
   "N": {
-   "score": 8.2,
+   "score": 9.0,
    "entries": [
     "County Line Reef (Yerba Buena)",
     "La Jenelle (Port Hueneme)"
    ],
-   "window_key": "20261003T0621-dawn",
+   "window_key": "20261003T1637-dusk",
    "since": "2026-10-01T15:00:00-07:00",
+   "gate": true
+  },
+  "F": {
+   "score": 8.5,
+   "entries": [
+    "Casino Point Dive Park",
+    "Lover's Cove"
+   ],
+   "window_key": "20261003T1634-dusk",
+   "since": "2026-10-02T15:00:00-07:00",
+   "gate": false
+  },
+  "L": {
+   "score": 7.0,
+   "entries": [
+    "Bari Reef",
+    "1000 Steps"
+   ],
+   "window_key": "20261004T1620-dusk",
+   "since": "2026-10-02T15:00:00-07:00",
    "gate": false
   }
  },
- "last_tip_id": "db1",
+ "last_tip_id": "fi1",
  "src_fail": {
   "marine": 0,
   "weather": 0,
@@ -121,13 +141,13 @@
   "D:ndbc_spec": 0,
   "E:marine": 0,
   "E:weather": 0,
-  "E:ndbc_primary": 102,
+  "E:ndbc_primary": 103,
   "E:ndbc_offshore": 0,
   "E:tides": 0,
   "E:sst": 0,
   "E:chla": 0,
   "E:kd490": 0,
-  "E:ndbc_spec": 102,
+  "E:ndbc_spec": 103,
   "F:marine": 0,
   "F:weather": 0,
   "F:ndbc_primary": 0,
@@ -138,7 +158,7 @@
   "F:kd490": 0,
   "F:ndbc_spec": 0,
   "G:marine": 0,
-  "G:weather": 2,
+  "G:weather": 3,
   "G:ndbc_primary": 0,
   "G:ndbc_offshore": 0,
   "G:tides": 0,
@@ -174,7 +194,7 @@
   "J:kd490": 0,
   "J:ndbc_spec": 0,
   "K:marine": 0,
-  "K:weather": 0,
+  "K:weather": 1,
   "K:ndbc_primary": 0,
   "K:ndbc_offshore": 0,
   "K:tides": 0,
@@ -184,15 +204,15 @@
   "K:ndbc_spec": 0,
   "L:marine": 0,
   "L:weather": 0,
-  "L:ndbc_primary": 100,
-  "L:ndbc_offshore": 100,
-  "L:tides": 100,
+  "L:ndbc_primary": 101,
+  "L:ndbc_offshore": 101,
+  "L:tides": 101,
   "L:sst": 0,
   "L:chla": 0,
   "L:kd490": 0,
-  "L:ndbc_spec": 100,
+  "L:ndbc_spec": 101,
   "M:marine": 0,
-  "M:weather": 1,
+  "M:weather": 0,
   "M:ndbc_primary": 0,
   "M:ndbc_offshore": 0,
   "M:tides": 0,
@@ -202,43 +222,43 @@
   "M:ndbc_spec": 0,
   "N:marine": 0,
   "N:weather": 0,
-  "N:ndbc_primary": 100,
+  "N:ndbc_primary": 101,
   "N:ndbc_offshore": 0,
   "N:tides": 0,
   "N:sst": 0,
   "N:chla": 0,
   "N:kd490": 0,
-  "N:ndbc_spec": 100,
+  "N:ndbc_spec": 101,
   "O:marine": 0,
   "O:weather": 0,
   "O:ndbc_primary": 0,
-  "O:ndbc_offshore": 100,
-  "O:tides": 100,
+  "O:ndbc_offshore": 101,
+  "O:tides": 101,
   "O:sst": 0,
   "O:chla": 0,
   "O:kd490": 0,
-  "O:ndbc_spec": 100,
+  "O:ndbc_spec": 101,
   "P:marine": 0,
   "P:weather": 0,
-  "P:ndbc_primary": 30,
-  "P:ndbc_offshore": 100,
+  "P:ndbc_primary": 31,
+  "P:ndbc_offshore": 101,
   "P:tides": 0,
   "P:sst": 0,
   "P:chla": 0,
   "P:kd490": 0,
-  "P:ndbc_spec": 30,
-  "A:marine_alt": 1,
-  "C:marine_alt": 2,
-  "D:marine_alt": 1,
+  "P:ndbc_spec": 31,
+  "A:marine_alt": 2,
+  "C:marine_alt": 0,
+  "D:marine_alt": 0,
   "E:marine_alt": 0,
   "F:marine_alt": 0,
   "G:marine_alt": 0,
-  "H:marine_alt": 1,
+  "H:marine_alt": 0,
   "I:marine_alt": 0,
   "J:marine_alt": 0,
   "K:marine_alt": 0,
   "L:marine_alt": 0,
-  "M:marine_alt": 0,
+  "M:marine_alt": 1,
   "N:marine_alt": 0,
   "O:marine_alt": 0,
   "P:marine_alt": 0
@@ -246,7 +266,7 @@
  "fb_since_by_zone": {},
  "record": {
   "A": {
-   "promises": 16,
+   "promises": 17,
    "rings": 1
   },
   "C": {
@@ -262,7 +282,7 @@
    "rings": 4
   },
   "F": {
-   "promises": 10,
+   "promises": 11,
    "rings": 1
   },
   "G": {
@@ -270,7 +290,7 @@
    "rings": 1
   },
   "H": {
-   "promises": 14,
+   "promises": 15,
    "rings": 10
   },
   "I": {
@@ -286,7 +306,7 @@
    "rings": 0
   },
   "L": {
-   "promises": 10,
+   "promises": 11,
    "rings": 0
   },
   "M": {
@@ -294,7 +314,7 @@
    "rings": 1
   },
   "N": {
-   "promises": 13,
+   "promises": 14,
    "rings": 1
   },
   "O": {
@@ -306,7 +326,7 @@
    "rings": 1
   }
  },
- "hook_idx": 156,
+ "hook_idx": 160,
  "axis_blind": {
   "flat": 0,
   "glass": 0,
@@ -329,7 +349,7 @@
   "E": "20260910T0616-dawn",
   "H": "20260910T0616-dawn",
   "C": "20260913T1659-dusk",
-  "N": "20260916T0609-dawn",
+  "N": "20261003T1637-dusk",
   "A": "20260916T0605-dawn",
   "J": "20260916T0549-dawn"
  },
@@ -398,24 +418,26 @@
  "gate_streak": {
   "A": {},
   "C": {},
-  "D": {
-   "20261003T1630-dusk": 2,
-   "20261004T0615-dawn": 2,
-   "20261004T1629-dusk": 1
-  },
+  "D": {},
   "E": {
-   "20261004T1646-dusk": 1
+   "20261004T1646-dusk": 2,
+   "20261005T0636-dawn": 1
   },
-  "F": {},
+  "F": {
+   "20261003T1634-dusk": 1,
+   "20261004T0619-dawn": 1
+  },
   "G": {},
-  "H": {},
+  "H": {
+   "20261005T0636-dawn": 1
+  },
   "I": {},
   "J": {},
   "K": {},
   "L": {},
   "M": {},
   "N": {
-   "20261003T1637-dusk": 1
+   "20261003T1637-dusk": 2
   },
   "O": {},
   "P": {}
