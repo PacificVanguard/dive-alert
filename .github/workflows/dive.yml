@@ -56,10 +56,16 @@ jobs:
             fi
           elif [ "$DOW" = "3" ] && [ "$H" -ge 6 ] && [ "$H" -le 10 ]; then
             echo "go=weekly" >> "$GITHUB_OUTPUT"   # Wednesday: the week-ahead ritual
-          elif [ "$H" -ge 3 ] && [ "$H" -le 5 ]; then
-            echo "go=yes" >> "$GITHUB_OUTPUT"      # the dawn read
-          elif [ "$H" -ge 14 ] && [ "$H" -le 19 ]; then
-            echo "go=yes" >> "$GITHUB_OUTPUT"      # the afternoon read
+          elif [ "$H" -ge 3 ] && [ "$H" -le 9 ]; then
+            # 3-9, not 3-5: GitHub now fires the 4:30am cron 3-4h late, and
+            # 8-9am fell in a gap between windows — the morning read was
+            # silently skipped every day (found 2026-10-05). Wednesdays 6-10
+            # are claimed above as the weekly run.
+            echo "go=yes" >> "$GITHUB_OUTPUT"      # the morning read
+          elif [ "$H" -ge 14 ] && [ "$H" -le 22 ]; then
+            # through 10pm: the 4pm cron already lands ~6:30pm; one more
+            # hour of lateness would have dropped the evening read too
+            echo "go=yes" >> "$GITHUB_OUTPUT"      # the afternoon/evening read
           elif [ "$H" -ge 10 ] && [ "$H" -le 13 ]; then
             echo "go=ingest" >> "$GITHUB_OUTPUT"   # midday: fold in button presses
           else
