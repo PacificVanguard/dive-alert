@@ -48,15 +48,22 @@ message history IS the subscriber database — zero PII in this repo.
   If you ever need the ring path in one run (drills), set GATE_CONFIRM_RUNS
   to 1 around it — never delete the rule.
 
-## The SMS vocabulary (keep it to two words)
+## What the bell is (and the only words it needs)
 
-A diver needs their WATER to join and WEEK to ask. Everything else is
-revealed only when relevant: joining includes the Wednesday reading
-(`sms_digest_optins`: silence means yes); QUIET = rings only; WEEKLY
-brings the reading back (DIGEST is a silent alias); REEF/BUDDY/FINS after
-a dive; STOP/HELP are carrier-mandated. The welcome IS this week's
-reading. If you add a keyword, ask whether it exposes a developer's
-distinction — WEEK vs DIGEST (pull vs push) cost the founder the feature.
+Three things, decided from first principles on 2026-10-05; nothing here
+should grow a fourth. (1) THE RING — a text when the water is perfect;
+rare; the staple. (2) THE FORECAST — the week ahead each Wednesday;
+comes with the bell; `BELL ONLY` switches it off, `FORECAST` brings it
+back and also answers on demand. (3) YOUR WORD BACK — `FINS` / `REEF` /
+`BUDDY`; the bell replies with the dive it logged ("Friday evening") and
+the likeliest correction. Old words (WEEK, WEEKLY, DIGEST, QUIET) still
+work silently. The forecast text is written ONCE, by the engine
+(`sms_digest_text`), and published per bell as `forecast_sms` in
+zones.json — the webhook just returns it. A question is not a move:
+"MAUI FORECAST" or "FINS DANA" must never re-home a diver
+(`sms_subscribers`, `homeBell`). Tried and removed the same day: a
+weekly "best morning" text (a third push dilutes the ring) and a YES/NO
+confirmation dialogue (one text in, one back is enough).
 
 ## The Wednesday reading rides whichever cron lands (don't "fix" this)
 

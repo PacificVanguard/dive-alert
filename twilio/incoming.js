@@ -1,21 +1,21 @@
 // The bell's ear — deployed by .github/workflows/wire-sms.yml (run it after
 // any edit here; it rebuilds the Twilio Function and re-points the number).
 //
-// Stateless on purpose: the message history IS the subscriber database
-// (the repo's sms_subscribers() / sms_digest_optins() read it back). This
-// only has to answer well. STOP is handled by Twilio before this runs.
+// WHAT THE BELL IS (first principles, 2026-10-05):
+//   1. The ring   — a text when the water is perfect. Rare. The staple.
+//   2. The forecast — the week ahead, every Wednesday. Comes with the bell;
+//                     BELL ONLY switches it off, FORECAST brings it back.
+//   3. Your word back — FINS / REEF / BUDDY after a dive; the bell answers
+//                     with the dive it logged.
+// That is the whole product. Nothing here should grow a fourth thing.
 //
-// The whole vocabulary a diver needs is two words: their WATER to join,
-// WEEK to ask. Joining includes the Wednesday reading — the ritual is the
-// product — and the welcome IS this week's reading. QUIET drops to rings
-// only; WEEKLY brings the reading back.
+// Stateless on purpose: the message history IS the subscriber database (the
+// repo's sms_subscribers() / sms_digest_optins() read it back). STOP is
+// handled by Twilio before this runs. GSM-7 only in replies: one styled
+// character silently halves every segment.
 //
-// Verdicts (REEF / BUDDY / FINS) feed the calibration river — and a verdict
-// is worthless unless the bell knows WHICH DIVE it grades. A diver home from
-// Friday night's lobster opener texts on Saturday morning; so the bell asks:
-// "Was that Fri dusk at Laguna Beach?" — YES confirms, or they just say when
-// (LAST NIGHT, THIS MORNING, SAT DAWN). GSM-7 only in replies: one styled
-// char silently halves a segment.
+// Old words still work, silently: WEEK/WEEKLY/DIGEST = FORECAST,
+// QUIET/NO FORECAST = BELL ONLY.
 
 const BELLS = {
   LAGUNA: "Laguna Beach", DANA: "Dana Point", JOLLA: "La Jolla",
@@ -34,6 +34,12 @@ const BELL_TZ = {
 const VERDICTS = { REEF: "clear", BUDDY: "fair", FINS: "murk" };
 const FB_TOPIC = "laguna-dive-86dd82e0-fb";   // the calibration river
 const LEGAL = "Msg&data rates may apply. Reply HELP for help, STOP to end.";
+const OFF_WORDS = ["BELL ONLY", "NO FORECAST", "QUIET", "DIGEST OFF", "NODIGEST"];
+const ON_WORDS = ["FORECAST", "WEEK", "DIGEST"];          // WEEKLY contains WEEK
+const QUERY_WORDS = ["FORECAST", "WEEK", "REEF", "BUDDY", "FINS"];
+
+const bellIn = (b) => Object.keys(BELLS).find((k) => b.includes(k));
+const isQuery = (b) => QUERY_WORDS.some((q) => b.includes(q));
 
 // ── when was the dive? ────────────────────────────────────────────────
 const DAYS = {
@@ -41,7 +47,8 @@ const DAYS = {
   WED: 3, WEDS: 3, WEDNESDAY: 3, THU: 4, THUR: 4, THURS: 4, THURSDAY: 4,
   FRI: 5, FRIDAY: 5, SAT: 6, SATURDAY: 6,
 };
-const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const DAY_FULL = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday",
+                  "Friday", "Saturday"];
 const DAWN_WORDS = ["DAWN", "MORNING", "SUNRISE", "AM"];
 const DUSK_WORDS = ["DUSK", "EVENING", "NIGHT", "SUNSET", "AFTERNOON", "PM", "TONIGHT"];
 
@@ -60,15 +67,19 @@ function localParts(date, tz) {
 }
 function addDays(d, n) { return new Date(d.getTime() + n * 86400000); }
 function isoDay(d) { return d.toISOString().slice(0, 10); }
-function describe(w) { return DAY_NAMES[w.date.getUTCDay()] + " " + w.kind; }
+// A diver names their dive the human way: "Friday evening", not "Fri dusk".
+function describe(w) {
+  return DAY_FULL[w.date.getUTCDay()] + (w.kind === "dawn" ? " morning" : " evening");
+}
 
-// The bell's guess from the clock alone. Before 10am you are telling it
-// about last night; through the afternoon, this morning; after dark, tonight.
+// The bell's guess from the clock alone, plus the likeliest correction to
+// offer. Before 10am you are telling it about last night; through the
+// afternoon, this morning; after dark, tonight.
 function guessWhen(now, tz) {
   const { day, hour } = localParts(now, tz);
-  if (hour < 10) return { date: addDays(day, -1), kind: "dusk" };
-  if (hour < 19) return { date: day, kind: "dawn" };
-  return { date: day, kind: "dusk" };
+  if (hour < 10) return { date: addDays(day, -1), kind: "dusk", alt: "THIS MORNING" };
+  if (hour < 19) return { date: day, kind: "dawn", alt: "LAST NIGHT" };
+  return { date: day, kind: "dusk", alt: "THIS MORNING" };
 }
 
 // What the diver actually said, if anything: LAST NIGHT, YESTERDAY, THIS
@@ -105,8 +116,20 @@ function parseWhen(text, now, tz) {
   return { date, kind };
 }
 
+// "December through January, mostly" -> "December through January";
+// "March, August, October" -> "March, August and October".
+function seasonPhrase(s) {
+  if (!s) return "";
+  let t = String(s).replace(/,?\s*mostly\s*$/i, "").trim();
+  if (!/through/i.test(t) && t.includes(",")) {
+    const parts = t.split(",").map((x) => x.trim()).filter(Boolean);
+    t = parts.slice(0, -1).join(", ") + " and " + parts[parts.length - 1];
+  }
+  return t;
+}
+
 // verdict|sms|<bell>|<YYYY-MM-DD>|<dawn|dusk>|<guess|confirmed>|<report id>
-// The report id ties a later confirmation to the guess it answers (the
+// The report id lets a correction supersede the guess it corrects (the
 // engine keeps the newest line per id). It is the tail of Twilio's message
 // SID — opaque, and not a phone number.
 async function logVerdict(verdict, water, w, status, sid) {
@@ -119,214 +142,159 @@ async function logVerdict(verdict, water, w, status, sid) {
   } catch (e) {}
 }
 
-// The week ahead for a bell, read live from the site's own board — the same
-// truth the page shows. Returns {strip, read} or null when unreadable.
-async function weekParts(name) {
+// The bell's own board — the same file the site reads.
+async function zoneFor(name) {
   try {
     const r = await fetch("https://thedivebell.com/data/zones.json?t=" + Date.now());
     const d = await r.json();
-    const z = Object.values(d.zones).find(
+    return Object.values(d.zones).find(
       (x) => x.name === name || (x.bell && x.bell.name === name)
-    );
-    if (!z || !z.windows || !z.windows.length) return null;
-    const best = z.windows.reduce((a, b) => (b.score > a.score ? b : a));
-    const ringing = z.windows.filter((w) => w.gate);
-    const strip = z.windows
-      .map((w) => {
-        let s = w.label + " " + w.score.toFixed(1);
-        if (w === best) s += "*";
-        if (w.gate) s += " RINGING";
-        return s;
-      })
-      .join(" / ");
-    const entry = (best.entries && best.entries[0]) || "your cove";
-    let read;
-    if (ringing.length) {
-      const r0 = ringing[0];
-      read =
-        "The gate stands open " + r0.label +
-        " - every knowable thing aligned. " +
-        ((r0.entries && r0.entries[0]) || entry) + " is the door.";
-    } else if (best.score >= 7) {
-      read =
-        best.label + " is the one to watch - " + entry +
-        (best.limit && best.limit !== "all clear"
-          ? ". Held back only by " + best.limit + "."
-          : ". Nothing in the way but the water's last word.");
-    } else {
-      read =
-        "A quiet stretch - best is " + best.label + " at " +
-        best.score.toFixed(1) +
-        (best.limit && best.limit !== "all clear"
-          ? ", held back by " + best.limit
-          : "") +
-        ". The bell keeps its silence for a reason.";
-    }
-    return { strip, read };
+    ) || null;
   } catch (e) {
     return null;
   }
 }
 
-async function weekMessage(name) {
-  const p = await weekParts(name);
-  if (!p) {
-    return "The bell's board is briefly unreadable - try again in a minute, or see thedivebell.com";
+// The forecast is written once, by the engine, and published per bell as
+// forecast_sms — the Wednesday text and this on-demand reply are the same
+// words, so they cannot drift apart. The fallback only covers a board
+// published before that field existed.
+async function forecastMessage(name) {
+  const z = await zoneFor(name);
+  if (z && z.forecast_sms) return z.forecast_sms;
+  if (z && z.windows && z.windows.length) {
+    const best = z.windows.reduce((a, b) => (b.score > a.score ? b : a));
+    return "THE DIVE BELL - " + name.toUpperCase() + ". Best: " + best.label + ", " +
+      best.score.toFixed(1) + " of 10. thedivebell.com";
   }
-  return "THE DIVE BELL - " + name.toUpperCase() + "\n" + p.strip + "\n" +
-    p.read + " thedivebell.com";
+  return "The bell's board is briefly unreadable - try again in a minute, or see thedivebell.com";
 }
 
-// The first thing a new subscriber ever sees is the water, not a manual.
+// The first text says what the bell is, when THIS bell tends to ring, and
+// the one switch a new subscriber might want.
+function welcomeText(name, rawSeason) {
+  const season = seasonPhrase(rawSeason);
+  return "THE DIVE BELL - " + name.toUpperCase() + ". You're on. The bell rings " +
+    "only when the water is perfect - rarely" +
+    (season ? ", and at " + name + " mostly " + season : "") + ". " +
+    "Each Wednesday you also get the week's forecast; text BELL ONLY for the " +
+    "ring alone. " + LEGAL;
+}
 async function welcome(name) {
-  const p = await weekParts(name);
-  const head = "THE DIVE BELL - " + name.toUpperCase() + ". You're on.";
-  const tail =
-    "The bell reads you the week each Wednesday, texts when the week's best " +
-    "morning firms up, and rings when it's perfect. WEEK any time, QUIET " +
-    "for rings only. " + LEGAL;
-  if (!p) return head + "\n" + tail;
-  return head + "\n" + p.strip + "\n" + p.read + "\n" + tail;
+  const z = await zoneFor(name);
+  return welcomeText(name, z && z.casting && z.casting.season);
 }
 
-async function senderBell(context, event) {
-  // the sender's water, from the message history that is the subscriber db
+// Everything this sender said before now, newest first.
+async function priorTexts(context, event) {
   try {
     const client = context.getTwilioClient();
     const msgs = await client.messages.list({
-      from: event.From, to: event.To, limit: 500,
+      from: event.From, to: event.To, limit: 200,
     });
-    for (const m of msgs) {
-      const b = (m.body || "").toUpperCase();
-      const hit = Object.keys(BELLS).find((k) => b.includes(k));
-      if (hit) return BELLS[hit];
-    }
-  } catch (e) {}
-  return null;
+    return msgs
+      .filter((m) => m.sid !== event.MessageSid)
+      .map((m) => ({
+        sid: m.sid, body: (m.body || "").toUpperCase(),
+        when: m.dateSent || m.dateCreated,
+      }));
+  } catch (e) {
+    return [];
+  }
 }
 
-// This sender's most recent verdict text — what a YES is answering.
-async function lastVerdict(context, event) {
-  try {
-    const client = context.getTwilioClient();
-    const msgs = await client.messages.list({
-      from: event.From, to: event.To, limit: 60,
-    });
-    for (const m of msgs) {
-      if (m.sid === event.MessageSid) continue;
-      const b = (m.body || "").toUpperCase();
-      const v = Object.keys(VERDICTS).find((k) => b.includes(k));
-      if (v) {
-        return { sid: m.sid, body: b, verdict: v, when: m.dateSent || m.dateCreated };
-      }
-    }
-  } catch (e) {}
-  return null;
+// The sender's home water. Asking about another water ("MAUI FORECAST") or
+// reporting a dive there ("FINS FRI NIGHT DANA") is a question, not a move:
+// a plain join outranks any query. Mirrors sms_subscribers() in the engine.
+function homeBell(prior) {
+  const joined = prior.find((m) => bellIn(m.body) && !isQuery(m.body));
+  const asked = prior.find((m) => bellIn(m.body));
+  const hit = joined || asked;
+  return hit ? BELLS[bellIn(hit.body)] : null;
 }
 
 exports.handler = async function (context, event, callback) {
   const twiml = new Twilio.twiml.MessagingResponse();
   const body = (event.Body || "").trim().toUpperCase();
-  const words = body.split(/[^A-Z]+/).filter(Boolean);
+  const reply = (t) => { twiml.message(t); return callback(null, twiml); };
 
-  const verdict = Object.keys(VERDICTS).find((v) => body.includes(v));
-  const bellWord = Object.keys(BELLS).find((b) => body.includes(b));
-
-  // An answer to "Was that Fri dusk?" — YES, NO, or simply the time. These
-  // words mean something only while this sender has a recent verdict
-  // waiting; otherwise the text falls through to the ordinary vocabulary.
-  const isYes = words.length <= 2 &&
-    ["YES", "Y", "YEP", "YEAH", "YUP", "CORRECT", "RIGHT"].includes(words[0]);
-  const isNo = words.length <= 2 && ["NO", "N", "NOPE", "WRONG"].includes(words[0]);
-  const modeWord = ["QUIET", "WEEK", "DIGEST", "HELP", "INFO"].some((w) => body.includes(w));
-  if (!verdict && !modeWord &&
-      (isYes || isNo || parseWhen(body, new Date(), "America/Los_Angeles"))) {
-    const last = await lastVerdict(context, event);
-    if (last && Date.now() - new Date(last.when).getTime() < 72 * 3600 * 1000) {
-      const lb = Object.keys(BELLS).find((b) => last.body.includes(b));
-      const water = (bellWord ? BELLS[bellWord] : null) || (lb ? BELLS[lb] : null) ||
-        (await senderBell(context, event)) || "";
-      const tz = BELL_TZ[water] || "America/Los_Angeles";
-      const at = water ? " at " + water : "";
-      if (isNo) {
-        twiml.message(
-          "No trouble. Tell me when the dive was - LAST NIGHT, THIS MORNING, " +
-          "SAT DAWN, FRI DUSK."
-        );
-      } else {
-        const asked = new Date(last.when);
-        const w = isYes
-          ? (parseWhen(last.body, asked, tz) || guessWhen(asked, tz))
-          : parseWhen(body, new Date(), tz);
-        await logVerdict(last.verdict, water, w, "confirmed", last.sid);
-        twiml.message(
-          "Logged - " + last.verdict.toLowerCase() + " for " + describe(w) + at +
-          ". The bell learns from every dive."
-        );
-      }
-      return callback(null, twiml);
-    }
+  if (body === "HELP" || body === "INFO") {
+    return reply(
+      "The Dive Bell: a text when your water is perfect, plus the week's " +
+      "forecast each Wednesday. Text BELL ONLY for the ring alone, FORECAST " +
+      "to see the week now. Info: thedivebell.com. " + LEGAL
+    );
   }
 
-  // Order matters: QUIET before anything; WEEKLY before WEEK (a substring);
-  // DIGEST OFF before DIGEST. A bell word alongside a mode word joins AND
-  // sets the mode in one text.
-  if (body === "HELP" || body === "INFO") {
-    twiml.message(
-      "The Dive Bell: dive conditions for the water you chose - the week each " +
-      "Wednesday, the week's best morning when it firms up, and a ring when " +
-      "it's perfect. Text WEEK for the week ahead, QUIET for rings only. " +
-      "Info: thedivebell.com. " + LEGAL
-    );
-  } else if (verdict) {
-    // Which dive? If they said, take their word; if not, guess from the
-    // clock, log the guess so nothing is lost, and ASK.
-    const water = (bellWord ? BELLS[bellWord] : null) ||
-      (await senderBell(context, event)) || "";
+  const verdict = Object.keys(VERDICTS).find((v) => body.includes(v));
+  const bellWord = bellIn(body);
+  const prior = await priorTexts(context, event);
+  const home = homeBell(prior);
+  const hourAgo = Date.now() - 3600 * 1000;
+  const recent = prior.find((m) => Object.keys(VERDICTS).some((v) => m.body.includes(v)) &&
+    new Date(m.when).getTime() > hourAgo);
+
+  // 3. YOUR WORD BACK. One text in, one text back, naming the dive.
+  if (verdict) {
+    const water = (bellWord ? BELLS[bellWord] : null) || home || "";
     const tz = BELL_TZ[water] || "America/Los_Angeles";
     const now = new Date();
     const said = parseWhen(body, now, tz);
     const w = said || guessWhen(now, tz);
     const at = water ? " at " + water : "";
-    await logVerdict(verdict, water, w, said ? "confirmed" : "guess", event.MessageSid);
-    if (said) {
-      twiml.message(
-        "Logged - " + verdict.toLowerCase() + " for " + describe(w) + at +
-        ". The bell learns from every dive."
-      );
-    } else {
-      twiml.message(
-        "Noted - " + verdict.toLowerCase() + ". Was that " + describe(w) + at +
-        "? Reply YES, or tell me when - LAST NIGHT, THIS MORNING, SAT DAWN."
-      );
-    }
-  } else if (body.includes("QUIET") || body.includes("DIGEST OFF") || body.includes("NODIGEST")) {
-    twiml.message(
-      "Rings only, then. The bell will speak when your water lines up, and " +
-      "not before. Text WEEKLY to bring the Wednesday reading back."
-    );
-  } else if (body.includes("WEEKLY") || body.includes("DIGEST")) {
-    twiml.message(
-      "The Wednesday reading is yours again - your water's week ahead, every " +
-      "week. Text QUIET for rings only. " + LEGAL
-    );
-  } else if (body.includes("WEEK")) {
-    const name = bellWord ? BELLS[bellWord] : await senderBell(context, event);
-    if (name) {
-      twiml.message(await weekMessage(name));
-    } else {
-      twiml.message(
-        "The bell doesn't know your water yet. Text its name first - LAGUNA, " +
-        "MONTEREY, MAUI... - then WEEK any time. thedivebell.com"
-      );
-    }
-  } else if (bellWord) {
-    twiml.message(await welcome(BELLS[bellWord]));
-  } else {
-    twiml.message(
-      "The Dive Bell: text a water to get on its bell - LAGUNA, MONTEREY, " +
-      "CATALINA, MAUI... Full board: thedivebell.com " + LEGAL
+    // a verdict re-sent with the right time, minutes after a wrong guess,
+    // corrects that report rather than adding a second one
+    const rid = said && recent ? recent.sid : event.MessageSid;
+    await logVerdict(verdict, water, w, said ? "confirmed" : "guess", rid);
+    return reply(
+      "Logged: " + verdict.toLowerCase() + " for " + describe(w) + at +
+      ". The bell learns from every dive." +
+      (said ? "" : " Wrong dive? Text " + verdict + " " + w.alt + ".")
     );
   }
-  return callback(null, twiml);
+  // ...and a bare "THIS MORNING" right after a verdict corrects it too.
+  if (recent && !bellWord && !OFF_WORDS.concat(ON_WORDS).some((k) => body.includes(k))) {
+    const rv = Object.keys(VERDICTS).find((v) => recent.body.includes(v));
+    const rb = bellIn(recent.body);
+    const water = (rb ? BELLS[rb] : null) || home || "";
+    const said = parseWhen(body, new Date(), BELL_TZ[water] || "America/Los_Angeles");
+    if (said) {
+      await logVerdict(rv, water, said, "confirmed", recent.sid);
+      return reply(
+        "Logged: " + rv.toLowerCase() + " for " + describe(said) +
+        (water ? " at " + water : "") + ". The bell learns from every dive."
+      );
+    }
+  }
+
+  // 2. THE FORECAST. Off-words first: "NO FORECAST" contains "FORECAST".
+  if (OFF_WORDS.some((k) => body.includes(k))) {
+    return reply(
+      "Bell only, then. You'll hear from it when the water is perfect, and " +
+      "not before. Text FORECAST for Wednesdays again."
+    );
+  }
+  if (ON_WORDS.some((k) => body.includes(k))) {
+    const name = bellWord ? BELLS[bellWord] : home;
+    if (!name) {
+      return reply(
+        "The bell doesn't know your water yet. Text its name - LAGUNA, " +
+        "MONTEREY, MAUI... - and you're on. thedivebell.com"
+      );
+    }
+    // someone whose very first text is "FORECAST LAGUNA" has just joined:
+    // the first thing they are owed is the welcome, with its terms
+    if (bellWord && !prior.some((m) => bellIn(m.body))) {
+      return reply(await welcome(name));
+    }
+    return reply(await forecastMessage(name));
+  }
+
+  // 1. THE BELL. Text a water; you're on.
+  if (bellWord) return reply(await welcome(BELLS[bellWord]));
+
+  return reply(
+    "The Dive Bell: text the water you dive to get on its bell - LAGUNA, " +
+    "MONTEREY, CATALINA, MAUI... Full board: thedivebell.com " + LEGAL
+  );
 };

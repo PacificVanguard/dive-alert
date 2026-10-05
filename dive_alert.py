@@ -2634,22 +2634,28 @@ def _sms_history():
 
 
 def sms_subscribers():
-    """{zone_key: [numbers]}. The latest bell keyword a number texted decides
-    its bell; numbers with no recognizable keyword ride Bell No.1."""
+    """{zone_key: [numbers]}. A number's bell is the newest water it plainly
+    joined. Asking about another water ("MAUI FORECAST") or reporting a dive
+    there ("FINS FRI NIGHT DANA") is a question, not a move — before this, a
+    Laguna diver checking Maui before a trip was silently re-homed to Maui
+    and stopped hearing Laguna ring. A query decides the bell only for
+    someone who has never plainly joined; no keyword at all rides Bell No.1."""
     kw = bell_keyword_map()
-    latest = {}
-    for num, body in _sms_history():
+    joined, asked, seen = {}, {}, {}
+    for num, body in _sms_history():          # newest first: first seen wins
+        seen[num] = True
         zk = next((z for w, z in kw.items() if w in body), None)
-        if num not in latest or (zk and latest[num] is None):
-            latest[num] = zk
+        if zk:
+            (asked if any(q in body for q in SMS_QUERY_WORDS) else joined).setdefault(num, zk)
     out = {}
-    for num, zk in latest.items():
-        out.setdefault(zk or "A", []).append(num)
+    for num in seen:
+        out.setdefault(joined.get(num) or asked.get(num) or "A", []).append(num)
     return out
 
 
-SMS_WEEKLY_OFF = ("QUIET", "DIGEST OFF", "NODIGEST")
-SMS_WEEKLY_ON = ("WEEKLY", "DIGEST")
+SMS_WEEKLY_OFF = ("BELL ONLY", "NO FORECAST", "QUIET", "DIGEST OFF", "NODIGEST")
+SMS_WEEKLY_ON = ("FORECAST", "WEEKLY", "DIGEST")
+SMS_QUERY_WORDS = ("FORECAST", "WEEK", "REEF", "BUDDY", "FINS")
 
 
 def sms_weekly_wants(body):
@@ -2684,7 +2690,7 @@ def sms_quiet_ok(zone_cfg, when=None):
     return 8 <= h < 21
 
 
-def sms_ring(zone_key, zone_cfg, payload, state, dry_run):
+def sms_ring(zone_key, zone_cfg, payload, state, dry_run, sst_c=None):
     """One segment, the ring only, deduped per window, quiet-hours safe.
     Twilio refuses opted-out numbers on its own."""
     env = _twilio_env()
@@ -2719,10 +2725,18 @@ def sms_ring(zone_key, zone_cfg, payload, state, dry_run):
         sent[zone_key] = wkey
         state.setdefault("sms_ring_due", {}).pop(zone_key, None)
         return
-    body = ("THE BELL IS RINGING - %s. %s. In by %s at %s. thedivebell.com "
-            "Reply STOP to end.") % (
-        zone_cfg["bell"]["name"], payload["w"]["label"],
-        payload["w"]["start"].strftime("%-I:%M%p").lower(),
+    # The staple. Dated, so it can't be misread a day late; the real water
+    # temperature, so no two rings read alike; the cove is this bell's best
+    # entry for this window; and the ask, because the ring is the one moment
+    # a diver will remember to report back.
+    w = payload["w"]
+    water = ("%dF water" % round(sst_c * 9 / 5 + 32)) if sst_c is not None else "warm"
+    body = ("THE BELL IS RINGING - %s. %s at %s: flat, glassy, dry, sunny, %s. "
+            "In by %s at %s. After, tell the bell what you saw: REEF, BUDDY "
+            "or FINS. Reply STOP to end.") % (
+        zone_cfg["bell"]["name"].upper(), w["start"].strftime("%a %b %-d"),
+        w.get("kind", "dawn"), water,
+        w["start"].strftime("%-I:%M%p").lower(),
         payload["entries"][0] if payload["entries"] else "your cove")
     sid, tok, frm = env
     done = state.setdefault("sms_rung_nums", {}).setdefault(
@@ -2829,11 +2843,10 @@ def check_retraction(zk, zc, scored, state, t_now, dry_run):
                   file=sys.stderr)
             subs = set()
         sid, tok, frm = env
-        sbody = ("THE BELL TAKES BACK ITS WORD - %s washed out; %s filled in. "
-                 "It only rings when it's sure." % (day0, why))
-        if best and best["score"] >= 6.5:
-            sbody += " Next hope %s %.1f." % (best["w"]["label"], best["score"])
-        sbody += " Reply STOP to end."
+        sbody = ("THE DIVE BELL - %s. %s's perfect morning didn't hold - %s. "
+                 "The bell only rings when it's sure. Reply STOP to end.") % (
+            zc["bell"]["name"].upper(), day0,
+            ("%s filled in" % why) if db.get("limit") else "the forecast moved")
         for num in sorted(subs):
             try:
                 if not dry_run:
@@ -2854,43 +2867,62 @@ def check_retraction(zk, zc, scored, state, t_now, dry_run):
         print("retraction (%s): undelivered — will retry" % zk)
 
 
-def sms_digest_text(zone_cfg, scored):
-    """The Wednesday reading, sized for a phone: each day's best window, the
-    week's best starred, rings named, one read line. GSM-7 only — a single
-    styled character silently halves every segment."""
+def score_word(score):
+    """One plain word beside the number — '6.5 of 10' alone leaves a diver
+    asking whether that is worth the drive."""
+    return ("excellent" if score >= 8.5 else "good" if score >= 7.5
+            else "workable" if score >= 6.5 else "marginal" if score >= 5.0
+            else "rough")
+
+
+def sms_digest_text(zone_cfg, scored, footer=True):
+    """The week ahead, sized for a phone and led by the answer: the best day
+    in words, each day out of ten, then what the bell makes of it. The cove
+    named is THIS bell's best entry for THAT window (best_entries), and is
+    offered only when the day is worth the drive. The same text serves the
+    Wednesday push and the on-demand FORECAST (published per bell in
+    zones.json as forecast_sms), so the two can never drift apart.
+    GSM-7 only — a single styled character silently halves every segment."""
     by_day, order = {}, []
     for s in scored:
         d = s["w"]["start"].date()
         if d not in by_day:
             by_day[d] = s
             order.append(d)
-        elif s["score"] > by_day[d]["score"]:
-            by_day[d] = s
+        elif (bool(s.get("gate")), s["score"]) > (bool(by_day[d].get("gate")), by_day[d]["score"]):
+            by_day[d] = s      # a ringing window speaks for its day, whatever its rank
     if not order:
         return None
+    order = order[:7]
     best = max((by_day[d] for d in order), key=lambda s: s["score"])
-    parts = []
-    for d in order[:7]:
-        s = by_day[d]
-        p = "%s %.1f" % (s["w"]["start"].strftime("%a"), s["score"])
-        if s is best:
-            p += "*"
-        if s.get("gate"):
-            p += " RINGING"
-        parts.append(p)
-    if best.get("gate"):
-        read = "The gate stands open %s - %s is the door." % (
-            best["w"]["label"], (best["entries"] or ["your cove"])[0])
-    elif best["score"] >= 7:
-        lim = best.get("limit")
-        read = "%s is the one to watch%s" % (
-            best["w"]["label"],
-            "." if lim in (None, "all clear") else " - held by %s." % lim)
+    lim = best.get("limit")
+    line = "Best: %s, %.1f of 10 - %s" % (best["w"]["label"], best["score"],
+                                          score_word(best["score"]))
+    if lim and lim != "all clear":
+        line += ", held back by %s" % lim
+    line += "."
+    if best["score"] >= 7.0:
+        line += " In by %s at %s." % (
+            best["w"]["start"].strftime("%-I:%M%p").lower(),
+            (best.get("entries") or ["your cove"])[0])
+    strip = " / ".join("%s %.1f" % (by_day[d]["w"]["start"].strftime("%a"), by_day[d]["score"])
+                       for d in order)
+    rung = next((by_day[d] for d in order if by_day[d].get("gate")), None)
+    forming = next((by_day[d] for d in order
+                    if by_day[d].get("gate_raw") and not by_day[d].get("gate")), None)
+    if rung:
+        close = "%s is perfect - the bell is ringing." % rung["w"]["label"]
+    elif forming:
+        close = "%s looks perfect - if it holds, the bell will ring." % forming["w"]["label"]
+    elif best["score"] >= 7.0:
+        close = "No ring in sight, but a morning worth having."
     else:
-        read = "A quiet week. The bell keeps its silence for a reason."
-    return ("THE WEDNESDAY READING - %s\n%s\n%s Text WEEK for detail. "
-            "Text QUIET for rings only, STOP to end all.") % (
-        zone_cfg["bell"]["name"].upper(), " / ".join(parts), read)
+        close = "A quiet week."
+    text = "THE DIVE BELL - %s, the week ahead.\n%s\n%s\n%s" % (
+        zone_cfg["bell"]["name"].upper(), line, strip, close)
+    if footer:
+        text += " Text BELL ONLY to stop these."
+    return text
 
 
 def sms_digest(zone_key, zone_cfg, scored, state, dry_run, weekly=False):
@@ -3032,78 +3064,6 @@ def confirm_gates(zone_key, scored, state):
         if k not in live:
             seen.pop(k, None)
     return scored
-
-
-# The week's best morning, confirmed. Between the Wednesday outlook and the
-# rare ring there was nothing: on 2026-10-05 Laguna stood at 8.7 — the best
-# morning in weeks, one axis short of a ring — and a text-only diver heard
-# not a word. A 30-day replay of real runs sized the rule: a plain >=8.0 tier
-# would text Laguna 7 times a month (chatty) and >=8.5 zero (deaf). So it is
-# >=8.0, held across two consecutive runs, AT MOST ONE PER BELL PER WEEK.
-BEST_MIN_SCORE = 8.0
-BEST_CONFIRM_RUNS = 2
-
-
-def sms_best(zone_key, zone_cfg, scored, state, t_now, dry_run):
-    """Text the week's best window once it has held — never a ring (a gated
-    window takes the ring path), never to a QUIET subscriber, never twice in
-    an ISO week. Outside quiet-legal hours it is simply not marked sent, so
-    the next run delivers it."""
-    if zone_cfg.get("sms", True) is False:
-        return
-    seen = state.setdefault("best_streak", {}).setdefault(zone_key, {})
-    al = CONFIG["alerting"]
-    live, cands = set(), []
-    for s in scored:
-        k = s["w"]["key"]
-        live.add(k)
-        if s["score"] >= BEST_MIN_SCORE:
-            seen[k] = seen.get(k, 0) + 1
-        else:
-            seen.pop(k, None)
-        lead = (s["w"]["start"] - t_now).total_seconds() / 3600.0
-        if (seen.get(k, 0) >= BEST_CONFIRM_RUNS and not s.get("gate")
-                and al["lead_min_h"] <= lead <= al["lead_max_h"]):
-            cands.append(s)
-    for k in list(seen):
-        if k not in live:
-            seen.pop(k, None)
-    week = "%d-W%02d" % (datetime.now(tz=zone_tz(zone_cfg)).isocalendar()[:2])
-    sent = state.setdefault("sms_best_sent", {})
-    if not cands or sent.get(zone_key) == week:
-        return
-    if not _twilio_env() or not sms_quiet_ok(zone_cfg):
-        return
-    try:
-        subs = set(sms_subscribers().get(zone_key, [])) & sms_digest_optins()
-    except Exception as e:
-        print("sms best (%s): subscriber lookup failed, will retry: %s"
-              % (zone_key, str(e)[:60]), file=sys.stderr)
-        return
-    best = max(cands, key=lambda s: s["score"])
-    sent[zone_key] = week
-    if not subs:
-        return
-    lim = best.get("limit")
-    why = ("held back only by %s" % lim) if lim and lim != "all clear" \
-        else "one axis short of perfect"
-    body = ("THE DIVE BELL - %s. %s %.1f: the week's best, and it has held. "
-            "Not a ring - %s. In by %s at %s. Reply STOP to end.") % (
-        zone_cfg["bell"]["name"].upper(), best["w"]["label"], best["score"], why,
-        best["w"]["start"].strftime("%-I:%M%p").lower(),
-        best["entries"][0] if best.get("entries") else "your cove")
-    sid, tok, frm = _twilio_env()
-    ok = 0
-    for num in sorted(subs):
-        try:
-            if not dry_run:
-                _twilio_req("Messages.json", sid, tok,
-                            {"To": num, "From": frm, "Body": body})
-            ok += 1
-        except Exception as e:
-            print("sms best to %s… failed: %s" % (num[:6], str(e)[:60]), file=sys.stderr)
-    print("sms best (%s): %d/%d sent%s" % (zone_key, ok, len(subs),
-                                           " [dry]" if dry_run else ""))
 
 
 def capability_sentinel(state, blind_axes_by_zone):
@@ -3369,7 +3329,7 @@ def cmd_run(args):
             if not swell_ok:
                 print("zone %s: ALL swell sources failed" % zk, file=sys.stderr)
                 continue
-            horizon = 24 * CONFIG["alerting"]["digest_days"] if args.weekly else 72
+            horizon = 24 * CONFIG["alerting"]["digest_days"]   # always the full week: board + FORECAST show 7 days; alerts still use 12-48h
             scored = score_zone(zk, zc, fetches, t_now, horizon, skill_corr=skill_corr)
             # only a gate that has held across runs may ring
             confirm_gates(zk, scored, state)
@@ -3380,6 +3340,8 @@ def cmd_run(args):
             rows = []
             for s in scored:
                 lead = (s["w"]["start"] - t_now).total_seconds() / 3600.0
+                if lead > 72 and not args.weekly:
+                    continue   # scored for the board; the log keeps far windows on weekly runs only
                 p = s["feats"]["dmg_parts"] or {}
                 rows.append({
                     "run_ts": t_now.isoformat(), "zone": zk, "window_key": s["w"]["key"],
@@ -3445,7 +3407,7 @@ def cmd_run(args):
                     cand = next((s for s in scored
                                  if s["w"]["key"] == due_ring and s.get("gate")), None)
                     if cand and (cand["w"]["start"] - t_now).total_seconds() > 6 * 3600:
-                        sms_ring(zk, zc, cand, state, args.dry_run)
+                        sms_ring(zk, zc, cand, state, args.dry_run, sst_c=sst)
                     else:
                         # the window closed its gate or drew too near — cancel
                         state["sms_ring_due"].pop(zk, None)
@@ -3465,7 +3427,7 @@ def cmd_run(args):
                                            "yet sworn to its word. Be its first witness.")
                     delivered = notify(msg, args.dry_run, topic=ztopic)
                     if payload.get("gate"):
-                        sms_ring(zk, zc, payload, state, args.dry_run)
+                        sms_ring(zk, zc, payload, state, args.dry_run, sst_c=sst)
                     if delivered:
                         rec["promises"] += 1   # a promise nobody heard is not a promise
                     for r in rows:
@@ -3477,9 +3439,6 @@ def cmd_run(args):
             # the weekly reading by text: marked due on Wednesdays, delivered by
             # the first quiet-legal run of the week (see sms_digest)
             sms_digest(zk, zc, scored, state, args.dry_run, weekly=bool(args.weekly))
-            # the week's best morning, confirmed: at most one text per bell
-            # per week (see sms_best)
-            sms_best(zk, zc, scored, state, t_now, args.dry_run)
             append_log(LOG_PATH, LOG_COLS, rows, args.dry_run)
             # the bell remembers: a ring is recorded only when its DAY HAS COME —
             # a qualifying forecast is a promise, not history (audit repair
@@ -3508,6 +3467,7 @@ def cmd_run(args):
                 "instruments": {"buoy": zc.get("buoy_aodn") or zc.get("buoy"),
                                 "tide": zc.get("tide_station")},
                 "sms": zc.get("sms", True),
+                "forecast_sms": sms_digest_text(zc, scored, footer=False),
                 "last_ring": state.get("last_ring", {}).get(zk),
                 "sst_f": round(sst * 9 / 5 + 32) if sst is not None else None,
                 "windows": [{"label": s["w"]["label"],
@@ -5009,9 +4969,13 @@ def cmd_test(args):
     quiet_week = [_win(0, "Wed dawn", 4.1, limit="swell"), _win(1, "Thu dawn", 5.0, limit="swell")]
     txt_r = sms_digest_text(zc, ring_week)
     txt_q = sms_digest_text(zc, quiet_week)
-    check("(kk) ring week reads the gate", "RINGING" in txt_r and "gate stands open" in txt_r
-          and "8.9*" in txt_r, txt_r.split("\n")[1])
-    check("(kk) quiet week keeps its silence", "keeps its silence" in txt_q and "*" in txt_q)
+    check("(kk) a ring week leads with the best day, its cove, and the ring",
+          "Best: Thu dawn, 8.9 of 10 - excellent." in txt_r and "In by" in txt_r
+          and "Fisherman's Cove" in txt_r and "is perfect - the bell is ringing" in txt_r,
+          txt_r.split("\n")[1])
+    check("(kk) a quiet week says so in a word and sends nobody anywhere",
+          "A quiet week." in txt_q and "marginal, held back by swell" in txt_q
+          and "In by" not in txt_q, txt_q.split("\n")[1])
     check("(kk) GSM-7 only", all(ord(ch) < 128 for ch in txt_r + txt_q))
 
     # (kk2) due-queue: weekly marks due; quiet hours defer; the first legal
@@ -5230,8 +5194,15 @@ def cmd_test(args):
         check("(qq) the newest word wins", "+1D" not in on, str(on))
     finally:
         g6["_sms_history"] = _hist
-    check("(qq) the reading's footer teaches QUIET, not DIGEST",
-          "QUIET" in sms_digest_text(zc, ring_week) and "DIGEST" not in sms_digest_text(zc, ring_week))
+    check("(qq) the forecast's footer teaches BELL ONLY; the published copy has none",
+          sms_digest_text(zc, ring_week).endswith("Text BELL ONLY to stop these.")
+          and "BELL ONLY" not in sms_digest_text(zc, ring_week, footer=False))
+    check("(qq) the words a diver would guess: BELL ONLY off, FORECAST on",
+          sms_weekly_wants("BELL ONLY") is False and sms_weekly_wants("NO FORECAST") is False
+          and sms_weekly_wants("FORECAST") is True and sms_weekly_wants("FORECAST LAGUNA") is True)
+    check("(qq) a score gets a plain word",
+          [score_word(x) for x in (9.0, 8.0, 6.5, 5.0, 3.3)] ==
+          ["excellent", "good", "workable", "marginal", "rough"])
 
     # (rr) A LOST SEND IS NOT A LOST RUN. 2026-09-30: the runner had no
     # network, the Wednesday reading's push raised out of notify(), the run
@@ -5347,60 +5318,6 @@ def cmd_test(args):
     finally:
         g7["get_secret"] = _gs; g7["_twilio_req"] = _tr; g7["_twilio_env"] = _te6
 
-    # (ss) THE WEEK'S BEST, CONFIRMED: >=8.0 held across two runs, one text
-    # per bell per week, never a ring, never to a QUIET subscriber, and a
-    # quiet-hours miss is retried rather than forgotten. (2026-10-05: an 8.7
-    # at Laguna reached nobody who reads texts.)
-    saved_s = {n: g7[n] for n in ("_twilio_env", "sms_quiet_ok", "sms_subscribers",
-                                  "sms_digest_optins", "_twilio_req")}
-    texts = []
-    g7["_twilio_env"] = lambda: ("sid", "tok", "+1833")
-    g7["_twilio_req"] = lambda path, sid, tok, data=None: texts.append(data) or {}
-    g7["sms_subscribers"] = lambda: {"A": ["+15550001111", "+15550002222"]}
-    g7["sms_digest_optins"] = lambda: {"+15550001111"}        # the other went QUIET
-    g7["sms_quiet_ok"] = lambda zcfg, when=None: True
-    try:
-        good = _win(1, "Mon dawn", 8.7, limit="swell")
-        now_s = good["w"]["start"] - timedelta(hours=24)
-        st_s = {}
-        sms_best("A", zc, [good], st_s, now_s, False)
-        check("(ss) one sighting texts nobody", not texts)
-        sms_best("A", zc, [good], st_s, now_s, False)
-        check("(ss) the second consecutive sighting texts once, and only the "
-              "subscriber who wants more than rings",
-              len(texts) == 1 and texts[0]["To"] == "+15550001111", str(len(texts)))
-        check("(ss) it says what it is, in GSM-7",
-              texts and "week's best" in texts[0]["Body"] and "Not a ring" in texts[0]["Body"]
-              and "held back only by swell" in texts[0]["Body"]
-              and all(ord(c) < 128 for c in texts[0]["Body"]), texts[0]["Body"] if texts else "")
-        sms_best("A", zc, [_win(2, "Tue dawn", 9.0)], st_s, now_s, False)
-        sms_best("A", zc, [_win(2, "Tue dawn", 9.0)], st_s, now_s + timedelta(hours=20), False)
-        check("(ss) at most one per bell per week", len(texts) == 1, str(len(texts)))
-        del texts[:]
-        st_g = {}
-        ringer = _win(1, "Mon dawn", 9.2, gate=True)
-        sms_best("A", zc, [ringer], st_g, now_s, False)
-        sms_best("A", zc, [ringer], st_g, now_s, False)
-        check("(ss) a ring is never demoted to a 'best' text", not texts)
-        st_q = {}
-        g7["sms_quiet_ok"] = lambda zcfg, when=None: False
-        sms_best("A", zc, [good], st_q, now_s, False)
-        sms_best("A", zc, [good], st_q, now_s, False)
-        check("(ss) quiet hours send nothing and forget nothing",
-              not texts and not st_q.get("sms_best_sent"))
-        g7["sms_quiet_ok"] = lambda zcfg, when=None: True
-        sms_best("A", zc, [good], st_q, now_s, False)
-        check("(ss) and the next legal run delivers it", len(texts) == 1)
-        st_f = {}
-        del texts[:]
-        sms_best("A", zc, [_win(1, "Mon dawn", 8.7)], st_f, now_s, False)
-        sms_best("A", zc, [_win(1, "Mon dawn", 7.4)], st_f, now_s, False)
-        sms_best("A", zc, [_win(1, "Mon dawn", 8.7)], st_f, now_s, False)
-        check("(ss) a dip resets the count — no texting on the rebound", not texts)
-    finally:
-        for n, fn in saved_s.items():
-            g7[n] = fn
-
     # (tt) WHICH DIVE? A texted verdict names a day; the bell resolves it to
     # the window it actually scored. A confirmation supersedes its guess.
     srows = [{"zone": "A", "window_kind": "dusk", "window_key": "20261002T1830-dusk",
@@ -5442,6 +5359,51 @@ def cmd_test(args):
               len(kept) == 3 and [d["status"] for d in kept if d["rid"] == "SMabc"] == ["confirmed"])
     finally:
         for n, fn in saved_t.items():
+            g7[n] = fn
+
+    # (uu) A QUESTION IS NOT A MOVE: asking about another water, or logging
+    # a dive there, must not re-home the diver.
+    _h = g7["_sms_history"]
+    g7["_sms_history"] = lambda: [              # newest first
+        ("+1A", "MAUI FORECAST"), ("+1A", "LAGUNA"),
+        ("+1B", "FINS FRI NIGHT DANA"), ("+1B", "LAGUNA"),
+        ("+1C", "FORECAST MONTEREY"),
+        ("+1D", "JOLLA"), ("+1D", "LAGUNA"),
+        ("+1E", "HELLO")]
+    try:
+        su = sms_subscribers()
+        check("(uu) asking about Maui leaves a Laguna diver on Laguna",
+              "+1A" in su.get("A", []) and "+1A" not in su.get("P", []), str(su))
+        check("(uu) logging a dive at Dana leaves them on Laguna", "+1B" in su.get("A", []))
+        check("(uu) a first-ever 'FORECAST MONTEREY' does join Monterey", "+1C" in su.get("E", []))
+        check("(uu) a plain new water IS a move — the newest join wins", "+1D" in su.get("D", []))
+        check("(uu) no water named rides Bell No.1", "+1E" in su.get("A", []))
+    finally:
+        g7["_sms_history"] = _h
+
+    # (vv) THE RING, AS A DIVER READS IT: dated, the real water temperature,
+    # this bell's cove, the ask — and no link.
+    saved_v = {n: g7[n] for n in ("_twilio_env", "sms_quiet_ok", "sms_subscribers", "_twilio_req")}
+    rung_texts = []
+    g7["_twilio_env"] = lambda: ("sid", "tok", "+1833")
+    g7["sms_quiet_ok"] = lambda zcfg, when=None: True
+    g7["sms_subscribers"] = lambda: {"A": ["+15550001111"]}
+    g7["_twilio_req"] = lambda path, sid, tok, data=None: rung_texts.append(data["Body"]) or {}
+    try:
+        sms_ring("A", zc, ring_week[1], {}, False, sst_c=22.2)
+        rb = rung_texts[0] if rung_texts else ""
+        want_date = ring_week[1]["w"]["start"].strftime("%a %b %-d")
+        check("(vv) the ring is dated, measured, located, and asks",
+              rb.startswith("THE BELL IS RINGING - LAGUNA BEACH. " + want_date + " at dawn:")
+              and "72F water" in rb and "at Fisherman's Cove" in rb
+              and "REEF, BUDDY or FINS" in rb and rb.endswith("Reply STOP to end."), rb)
+        check("(vv) no link, GSM-7 only", "thedivebell" not in rb and all(ord(c) < 128 for c in rb))
+        del rung_texts[:]
+        sms_ring("A", zc, ring_week[1], {}, False)
+        check("(vv) with no temperature it says warm, never a made-up number",
+              rung_texts and ", sunny, warm." in rung_texts[0], rung_texts[0] if rung_texts else "")
+    finally:
+        for n, fn in saved_v.items():
             g7[n] = fn
 
     # fixture suite: degraded + disagreement
