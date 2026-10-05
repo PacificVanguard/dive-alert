@@ -2426,6 +2426,29 @@ def feedback_actions(window_key, zone_cfg=None):
 FEEDBACK_MAP = {"clear": (25.0, "low"), "fair": (12.0, "low"), "murk": (4.0, "med")}
 
 
+def resolve_window(zone_key, date_iso, kind, score_rows):
+    """(window_key, start) for the window this bell actually scored on that
+    local day and kind — or None. A texted verdict names a day ("Fri dusk"),
+    not a window key; the score log is where the two meet."""
+    for r in reversed(score_rows):
+        if (r.get("zone") == zone_key and r.get("window_kind") == kind
+                and (r.get("window_start") or "").startswith(date_iso)):
+            try:
+                return r["window_key"], datetime.fromisoformat(r["window_start"])
+            except (KeyError, ValueError):
+                continue
+    return None
+
+
+def latest_reports(dives):
+    """A confirmation supersedes the guess it answers: one row per report
+    id, the newest winning. Rows with no id stand alone."""
+    out = {}
+    for i, d in enumerate(dives):
+        out[d.get("rid") or "row%d" % i] = d
+    return list(out.values())
+
+
 def ingest_feedback(state, dry_run, zone_cfg=None, zone_key="A"):
     """Poll a zone's feedback topic for button presses since last ingest; join
     each verdict back to its window and append to dive_log.csv. Fail-soft."""
@@ -2439,7 +2462,7 @@ def ingest_feedback(state, dry_run, zone_cfg=None, zone_key="A"):
         since = since_map.get(zone_key, "48h")
         url = "%s/%s/json?poll=1&since=%s" % (CONFIG["sources"]["ntfy"], fb, since)
         body = http_get(url, timeout=20)
-        rows, latest = [], None
+        rows, latest, score_rows = [], None, None
         for line in body.splitlines():
             if not line.strip():
                 continue
@@ -2460,21 +2483,38 @@ def ingest_feedback(state, dry_run, zone_cfg=None, zone_key="A"):
             # AUDIT REPAIR (2026-09-14): a categorical verdict is a category,
             # never a manufactured number of feet; an unresolvable window is
             # quarantined (ts = ingestion time, marked), not invented.
-            resolved = True
-            try:
-                tzr = zone_tz(CONFIG["zones"].get(zk_row, zone_cfg or {}))
-                ts = datetime.strptime(window_key.split("-")[0],
-                                       "%Y%m%dT%H%M").replace(tzinfo=tzr)
-            except ValueError:
-                ts, resolved = now_pt(), False
+            resolved, status, rid = True, "", ""
+            if len(parts) >= 5 and parts[1] == "sms":
+                # verdict|sms|bell|YYYY-MM-DD|dawn/dusk|guess/confirmed|id —
+                # the diver named the dive (or confirmed the bell's guess),
+                # so resolve it to the window this bell scored that day.
+                # Before this, a Friday-night verdict texted on Saturday
+                # morning attached to nothing at all.
+                status = parts[5] if len(parts) > 5 else "guess"
+                rid = parts[6] if len(parts) > 6 else ""
+                if score_rows is None:
+                    score_rows = _read_csv(LOG_PATH)
+                hit = resolve_window(zk_row, parts[3], parts[4], score_rows)
+                if hit:
+                    window_key, ts = hit
+                else:
+                    window_key = "%s-%s" % (parts[3], parts[4])
+                    ts, resolved = now_pt(), False
+            else:
+                try:
+                    tzr = zone_tz(CONFIG["zones"].get(zk_row, zone_cfg or {}))
+                    ts = datetime.strptime(window_key.split("-")[0],
+                                           "%Y%m%dT%H%M").replace(tzinfo=tzr)
+                except ValueError:
+                    ts, resolved = now_pt(), False
             rows.append({"ts": ts.isoformat(), "zone": zk_row,
                          "site": "(alert feedback)", "category": verdict,
-                         "viz_ft": "", "surge": "",
+                         "viz_ft": "", "surge": "", "status": status, "rid": rid,
                          "notes": "feedback:%s window:%s%s" % (
                              verdict, window_key, "" if resolved else " unresolved")})
         if rows:
-            append_log(DIVE_LOG, ["ts", "zone", "site", "category",
-                                  "viz_ft", "surge", "notes"], rows, dry_run)
+            append_log(DIVE_LOG, ["ts", "zone", "site", "category", "viz_ft",
+                                  "surge", "status", "rid", "notes"], rows, dry_run)
             print("ingested %d feedback verdict(s)" % len(rows))
         if latest:
             since_map[zone_key] = str(latest + 1)
@@ -2994,6 +3034,78 @@ def confirm_gates(zone_key, scored, state):
     return scored
 
 
+# The week's best morning, confirmed. Between the Wednesday outlook and the
+# rare ring there was nothing: on 2026-10-05 Laguna stood at 8.7 — the best
+# morning in weeks, one axis short of a ring — and a text-only diver heard
+# not a word. A 30-day replay of real runs sized the rule: a plain >=8.0 tier
+# would text Laguna 7 times a month (chatty) and >=8.5 zero (deaf). So it is
+# >=8.0, held across two consecutive runs, AT MOST ONE PER BELL PER WEEK.
+BEST_MIN_SCORE = 8.0
+BEST_CONFIRM_RUNS = 2
+
+
+def sms_best(zone_key, zone_cfg, scored, state, t_now, dry_run):
+    """Text the week's best window once it has held — never a ring (a gated
+    window takes the ring path), never to a QUIET subscriber, never twice in
+    an ISO week. Outside quiet-legal hours it is simply not marked sent, so
+    the next run delivers it."""
+    if zone_cfg.get("sms", True) is False:
+        return
+    seen = state.setdefault("best_streak", {}).setdefault(zone_key, {})
+    al = CONFIG["alerting"]
+    live, cands = set(), []
+    for s in scored:
+        k = s["w"]["key"]
+        live.add(k)
+        if s["score"] >= BEST_MIN_SCORE:
+            seen[k] = seen.get(k, 0) + 1
+        else:
+            seen.pop(k, None)
+        lead = (s["w"]["start"] - t_now).total_seconds() / 3600.0
+        if (seen.get(k, 0) >= BEST_CONFIRM_RUNS and not s.get("gate")
+                and al["lead_min_h"] <= lead <= al["lead_max_h"]):
+            cands.append(s)
+    for k in list(seen):
+        if k not in live:
+            seen.pop(k, None)
+    week = "%d-W%02d" % (datetime.now(tz=zone_tz(zone_cfg)).isocalendar()[:2])
+    sent = state.setdefault("sms_best_sent", {})
+    if not cands or sent.get(zone_key) == week:
+        return
+    if not _twilio_env() or not sms_quiet_ok(zone_cfg):
+        return
+    try:
+        subs = set(sms_subscribers().get(zone_key, [])) & sms_digest_optins()
+    except Exception as e:
+        print("sms best (%s): subscriber lookup failed, will retry: %s"
+              % (zone_key, str(e)[:60]), file=sys.stderr)
+        return
+    best = max(cands, key=lambda s: s["score"])
+    sent[zone_key] = week
+    if not subs:
+        return
+    lim = best.get("limit")
+    why = ("held back only by %s" % lim) if lim and lim != "all clear" \
+        else "one axis short of perfect"
+    body = ("THE DIVE BELL - %s. %s %.1f: the week's best, and it has held. "
+            "Not a ring - %s. In by %s at %s. Reply STOP to end.") % (
+        zone_cfg["bell"]["name"].upper(), best["w"]["label"], best["score"], why,
+        best["w"]["start"].strftime("%-I:%M%p").lower(),
+        best["entries"][0] if best.get("entries") else "your cove")
+    sid, tok, frm = _twilio_env()
+    ok = 0
+    for num in sorted(subs):
+        try:
+            if not dry_run:
+                _twilio_req("Messages.json", sid, tok,
+                            {"To": num, "From": frm, "Body": body})
+            ok += 1
+        except Exception as e:
+            print("sms best to %s… failed: %s" % (num[:6], str(e)[:60]), file=sys.stderr)
+    print("sms best (%s): %d/%d sent%s" % (zone_key, ok, len(subs),
+                                           " [dry]" if dry_run else ""))
+
+
 def capability_sentinel(state, blind_axes_by_zone):
     """The lesson of the 403s: every component can degrade 'as designed' and
     the composition still lobotomizes the fleet — SST dead + warm-fails-closed
@@ -3365,6 +3477,9 @@ def cmd_run(args):
             # the weekly reading by text: marked due on Wednesdays, delivered by
             # the first quiet-legal run of the week (see sms_digest)
             sms_digest(zk, zc, scored, state, args.dry_run, weekly=bool(args.weekly))
+            # the week's best morning, confirmed: at most one text per bell
+            # per week (see sms_best)
+            sms_best(zk, zc, scored, state, t_now, args.dry_run)
             append_log(LOG_PATH, LOG_COLS, rows, args.dry_run)
             # the bell remembers: a ring is recorded only when its DAY HAS COME —
             # a qualifying forecast is a promise, not history (audit repair
@@ -4093,7 +4208,7 @@ def cmd_report(args):
     silent self-edit. Sparse noisy labels + selection bias make full autotune
     a trap: you only dive on days the bell praised, so it can never learn it
     was wrong about the days it dismissed. This names that, too."""
-    dives = _read_csv(DIVE_LOG)
+    dives = latest_reports(_read_csv(DIVE_LOG))
     # join on (zone, window_key): 240 of the first 808 window keys were
     # shared across zones, so key-alone joins could grade the wrong coast
     hist = {(r.get("zone", "A"), r["window_key"]): r
@@ -5231,6 +5346,103 @@ def cmd_test(args):
                or sms_keeper("x")) is False)
     finally:
         g7["get_secret"] = _gs; g7["_twilio_req"] = _tr; g7["_twilio_env"] = _te6
+
+    # (ss) THE WEEK'S BEST, CONFIRMED: >=8.0 held across two runs, one text
+    # per bell per week, never a ring, never to a QUIET subscriber, and a
+    # quiet-hours miss is retried rather than forgotten. (2026-10-05: an 8.7
+    # at Laguna reached nobody who reads texts.)
+    saved_s = {n: g7[n] for n in ("_twilio_env", "sms_quiet_ok", "sms_subscribers",
+                                  "sms_digest_optins", "_twilio_req")}
+    texts = []
+    g7["_twilio_env"] = lambda: ("sid", "tok", "+1833")
+    g7["_twilio_req"] = lambda path, sid, tok, data=None: texts.append(data) or {}
+    g7["sms_subscribers"] = lambda: {"A": ["+15550001111", "+15550002222"]}
+    g7["sms_digest_optins"] = lambda: {"+15550001111"}        # the other went QUIET
+    g7["sms_quiet_ok"] = lambda zcfg, when=None: True
+    try:
+        good = _win(1, "Mon dawn", 8.7, limit="swell")
+        now_s = good["w"]["start"] - timedelta(hours=24)
+        st_s = {}
+        sms_best("A", zc, [good], st_s, now_s, False)
+        check("(ss) one sighting texts nobody", not texts)
+        sms_best("A", zc, [good], st_s, now_s, False)
+        check("(ss) the second consecutive sighting texts once, and only the "
+              "subscriber who wants more than rings",
+              len(texts) == 1 and texts[0]["To"] == "+15550001111", str(len(texts)))
+        check("(ss) it says what it is, in GSM-7",
+              texts and "week's best" in texts[0]["Body"] and "Not a ring" in texts[0]["Body"]
+              and "held back only by swell" in texts[0]["Body"]
+              and all(ord(c) < 128 for c in texts[0]["Body"]), texts[0]["Body"] if texts else "")
+        sms_best("A", zc, [_win(2, "Tue dawn", 9.0)], st_s, now_s, False)
+        sms_best("A", zc, [_win(2, "Tue dawn", 9.0)], st_s, now_s + timedelta(hours=20), False)
+        check("(ss) at most one per bell per week", len(texts) == 1, str(len(texts)))
+        del texts[:]
+        st_g = {}
+        ringer = _win(1, "Mon dawn", 9.2, gate=True)
+        sms_best("A", zc, [ringer], st_g, now_s, False)
+        sms_best("A", zc, [ringer], st_g, now_s, False)
+        check("(ss) a ring is never demoted to a 'best' text", not texts)
+        st_q = {}
+        g7["sms_quiet_ok"] = lambda zcfg, when=None: False
+        sms_best("A", zc, [good], st_q, now_s, False)
+        sms_best("A", zc, [good], st_q, now_s, False)
+        check("(ss) quiet hours send nothing and forget nothing",
+              not texts and not st_q.get("sms_best_sent"))
+        g7["sms_quiet_ok"] = lambda zcfg, when=None: True
+        sms_best("A", zc, [good], st_q, now_s, False)
+        check("(ss) and the next legal run delivers it", len(texts) == 1)
+        st_f = {}
+        del texts[:]
+        sms_best("A", zc, [_win(1, "Mon dawn", 8.7)], st_f, now_s, False)
+        sms_best("A", zc, [_win(1, "Mon dawn", 7.4)], st_f, now_s, False)
+        sms_best("A", zc, [_win(1, "Mon dawn", 8.7)], st_f, now_s, False)
+        check("(ss) a dip resets the count — no texting on the rebound", not texts)
+    finally:
+        for n, fn in saved_s.items():
+            g7[n] = fn
+
+    # (tt) WHICH DIVE? A texted verdict names a day; the bell resolves it to
+    # the window it actually scored. A confirmation supersedes its guess.
+    srows = [{"zone": "A", "window_kind": "dusk", "window_key": "20261002T1830-dusk",
+              "window_start": "2026-10-02T18:30:00-07:00"},
+             {"zone": "C", "window_kind": "dusk", "window_key": "20261002T1831-dusk",
+              "window_start": "2026-10-02T18:31:00-07:00"}]
+    hit = resolve_window("A", "2026-10-02", "dusk", srows)
+    check("(tt) Friday dusk resolves to this bell's own window",
+          hit and hit[0] == "20261002T1830-dusk", str(hit))
+    check("(tt) a day the bell never scored resolves to nothing",
+          resolve_window("A", "2026-10-03", "dawn", srows) is None)
+    saved_t = {n: g7[n] for n in ("http_get", "append_log", "_read_csv", "feedback_topic")}
+    got = []
+    feed = "\n".join(json.dumps({"event": "message", "time": 1759500000 + i, "message": m})
+                     for i, m in enumerate([
+                         "murk|sms|Laguna Beach|2026-10-02|dusk|guess|SMabc",
+                         "murk|sms|Laguna Beach|2026-10-02|dusk|confirmed|SMabc",
+                         "clear|sms|Laguna Beach",
+                         "fair|sms|Dana Point|2026-10-02|dusk|confirmed|SMdef"]))
+    g7["http_get"] = lambda url, timeout=25: feed
+    g7["append_log"] = lambda p, c, r, dry: got.extend(r)
+    g7["_read_csv"] = lambda p: srows if p == LOG_PATH else saved_t["_read_csv"](p)
+    g7["feedback_topic"] = lambda zcfg=None: "drill"
+    try:
+        ingest_feedback({}, True, zc, "A")
+        check("(tt) a named dive lands on its window, resolved",
+              len(got) == 4 and "20261002T1830-dusk" in got[0]["notes"]
+              and "unresolved" not in got[0]["notes"]
+              and got[0]["ts"].startswith("2026-10-02T18:30"), str(got[:1]))
+        check("(tt) status and report id are kept",
+              got[0]["status"] == "guess" and got[1]["status"] == "confirmed"
+              and got[0]["rid"] == got[1]["rid"] == "SMabc")
+        check("(tt) a verdict with no dive named stays quarantined",
+              "unresolved" in got[2]["notes"])
+        check("(tt) another bell's verdict resolves on ITS window",
+              got[3]["zone"] == "C" and "20261002T1831-dusk" in got[3]["notes"])
+        kept = latest_reports(got)
+        check("(tt) a confirmation supersedes the guess it answers",
+              len(kept) == 3 and [d["status"] for d in kept if d["rid"] == "SMabc"] == ["confirmed"])
+    finally:
+        for n, fn in saved_t.items():
+            g7[n] = fn
 
     # fixture suite: degraded + disagreement
     print("fixture tests:")
