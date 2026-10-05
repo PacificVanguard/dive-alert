@@ -2912,7 +2912,14 @@ def sms_digest_text(zone_cfg, scored, footer=True):
     if lim and lim != "all clear":
         line += ", held back by %s" % limit_phrase(lim)
     line += "."
-    if best["score"] >= 7.0:
+    # With the weather feed down, the window's time is a fixed approximation
+    # and wind, cloud and rain are unknown: no time, no cove, and say why.
+    # (First live run, 2026-10-05: Monterey read "In by 5:30am at McAbee
+    # Beach" off the fallback clock, ninety minutes before first light.)
+    approx = "weather" in ((best.get("feats") or {}).get("missing") or [])
+    if approx:
+        line += " The weather feed is down for this water - treat that as rough."
+    elif best["score"] >= 7.0:
         line += " In by %s at %s." % (
             best["w"]["start"].strftime("%-I:%M%p").lower(),
             (best.get("entries") or ["your cove"])[0])
@@ -4990,6 +4997,12 @@ def cmd_test(args):
           "held back by stirred-up water." in txt_s and "by stirred up" not in txt_s
           and limit_phrase("grey") == "grey skies" and limit_phrase("swell") == "swell",
           txt_s.split("\n")[1])
+    blind = _win(1, "Tue dawn", 8.4, limit="recent wind")
+    blind["feats"] = dict(blind["feats"], missing=["weather"])
+    txt_b = sms_digest_text(zc, [blind])
+    check("(kk) weather feed down: no time, no cove, and it says why",
+          "In by" not in txt_b and "Fisherman's Cove" not in txt_b
+          and "weather feed is down" in txt_b, txt_b.split("\n")[1])
     check("(kk) a quiet week says so in a word and sends nobody anywhere",
           "A quiet week." in txt_q and "marginal, held back by swell" in txt_q
           and "In by" not in txt_q, txt_q.split("\n")[1])
