@@ -11,7 +11,7 @@
    "gate": false
   },
   "D": {
-   "score": 7.7,
+   "score": 9.1,
    "entries": [
     "La Jolla Cove",
     "La Jolla Shores (Canyon)"
@@ -61,7 +61,7 @@
    "gate": false
   },
   "J": {
-   "score": 7.8,
+   "score": 9.4,
    "entries": [
     "Three Tables",
     "Shark's Cove"
@@ -102,7 +102,7 @@
   "A:kd490": 0,
   "A:ndbc_spec": 0,
   "C:marine": 0,
-  "C:weather": 0,
+  "C:weather": 1,
   "C:ndbc_primary": 0,
   "C:ndbc_offshore": 0,
   "C:tides": 0,
@@ -120,14 +120,14 @@
   "D:kd490": 0,
   "D:ndbc_spec": 0,
   "E:marine": 0,
-  "E:weather": 1,
-  "E:ndbc_primary": 110,
+  "E:weather": 0,
+  "E:ndbc_primary": 111,
   "E:ndbc_offshore": 0,
   "E:tides": 0,
   "E:sst": 0,
   "E:chla": 0,
   "E:kd490": 0,
-  "E:ndbc_spec": 110,
+  "E:ndbc_spec": 111,
   "F:marine": 0,
   "F:weather": 0,
   "F:ndbc_primary": 0,
@@ -156,7 +156,7 @@
   "H:kd490": 0,
   "H:ndbc_spec": 0,
   "I:marine": 0,
-  "I:weather": 0,
+  "I:weather": 1,
   "I:ndbc_primary": 0,
   "I:ndbc_offshore": 0,
   "I:tides": 0,
@@ -174,7 +174,7 @@
   "J:kd490": 0,
   "J:ndbc_spec": 0,
   "K:marine": 0,
-  "K:weather": 1,
+  "K:weather": 0,
   "K:ndbc_primary": 0,
   "K:ndbc_offshore": 0,
   "K:tides": 0,
@@ -184,13 +184,13 @@
   "K:ndbc_spec": 0,
   "L:marine": 0,
   "L:weather": 0,
-  "L:ndbc_primary": 108,
-  "L:ndbc_offshore": 108,
-  "L:tides": 108,
+  "L:ndbc_primary": 109,
+  "L:ndbc_offshore": 109,
+  "L:tides": 109,
   "L:sst": 0,
   "L:chla": 0,
-  "L:kd490": 2,
-  "L:ndbc_spec": 108,
+  "L:kd490": 0,
+  "L:ndbc_spec": 109,
   "M:marine": 0,
   "M:weather": 0,
   "M:ndbc_primary": 0,
@@ -198,42 +198,42 @@
   "M:tides": 0,
   "M:sst": 0,
   "M:chla": 0,
-  "M:kd490": 2,
+  "M:kd490": 0,
   "M:ndbc_spec": 0,
   "N:marine": 0,
   "N:weather": 0,
-  "N:ndbc_primary": 108,
+  "N:ndbc_primary": 109,
   "N:ndbc_offshore": 0,
   "N:tides": 0,
   "N:sst": 0,
   "N:chla": 0,
   "N:kd490": 0,
-  "N:ndbc_spec": 108,
+  "N:ndbc_spec": 109,
   "O:marine": 0,
   "O:weather": 0,
   "O:ndbc_primary": 0,
-  "O:ndbc_offshore": 108,
-  "O:tides": 108,
+  "O:ndbc_offshore": 109,
+  "O:tides": 109,
   "O:sst": 0,
   "O:chla": 0,
   "O:kd490": 0,
-  "O:ndbc_spec": 108,
+  "O:ndbc_spec": 109,
   "P:marine": 0,
   "P:weather": 0,
-  "P:ndbc_primary": 38,
-  "P:ndbc_offshore": 108,
+  "P:ndbc_primary": 39,
+  "P:ndbc_offshore": 109,
   "P:tides": 0,
   "P:sst": 0,
   "P:chla": 0,
   "P:kd490": 0,
-  "P:ndbc_spec": 38,
-  "A:marine_alt": 1,
+  "P:ndbc_spec": 39,
+  "A:marine_alt": 0,
   "C:marine_alt": 0,
   "D:marine_alt": 0,
   "E:marine_alt": 0,
-  "F:marine_alt": 2,
-  "G:marine_alt": 1,
-  "H:marine_alt": 1,
+  "F:marine_alt": 0,
+  "G:marine_alt": 0,
+  "H:marine_alt": 0,
   "I:marine_alt": 0,
   "J:marine_alt": 0,
   "K:marine_alt": 0,
@@ -254,7 +254,7 @@
    "rings": 7
   },
   "D": {
-   "promises": 20,
+   "promises": 21,
    "rings": 6
   },
   "E": {
@@ -278,7 +278,7 @@
    "rings": 1
   },
   "J": {
-   "promises": 13,
+   "promises": 14,
    "rings": 4
   },
   "K": {
@@ -306,7 +306,7 @@
    "rings": 1
   }
  },
- "hook_idx": 167,
+ "hook_idx": 169,
  "axis_blind": {
   "flat": 0,
   "glass": 0,
@@ -400,18 +400,20 @@
  "gate_streak": {
   "A": {},
   "C": {},
-  "D": {},
+  "D": {
+   "20261006T0616-dawn": 1
+  },
   "E": {},
   "F": {},
   "G": {},
   "H": {
-   "20261007T0638-dawn": 3
+   "20261007T0638-dawn": 4
   },
   "I": {},
   "J": {},
   "K": {},
   "L": {
-   "20261012T1616-dusk": 2
+   "20261012T1616-dusk": 3
   },
   "M": {},
   "N": {},
