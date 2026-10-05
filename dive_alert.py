@@ -2824,7 +2824,7 @@ def check_retraction(zk, zc, scored, state, t_now, dry_run):
     # the whole promise is visible and none of it holds: withdraw it
     day0 = datetime.fromisoformat(vis[0]).strftime("%A")
     db = max(by_day[vis[0]], key=lambda s: s["score"])
-    why = db.get("limit") or "the forecast moved"
+    why = limit_phrase(db.get("limit")) if db.get("limit") else "the forecast moved"
     body = ("%s's perfect morning washed out — %s filled in where the promise "
             "stood. The bell only rings when every knowable thing holds, and it "
             "no longer does." % (day0, why))
@@ -2867,6 +2867,17 @@ def check_retraction(zk, zc, scored, state, t_now, dry_run):
         print("retraction (%s): undelivered — will retry" % zk)
 
 
+LIMIT_PHRASES = {"stirred up": "stirred-up water", "grey": "grey skies",
+                 "big tide": "a big tide"}
+
+
+def limit_phrase(lim):
+    """LIMIT_WORDS are labels for a table ('stirred up', 'grey'); a sentence
+    needs a noun. The first live forecasts read 'held back by stirred up'
+    on six bells (2026-10-05)."""
+    return LIMIT_PHRASES.get(lim, lim)
+
+
 def score_word(score):
     """One plain word beside the number — '6.5 of 10' alone leaves a diver
     asking whether that is worth the drive."""
@@ -2899,7 +2910,7 @@ def sms_digest_text(zone_cfg, scored, footer=True):
     line = "Best: %s, %.1f of 10 - %s" % (best["w"]["label"], best["score"],
                                           score_word(best["score"]))
     if lim and lim != "all clear":
-        line += ", held back by %s" % lim
+        line += ", held back by %s" % limit_phrase(lim)
     line += "."
     if best["score"] >= 7.0:
         line += " In by %s at %s." % (
@@ -4973,6 +4984,12 @@ def cmd_test(args):
           "Best: Thu dawn, 8.9 of 10 - excellent." in txt_r and "In by" in txt_r
           and "Fisherman's Cove" in txt_r and "is perfect - the bell is ringing" in txt_r,
           txt_r.split("\n")[1])
+    txt_s = sms_digest_text(zc, [_win(1, "Thu dawn", 6.9, limit="stirred up"),
+                                 _win(2, "Fri dawn", 6.0, limit="grey")])
+    check("(kk) a limit reads as a sentence, not a table label",
+          "held back by stirred-up water." in txt_s and "by stirred up" not in txt_s
+          and limit_phrase("grey") == "grey skies" and limit_phrase("swell") == "swell",
+          txt_s.split("\n")[1])
     check("(kk) a quiet week says so in a word and sends nobody anywhere",
           "A quiet week." in txt_q and "marginal, held back by swell" in txt_q
           and "In by" not in txt_q, txt_q.split("\n")[1])
