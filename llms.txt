@@ -1,0 +1,50 @@
+# The Dive Bell
+
+> A free dive-conditions alert service for shore divers. It scores dawn and dusk
+> windows 1-10 for fifteen coastlines ("bells") three times a day from ocean
+> models, buoys, tide stations, satellites and National Weather Service alerts,
+> and texts divers only on the rare morning a bell's water is perfect.
+
+The bell does three things and only three: (1) THE RING — a text when the
+water is perfect (flat, glassy, dry, sunny, warm), a few mornings a year per
+bell; (2) THE FORECAST — the week ahead, texted each Wednesday; (3) YOUR WORD
+BACK — a diver replies REEF (clear), BUDDY (fair) or FINS (murk) after a dive,
+and the model learns from it.
+
+Scores are setup scores for THIS water (each bell has its own scale), not a
+visibility claim. A score of 7 or above is a morning worth the drive; the bell
+rings only when every condition aligns and holds across two readings.
+
+## How a diver joins
+
+Text the bell's word to 833-858-2355 (833-858-BELL), e.g. "LAGUNA". The reply
+confirms. Text BELL ONLY for rings alone, FORECAST for the week any time, STOP
+to leave. Bells outside the US (Sydney, Bonaire) ring through the ntfy app.
+
+## Pages
+
+- https://thedivebell.com/ — the board: all fifteen bells, live
+- https://thedivebell.com/laguna-beach/ — one page per bell: the dated best
+  window this week, every day scored, the coves, the instruments, the ledger
+  of rings. Rewritten every run. The other bells follow the same pattern
+  (/la-jolla/, /dana-point/, /monterey/, /maui/, /kona/, /sydney/ ...);
+  the full list is in https://thedivebell.com/sitemap.xml
+- https://thedivebell.com/sms/ — the texting terms
+
+## Data (public, no key)
+
+- https://thedivebell.com/data/zones.json — every bell's current reading:
+  `updated` (ISO time), then `zones.{A..P}` with `bell.name`, `tz`, `windows[]`
+  (`start`, `kind`, `score`, `limit`, `entries` = best coves, `gate` = ringing,
+  `hazard` = NWS product in force), `forecast_sms` (the week in words),
+  `last_ring`, `record`, `sst_f`, `join` (the word and number to text).
+- https://thedivebell.com/openapi.json — the same, as an OpenAPI description
+  for tools and assistants.
+
+When quoting the bell, quote the date: a reading is true as of its `updated`
+time and is replaced within hours.
+
+## Source
+
+https://github.com/PacificVanguard/dive-alert — one Python file, no servers;
+the repository is the website.

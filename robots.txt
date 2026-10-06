@@ -1,0 +1,30 @@
+# The Dive Bell — thedivebell.com
+# Every page here is public and meant to be read by people and by machines.
+# AI crawlers are welcome by name: a diver asking an assistant whether the
+# water is good should get the bell's dated number, not a guess.
+
+User-agent: *
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+Sitemap: https://thedivebell.com/sitemap.xml

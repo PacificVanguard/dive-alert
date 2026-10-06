@@ -75,6 +75,21 @@ zones.json — the webhook just returns it. A question is not a move:
 weekly "best morning" text (a third push dilutes the ring) and a YES/NO
 confirmation dialogue (one text in, one back is enough).
 
+## The pages are the funnel (2026-10-06)
+
+Growth is search and instructors, not virality — five rings a year cannot
+compound. So each bell has a REAL page (`/laguna-beach/` etc., `bell_page`),
+rewritten every run: the dated answer sentence first, the week scored, the
+coves from `sites`, the instruments, the join word, and the ledger of rings
+(`ring_ledger` — a diary until five rings, a score after). Plain HTML, no
+script, canonical URL, JSON-LD; the OG tags still carry the live state for
+the unfurl. `sitemap.xml` is written with them. `robots.txt` welcomes the AI
+crawlers by name, `llms.txt` explains the bell to them, `openapi.json`
+describes `data/zones.json` (which now carries `join` per bell) so an
+assistant can call it with no key. Until this date every bell page was a
+694-byte redirect into the hash route — fifteen bells, one URL to Google.
+One human act, once: submit the sitemap in Google Search Console.
+
 ## The Wednesday reading rides whichever cron lands (don't "fix" this)
 
 GitHub fires crons hours late — 3-4h has been normal. The guard classifies

@@ -3421,6 +3421,327 @@ def merge_board(board, prev_zones):
     return merged
 
 
+def board_entry(zk, zc, scored, state, rec, ztopic, sst):
+    """One bell's plate on the public board (zones.json). `join` rides in
+    the data itself so anything that answers from it — a page, an assistant,
+    a crawler — carries the word and the number along with the reading."""
+    return {
+        "keeper": zc.get("keeper"),
+        "region": zc.get("region", "Elsewhere"),
+        "season_note": zc.get("season_note"),
+        "casting": zc.get("casting"),
+        "warm_f": round((dict(CONFIG["perfect_gate"],
+                              **zc.get("perfect_gate_overrides", {}))["min_sst_c"])
+                        * 9 / 5 + 32),
+        "tz": zc.get("tz", "America/Los_Angeles"),
+        "record": dict(rec),
+        "bell": zc.get("bell", {}), "tier": zc.get("tier", "provisional"),
+        "topic": ztopic, "name": zc["name"],
+        "slug": bell_slug({"bell": zc.get("bell", {"name": zc["name"]})}),
+        "instruments": {"buoy": zc.get("buoy_aodn") or zc.get("buoy"),
+                        "tide": zc.get("tide_station")},
+        "sms": zc.get("sms", True),
+        "join": ({"word": bell_word(zk), "number": BELL_NUMBER,
+                  "text": "Text %s to %s" % (bell_word(zk), BELL_NUMBER)}
+                 if zc.get("sms", True) else
+                 {"app": "ntfy", "topic": ztopic,
+                  "text": "Subscribe to %s in the ntfy app" % ztopic}),
+        "forecast_sms": sms_digest_text(zc, scored, footer=False),
+        "last_ring": state.get("last_ring", {}).get(zk),
+        "sst_f": round(sst * 9 / 5 + 32) if sst is not None else None,
+        "windows": [{"label": s["w"]["label"],
+                     "start": s["w"]["start"].isoformat(),
+                     "kind": s["w"].get("kind", "dawn"),
+                     "score": s["score"], "conf": s["conf"],
+                     "limit": s.get("limit"),
+                     "entries": s["entries"][:2],
+                     "gate": bool(s.get("gate")),
+                     # every axis aligned this run, whether or not it has
+                     # held long enough to be worth a promise
+                     "aligned": bool(s.get("gate_raw", s.get("gate"))),
+                     "hazard": s.get("hazard")}
+                    for s in scored],
+    }
+
+
+# =====================================================================
+# the bell pages — one real page per bell, rewritten every run
+# =====================================================================
+# Until 2026-10-06 each bell's page was a 694-byte redirect into the board's
+# hash route: to Google and to every AI crawler, fifteen bells were one URL.
+# Now the page IS the reading — the dated answer first, in a sentence a
+# person or a machine can quote, then the week, the coves, the instruments,
+# the ledger, and the word to text. Plain HTML, no script: read as written.
+
+SITE_URL = "https://thedivebell.com"
+VERDICT_WORDS = {"clear": "REEF", "fair": "BUDDY", "murk": "FINS"}
+
+BELL_PAGE_CSS = """
+:root{--glow:#7fd4ff;--sand:#e8dcc3;--dim:#64809b;--gold:#ffd98a;--ink:#a9c2d6}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#071d36;color:var(--sand);font-family:Georgia,'Times New Roman',serif;line-height:1.7}
+main{max-width:720px;margin:0 auto;padding:40px 16px 64px}
+.eyebrow,table,footer,.tag,code{font-family:ui-monospace,Menlo,monospace}
+.eyebrow{font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+h1{font-weight:normal;font-size:2rem;line-height:1.2;margin:10px 0 18px}
+h2{font-weight:normal;font-size:1.15rem;margin:40px 0 10px;color:var(--glow)}
+.lead{font-size:1.25rem;line-height:1.5}
+.lead b{color:var(--gold);font-weight:normal}
+p{margin:8px 0;color:var(--ink)}
+table{width:100%;border-collapse:collapse;font-size:.82rem;margin-top:8px}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid rgba(169,194,214,.15);vertical-align:top}
+th{color:var(--dim);font-weight:normal;letter-spacing:.06em;text-transform:uppercase;font-size:.68rem}
+td.n{color:var(--gold)}
+tr.ring td{color:var(--glow)}
+ul{list-style:none}
+li{padding:8px 0;border-bottom:1px solid rgba(169,194,214,.12);color:var(--ink)}
+li b{color:var(--sand);font-weight:normal}
+.tag{font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin-left:8px}
+.join{margin-top:44px;padding:22px;border:1px solid rgba(127,212,255,.35);border-radius:6px}
+.join .big{font-size:1.5rem;color:var(--sand);margin:6px 0 10px}
+code{color:var(--glow)}
+footer{margin-top:48px;font-size:.7rem;color:var(--dim);line-height:2}
+a{color:var(--glow)}
+"""
+
+
+def bell_slug(bz):
+    return re.sub(r"[^a-z0-9]+", "-", bz["bell"]["name"].lower()).strip("-")
+
+
+def ring_ledger(zk, state):
+    """Every ring this bell has texted, oldest first, with the word that came
+    back. A diary, not a score: a percentage appears only at five rings
+    (pre-mortem 2026-10-06 — a record at n=3 is noise, and one FINS would
+    have published as 0 for 1). Numbers never leave the state."""
+    rings = {}
+    for key in state.get("sms_rung_nums", {}):
+        z, _, wkey = key.partition(":")
+        if z != zk:
+            continue
+        stamp, _, kind = wkey.rpartition("-")
+        try:
+            day = datetime.strptime(stamp, "%Y%m%dT%H%M").date().isoformat()
+        except ValueError:
+            continue
+        rings[day] = {"date": day, "kind": kind or "dawn", "verdicts": {}}
+    if rings and os.path.exists(DIVE_LOG):
+        with open(DIVE_LOG) as f:
+            for r in csv.DictReader(f):
+                ring = rings.get((r.get("ts") or "")[:10]) if r.get("zone") == zk else None
+                if ring:
+                    c = VERDICT_WORDS.get((r.get("category") or "").lower(), (r.get("category") or "?").upper())
+                    ring["verdicts"][c] = ring["verdicts"].get(c, 0) + 1
+    return [rings[d] for d in sorted(rings)]
+
+
+def _long_date(iso):
+    d = datetime.strptime(iso, "%Y-%m-%d")
+    return d.strftime("%B %-d, %Y")
+
+
+def bell_page(zk, bz, zc, state, t_now):
+    from html import escape as _escape
+
+    def esc(s, quote=False):   # body text keeps its apostrophes (Shaw's Cove); attributes escape all
+        return _escape(str(s), quote)
+    name = bz["bell"]["name"]
+    slug = bell_slug(bz)
+    tz = ZoneInfo(bz.get("tz") or "America/Los_Angeles")
+    now_loc = t_now.astimezone(tz)
+    today = now_loc.date()
+    wins = bz.get("windows") or []
+    ringing = [w for w in wins if w.get("gate")]
+    top = max(wins, key=lambda w: w["score"], default=None)
+    fc = (bz.get("forecast_sms") or "").split("\n")
+    best_line = fc[1] if len(fc) > 1 else "The bell keeps its silence."
+    verdict = fc[3] if len(fc) > 3 else ""
+    stamp = now_loc.strftime("%A %-I:%M%p").replace("AM", "am").replace("PM", "pm")
+    if best_line.startswith("Best: "):
+        lead = "As of %s, the best window this week is %s" % (stamp, best_line[6:])
+    else:
+        lead = "As of %s: %s" % (stamp, best_line)
+
+    # the unfurl, unchanged in spirit: a pasted link carries today's truth
+    if ringing:
+        og_state = "THE BELL IS RINGING - %s" % ringing[0]["label"]
+        og_desc = ("Everything just lined up. %s. A dozen mornings a year, the "
+                   "ocean says yes - this is one of them.") % " / ".join(ringing[0]["entries"])
+    elif top:
+        og_state = "The %s bell is quiet" % name
+        og_desc = ("Best window ahead: %s, %.1f of 10%s. It rings a dozen-some "
+                   "mornings a year; today is not one of them.") % (
+                   top["label"], top["score"],
+                   " (%s)" % top["limit"] if top.get("limit") else "")
+    else:
+        og_state, og_desc = "The %s bell is quiet" % name, "The bell keeps its silence."
+
+    # status: ringing, or how long the silence has run
+    last, cast = bz.get("last_ring"), bz["bell"].get("cast")
+    if ringing:
+        status = "The bell is ringing for %s." % ringing[0]["label"]
+    elif last:
+        n = (today - datetime.strptime(last, "%Y-%m-%d").date()).days
+        status = "Last rang %s - %d days ago." % (_long_date(last), n)
+    elif cast:
+        n = (today - datetime.strptime(cast, "%Y-%m-%d").date()).days
+        status = "Quiet since it was cast on %s: %d days without a ring." % (_long_date(cast), n)
+    else:
+        status = "The bell keeps its silence."
+    rings_n = (bz.get("record") or {}).get("rings", 0)
+
+    haz = [w for w in wins if w.get("hazard")]
+    haz_p = ""
+    if haz:
+        days = sorted({(w["start"][:10], w["label"].split()[0]) for w in haz})
+        span = days[0][1] if len(days) == 1 else "%s through %s" % (days[0][1], days[-1][1])
+        haz_p = ("<p>The National Weather Service has a <b>%s</b> in force over %s. "
+                 "The bell does not ring under one, and names no cove for those windows.</p>"
+                 % (esc(haz[0]["hazard"]), esc(span)))
+
+    rows = []
+    for w in wins:
+        mark = ("RINGING" if w.get("gate") else
+                ("NWS: %s" % w["hazard"]) if w.get("hazard") else
+                "every axis aligned" if w.get("aligned") else "")
+        rows.append("<tr%s><td>%s</td><td class='n'>%.1f</td><td>%s</td><td>%s</td><td>%s</td></tr>" % (
+            " class='ring'" if w.get("gate") else "", esc(w["label"]), w["score"],
+            esc(limit_phrase(w.get("limit") or "") if w.get("limit") not in (None, "all clear") else "all clear"),
+            esc((w.get("entries") or ["-"])[0]), esc(mark)))
+    week = ("<table><thead><tr><th>Window</th><th>Score</th><th>Held back by</th>"
+            "<th>Best cove</th><th></th></tr></thead><tbody>%s</tbody></table>" % "".join(rows)
+            if rows else "<p>No windows scored this run.</p>")
+
+    named = {e for w in wins for e in (w.get("entries") or [])}
+    coves = []
+    for s in zc.get("sites") or []:
+        bits = ["%d ft" % s["depth_ft"]] if s.get("depth_ft") else []
+        bits += [b for b in (s.get("entry"), s.get("note")) if b]
+        if s.get("tide") and s["tide"] != "any":
+            bits.append("best at %s tide" % s["tide"])
+        coves.append("<li><b>%s</b>%s<br>%s</li>" % (
+            esc(s["name"]), "<span class='tag'>named this week</span>" if s["name"] in named else "",
+            esc(" · ".join(bits))))
+    coves_h = "<ul>%s</ul>" % "".join(coves) if coves else ""
+
+    inst = bz.get("instruments") or {}
+    inst_bits = []
+    if inst.get("buoy"):
+        inst_bits.append("buoy %s" % esc(str(inst["buoy"])))
+    if inst.get("tide"):
+        inst_bits.append("tide station %s" % esc(str(inst["tide"])))
+    if bz.get("sst_f") is not None:
+        inst_bits.append("water %dF now (the bell wants %dF or warmer)" % (bz["sst_f"], bz.get("warm_f", 0)))
+    inst_p = "<p>%s.</p>" % esc(", ".join(inst_bits)).replace("&#x27;", "'") if inst_bits else ""
+
+    join = bz.get("join") or {}
+    if bz.get("sms", True) and join.get("word"):
+        join_h = ("<div class='join'><div class='eyebrow'>Join this bell</div>"
+                  "<div class='big'>Text <code>%s</code> to <code>%s</code></div>"
+                  "<p>You get a text the rare morning this water is perfect, and the week's "
+                  "forecast every Wednesday. Text BELL ONLY for the ring alone, FORECAST for the "
+                  "week any time. Msg&amp;data rates may apply. Reply STOP to leave.</p></div>"
+                  % (esc(join["word"]), esc(join["number"])))
+    else:
+        join_h = ("<div class='join'><div class='eyebrow'>Join this bell</div>"
+                  "<div class='big'>Through the free ntfy app</div>"
+                  "<p>Subscribe to <code>%s</code> in ntfy (iPhone or Android). The bell rings "
+                  "there the rare morning this water is perfect, and the week's forecast arrives "
+                  "every Wednesday.</p></div>" % esc(bz.get("topic") or ""))
+
+    ledger = ring_ledger(zk, state)
+    if ledger:
+        lrows = []
+        for r in ledger:
+            back = ", ".join("%d %s" % (n, k) for k, n in sorted(r["verdicts"].items())) or "no word back yet"
+            lrows.append("<tr><td>%s</td><td>%s</td><td>%s</td></tr>" % (
+                esc(_long_date(r["date"])), esc(r["kind"]), esc(back)))
+        ledger_h = ("<table><thead><tr><th>Rang</th><th>Window</th><th>Divers reported</th></tr></thead>"
+                    "<tbody>%s</tbody></table>" % "".join(lrows))
+        if len(ledger) < 5:
+            ledger_h += "<p>A diary until five rings; a score after.</p>"
+    else:
+        ledger_h = ("<p>This bell has not yet rung by text. When it does, every ring is entered "
+                    "here with what divers reported back - a diary until five rings, a score after.</p>")
+
+    season = bz.get("season_note")
+    casting = bz.get("casting") or {}
+    about = []
+    if season:
+        about.append("When it rings: %s." % esc(season.rstrip(".")))
+    if casting.get("pct7"):
+        about.append("In its casting against years of this water, %d%% of mornings reached 7." % casting["pct7"])
+    about.append("Rings since casting: %d." % rings_n)
+
+    ld = {"@context": "https://schema.org", "@type": "WebPage",
+          "name": "%s dive conditions" % name, "url": "%s/%s/" % (SITE_URL, slug),
+          "dateModified": t_now.isoformat(),
+          "description": og_desc,
+          "about": {"@type": "Place", "name": name,
+                    "geo": {"@type": "GeoCoordinates", "latitude": zc.get("lat"), "longitude": zc.get("lon")}},
+          "isPartOf": {"@type": "WebSite", "name": "The Dive Bell", "url": SITE_URL + "/"}}
+
+    return ("<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'>\n"
+            "<meta name='viewport' content='width=device-width, initial-scale=1'>\n"
+            "<title>%(name)s dive conditions - the week ahead | The Dive Bell</title>\n"
+            "<link rel='canonical' href='%(url)s'>\n"
+            "<meta name='description' content='%(desc)s'>\n"
+            "<meta property='og:title' content='%(og)s'>\n"
+            "<meta property='og:description' content='%(desc)s'>\n"
+            "<meta property='og:url' content='%(url)s'>\n"
+            "<meta property='og:site_name' content='The Dive Bell'>\n"
+            "<meta name='twitter:card' content='summary'>\n"
+            "<meta name='theme-color' content='#071d36'>\n"
+            "<link rel='manifest' href='/manifest.webmanifest'>\n"
+            "<script type='application/ld+json'>%(ld)s</script>\n"
+            "<style>%(css)s</style></head><body><main>\n"
+            "<div class='eyebrow'>The Dive Bell · Bell No. %(no)s · %(region)s</div>\n"
+            "<h1>%(name)s dive conditions</h1>\n"
+            "<p class='lead'>%(lead)s</p>\n"
+            "<p>%(verdict)s %(status)s</p>\n%(haz)s"
+            "<h2>The week, scored</h2>\n<p>Each window is scored 1 to 10 for this water alone; "
+            "7 is worth the drive. The bell rings only when every condition aligns and holds "
+            "across two readings.</p>\n%(week)s\n"
+            "<h2>The coves</h2>\n%(coves)s\n"
+            "<h2>The instruments</h2>\n%(inst)s<p>%(about)s</p>\n"
+            "%(join)s\n"
+            "<h2>The ledger</h2>\n%(ledger)s\n"
+            "<footer>Read three times a day by The Dive Bell · updated %(updated)s · "
+            "<a href='/#%(slug)s'>the board</a> · <a href='/data/zones.json'>data</a> · "
+            "<a href='/sms/'>texting terms</a><br>The ocean has the last word: this is a "
+            "reading, not a lifeguard.</footer>\n"
+            "</main></body></html>\n") % {
+        "name": esc(name), "url": "%s/%s/" % (SITE_URL, slug), "desc": esc(og_desc, quote=True),
+        "og": esc(og_state, quote=True), "ld": json.dumps(ld), "css": BELL_PAGE_CSS,
+        "no": bz["bell"].get("no", "?"), "region": esc(bz.get("region") or ""),
+        "lead": esc(lead), "verdict": esc(verdict), "status": esc(status), "haz": haz_p,
+        "week": week, "coves": coves_h, "inst": inst_p, "about": " ".join(about),
+        "join": join_h, "ledger": ledger_h, "slug": slug,
+        "updated": esc(now_loc.strftime("%a %b %-d, %-I:%M%p %Z").replace("AM", "am").replace("PM", "pm"))}
+
+
+def sitemap_xml(slugs, t_now):
+    day = t_now.date().isoformat()
+    url = lambda path, freq: ("<url><loc>%s%s</loc><lastmod>%s</lastmod>"
+                              "<changefreq>%s</changefreq></url>" % (SITE_URL, path, day, freq))
+    return ("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+            "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n%s\n</urlset>\n"
+            % "\n".join([url("/", "daily")] + [url("/%s/" % s, "daily") for s in sorted(slugs)]
+                        + [url("/sms/", "monthly")]))
+
+
+def write_bell_pages(board, state, t_now):
+    slugs = []
+    for zk, bz in board.items():
+        slug = bell_slug(bz)
+        os.makedirs(os.path.join(ROOT, slug), exist_ok=True)
+        with open(os.path.join(ROOT, slug, "index.html"), "w") as f:
+            f.write(bell_page(zk, bz, CONFIG["zones"].get(zk, {}), state, t_now))
+        slugs.append(slug)
+    with open(os.path.join(ROOT, "sitemap.xml"), "w") as f:
+        f.write(sitemap_xml(slugs, t_now))
+
+
 def cmd_run(args):
     t_now = now_pt()
     state = load_state()
@@ -3586,37 +3907,7 @@ def cmd_run(args):
                 if max(gate_days_seen) != prev:
                     rec["rings"] += 1
                 state["last_ring"][zk] = max(gate_days_seen)
-            board[zk] = {
-                "keeper": zc.get("keeper"),
-                "region": zc.get("region", "Elsewhere"),
-                "season_note": zc.get("season_note"),
-                "casting": zc.get("casting"),
-                "warm_f": round((dict(CONFIG["perfect_gate"],
-                                      **zc.get("perfect_gate_overrides", {}))["min_sst_c"])
-                                * 9 / 5 + 32),
-                "tz": zc.get("tz", "America/Los_Angeles"),
-                "record": dict(rec),
-                "bell": zc.get("bell", {}), "tier": zc.get("tier", "provisional"),
-                "topic": ztopic, "name": zc["name"],
-                "instruments": {"buoy": zc.get("buoy_aodn") or zc.get("buoy"),
-                                "tide": zc.get("tide_station")},
-                "sms": zc.get("sms", True),
-                "forecast_sms": sms_digest_text(zc, scored, footer=False),
-                "last_ring": state.get("last_ring", {}).get(zk),
-                "sst_f": round(sst * 9 / 5 + 32) if sst is not None else None,
-                "windows": [{"label": s["w"]["label"],
-                             "start": s["w"]["start"].isoformat(),
-                             "kind": s["w"].get("kind", "dawn"),
-                             "score": s["score"], "conf": s["conf"],
-                             "limit": s.get("limit"),
-                             "entries": s["entries"][:2],
-                             "gate": bool(s.get("gate")),
-                             # every axis aligned this run, whether or not it has
-                             # held long enough to be worth a promise
-                             "aligned": bool(s.get("gate_raw", s.get("gate"))),
-                             "hazard": s.get("hazard")}
-                            for s in scored],
-            }
+            board[zk] = board_entry(zk, zc, scored, state, rec, ztopic, sst)
 
         except Exception as e:
             # 2026-09-30: a dead network on the runner raised out of one
@@ -3631,42 +3922,11 @@ def cmd_run(args):
                     "message": "%d of %d: %s" % (len(zone_errors), len(CONFIG["zones"]),
                                                  "; ".join("%s %s" % kv for kv in zone_errors.items())),
                     "priority": 4}, args.dry_run)
-    # THE SHARE CARDS: a tiny page per bell whose OpenGraph tags carry the
-    # LIVE state, rewritten every run — so pasting a bell's link into any
-    # group chat unfurls today's truth ("quiet · best Thu dawn 6.2"), not a
-    # static slogan. The unfurl IS the viral object; the page itself just
-    # redirects into the board.
+    # THE BELL PAGES: one real page per bell, rewritten every run, whose
+    # OpenGraph tags still carry the live state for the unfurl - and whose
+    # body now carries the reading itself (see bell_page). Plus sitemap.xml.
     if not args.dry_run and board:
-        for bzk, bz in board.items():
-            bslug = re.sub(r"[^a-z0-9]+", "-", bz["bell"]["name"].lower()).strip("-")
-            wins = bz.get("windows") or []
-            ringing = any(w.get("gate") for w in wins)
-            top = max(wins, key=lambda w: w["score"], default=None)
-            if ringing:
-                gd = next(w for w in wins if w.get("gate"))
-                og_state = "THE BELL IS RINGING — %s" % gd["label"]
-                og_desc = ("Everything just lined up. %s. A dozen mornings a year, "
-                           "the ocean says yes — this is one of them.") % (
-                          " / ".join(gd["entries"]))
-            else:
-                og_state = "The %s bell is quiet" % bz["bell"]["name"]
-                og_desc = ("Best window ahead: %s, %.1f of 10%s. It rings a dozen-some "
-                           "mornings a year; today is not one of them.") % (
-                          top["label"], top["score"],
-                          " (%s)" % top["limit"] if top.get("limit") else "") if top else                           "The bell keeps its silence."
-            stub = ("<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'>\n"
-                    "<title>%s</title>\n"
-                    "<meta property='og:title' content='%s'>\n"
-                    "<meta property='og:description' content='%s'>\n"
-                    "<meta property='og:site_name' content='The Dive Bell'>\n"
-                    "<meta name='description' content='%s'>\n"
-                    "<meta name='twitter:card' content='summary'>\n"
-                    "<meta http-equiv='refresh' content=\"0; url=/#%s\">\n"
-                    "</head><body style='background:#071d36'></body></html>\n") % (
-                    og_state, og_state, og_desc, og_desc, bslug)
-            os.makedirs(os.path.join(ROOT, bslug), exist_ok=True)
-            with open(os.path.join(ROOT, bslug, "index.html"), "w") as sf:
-                sf.write(stub)
+        write_bell_pages(board, state, t_now)
         os.makedirs(DATA, exist_ok=True)
         # a bell that failed this run keeps its last plate, marked stale —
         # one dead fetch must not blank a bell off the public board
@@ -5619,6 +5879,38 @@ def cmd_test(args):
     st_x = {"ntfy_digest_due": {"O": "2026-W41"}}
     check("(xx) a debt already open is not opened twice, and only for its bell",
           not weekly_owed("O", st_x, thu) and weekly_owed("A", st_x, thu))
+
+    # (yy) the bell's page is the reading, written for people and crawlers:
+    # dated answer first, every cove, the join word, the ledger, no redirect,
+    # no script, and never a subscriber number
+    fx_y, src_y = fetch_all(zc, offline=True, fixture_set="normal")
+    t_y = src_y.fixture_now() or t0
+    sc_y = score_zone("A", zc, fx_y, t_y, 24 * 7)
+    st_y = {"sms_rung_nums": {"A:20260916T0605-dawn": ["+15550001111"]}, "last_ring": {}}
+    bz_y = board_entry("A", zc, sc_y, st_y, {"promises": 3, "rings": 1}, "topic-y", 20.0)
+    pg = bell_page("A", bz_y, zc, st_y, t_y)
+    check("(yy) board carries slug and join", bz_y["slug"] == "laguna-beach"
+          and bz_y["join"] == {"word": "LAGUNA", "number": BELL_NUMBER, "text": "Text LAGUNA to " + BELL_NUMBER})
+    check("(yy) the page leads with a dated answer and the search phrase",
+          "<h1>Laguna Beach dive conditions</h1>" in pg and "As of " in pg
+          and "the best window this week is" in pg, pg[pg.find("<p class='lead'>"):][:140])
+    check("(yy) every cove is on the page; the named one is tagged",
+          all(s["name"] in pg for s in zc["sites"]) and "named this week" in pg)
+    check("(yy) the join word, the ledger entry, and the canonical URL",
+          "Text <code>LAGUNA</code> to <code>%s</code>" % BELL_NUMBER in pg
+          and "September 16, 2026" in pg and "no word back yet" in pg
+          and "<link rel='canonical' href='https://thedivebell.com/laguna-beach/'>" in pg)
+    check("(yy) no redirect, no script but JSON-LD, no subscriber number",
+          "http-equiv" not in pg and pg.count("<script") == 1 and "ld+json" in pg
+          and "5550001111" not in pg and "+1555" not in pg)
+    bz_o = board_entry("O", CONFIG["zones"]["O"], sc_y, {}, {"promises": 0, "rings": 0}, "topic-o", None)
+    pg_o = bell_page("O", bz_o, CONFIG["zones"]["O"], {}, t_y)
+    check("(yy) an app-only bell joins through ntfy, not a text",
+          bz_o["join"].get("app") == "ntfy" and "Through the free ntfy app" in pg_o
+          and "Text <code>" not in pg_o and "has not yet rung by text" in pg_o)
+    sm = sitemap_xml(["laguna-beach", "sydney"], t_y)
+    check("(yy) the sitemap lists the board, every bell, and the terms",
+          sm.count("<url>") == 4 and "/laguna-beach/</loc>" in sm and "/sms/</loc>" in sm)
 
     # fixture suite: degraded + disagreement
     print("fixture tests:")

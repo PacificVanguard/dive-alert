@@ -1,0 +1,66 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "The Dive Bell",
+    "version": "1.0.0",
+    "description": "Live dive-conditions readings for fifteen coastlines (bells). Each bell's dawn and dusk windows are scored 1-10 for the week ahead, three times a day. A bell rings (gate=true) only when the water is perfect. Readings are true as of `updated` and replaced within hours. To be texted when a bell rings, a diver texts the bell's word (join.word) to join.number."
+  },
+  "servers": [{"url": "https://thedivebell.com"}],
+  "paths": {
+    "/data/zones.json": {
+      "get": {
+        "operationId": "getReadings",
+        "summary": "Every bell's current reading: the week ahead, scored, with the best coves and any NWS hazard.",
+        "responses": {
+          "200": {
+            "description": "The board.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "updated": {"type": "string", "format": "date-time", "description": "When this reading was taken."},
+                    "zones": {
+                      "type": "object",
+                      "description": "Keyed by bell letter (A = Laguna Beach, D = La Jolla, E = Monterey, J = Oahu North Shore, K = Kona, O = Sydney, P = Maui ...).",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "bell": {"type": "object", "properties": {"name": {"type": "string"}, "no": {"type": "integer"}}},
+                          "tz": {"type": "string", "description": "IANA time zone of the water."},
+                          "region": {"type": "string"},
+                          "season_note": {"type": "string", "description": "When this bell usually rings, in words."},
+                          "forecast_sms": {"type": "string", "description": "The week ahead in four lines: the best window, every day scored, the bell's verdict."},
+                          "last_ring": {"type": ["string", "null"], "format": "date"},
+                          "sst_f": {"type": ["integer", "null"], "description": "Water temperature now, Fahrenheit."},
+                          "record": {"type": "object", "properties": {"promises": {"type": "integer"}, "rings": {"type": "integer"}}},
+                          "join": {"type": "object", "description": "How a diver joins this bell.", "properties": {"word": {"type": "string"}, "number": {"type": "string"}, "text": {"type": "string"}}},
+                          "windows": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "label": {"type": "string", "example": "Tue dawn"},
+                                "start": {"type": "string", "format": "date-time", "description": "Local start of the window."},
+                                "kind": {"type": "string", "enum": ["dawn", "dusk", "night"]},
+                                "score": {"type": "number", "description": "1-10, relative to this bell's own water. 7+ is worth the drive."},
+                                "limit": {"type": ["string", "null"], "description": "What holds the score back: swell, wind, stirred up, grey, rain, big tide, or all clear."},
+                                "entries": {"type": "array", "items": {"type": "string"}, "description": "This bell's best coves for this window."},
+                                "gate": {"type": "boolean", "description": "True only when the bell is ringing for this window."},
+                                "hazard": {"type": ["string", "null"], "description": "A National Weather Service product in force during the window, e.g. Beach Hazards Statement. The bell never rings under one."}
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
