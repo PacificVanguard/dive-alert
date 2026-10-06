@@ -2656,6 +2656,17 @@ def _twilio_req(path, sid, tok, data=None):
 
 BELL_KEYWORDS = None   # built lazily: LAGUNA->A, MAUI->P, ...
 
+BELL_NUMBER = "833-858-2355"   # 833-858-BELL, as a keypad reads it
+SMS_SEGMENT_MAX = 306          # two GSM-7 segments; every text the bell sends must fit
+
+
+def bell_word(zone_key):
+    """The word a diver texts to join this bell — the inverse of the keyword
+    map, so the ring and the website can never disagree about it."""
+    return next((w for w, z in bell_keyword_map().items() if z == zone_key),
+                CONFIG["zones"][zone_key]["bell"]["name"].upper().split()[0])
+
+
 def bell_keyword_map():
     global BELL_KEYWORDS
     if BELL_KEYWORDS is None:
@@ -2797,15 +2808,21 @@ def sms_ring(zone_key, zone_cfg, payload, state, dry_run, sst_c=None):
     # temperature, so no two rings read alike; the cove is this bell's best
     # entry for this window; and the ask, because the ring is the one moment
     # a diver will remember to report back.
+    # The forward line is the bell's only way to spread: a ring is the one
+    # text a diver sends on, and without the word and the number it was a
+    # dead end for whoever received it (pre-mortem, 2026-10-06). Digits, not
+    # the vanity number — a phone keypad is not a brand.
     w = payload["w"]
     water = ("%dF water" % round(sst_c * 9 / 5 + 32)) if sst_c is not None else "warm"
     body = ("THE BELL IS RINGING - %s. %s at %s: flat, glassy, dry, sunny, %s. "
             "In by %s at %s. After, tell the bell what you saw: REEF, BUDDY "
-            "or FINS. Reply STOP to end.") % (
+            "or FINS. Forward this - a buddy joins by texting %s to %s. "
+            "Reply STOP to end.") % (
         zone_cfg["bell"]["name"].upper(), w["start"].strftime("%a %b %-d"),
         w.get("kind", "dawn"), water,
         w["start"].strftime("%-I:%M%p").lower(),
-        payload["entries"][0] if payload["entries"] else "your cove")
+        payload["entries"][0] if payload["entries"] else "your cove",
+        bell_word(zone_key), BELL_NUMBER)
     sid, tok, frm = env
     done = state.setdefault("sms_rung_nums", {}).setdefault(
         "%s:%s" % (zone_key, wkey), [])
@@ -5528,6 +5545,16 @@ def cmd_test(args):
               and "72F water" in rb and "at Fisherman's Cove" in rb
               and "REEF, BUDDY or FINS" in rb and rb.endswith("Reply STOP to end."), rb)
         check("(vv) no link, GSM-7 only", "thedivebell" not in rb and all(ord(c) < 128 for c in rb))
+        check("(vv) the ring carries its own join word and the number, in two segments",
+              "Forward this - a buddy joins by texting LAGUNA to 833-858-2355." in rb
+              and len(rb) <= SMS_SEGMENT_MAX, "len=%d" % len(rb))
+        check("(vv) every bell's word is the one its welcome answers to",
+              all(bell_word(zk) in bell_keyword_map() and bell_keyword_map()[bell_word(zk)] == zk
+                  for zk, z in CONFIG["zones"].items() if z.get("enabled")))
+        longest = max(len(sms_digest_text(CONFIG["zones"][zk], ring_week) or "")
+                      for zk, z in CONFIG["zones"].items() if z.get("enabled"))
+        check("(vv) the longest forecast text fits two segments", longest <= SMS_SEGMENT_MAX,
+              "longest=%d" % longest)
         del rung_texts[:]
         sms_ring("A", zc, ring_week[1], {}, False)
         check("(vv) with no temperature it says warm, never a made-up number",
