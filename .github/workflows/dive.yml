@@ -115,7 +115,14 @@ jobs:
           X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
           X_ACCESS_SECRET: ${{ secrets.X_ACCESS_SECRET }}
         run: |
-          command -v rsvg-convert >/dev/null || command -v convert >/dev/null || echo "no rasterizer on this runner - cards go as words"
+          # ubuntu-latest ships neither rsvg-convert nor ImageMagick (checked
+          # 2026-10-06). Install the rasterizer only when there is a card to
+          # post and an account to post it to; otherwise the words go alone.
+          if [ -n "$BSKY_HANDLE$THREADS_TOKEN$X_API_KEY" ] && \
+             python -c "import json,sys; sys.exit(0 if json.load(open('data/alert_state.json')).get('social_queue') else 1)"; then
+            command -v rsvg-convert >/dev/null || sudo apt-get install -y -q librsvg2-bin >/dev/null 2>&1 \
+              || echo "rsvg install failed - cards go as words"
+          fi
           python dive_alert.py post
 
       - name: Ingest feedback only
