@@ -1,5 +1,5 @@
 {
- "updated": "2026-10-05T15:00:00-07:00",
+ "updated": "2026-10-05T17:00:00-07:00",
  "sms_live": true,
  "zones": {
   "A": {
@@ -31,30 +31,16 @@
     "tide": "9410580"
    },
    "sms": true,
-   "forecast_sms": "THE DIVE BELL - LAGUNA BEACH, the week ahead.\nBest: Tue dawn, 7.7 of 10 - good, held back by swell. In by 6:19am at Fisherman's Cove.\nMon 6.8 / Tue 7.7 / Wed 5.4 / Thu 4.8 / Fri 6.8 / Sat 7.4 / Sun 6.4\nNo ring in sight, but a morning worth having.",
+   "forecast_sms": "THE DIVE BELL - LAGUNA BEACH, the week ahead.\nBest: Tue dawn, 7.5 of 10 - good, held back by swell. In by 6:19am at Fisherman's Cove.\nTue 7.5 / Wed 5.6 / Thu 5.4 / Fri 6.7 / Sat 7.2 / Sun 5.5 / Mon 5.9\nNo ring in sight, but a morning worth having.",
    "last_ring": null,
    "sst_f": 73,
    "windows": [
     {
-     "label": "Mon dusk",
-     "start": "2026-10-05T16:29:00-07:00",
-     "kind": "dusk",
-     "score": 6.8,
-     "conf": "high",
-     "limit": "swell",
-     "entries": [
-      "Fisherman's Cove",
-      "Shaw's Cove"
-     ],
-     "gate": false,
-     "aligned": false
-    },
-    {
      "label": "Tue dawn",
      "start": "2026-10-06T06:19:00-07:00",
      "kind": "dawn",
-     "score": 7.7,
-     "conf": "high",
+     "score": 7.5,
+     "conf": "medium",
      "limit": "swell",
      "entries": [
       "Fisherman's Cove",
@@ -67,8 +53,8 @@
      "label": "Tue dusk",
      "start": "2026-10-06T16:28:00-07:00",
      "kind": "dusk",
-     "score": 6.0,
-     "conf": "high",
+     "score": 6.6,
+     "conf": "medium",
      "limit": "swell",
      "entries": [
       "Fisherman's Cove",
@@ -81,7 +67,7 @@
      "label": "Wed dawn",
      "start": "2026-10-07T06:19:00-07:00",
      "kind": "dawn",
-     "score": 5.4,
+     "score": 5.6,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -95,7 +81,7 @@
      "label": "Wed dusk",
      "start": "2026-10-07T16:27:00-07:00",
      "kind": "dusk",
-     "score": 5.0,
+     "score": 5.2,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -109,7 +95,7 @@
      "label": "Thu dawn",
      "start": "2026-10-08T06:20:00-07:00",
      "kind": "dawn",
-     "score": 4.8,
+     "score": 5.4,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -123,7 +109,7 @@
      "label": "Thu dusk",
      "start": "2026-10-08T16:25:00-07:00",
      "kind": "dusk",
-     "score": 3.2,
+     "score": 3.9,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -137,7 +123,7 @@
      "label": "Fri dawn",
      "start": "2026-10-09T06:21:00-07:00",
      "kind": "dawn",
-     "score": 4.0,
+     "score": 4.5,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -151,9 +137,9 @@
      "label": "Fri dusk",
      "start": "2026-10-09T16:24:00-07:00",
      "kind": "dusk",
-     "score": 6.8,
+     "score": 6.7,
      "conf": "medium",
-     "limit": "stirred up",
+     "limit": "swell",
      "entries": [
       "Shaw's Cove",
       "Divers Cove"
@@ -165,7 +151,7 @@
      "label": "Sat dawn",
      "start": "2026-10-10T06:22:00-07:00",
      "kind": "dawn",
-     "score": 7.4,
+     "score": 7.2,
      "conf": "medium",
      "limit": "stirred up",
      "entries": [
@@ -179,7 +165,7 @@
      "label": "Sat dusk",
      "start": "2026-10-10T16:23:00-07:00",
      "kind": "dusk",
-     "score": 6.5,
+     "score": 6.7,
      "conf": "medium",
      "limit": "stirred up",
      "entries": [
@@ -193,7 +179,7 @@
      "label": "Sun dawn",
      "start": "2026-10-11T06:22:00-07:00",
      "kind": "dawn",
-     "score": 6.4,
+     "score": 5.5,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -207,7 +193,7 @@
      "label": "Sun dusk",
      "start": "2026-10-11T16:22:00-07:00",
      "kind": "dusk",
-     "score": 4.8,
+     "score": 1.4,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -221,12 +207,26 @@
      "label": "Mon dawn",
      "start": "2026-10-12T06:23:00-07:00",
      "kind": "dawn",
-     "score": 2.8,
+     "score": 1.4,
      "conf": "medium",
      "limit": "swell",
      "entries": [
       "Fisherman's Cove",
       "Shaw's Cove"
+     ],
+     "gate": false,
+     "aligned": false
+    },
+    {
+     "label": "Mon dusk",
+     "start": "2026-10-12T16:20:00-07:00",
+     "kind": "dusk",
+     "score": 5.9,
+     "conf": "medium",
+     "limit": "stirred up",
+     "entries": [
+      "Shaw's Cove",
+      "Divers Cove"
      ],
      "gate": false,
      "aligned": false
@@ -261,29 +261,15 @@
     "tide": "9410580"
    },
    "sms": true,
-   "forecast_sms": "THE DIVE BELL - DANA POINT, the week ahead.\nBest: Tue dawn, 6.3 of 10 - marginal, held back by swell. The weather feed is down for this water - treat that as rough.\nMon 5.8 / Tue 6.3 / Wed 3.5 / Thu 2.8 / Fri 4.5 / Sat 6.0 / Sun 4.9\nA quiet week.",
+   "forecast_sms": "THE DIVE BELL - DANA POINT, the week ahead.\nBest: Tue dawn, 6.8 of 10 - workable, held back by swell.\nTue 6.8 / Wed 4.7 / Thu 4.5 / Fri 5.9 / Sat 6.7 / Sun 5.0 / Mon 6.2\nA quiet week.",
    "last_ring": null,
    "sst_f": 73,
    "windows": [
     {
-     "label": "Mon dusk",
-     "start": "2026-10-05T17:30:00-07:00",
-     "kind": "dusk",
-     "score": 5.8,
-     "conf": "high",
-     "limit": "swell",
-     "entries": [
-      "Dana Point Harbor breakwall (outside)",
-      "Salt Creek"
-     ],
-     "gate": false,
-     "aligned": false
-    },
-    {
      "label": "Tue dawn",
-     "start": "2026-10-06T05:30:00-07:00",
+     "start": "2026-10-06T06:18:00-07:00",
      "kind": "dawn",
-     "score": 6.3,
+     "score": 6.8,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -295,9 +281,9 @@
     },
     {
      "label": "Tue dusk",
-     "start": "2026-10-06T17:30:00-07:00",
+     "start": "2026-10-06T16:28:00-07:00",
      "kind": "dusk",
-     "score": 4.4,
+     "score": 5.6,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -309,9 +295,9 @@
     },
     {
      "label": "Wed dawn",
-     "start": "2026-10-07T05:30:00-07:00",
+     "start": "2026-10-07T06:19:00-07:00",
      "kind": "dawn",
-     "score": 3.5,
+     "score": 4.7,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -323,10 +309,10 @@
     },
     {
      "label": "Wed dusk",
-     "start": "2026-10-07T17:30:00-07:00",
+     "start": "2026-10-07T16:27:00-07:00",
      "kind": "dusk",
-     "score": 3.2,
-     "conf": "low",
+     "score": 4.5,
+     "conf": "medium",
      "limit": "swell",
      "entries": [
       "Dana Point Harbor breakwall (outside)",
@@ -337,10 +323,10 @@
     },
     {
      "label": "Thu dawn",
-     "start": "2026-10-08T05:30:00-07:00",
+     "start": "2026-10-08T06:20:00-07:00",
      "kind": "dawn",
-     "score": 2.8,
-     "conf": "low",
+     "score": 4.5,
+     "conf": "medium",
      "limit": "swell",
      "entries": [
       "Dana Point Harbor breakwall (outside)",
@@ -351,10 +337,10 @@
     },
     {
      "label": "Thu dusk",
-     "start": "2026-10-08T17:30:00-07:00",
+     "start": "2026-10-08T16:25:00-07:00",
      "kind": "dusk",
-     "score": 1.8,
-     "conf": "low",
+     "score": 3.1,
+     "conf": "medium",
      "limit": "swell",
      "entries": [
       "Dana Point Harbor breakwall (outside)",
@@ -365,10 +351,10 @@
     },
     {
      "label": "Fri dawn",
-     "start": "2026-10-09T05:30:00-07:00",
+     "start": "2026-10-09T06:21:00-07:00",
      "kind": "dawn",
-     "score": 2.1,
-     "conf": "low",
+     "score": 3.6,
+     "conf": "medium",
      "limit": "swell",
      "entries": [
       "Dana Point Harbor breakwall (outside)",
@@ -379,10 +365,10 @@
     },
     {
      "label": "Fri dusk",
-     "start": "2026-10-09T17:30:00-07:00",
+     "start": "2026-10-09T16:24:00-07:00",
      "kind": "dusk",
-     "score": 4.5,
-     "conf": "low",
+     "score": 5.9,
+     "conf": "medium",
      "limit": "swell",
      "entries": [
       "Dana Point Harbor breakwall (outside)",
@@ -393,11 +379,11 @@
     },
     {
      "label": "Sat dawn",
-     "start": "2026-10-10T05:30:00-07:00",
+     "start": "2026-10-10T06:21:00-07:00",
      "kind": "dawn",
-     "score": 6.0,
-     "conf": "low",
-     "limit": "stirred up",
+     "score": 6.7,
+     "conf": "medium",
+     "limit": "swell",
      "entries": [
       "Dana Point Harbor breakwall (outside)",
       "Salt Creek"
@@ -407,10 +393,10 @@
     },
     {
      "label": "Sat dusk",
-     "start": "2026-10-10T17:30:00-07:00",
+     "start": "2026-10-10T16:23:00-07:00",
      "kind": "dusk",
-     "score": 5.2,
-     "conf": "low",
+     "score": 6.2,
+     "conf": "medium",
      "limit": "swell",
      "entries": [
       "Dana Point Harbor breakwall (outside)",
@@ -421,10 +407,10 @@
     },
     {
      "label": "Sun dawn",
-     "start": "2026-10-11T05:30:00-07:00",
+     "start": "2026-10-11T06:22:00-07:00",
      "kind": "dawn",
-     "score": 4.9,
-     "conf": "low",
+     "score": 5.0,
+     "conf": "medium",
      "limit": "swell",
      "entries": [
       "Dana Point Harbor breakwall (outside)",
@@ -435,10 +421,10 @@
     },
     {
      "label": "Sun dusk",
-     "start": "2026-10-11T17:30:00-07:00",
+     "start": "2026-10-11T16:21:00-07:00",
      "kind": "dusk",
-     "score": 4.0,
-     "conf": "low",
+     "score": 1.4,
+     "conf": "medium",
      "limit": "swell",
      "entries": [
       "Dana Point Harbor breakwall (outside)",
@@ -449,11 +435,25 @@
     },
     {
      "label": "Mon dawn",
-     "start": "2026-10-12T05:30:00-07:00",
+     "start": "2026-10-12T06:23:00-07:00",
      "kind": "dawn",
-     "score": 2.7,
-     "conf": "low",
+     "score": 3.1,
+     "conf": "medium",
      "limit": "swell",
+     "entries": [
+      "Dana Point Harbor breakwall (outside)",
+      "Salt Creek"
+     ],
+     "gate": false,
+     "aligned": false
+    },
+    {
+     "label": "Mon dusk",
+     "start": "2026-10-12T16:20:00-07:00",
+     "kind": "dusk",
+     "score": 6.2,
+     "conf": "medium",
+     "limit": "stirred up",
      "entries": [
       "Dana Point Harbor breakwall (outside)",
       "Salt Creek"
@@ -475,7 +475,7 @@
    "warm_f": 62,
    "tz": "America/Los_Angeles",
    "record": {
-    "promises": 21,
+    "promises": 22,
     "rings": 6
    },
    "bell": {
@@ -491,29 +491,29 @@
     "tide": "9410230"
    },
    "sms": true,
-   "forecast_sms": "THE DIVE BELL - LA JOLLA, the week ahead.\nBest: Tue dawn, 9.1 of 10 - excellent. In by 6:16am at La Jolla Cove.\nMon 8.4 / Tue 9.1 / Wed 8.3 / Thu 7.7 / Fri 7.5 / Sat 7.9 / Sun 8.0\nTue dawn looks perfect - if it holds, the bell will ring.",
+   "forecast_sms": "THE DIVE BELL - LA JOLLA, the week ahead.\nBest: Tue dawn, 9.2 of 10 - excellent. In by 6:16am at La Jolla Cove.\nTue 9.2 / Wed 8.4 / Thu 8.0 / Fri 7.5 / Sat 8.5 / Sun 7.2 / Mon 7.4\nTue dawn is perfect - the bell is ringing.",
    "last_ring": null,
    "sst_f": 74,
    "windows": [
     {
-     "label": "Mon dusk",
-     "start": "2026-10-05T16:28:00-07:00",
-     "kind": "dusk",
-     "score": 8.4,
+     "label": "Tue dawn",
+     "start": "2026-10-06T06:16:00-07:00",
+     "kind": "dawn",
+     "score": 9.2,
      "conf": "medium",
      "limit": "all clear",
      "entries": [
       "La Jolla Cove",
       "La Jolla Shores (Canyon)"
      ],
-     "gate": false,
-     "aligned": false
+     "gate": true,
+     "aligned": true
     },
     {
-     "label": "Tue dawn",
-     "start": "2026-10-06T06:16:00-07:00",
-     "kind": "dawn",
-     "score": 9.1,
+     "label": "Tue dusk",
+     "start": "2026-10-06T16:26:00-07:00",
+     "kind": "dusk",
+     "score": 8.8,
      "conf": "medium",
      "limit": "all clear",
      "entries": [
@@ -524,24 +524,10 @@
      "aligned": true
     },
     {
-     "label": "Tue dusk",
-     "start": "2026-10-06T16:26:00-07:00",
-     "kind": "dusk",
-     "score": 8.6,
-     "conf": "medium",
-     "limit": "all clear",
-     "entries": [
-      "La Jolla Cove",
-      "La Jolla Shores (Canyon)"
-     ],
-     "gate": false,
-     "aligned": false
-    },
-    {
      "label": "Wed dawn",
      "start": "2026-10-07T06:17:00-07:00",
      "kind": "dawn",
-     "score": 8.3,
+     "score": 8.2,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -555,7 +541,7 @@
      "label": "Wed dusk",
      "start": "2026-10-07T16:25:00-07:00",
      "kind": "dusk",
-     "score": 8.2,
+     "score": 8.4,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -569,7 +555,7 @@
      "label": "Thu dawn",
      "start": "2026-10-08T06:18:00-07:00",
      "kind": "dawn",
-     "score": 7.7,
+     "score": 8.0,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -611,7 +597,7 @@
      "label": "Fri dusk",
      "start": "2026-10-09T16:23:00-07:00",
      "kind": "dusk",
-     "score": 6.9,
+     "score": 7.2,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -625,21 +611,21 @@
      "label": "Sat dawn",
      "start": "2026-10-10T06:19:00-07:00",
      "kind": "dawn",
-     "score": 7.9,
+     "score": 8.5,
      "conf": "medium",
-     "limit": "stirred up",
+     "limit": "all clear",
      "entries": [
       "La Jolla Cove",
       "La Jolla Shores (Canyon)"
      ],
      "gate": false,
-     "aligned": false
+     "aligned": true
     },
     {
      "label": "Sat dusk",
      "start": "2026-10-10T16:21:00-07:00",
      "kind": "dusk",
-     "score": 7.7,
+     "score": 7.8,
      "conf": "medium",
      "limit": "stirred up",
      "entries": [
@@ -653,9 +639,9 @@
      "label": "Sun dawn",
      "start": "2026-10-11T06:20:00-07:00",
      "kind": "dawn",
-     "score": 8.0,
+     "score": 7.2,
      "conf": "medium",
-     "limit": "stirred up",
+     "limit": "grey",
      "entries": [
       "La Jolla Cove",
       "La Jolla Shores (Canyon)"
@@ -667,9 +653,9 @@
      "label": "Sun dusk",
      "start": "2026-10-11T16:20:00-07:00",
      "kind": "dusk",
-     "score": 7.9,
+     "score": 1.8,
      "conf": "medium",
-     "limit": "stirred up",
+     "limit": "swell",
      "entries": [
       "La Jolla Cove",
       "La Jolla Shores (Canyon)"
@@ -681,9 +667,23 @@
      "label": "Mon dawn",
      "start": "2026-10-12T06:21:00-07:00",
      "kind": "dawn",
-     "score": 5.4,
+     "score": 3.9,
      "conf": "medium",
      "limit": "swell",
+     "entries": [
+      "La Jolla Cove",
+      "La Jolla Shores (Canyon)"
+     ],
+     "gate": false,
+     "aligned": false
+    },
+    {
+     "label": "Mon dusk",
+     "start": "2026-10-12T16:19:00-07:00",
+     "kind": "dusk",
+     "score": 7.4,
+     "conf": "medium",
+     "limit": "stirred up",
      "entries": [
       "La Jolla Cove",
       "La Jolla Shores (Canyon)"
@@ -721,29 +721,15 @@
     "tide": "9413450"
    },
    "sms": true,
-   "forecast_sms": "THE DIVE BELL - MONTEREY, the week ahead.\nBest: Tue dusk, 9.2 of 10 - excellent. In by 4:43pm at McAbee Beach.\nMon 8.9 / Tue 9.2 / Wed 8.9 / Thu 8.8 / Fri 7.5 / Sat 6.0 / Sun 1.6\nNo ring in sight, but a morning worth having.",
+   "forecast_sms": "THE DIVE BELL - MONTEREY, the week ahead.\nBest: Thu dawn, 9.0 of 10 - excellent. In by 6:38am at McAbee Beach.\nTue 8.6 / Wed 8.5 / Thu 9.0 / Fri 7.2 / Sat 4.9 / Sun 1.8 / Mon 1.8\nThu dawn looks perfect - if it holds, the bell will ring.",
    "last_ring": "2026-09-10",
    "sst_f": 64,
    "windows": [
     {
-     "label": "Mon dusk",
-     "start": "2026-10-05T16:44:00-07:00",
-     "kind": "dusk",
-     "score": 8.9,
-     "conf": "medium",
-     "limit": "all clear",
-     "entries": [
-      "McAbee Beach",
-      "Breakwater (San Carlos)"
-     ],
-     "gate": false,
-     "aligned": false
-    },
-    {
      "label": "Tue dawn",
      "start": "2026-10-06T06:37:00-07:00",
      "kind": "dawn",
-     "score": 8.4,
+     "score": 8.0,
      "conf": "medium",
      "limit": "grey",
      "entries": [
@@ -757,7 +743,7 @@
      "label": "Tue dusk",
      "start": "2026-10-06T16:43:00-07:00",
      "kind": "dusk",
-     "score": 9.2,
+     "score": 8.6,
      "conf": "medium",
      "limit": "all clear",
      "entries": [
@@ -771,12 +757,12 @@
      "label": "Wed dawn",
      "start": "2026-10-07T06:38:00-07:00",
      "kind": "dawn",
-     "score": 8.4,
+     "score": 7.7,
      "conf": "medium",
-     "limit": "grey",
+     "limit": "swell",
      "entries": [
-      "McAbee Beach",
-      "Breakwater (San Carlos)"
+      "Breakwater (San Carlos)",
+      "McAbee Beach"
      ],
      "gate": false,
      "aligned": false
@@ -785,7 +771,7 @@
      "label": "Wed dusk",
      "start": "2026-10-07T16:42:00-07:00",
      "kind": "dusk",
-     "score": 8.9,
+     "score": 8.5,
      "conf": "medium",
      "limit": "all clear",
      "entries": [
@@ -799,7 +785,7 @@
      "label": "Thu dawn",
      "start": "2026-10-08T06:38:00-07:00",
      "kind": "dawn",
-     "score": 8.8,
+     "score": 9.0,
      "conf": "medium",
      "limit": "all clear",
      "entries": [
@@ -807,13 +793,13 @@
       "Breakwater (San Carlos)"
      ],
      "gate": false,
-     "aligned": false
+     "aligned": true
     },
     {
      "label": "Thu dusk",
      "start": "2026-10-08T16:40:00-07:00",
      "kind": "dusk",
-     "score": 7.7,
+     "score": 7.8,
      "conf": "low",
      "limit": "swell",
      "entries": [
@@ -827,7 +813,7 @@
      "label": "Fri dawn",
      "start": "2026-10-09T06:39:00-07:00",
      "kind": "dawn",
-     "score": 7.5,
+     "score": 7.2,
      "conf": "low",
      "limit": "swell",
      "entries": [
@@ -841,7 +827,7 @@
      "label": "Fri dusk",
      "start": "2026-10-09T16:39:00-07:00",
      "kind": "dusk",
-     "score": 7.5,
+     "score": 6.5,
      "conf": "low",
      "limit": "swell",
      "entries": [
@@ -855,7 +841,7 @@
      "label": "Sat dawn",
      "start": "2026-10-10T06:40:00-07:00",
      "kind": "dawn",
-     "score": 6.0,
+     "score": 4.9,
      "conf": "low",
      "limit": "swell",
      "entries": [
@@ -869,7 +855,7 @@
      "label": "Sat dusk",
      "start": "2026-10-10T16:37:00-07:00",
      "kind": "dusk",
-     "score": 4.0,
+     "score": 3.1,
      "conf": "low",
      "limit": "swell",
      "entries": [
@@ -883,7 +869,7 @@
      "label": "Sun dawn",
      "start": "2026-10-11T06:41:00-07:00",
      "kind": "dawn",
-     "score": 1.6,
+     "score": 1.4,
      "conf": "low",
      "limit": "swell",
      "entries": [
@@ -897,7 +883,7 @@
      "label": "Sun dusk",
      "start": "2026-10-11T16:36:00-07:00",
      "kind": "dusk",
-     "score": 1.4,
+     "score": 1.8,
      "conf": "low",
      "limit": "swell",
      "entries": [
@@ -911,7 +897,21 @@
      "label": "Mon dawn",
      "start": "2026-10-12T06:42:00-07:00",
      "kind": "dawn",
-     "score": 2.8,
+     "score": 1.6,
+     "conf": "low",
+     "limit": "swell",
+     "entries": [
+      "Breakwater (San Carlos)",
+      "McAbee Beach"
+     ],
+     "gate": false,
+     "aligned": false
+    },
+    {
+     "label": "Mon dusk",
+     "start": "2026-10-12T16:35:00-07:00",
+     "kind": "dusk",
+     "score": 1.8,
      "conf": "low",
      "limit": "swell",
      "entries": [
@@ -951,29 +951,15 @@
     "tide": "9410079"
    },
    "sms": true,
-   "forecast_sms": "THE DIVE BELL - CATALINA, the week ahead.\nBest: Sun dawn, 6.9 of 10 - workable, held back by stirred-up water.\nMon 6.2 / Tue 6.1 / Wed 5.2 / Thu 5.5 / Fri 6.5 / Sat 6.8 / Sun 6.9\nA quiet week.",
+   "forecast_sms": "THE DIVE BELL - CATALINA, the week ahead.\nBest: Sat dawn, 6.7 of 10 - workable, held back by stirred-up water.\nTue 5.9 / Wed 5.6 / Thu 5.7 / Fri 6.2 / Sat 6.7 / Sun 5.0 / Mon 4.5\nA quiet week.",
    "last_ring": "2026-09-04",
    "sst_f": 74,
    "windows": [
     {
-     "label": "Mon dusk",
-     "start": "2026-10-05T16:32:00-07:00",
-     "kind": "dusk",
-     "score": 6.2,
-     "conf": "medium",
-     "limit": "stirred up",
-     "entries": [
-      "Casino Point Dive Park",
-      "Lover's Cove"
-     ],
-     "gate": false,
-     "aligned": false
-    },
-    {
      "label": "Tue dawn",
      "start": "2026-10-06T06:21:00-07:00",
      "kind": "dawn",
-     "score": 6.1,
+     "score": 5.9,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -987,9 +973,9 @@
      "label": "Tue dusk",
      "start": "2026-10-06T16:30:00-07:00",
      "kind": "dusk",
-     "score": 5.7,
+     "score": 5.9,
      "conf": "medium",
-     "limit": "swell",
+     "limit": "stirred up",
      "entries": [
       "Casino Point Dive Park",
       "Lover's Cove"
@@ -1001,7 +987,7 @@
      "label": "Wed dawn",
      "start": "2026-10-07T06:22:00-07:00",
      "kind": "dawn",
-     "score": 5.2,
+     "score": 5.6,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -1015,9 +1001,9 @@
      "label": "Wed dusk",
      "start": "2026-10-07T16:29:00-07:00",
      "kind": "dusk",
-     "score": 5.2,
+     "score": 5.3,
      "conf": "medium",
-     "limit": "stirred up",
+     "limit": "swell",
      "entries": [
       "Casino Point Dive Park",
       "Lover's Cove"
@@ -1029,7 +1015,7 @@
      "label": "Thu dawn",
      "start": "2026-10-08T06:22:00-07:00",
      "kind": "dawn",
-     "score": 5.5,
+     "score": 5.7,
      "conf": "medium",
      "limit": "stirred up",
      "entries": [
@@ -1043,7 +1029,7 @@
      "label": "Thu dusk",
      "start": "2026-10-08T16:28:00-07:00",
      "kind": "dusk",
-     "score": 5.2,
+     "score": 5.7,
      "conf": "medium",
      "limit": "stirred up",
      "entries": [
@@ -1057,7 +1043,7 @@
      "label": "Fri dawn",
      "start": "2026-10-09T06:23:00-07:00",
      "kind": "dawn",
-     "score": 5.4,
+     "score": 5.5,
      "conf": "medium",
      "limit": "stirred up",
      "entries": [
@@ -1071,7 +1057,7 @@
      "label": "Fri dusk",
      "start": "2026-10-09T16:27:00-07:00",
      "kind": "dusk",
-     "score": 6.5,
+     "score": 6.2,
      "conf": "medium",
      "limit": "stirred up",
      "entries": [
@@ -1085,7 +1071,7 @@
      "label": "Sat dawn",
      "start": "2026-10-10T06:24:00-07:00",
      "kind": "dawn",
-     "score": 6.8,
+     "score": 6.7,
      "conf": "medium",
      "limit": "stirred up",
      "entries": [
@@ -1099,7 +1085,7 @@
      "label": "Sat dusk",
      "start": "2026-10-10T16:25:00-07:00",
      "kind": "dusk",
-     "score": 6.2,
+     "score": 6.5,
      "conf": "medium",
      "limit": "stirred up",
      "entries": [
@@ -1113,7 +1099,7 @@
      "label": "Sun dawn",
      "start": "2026-10-11T06:25:00-07:00",
      "kind": "dawn",
-     "score": 6.9,
+     "score": 5.0,
      "conf": "medium",
      "limit": "stirred up",
      "entries": [
@@ -1127,9 +1113,9 @@
      "label": "Sun dusk",
      "start": "2026-10-11T16:24:00-07:00",
      "kind": "dusk",
-     "score": 6.2,
+     "score": 1.6,
      "conf": "medium",
-     "limit": "stirred up",
+     "limit": "swell",
      "entries": [
       "Casino Point Dive Park",
       "Lover's Cove"
@@ -1141,7 +1127,21 @@
      "label": "Mon dawn",
      "start": "2026-10-12T06:25:00-07:00",
      "kind": "dawn",
-     "score": 4.3,
+     "score": 3.2,
+     "conf": "medium",
+     "limit": "stirred up",
+     "entries": [
+      "Casino Point Dive Park",
+      "Lover's Cove"
+     ],
+     "gate": false,
+     "aligned": false
+    },
+    {
+     "label": "Mon dusk",
+     "start": "2026-10-12T16:23:00-07:00",
+     "kind": "dusk",
+     "score": 4.5,
      "conf": "medium",
      "limit": "stirred up",
      "entries": [
@@ -1181,29 +1181,15 @@
     "tide": "9410660"
    },
    "sms": true,
-   "forecast_sms": "THE DIVE BELL - PALOS VERDES, the week ahead.\nBest: Sat dawn, 8.0 of 10 - good, held back by stirred-up water. In by 6:24am at Terranea (Old Marineland).\nMon 6.2 / Tue 7.1 / Wed 7.0 / Thu 6.8 / Fri 6.7 / Sat 8.0 / Sun 8.0\nNo ring in sight, but a morning worth having.",
+   "forecast_sms": "THE DIVE BELL - PALOS VERDES, the week ahead.\nBest: Sat dawn, 7.7 of 10 - good, held back by stirred-up water. In by 6:24am at Terranea (Old Marineland).\nTue 7.6 / Wed 7.5 / Thu 7.0 / Fri 6.9 / Sat 7.7 / Sun 3.6 / Mon 1.4\nNo ring in sight, but a morning worth having.",
    "last_ring": null,
    "sst_f": 72,
    "windows": [
     {
-     "label": "Mon dusk",
-     "start": "2026-10-05T16:32:00-07:00",
-     "kind": "dusk",
-     "score": 6.2,
-     "conf": "medium",
-     "limit": "swell",
-     "entries": [
-      "Terranea (Old Marineland)",
-      "Christmas Tree Cove"
-     ],
-     "gate": false,
-     "aligned": false
-    },
-    {
      "label": "Tue dawn",
      "start": "2026-10-06T06:21:00-07:00",
      "kind": "dawn",
-     "score": 7.1,
+     "score": 7.6,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -1217,7 +1203,7 @@
      "label": "Tue dusk",
      "start": "2026-10-06T16:30:00-07:00",
      "kind": "dusk",
-     "score": 6.4,
+     "score": 6.9,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -1231,7 +1217,7 @@
      "label": "Wed dawn",
      "start": "2026-10-07T06:22:00-07:00",
      "kind": "dawn",
-     "score": 7.0,
+     "score": 7.5,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -1245,7 +1231,7 @@
      "label": "Wed dusk",
      "start": "2026-10-07T16:29:00-07:00",
      "kind": "dusk",
-     "score": 5.8,
+     "score": 6.1,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -1259,7 +1245,7 @@
      "label": "Thu dawn",
      "start": "2026-10-08T06:23:00-07:00",
      "kind": "dawn",
-     "score": 6.8,
+     "score": 7.0,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -1273,7 +1259,7 @@
      "label": "Thu dusk",
      "start": "2026-10-08T16:28:00-07:00",
      "kind": "dusk",
-     "score": 5.4,
+     "score": 5.8,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -1287,7 +1273,7 @@
      "label": "Fri dawn",
      "start": "2026-10-09T06:23:00-07:00",
      "kind": "dawn",
-     "score": 6.7,
+     "score": 6.9,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -1301,7 +1287,7 @@
      "label": "Fri dusk",
      "start": "2026-10-09T16:27:00-07:00",
      "kind": "dusk",
-     "score": 5.7,
+     "score": 5.8,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -1315,7 +1301,7 @@
      "label": "Sat dawn",
      "start": "2026-10-10T06:24:00-07:00",
      "kind": "dawn",
-     "score": 8.0,
+     "score": 7.7,
      "conf": "medium",
      "limit": "stirred up",
      "entries": [
@@ -1329,9 +1315,9 @@
      "label": "Sat dusk",
      "start": "2026-10-10T16:25:00-07:00",
      "kind": "dusk",
-     "score": 7.0,
+     "score": 6.5,
      "conf": "medium",
-     "limit": "stirred up",
+     "limit": "swell",
      "entries": [
       "Christmas Tree Cove",
       "Terranea (Old Marineland)"
@@ -1343,9 +1329,9 @@
      "label": "Sun dawn",
      "start": "2026-10-11T06:25:00-07:00",
      "kind": "dawn",
-     "score": 8.0,
+     "score": 3.6,
      "conf": "medium",
-     "limit": "stirred up",
+     "limit": "swell",
      "entries": [
       "Terranea (Old Marineland)",
       "Christmas Tree Cove"
@@ -1357,7 +1343,7 @@
      "label": "Sun dusk",
      "start": "2026-10-11T16:24:00-07:00",
      "kind": "dusk",
-     "score": 5.5,
+     "score": 1.4,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -1371,12 +1357,26 @@
      "label": "Mon dawn",
      "start": "2026-10-12T06:26:00-07:00",
      "kind": "dawn",
-     "score": 3.5,
+     "score": 1.4,
      "conf": "medium",
      "limit": "swell",
      "entries": [
       "Terranea (Old Marineland)",
       "Christmas Tree Cove"
+     ],
+     "gate": false,
+     "aligned": false
+    },
+    {
+     "label": "Mon dusk",
+     "start": "2026-10-12T16:23:00-07:00",
+     "kind": "dusk",
+     "score": 1.4,
+     "conf": "medium",
+     "limit": "swell",
+     "entries": [
+      "Christmas Tree Cove",
+      "Terranea (Old Marineland)"
      ],
      "gate": false,
      "aligned": false
@@ -1411,29 +1411,15 @@
     "tide": "9413450"
    },
    "sms": true,
-   "forecast_sms": "THE DIVE BELL - POINT LOBOS, the week ahead.\nBest: Wed dawn, 9.4 of 10 - excellent. In by 6:38am at Whalers Cove.\nMon 8.0 / Tue 8.8 / Wed 9.4 / Thu 8.6 / Fri 6.8 / Sat 5.4 / Sun 1.4\nWed dawn is perfect - the bell is ringing.",
+   "forecast_sms": "THE DIVE BELL - POINT LOBOS, the week ahead.\nBest: Thu dawn, 9.1 of 10 - excellent. In by 6:38am at Whalers Cove.\nTue 8.7 / Wed 8.2 / Thu 9.1 / Fri 6.0 / Sat 3.6 / Sun 1.4 / Mon 1.4\nThu dawn looks perfect - if it holds, the bell will ring.",
    "last_ring": null,
    "sst_f": 65,
    "windows": [
     {
-     "label": "Mon dusk",
-     "start": "2026-10-05T16:44:00-07:00",
-     "kind": "dusk",
-     "score": 8.0,
-     "conf": "medium",
-     "limit": "grey",
-     "entries": [
-      "Whalers Cove",
-      "Bluefish Cove"
-     ],
-     "gate": false,
-     "aligned": false
-    },
-    {
      "label": "Tue dawn",
      "start": "2026-10-06T06:37:00-07:00",
      "kind": "dawn",
-     "score": 8.8,
+     "score": 8.7,
      "conf": "medium",
      "limit": "all clear",
      "entries": [
@@ -1447,9 +1433,9 @@
      "label": "Tue dusk",
      "start": "2026-10-06T16:43:00-07:00",
      "kind": "dusk",
-     "score": 8.6,
+     "score": 7.9,
      "conf": "medium",
-     "limit": "all clear",
+     "limit": "swell",
      "entries": [
       "Whalers Cove",
       "Bluefish Cove"
@@ -1461,23 +1447,23 @@
      "label": "Wed dawn",
      "start": "2026-10-07T06:38:00-07:00",
      "kind": "dawn",
-     "score": 9.4,
+     "score": 7.8,
      "conf": "medium",
-     "limit": "all clear",
+     "limit": "swell",
      "entries": [
       "Whalers Cove",
       "Bluefish Cove"
      ],
-     "gate": true,
-     "aligned": true
+     "gate": false,
+     "aligned": false
     },
     {
      "label": "Wed dusk",
      "start": "2026-10-07T16:42:00-07:00",
      "kind": "dusk",
-     "score": 8.5,
+     "score": 8.2,
      "conf": "medium",
-     "limit": "all clear",
+     "limit": "swell",
      "entries": [
       "Whalers Cove",
       "Bluefish Cove"
@@ -1489,7 +1475,7 @@
      "label": "Thu dawn",
      "start": "2026-10-08T06:38:00-07:00",
      "kind": "dawn",
-     "score": 8.6,
+     "score": 9.1,
      "conf": "medium",
      "limit": "all clear",
      "entries": [
@@ -1497,13 +1483,13 @@
       "Bluefish Cove"
      ],
      "gate": false,
-     "aligned": false
+     "aligned": true
     },
     {
      "label": "Thu dusk",
      "start": "2026-10-08T16:40:00-07:00",
      "kind": "dusk",
-     "score": 6.9,
+     "score": 6.8,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -1517,7 +1503,7 @@
      "label": "Fri dawn",
      "start": "2026-10-09T06:39:00-07:00",
      "kind": "dawn",
-     "score": 6.4,
+     "score": 6.0,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -1531,7 +1517,7 @@
      "label": "Fri dusk",
      "start": "2026-10-09T16:39:00-07:00",
      "kind": "dusk",
-     "score": 6.8,
+     "score": 5.4,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -1545,7 +1531,7 @@
      "label": "Sat dawn",
      "start": "2026-10-10T06:40:00-07:00",
      "kind": "dawn",
-     "score": 5.4,
+     "score": 3.6,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -1559,7 +1545,7 @@
      "label": "Sat dusk",
      "start": "2026-10-10T16:37:00-07:00",
      "kind": "dusk",
-     "score": 3.6,
+     "score": 2.1,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -1610,6 +1596,20 @@
      ],
      "gate": false,
      "aligned": false
+    },
+    {
+     "label": "Mon dusk",
+     "start": "2026-10-12T16:35:00-07:00",
+     "kind": "dusk",
+     "score": 1.4,
+     "conf": "medium",
+     "limit": "swell",
+     "entries": [
+      "Whalers Cove",
+      "Bluefish Cove"
+     ],
+     "gate": false,
+     "aligned": false
     }
    ]
   },
@@ -1625,7 +1625,7 @@
    "warm_f": 56,
    "tz": "America/Los_Angeles",
    "record": {
-    "promises": 10,
+    "promises": 11,
     "rings": 1
    },
    "bell": {
@@ -1641,29 +1641,15 @@
     "tide": "9411340"
    },
    "sms": true,
-   "forecast_sms": "THE DIVE BELL - SANTA BARBARA, the week ahead.\nBest: Tue dawn, 5.6 of 10 - marginal, held back by stirred-up water. The weather feed is down for this water - treat that as rough.\nMon 4.1 / Tue 5.6 / Wed 3.5 / Thu 1.6 / Fri 3.9 / Sat 4.5 / Sun 1.8\nA quiet week.",
+   "forecast_sms": "THE DIVE BELL - SANTA BARBARA, the week ahead.\nBest: Wed dawn, 7.3 of 10 - workable, held back by stirred-up water. In by 6:29am at Tajiguas Reef.\nTue 6.9 / Wed 7.3 / Thu 1.6 / Fri 4.5 / Sat 4.0 / Sun 1.4 / Mon 2.1\nNo ring in sight, but a morning worth having.",
    "last_ring": "2026-09-07",
    "sst_f": 71,
    "windows": [
     {
-     "label": "Mon dusk",
-     "start": "2026-10-05T17:30:00-07:00",
-     "kind": "dusk",
-     "score": 4.1,
-     "conf": "medium",
-     "limit": "swell",
-     "entries": [
-      "Tajiguas Reef",
-      "Refugio State Beach"
-     ],
-     "gate": false,
-     "aligned": false
-    },
-    {
      "label": "Tue dawn",
-     "start": "2026-10-06T05:30:00-07:00",
+     "start": "2026-10-06T06:28:00-07:00",
      "kind": "dawn",
-     "score": 5.6,
+     "score": 6.4,
      "conf": "medium",
      "limit": "stirred up",
      "entries": [
@@ -1675,9 +1661,9 @@
     },
     {
      "label": "Tue dusk",
-     "start": "2026-10-06T17:30:00-07:00",
+     "start": "2026-10-06T16:37:00-07:00",
      "kind": "dusk",
-     "score": 5.2,
+     "score": 6.9,
      "conf": "medium",
      "limit": "stirred up",
      "entries": [
@@ -1689,9 +1675,23 @@
     },
     {
      "label": "Wed dawn",
-     "start": "2026-10-07T05:30:00-07:00",
+     "start": "2026-10-07T06:29:00-07:00",
      "kind": "dawn",
-     "score": 3.5,
+     "score": 7.3,
+     "conf": "medium",
+     "limit": "stirred up",
+     "entries": [
+      "Tajiguas Reef",
+      "Refugio State Beach"
+     ],
+     "gate": false,
+     "aligned": false
+    },
+    {
+     "label": "Wed dusk",
+     "start": "2026-10-07T16:35:00-07:00",
+     "kind": "dusk",
+     "score": 3.0,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -1702,25 +1702,11 @@
      "aligned": false
     },
     {
-     "label": "Wed dusk",
-     "start": "2026-10-07T17:30:00-07:00",
-     "kind": "dusk",
-     "score": 1.4,
-     "conf": "low",
-     "limit": "swell",
-     "entries": [
-      "Tajiguas Reef",
-      "Refugio State Beach"
-     ],
-     "gate": false,
-     "aligned": false
-    },
-    {
      "label": "Thu dawn",
-     "start": "2026-10-08T05:30:00-07:00",
+     "start": "2026-10-08T06:30:00-07:00",
      "kind": "dawn",
      "score": 1.4,
-     "conf": "low",
+     "conf": "medium",
      "limit": "swell",
      "entries": [
       "Tajiguas Reef",
@@ -1731,10 +1717,10 @@
     },
     {
      "label": "Thu dusk",
-     "start": "2026-10-08T17:30:00-07:00",
+     "start": "2026-10-08T16:34:00-07:00",
      "kind": "dusk",
      "score": 1.6,
-     "conf": "low",
+     "conf": "medium",
      "limit": "swell",
      "entries": [
       "Tajiguas Reef",
@@ -1745,10 +1731,10 @@
     },
     {
      "label": "Fri dawn",
-     "start": "2026-10-09T05:30:00-07:00",
+     "start": "2026-10-09T06:31:00-07:00",
      "kind": "dawn",
-     "score": 3.9,
-     "conf": "low",
+     "score": 4.5,
+     "conf": "medium",
      "limit": "stirred up",
      "entries": [
       "Tajiguas Reef",
@@ -1759,24 +1745,24 @@
     },
     {
      "label": "Fri dusk",
-     "start": "2026-10-09T17:30:00-07:00",
+     "start": "2026-10-09T16:33:00-07:00",
      "kind": "dusk",
-     "score": 2.5,
-     "conf": "low",
+     "score": 3.2,
+     "conf": "medium",
      "limit": "stirred up",
      "entries": [
-      "Tajiguas Reef",
-      "Refugio State Beach"
+      "Refugio State Beach",
+      "Tajiguas Reef"
      ],
      "gate": false,
      "aligned": false
     },
     {
      "label": "Sat dawn",
-     "start": "2026-10-10T05:30:00-07:00",
+     "start": "2026-10-10T06:31:00-07:00",
      "kind": "dawn",
-     "score": 4.5,
-     "conf": "low",
+     "score": 4.0,
+     "conf": "medium",
      "limit": "stirred up",
      "entries": [
       "Tajiguas Reef",
@@ -1787,10 +1773,10 @@
     },
     {
      "label": "Sat dusk",
-     "start": "2026-10-10T17:30:00-07:00",
+     "start": "2026-10-10T16:31:00-07:00",
      "kind": "dusk",
-     "score": 3.9,
-     "conf": "low",
+     "score": 3.5,
+     "conf": "medium",
      "limit": "stirred up",
      "entries": [
       "Refugio State Beach",
@@ -1801,11 +1787,11 @@
     },
     {
      "label": "Sun dawn",
-     "start": "2026-10-11T05:30:00-07:00",
+     "start": "2026-10-11T06:32:00-07:00",
      "kind": "dawn",
-     "score": 1.8,
-     "conf": "low",
-     "limit": "stirred up",
+     "score": 1.4,
+     "conf": "medium",
+     "limit": "swell",
      "entries": [
       "Tajiguas Reef",
       "Refugio State Beach"
@@ -1815,11 +1801,11 @@
     },
     {
      "label": "Sun dusk",
-     "start": "2026-10-11T17:30:00-07:00",
+     "start": "2026-10-11T16:30:00-07:00",
      "kind": "dusk",
      "score": 1.4,
-     "conf": "low",
-     "limit": "stirred up",
+     "conf": "medium",
+     "limit": "swell",
      "entries": [
       "Refugio State Beach",
       "Tajiguas Reef"
@@ -1829,14 +1815,28 @@
     },
     {
      "label": "Mon dawn",
-     "start": "2026-10-12T05:30:00-07:00",
+     "start": "2026-10-12T06:33:00-07:00",
      "kind": "dawn",
      "score": 1.4,
-     "conf": "low",
+     "conf": "medium",
      "limit": "swell",
      "entries": [
       "Tajiguas Reef",
       "Refugio State Beach"
+     ],
+     "gate": false,
+     "aligned": false
+    },
+    {
+     "label": "Mon dusk",
+     "start": "2026-10-12T16:29:00-07:00",
+     "kind": "dusk",
+     "score": 2.1,
+     "conf": "medium",
+     "limit": "stirred up",
+     "entries": [
+      "Refugio State Beach",
+      "Tajiguas Reef"
      ],
      "gate": false,
      "aligned": false
@@ -1871,7 +1871,7 @@
     "tide": "1612340"
    },
    "sms": true,
-   "forecast_sms": "THE DIVE BELL - OAHU NORTH SHORE, the week ahead.\nBest: Wed dawn, 9.4 of 10 - excellent. In by 5:55am at Three Tables.\nMon 4.0 / Tue 8.4 / Wed 9.4 / Thu 4.0 / Fri 4.0 / Sat 4.0 / Sun 4.0\nNo ring in sight, but a morning worth having.",
+   "forecast_sms": "THE DIVE BELL - OAHU NORTH SHORE, the week ahead.\nBest: Wed dawn, 9.3 of 10 - excellent. In by 5:55am at Three Tables.\nMon 4.0 / Tue 8.4 / Wed 9.3 / Thu 4.0 / Fri 4.0 / Sat 4.0 / Sun 4.0\nNo ring in sight, but a morning worth having.",
    "last_ring": "2026-09-14",
    "sst_f": 81,
    "windows": [
@@ -1908,7 +1908,7 @@
      "start": "2026-10-06T16:15:00-10:00",
      "kind": "dusk",
      "score": 8.4,
-     "conf": "high",
+     "conf": "medium",
      "limit": "grey",
      "entries": [
       "Three Tables",
@@ -1921,7 +1921,7 @@
      "label": "Wed dawn",
      "start": "2026-10-07T05:55:00-10:00",
      "kind": "dawn",
-     "score": 9.4,
+     "score": 9.3,
      "conf": "medium",
      "limit": "all clear",
      "entries": [
@@ -1935,9 +1935,9 @@
      "label": "Wed dusk",
      "start": "2026-10-07T16:14:00-10:00",
      "kind": "dusk",
-     "score": 8.6,
+     "score": 8.4,
      "conf": "medium",
-     "limit": "all clear",
+     "limit": "swell",
      "entries": [
       "Three Tables",
       "Shark's Cove"
@@ -2101,7 +2101,7 @@
     "tide": "1617433"
    },
    "sms": true,
-   "forecast_sms": "THE DIVE BELL - KONA, the week ahead.\nBest: Fri dusk, 1.4 of 10 - rough, held back by swell.\nMon 1.0 / Tue 1.0 / Wed 1.0 / Thu 1.0 / Fri 1.4 / Sat 1.4 / Sun 1.0\nA quiet week.",
+   "forecast_sms": "THE DIVE BELL - KONA, the week ahead.\nBest: Sat dawn, 1.6 of 10 - rough, held back by swell.\nMon 1.0 / Tue 1.0 / Wed 1.0 / Thu 1.0 / Fri 1.4 / Sat 1.6 / Sun 1.2\nA quiet week.",
    "last_ring": null,
    "sst_f": 82,
    "windows": [
@@ -2235,7 +2235,7 @@
      "label": "Sat dawn",
      "start": "2026-10-10T05:46:00-10:00",
      "kind": "dawn",
-     "score": 1.4,
+     "score": 1.6,
      "conf": "low",
      "limit": "swell",
      "entries": [
@@ -2277,7 +2277,7 @@
      "label": "Sun dusk",
      "start": "2026-10-11T16:03:00-10:00",
      "kind": "dusk",
-     "score": 1.0,
+     "score": 1.2,
      "conf": "low",
      "limit": "rain",
      "entries": [
@@ -2331,7 +2331,7 @@
     "tide": "none"
    },
    "sms": false,
-   "forecast_sms": "THE DIVE BELL - BONAIRE, the week ahead.\nBest: Mon dusk, 8.9 of 10 - excellent. In by 4:16pm at Bari Reef.\nTue 8.6 / Wed 8.5 / Thu 6.9 / Fri 8.0 / Sat 7.5 / Sun 8.2 / Mon 8.9\nMon dusk is perfect - the bell is ringing.",
+   "forecast_sms": "THE DIVE BELL - BONAIRE, the week ahead.\nBest: Mon dusk, 8.9 of 10 - excellent. In by 4:16pm at Bari Reef.\nTue 8.6 / Wed 8.6 / Thu 6.9 / Fri 8.0 / Sat 7.9 / Sun 8.4 / Mon 8.9\nNo ring in sight, but a morning worth having.",
    "last_ring": "2026-09-04",
    "sst_f": 85,
    "windows": [
@@ -2339,7 +2339,7 @@
      "label": "Tue dawn",
      "start": "2026-10-06T05:52:00-04:00",
      "kind": "dawn",
-     "score": 8.1,
+     "score": 8.2,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -2367,7 +2367,7 @@
      "label": "Wed dawn",
      "start": "2026-10-07T05:52:00-04:00",
      "kind": "dawn",
-     "score": 8.5,
+     "score": 8.6,
      "conf": "medium",
      "limit": "all clear",
      "entries": [
@@ -2381,7 +2381,7 @@
      "label": "Wed dusk",
      "start": "2026-10-07T16:19:00-04:00",
      "kind": "dusk",
-     "score": 7.5,
+     "score": 7.4,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -2395,7 +2395,7 @@
      "label": "Thu dawn",
      "start": "2026-10-08T05:52:00-04:00",
      "kind": "dawn",
-     "score": 6.8,
+     "score": 6.9,
      "conf": "low",
      "limit": "swell",
      "entries": [
@@ -2409,7 +2409,7 @@
      "label": "Thu dusk",
      "start": "2026-10-08T16:18:00-04:00",
      "kind": "dusk",
-     "score": 6.9,
+     "score": 6.7,
      "conf": "low",
      "limit": "swell",
      "entries": [
@@ -2423,7 +2423,7 @@
      "label": "Fri dawn",
      "start": "2026-10-09T05:52:00-04:00",
      "kind": "dawn",
-     "score": 7.0,
+     "score": 7.2,
      "conf": "low",
      "limit": "swell",
      "entries": [
@@ -2465,7 +2465,7 @@
      "label": "Sat dusk",
      "start": "2026-10-10T16:17:00-04:00",
      "kind": "dusk",
-     "score": 7.5,
+     "score": 7.9,
      "conf": "low",
      "limit": "swell",
      "entries": [
@@ -2479,7 +2479,7 @@
      "label": "Sun dawn",
      "start": "2026-10-11T05:52:00-04:00",
      "kind": "dawn",
-     "score": 7.7,
+     "score": 7.9,
      "conf": "low",
      "limit": "swell",
      "entries": [
@@ -2493,7 +2493,7 @@
      "label": "Sun dusk",
      "start": "2026-10-11T16:16:00-04:00",
      "kind": "dusk",
-     "score": 8.2,
+     "score": 8.4,
      "conf": "low",
      "limit": "swell",
      "entries": [
@@ -2507,9 +2507,9 @@
      "label": "Mon dawn",
      "start": "2026-10-12T05:52:00-04:00",
      "kind": "dawn",
-     "score": 8.0,
+     "score": 8.5,
      "conf": "low",
-     "limit": "swell",
+     "limit": "all clear",
      "entries": [
       "Bari Reef",
       "1000 Steps"
@@ -2528,8 +2528,8 @@
       "Bari Reef",
       "1000 Steps"
      ],
-     "gate": true,
-     "aligned": true
+     "gate": false,
+     "aligned": false
     }
    ]
   },
@@ -2561,30 +2561,16 @@
     "tide": "9410840"
    },
    "sms": true,
-   "forecast_sms": "THE DIVE BELL - MALIBU, the week ahead.\nBest: Sat dawn, 6.9 of 10 - workable, held back by stirred-up water.\nMon 3.3 / Tue 5.7 / Wed 3.5 / Thu 3.6 / Fri 5.4 / Sat 6.9 / Sun 5.8\nA quiet week.",
+   "forecast_sms": "THE DIVE BELL - MALIBU, the week ahead.\nBest: Sat dawn, 6.5 of 10 - workable, held back by stirred-up water.\nTue 5.3 / Wed 4.1 / Thu 3.9 / Fri 5.5 / Sat 6.5 / Sun 4.3 / Mon 3.2\nA quiet week.",
    "last_ring": null,
    "sst_f": 73,
    "windows": [
     {
-     "label": "Mon dusk",
-     "start": "2026-10-05T16:33:00-07:00",
-     "kind": "dusk",
-     "score": 3.3,
-     "conf": "medium",
-     "limit": "wind",
-     "entries": [
-      "Point Dume Cove",
-      "Leo Carrillo (Sequit Point)"
-     ],
-     "gate": false,
-     "aligned": false
-    },
-    {
      "label": "Tue dawn",
      "start": "2026-10-06T06:23:00-07:00",
      "kind": "dawn",
-     "score": 5.7,
-     "conf": "medium",
+     "score": 5.3,
+     "conf": "high",
      "limit": "swell",
      "entries": [
       "Point Dume Cove",
@@ -2597,8 +2583,8 @@
      "label": "Tue dusk",
      "start": "2026-10-06T16:32:00-07:00",
      "kind": "dusk",
-     "score": 1.0,
-     "conf": "medium",
+     "score": 1.4,
+     "conf": "high",
      "limit": "wind",
      "entries": [
       "Point Dume Cove",
@@ -2611,7 +2597,7 @@
      "label": "Wed dawn",
      "start": "2026-10-07T06:24:00-07:00",
      "kind": "dawn",
-     "score": 3.5,
+     "score": 4.1,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -2625,7 +2611,7 @@
      "label": "Wed dusk",
      "start": "2026-10-07T16:31:00-07:00",
      "kind": "dusk",
-     "score": 3.0,
+     "score": 3.7,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -2639,7 +2625,7 @@
      "label": "Thu dawn",
      "start": "2026-10-08T06:25:00-07:00",
      "kind": "dawn",
-     "score": 3.6,
+     "score": 3.7,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -2653,7 +2639,7 @@
      "label": "Thu dusk",
      "start": "2026-10-08T16:29:00-07:00",
      "kind": "dusk",
-     "score": 3.2,
+     "score": 3.9,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -2667,7 +2653,7 @@
      "label": "Fri dawn",
      "start": "2026-10-09T06:25:00-07:00",
      "kind": "dawn",
-     "score": 2.8,
+     "score": 3.1,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -2681,7 +2667,7 @@
      "label": "Fri dusk",
      "start": "2026-10-09T16:28:00-07:00",
      "kind": "dusk",
-     "score": 5.4,
+     "score": 5.5,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -2695,7 +2681,7 @@
      "label": "Sat dawn",
      "start": "2026-10-10T06:26:00-07:00",
      "kind": "dawn",
-     "score": 6.9,
+     "score": 6.5,
      "conf": "medium",
      "limit": "stirred up",
      "entries": [
@@ -2709,7 +2695,7 @@
      "label": "Sat dusk",
      "start": "2026-10-10T16:27:00-07:00",
      "kind": "dusk",
-     "score": 5.5,
+     "score": 4.8,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -2723,7 +2709,7 @@
      "label": "Sun dawn",
      "start": "2026-10-11T06:27:00-07:00",
      "kind": "dawn",
-     "score": 5.8,
+     "score": 4.3,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -2737,7 +2723,7 @@
      "label": "Sun dusk",
      "start": "2026-10-11T16:26:00-07:00",
      "kind": "dusk",
-     "score": 5.4,
+     "score": 1.4,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -2751,12 +2737,26 @@
      "label": "Mon dawn",
      "start": "2026-10-12T06:28:00-07:00",
      "kind": "dawn",
-     "score": 2.8,
+     "score": 3.0,
      "conf": "medium",
      "limit": "swell",
      "entries": [
       "Point Dume Cove",
       "Leo Carrillo (Sequit Point)"
+     ],
+     "gate": false,
+     "aligned": false
+    },
+    {
+     "label": "Mon dusk",
+     "start": "2026-10-12T16:24:00-07:00",
+     "kind": "dusk",
+     "score": 3.2,
+     "conf": "medium",
+     "limit": "swell",
+     "entries": [
+      "Leo Carrillo (Sequit Point)",
+      "Point Dume Cove"
      ],
      "gate": false,
      "aligned": false
@@ -2791,24 +2791,10 @@
     "tide": "9411189"
    },
    "sms": true,
-   "forecast_sms": "THE DIVE BELL - VENTURA COUNTY, the week ahead.\nBest: Sat dawn, 6.0 of 10 - marginal, held back by swell.\nMon 4.6 / Tue 4.9 / Wed 3.3 / Thu 3.6 / Fri 2.5 / Sat 6.0 / Sun 5.4\nA quiet week.",
+   "forecast_sms": "THE DIVE BELL - VENTURA COUNTY, the week ahead.\nBest: Sat dawn, 5.7 of 10 - marginal, held back by swell.\nTue 4.9 / Wed 3.9 / Thu 3.4 / Fri 5.4 / Sat 5.7 / Sun 5.2 / Mon 3.2\nA quiet week.",
    "last_ring": null,
    "sst_f": 72,
    "windows": [
-    {
-     "label": "Mon dusk",
-     "start": "2026-10-05T16:34:00-07:00",
-     "kind": "dusk",
-     "score": 4.6,
-     "conf": "medium",
-     "limit": "swell",
-     "entries": [
-      "County Line Reef (Yerba Buena)",
-      "La Jenelle (Port Hueneme)"
-     ],
-     "gate": false,
-     "aligned": false
-    },
     {
      "label": "Tue dawn",
      "start": "2026-10-06T06:24:00-07:00",
@@ -2827,7 +2813,7 @@
      "label": "Tue dusk",
      "start": "2026-10-06T16:33:00-07:00",
      "kind": "dusk",
-     "score": 3.4,
+     "score": 3.9,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -2841,7 +2827,7 @@
      "label": "Wed dawn",
      "start": "2026-10-07T06:24:00-07:00",
      "kind": "dawn",
-     "score": 3.3,
+     "score": 3.9,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -2855,7 +2841,7 @@
      "label": "Wed dusk",
      "start": "2026-10-07T16:31:00-07:00",
      "kind": "dusk",
-     "score": 2.4,
+     "score": 2.8,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -2869,7 +2855,7 @@
      "label": "Thu dawn",
      "start": "2026-10-08T06:25:00-07:00",
      "kind": "dawn",
-     "score": 3.6,
+     "score": 3.4,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -2883,7 +2869,7 @@
      "label": "Thu dusk",
      "start": "2026-10-08T16:30:00-07:00",
      "kind": "dusk",
-     "score": 2.1,
+     "score": 2.7,
      "conf": "low",
      "limit": "swell",
      "entries": [
@@ -2897,7 +2883,7 @@
      "label": "Fri dawn",
      "start": "2026-10-09T06:26:00-07:00",
      "kind": "dawn",
-     "score": 1.9,
+     "score": 2.2,
      "conf": "low",
      "limit": "swell",
      "entries": [
@@ -2911,7 +2897,7 @@
      "label": "Fri dusk",
      "start": "2026-10-09T16:29:00-07:00",
      "kind": "dusk",
-     "score": 2.5,
+     "score": 5.4,
      "conf": "low",
      "limit": "swell",
      "entries": [
@@ -2925,7 +2911,7 @@
      "label": "Sat dawn",
      "start": "2026-10-10T06:27:00-07:00",
      "kind": "dawn",
-     "score": 6.0,
+     "score": 5.7,
      "conf": "low",
      "limit": "swell",
      "entries": [
@@ -2939,7 +2925,7 @@
      "label": "Sat dusk",
      "start": "2026-10-10T16:27:00-07:00",
      "kind": "dusk",
-     "score": 5.2,
+     "score": 3.9,
      "conf": "low",
      "limit": "swell",
      "entries": [
@@ -2953,7 +2939,7 @@
      "label": "Sun dawn",
      "start": "2026-10-11T06:28:00-07:00",
      "kind": "dawn",
-     "score": 5.4,
+     "score": 5.2,
      "conf": "low",
      "limit": "swell",
      "entries": [
@@ -2967,7 +2953,7 @@
      "label": "Sun dusk",
      "start": "2026-10-11T16:26:00-07:00",
      "kind": "dusk",
-     "score": 4.2,
+     "score": 1.4,
      "conf": "low",
      "limit": "swell",
      "entries": [
@@ -2981,12 +2967,26 @@
      "label": "Mon dawn",
      "start": "2026-10-12T06:28:00-07:00",
      "kind": "dawn",
-     "score": 2.4,
+     "score": 3.2,
      "conf": "low",
      "limit": "swell",
      "entries": [
       "County Line Reef (Yerba Buena)",
       "La Jenelle (Port Hueneme)"
+     ],
+     "gate": false,
+     "aligned": false
+    },
+    {
+     "label": "Mon dusk",
+     "start": "2026-10-12T16:25:00-07:00",
+     "kind": "dusk",
+     "score": 1.4,
+     "conf": "low",
+     "limit": "swell",
+     "entries": [
+      "La Jenelle (Port Hueneme)",
+      "County Line Reef (Yerba Buena)"
      ],
      "gate": false,
      "aligned": false
@@ -3021,7 +3021,7 @@
     "tide": "none"
    },
    "sms": false,
-   "forecast_sms": "THE DIVE BELL - SYDNEY, the week ahead.\nBest: Thu dusk, 5.0 of 10 - marginal, held back by swell.\nTue 4.0 / Wed 4.0 / Thu 5.0 / Fri 4.5 / Sat 4.5 / Sun 4.0 / Mon 4.0\nA quiet week.",
+   "forecast_sms": "THE DIVE BELL - SYDNEY, the week ahead.\nBest: Thu dusk, 5.0 of 10 - marginal, held back by stirred-up water.\nTue 4.0 / Wed 3.8 / Thu 5.0 / Fri 4.7 / Sat 4.0 / Sun 4.0 / Mon 4.0\nA quiet week.",
    "last_ring": "2026-09-06",
    "sst_f": 68,
    "windows": [
@@ -3043,7 +3043,7 @@
      "label": "Wed dawn",
      "start": "2026-10-07T05:54:00+11:00",
      "kind": "dawn",
-     "score": 4.0,
+     "score": 3.8,
      "conf": "medium",
      "limit": "rain",
      "entries": [
@@ -3057,7 +3057,7 @@
      "label": "Wed dusk",
      "start": "2026-10-07T17:01:00+11:00",
      "kind": "dusk",
-     "score": 3.7,
+     "score": 2.8,
      "conf": "medium",
      "limit": "rain",
      "entries": [
@@ -3071,7 +3071,7 @@
      "label": "Thu dawn",
      "start": "2026-10-08T05:53:00+11:00",
      "kind": "dawn",
-     "score": 4.1,
+     "score": 3.3,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -3087,7 +3087,7 @@
      "kind": "dusk",
      "score": 5.0,
      "conf": "medium",
-     "limit": "swell",
+     "limit": "stirred up",
      "entries": [
       "Shelly Beach (Cabbage Tree Bay)",
       "Fairy Bower"
@@ -3099,7 +3099,7 @@
      "label": "Fri dawn",
      "start": "2026-10-09T05:52:00+11:00",
      "kind": "dawn",
-     "score": 4.5,
+     "score": 4.7,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -3113,9 +3113,9 @@
      "label": "Fri dusk",
      "start": "2026-10-09T17:03:00+11:00",
      "kind": "dusk",
-     "score": 3.7,
+     "score": 2.9,
      "conf": "medium",
-     "limit": "stirred up",
+     "limit": "swell",
      "entries": [
       "Shelly Beach (Cabbage Tree Bay)",
       "Fairy Bower"
@@ -3127,7 +3127,7 @@
      "label": "Sat dawn",
      "start": "2026-10-10T05:50:00+11:00",
      "kind": "dawn",
-     "score": 4.5,
+     "score": 3.8,
      "conf": "medium",
      "limit": "stirred up",
      "entries": [
@@ -3251,7 +3251,7 @@
     "tide": "1615680"
    },
    "sms": true,
-   "forecast_sms": "THE DIVE BELL - MAUI, the week ahead.\nBest: Tue dusk, 8.4 of 10 - good, held back by grey skies. In by 4:09pm at Kahekili (Airport Beach).\nMon 4.0 / Tue 8.4 / Wed 4.0 / Thu 4.0 / Fri 4.0 / Sat 4.0 / Sun 4.0\nNo ring in sight, but a morning worth having.",
+   "forecast_sms": "THE DIVE BELL - MAUI, the week ahead.\nBest: Tue dusk, 8.0 of 10 - good, held back by grey skies. In by 4:09pm at Kahekili (Airport Beach).\nMon 4.0 / Tue 8.0 / Wed 4.0 / Thu 4.0 / Fri 4.0 / Sat 4.0 / Sun 4.0\nNo ring in sight, but a morning worth having.",
    "last_ring": null,
    "sst_f": 82,
    "windows": [
@@ -3287,7 +3287,7 @@
      "label": "Tue dusk",
      "start": "2026-10-06T16:09:00-10:00",
      "kind": "dusk",
-     "score": 8.4,
+     "score": 8.0,
      "conf": "medium",
      "limit": "grey",
      "entries": [
