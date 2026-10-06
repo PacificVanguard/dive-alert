@@ -20,13 +20,19 @@ Secrets: env NTFY_TOPIC / HEALTHCHECKS_URL, or git-ignored local_config.json.
 from __future__ import annotations
 
 import argparse
+import base64
 import csv
+import hashlib
+import hmac
 import json
 import math
 import os
 import re
+import subprocess
 import sys
+import time
 import traceback
+import uuid
 import urllib.parse
 import urllib.request
 from datetime import datetime, timedelta, timezone
@@ -2948,6 +2954,7 @@ def check_retraction(zk, zc, scored, state, t_now, dry_run):
     # owed and the next run says it again
     if ok or sent_n:
         pr["retracted"] = True
+        social_enqueue_takeback(state, zk, zc, vis[0], day0, why)
     else:
         print("retraction (%s): undelivered — will retry" % zk)
 
@@ -3742,6 +3749,323 @@ def write_bell_pages(board, state, t_now):
         f.write(sitemap_xml(slugs, t_now))
 
 
+# =====================================================================
+# the public voice — rings, take-backs, the Wednesday card, hazards
+# =====================================================================
+# The bell speaks in public only when it has something to say: a ring, a
+# ring taken back, the week ahead once a week, and a 7 the forecaster vetoed.
+# Never daily. Each is queued by the run as a DEBT (state["social_queue"]),
+# deduped by key, and paid by `post` to whichever accounts are wired by
+# secret — Bluesky and Threads first (public pages, readable by crawlers and
+# assistants), X for the ocean-weather crowd. No account wired = nothing
+# leaves; a failed post stays owed; news older than 48h is not news.
+
+SOCIAL_TEXT_MAX = 280   # X's limit is the floor (Bluesky 300, Threads 500)
+SOCIAL_STALE_H = 48
+SITE_HOST = "thedivebell.com"
+
+
+def social_enqueue(state, key, kind, text, card=None, alt=None):
+    posted = state.setdefault("social_posted", {})
+    q = state.setdefault("social_queue", [])
+    if key in posted or any(i["key"] == key for i in q):
+        return False
+    q.append({"key": key, "kind": kind, "text": text[:SOCIAL_TEXT_MAX], "card": card,
+              "alt": (alt or text)[:400], "created": datetime.now(timezone.utc).isoformat(),
+              "done": []})
+    return True
+
+
+def social_enqueue_ring(state, zk, zc, payload, sst_c):
+    w = payload["w"]
+    name = zc["bell"]["name"]
+    water = ("%dF water" % round(sst_c * 9 / 5 + 32)) if sst_c is not None else "warm water"
+    cove = payload["entries"][0] if payload.get("entries") else "your cove"
+    when = "%s at %s" % (w["start"].strftime("%a %b %-d"), w.get("kind", "dawn"))
+    in_by = w["start"].strftime("%-I:%M%p").lower()
+    text = ("THE BELL IS RINGING - %s. %s: flat, glassy, dry, sunny, %s. In by %s at %s. "
+            "%s/%s/" % (name.upper(), when, water, in_by, cove, SITE_HOST, bell_slug({"bell": zc["bell"]})))
+    card = {"kind": "ring", "eyebrow": "THE DIVE BELL · BELL NO. %s" % zc["bell"].get("no", "?"),
+            "lines": ["%s · %s" % (name, when), "flat · glassy · dry · sunny · " + water,
+                      "In by %s at %s" % (in_by, cove)],
+            "foot": "%s/%s/  ·  text %s to %s" % (SITE_HOST, bell_slug({"bell": zc["bell"]}), bell_word(zk), BELL_NUMBER)}
+    return social_enqueue(state, "ring:%s:%s" % (zk, w["key"]), "ring", text, card,
+                          "The Dive Bell: %s is ringing for %s, %s, in by %s at %s." % (name, when, water, in_by, cove))
+
+
+def social_enqueue_takeback(state, zk, zc, day_iso, day_name, why):
+    name = zc["bell"]["name"]
+    text = ("The bell takes back its word at %s: %s's perfect morning didn't hold - %s filled in. "
+            "The bell only rings when it's sure. %s/%s/" % (name, day_name, why, SITE_HOST, bell_slug({"bell": zc["bell"]})))
+    card = {"kind": "takeback", "eyebrow": "THE DIVE BELL · %s" % name.upper(),
+            "lines": ["%s's perfect morning didn't hold." % day_name, "%s filled in where the promise stood." % why[:1].upper() + why[1:],
+                      "The bell only rings when it's sure."],
+            "foot": "%s/%s/" % (SITE_HOST, bell_slug({"bell": zc["bell"]}))}
+    return social_enqueue(state, "takeback:%s:%s" % (zk, day_iso), "takeback", text, card)
+
+
+def social_enqueue_hazard(state, zk, zc, scored):
+    """A window that would have cleared 7 but for the forecaster's word: told
+    once per bell per day, because 'the bell will not ring' is the honest
+    news when everyone else is posting the swell."""
+    vetoed = [s for s in scored if s.get("hazard") and s["score"] >= 7.0]
+    if not vetoed:
+        return False
+    v = vetoed[0]
+    haz_days = sorted({s["w"]["start"].strftime("%a") for s in scored if s.get("hazard")})
+    through = haz_days[-1] if haz_days else v["w"]["start"].strftime("%a")
+    name = zc["bell"]["name"]
+    text = ("%s will not ring %s: NWS %s through %s. %s would have scored %.1f - the forecaster "
+            "outranks the model. %s/%s/" % (name, v["w"]["start"].strftime("%a"), v["hazard"], through,
+                                            v["w"]["label"], v["score"], SITE_HOST, bell_slug({"bell": zc["bell"]})))
+    card = {"kind": "hazard", "eyebrow": "THE DIVE BELL · %s" % name.upper(),
+            "lines": ["NWS %s" % v["hazard"], "in force through %s" % through,
+                      "%s would have scored %.1f" % (v["w"]["label"], v["score"]),
+                      "The forecaster outranks the model."],
+            "foot": "%s/%s/" % (SITE_HOST, bell_slug({"bell": zc["bell"]}))}
+    return social_enqueue(state, "hazard:%s:%s" % (zk, v["w"]["start"].date().isoformat()), "hazard", text, card)
+
+
+def social_enqueue_week(state, board, t_now):
+    """The one ritual post: every bell's best morning this week, on one card,
+    once per ISO week. The silence counter rides here, not on its own."""
+    week = "%d-W%02d" % t_now.isocalendar()[:2]
+    rows = []
+    for zk, bz in board.items():
+        wins = bz.get("windows") or []
+        if not wins:
+            continue
+        top = max(wins, key=lambda w: w["score"])
+        last = bz.get("last_ring") or bz["bell"].get("cast")
+        quiet = (t_now.date() - datetime.strptime(last, "%Y-%m-%d").date()).days if last else None
+        rows.append({"name": bz["bell"]["name"], "label": top["label"], "score": top["score"],
+                     "ringing": any(w.get("gate") for w in wins), "quiet": quiet})
+    if not rows:
+        return False
+    rows.sort(key=lambda r: -r["score"])
+    ringing = [r["name"] for r in rows if r["ringing"]]
+    top3 = ", ".join("%s %s %.1f" % (r["name"], r["label"], r["score"]) for r in rows[:3])
+    longest = max((r for r in rows if r["quiet"] is not None), key=lambda r: r["quiet"], default=None)
+    text = "The week ahead, %d bells. Best: %s. " % (len(rows), top3)
+    text += ("%s is ringing. " % " and ".join(ringing)) if ringing else "No bell is ringing. "
+    if longest:
+        text += "Quietest: %s, %d days. " % (longest["name"], longest["quiet"])
+    text += SITE_HOST + "/"
+    card = {"kind": "week", "eyebrow": "THE DIVE BELL · %d BELLS · %s" % (len(rows), t_now.strftime("%b %-d").upper()),
+            "lines": ["%s · %s · %.1f%s" % (r["name"], r["label"], r["score"], "  RINGING" if r["ringing"] else "")
+                      for r in rows[:6]],
+            "foot": "%s/  ·  %s" % (SITE_HOST, ("%s is ringing" % " and ".join(ringing)) if ringing else "no bell is ringing this week")}
+    return social_enqueue(state, "week:%s" % week, "week", text, card,
+                          "The Dive Bell, the week ahead across %d bells. %s" % (len(rows), top3))
+
+
+def card_svg(card):
+    """One visual grammar for every post: navy water, the bell, one headline,
+    a few lines, the way in. 1200x630, the size every network unfurls."""
+    from xml.sax.saxutils import escape as x
+    head = {"ring": "THE BELL IS RINGING", "takeback": "THE BELL TAKES BACK ITS WORD",
+            "week": "THE WEEK AHEAD", "hazard": "THE BELL WILL NOT RING"}.get(card.get("kind"), "THE DIVE BELL")
+    serif, mono = "Georgia, 'DejaVu Serif', serif", "Menlo, 'DejaVu Sans Mono', monospace"
+    svg = ['<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">',
+           '<rect width="1200" height="630" fill="#071d36"/>',
+           '<path d="M1060 70 C 990 70 965 150 965 230 L 965 280 L 1155 280 L 1155 230 '
+           'C 1155 150 1130 70 1060 70 Z" fill="#0a2a4a" stroke="#7fd4ff" stroke-width="6"/>',
+           '<circle cx="1060" cy="312" r="16" fill="#ffd98a"/>',
+           '<text x="80" y="104" font-family="%s" font-size="20" letter-spacing="3" fill="#64809b">%s</text>'
+           % (mono, x(card.get("eyebrow", "THE DIVE BELL")[:44])),
+           '<text x="80" y="196" font-family="%s" font-size="%d" fill="%s">%s</text>'
+           % (serif, 60 if len(head) < 22 else 48, "#ffd98a" if card.get("kind") == "ring" else "#e8dcc3", x(head))]
+    y = 266
+    for ln in (card.get("lines") or [])[:6]:
+        svg.append('<text x="80" y="%d" font-family="%s" font-size="30" fill="#a9c2d6">%s</text>' % (y, serif, x(ln)))
+        y += 48
+    svg.append('<text x="80" y="582" font-family="%s" font-size="20" fill="#64809b">%s</text>' % (mono, x(card.get("foot", SITE_HOST))))
+    svg.append("</svg>")
+    return "\n".join(svg)
+
+
+def svg_to_png(svg):
+    """Rasterize with whatever this machine has: rsvg-convert or ImageMagick
+    on the runner, Quick Look on a Mac. None means the post goes as words."""
+    import tempfile
+    with tempfile.TemporaryDirectory() as d:
+        sp, pp = os.path.join(d, "card.svg"), os.path.join(d, "card.png")
+        with open(sp, "w") as f:
+            f.write(svg)
+        for cmd in (["rsvg-convert", "-w", "1200", "-h", "630", "-o", pp, sp],
+                    ["convert", "-density", "144", sp, pp],
+                    ["qlmanage", "-t", "-s", "1200", "-o", d, sp]):
+            try:
+                subprocess.run(cmd, check=True, capture_output=True, timeout=90)
+            except Exception:
+                continue
+            out = pp if os.path.exists(pp) else sp + ".png"
+            if os.path.exists(out):
+                with open(out, "rb") as f:
+                    return f.read()
+    return None
+
+
+def _http_json(url, data=None, headers=None, timeout=30):
+    body = data if isinstance(data, (bytes, type(None))) else json.dumps(data).encode()
+    req = urllib.request.Request(url, data=body, method="POST" if body is not None else "GET")
+    hdr = dict(headers or {})
+    if body is not None and "Content-Type" not in hdr:
+        hdr["Content-Type"] = "application/json"
+    hdr.setdefault("User-Agent", "dive-alert/1.0")
+    for k, v in hdr.items():
+        req.add_header(k, v)
+    with urllib.request.urlopen(req, timeout=timeout) as r:
+        return json.loads(r.read().decode("utf-8") or "{}")
+
+
+def bsky_facets(text):
+    """Bluesky links are not links without a facet at the right BYTE offsets."""
+    facets = []
+    for m in re.finditer(r"(?:https?://)?%s/[^\s]*" % re.escape(SITE_HOST), text):
+        uri = m.group(0) if m.group(0).startswith("http") else "https://" + m.group(0)
+        facets.append({"index": {"byteStart": len(text[:m.start()].encode("utf-8")),
+                                 "byteEnd": len(text[:m.end()].encode("utf-8"))},
+                       "features": [{"$type": "app.bsky.richtext.facet#link", "uri": uri}]})
+    return facets
+
+
+def post_bluesky(text, png, alt):
+    sess = _http_json("https://bsky.social/xrpc/com.atproto.server.createSession",
+                      {"identifier": get_secret("BSKY_HANDLE"), "password": get_secret("BSKY_APP_PASSWORD")})
+    hdr = {"Authorization": "Bearer " + sess["accessJwt"]}
+    rec = {"$type": "app.bsky.feed.post", "text": text, "langs": ["en"],
+           "createdAt": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}
+    if bsky_facets(text):
+        rec["facets"] = bsky_facets(text)
+    if png:
+        blob = _http_json("https://bsky.social/xrpc/com.atproto.repo.uploadBlob", png,
+                          dict(hdr, **{"Content-Type": "image/png"}))
+        rec["embed"] = {"$type": "app.bsky.embed.images",
+                        "images": [{"alt": alt or text, "image": blob["blob"]}]}
+    _http_json("https://bsky.social/xrpc/com.atproto.repo.createRecord",
+               {"repo": sess["did"], "collection": "app.bsky.feed.post", "record": rec}, hdr)
+    return True
+
+
+def post_threads(text, png, alt):
+    """Words only: the Threads API fetches images by public URL, and the card
+    is not public until this run's commit lands."""
+    uid, tok = get_secret("THREADS_USER_ID"), get_secret("THREADS_TOKEN")
+    base = "https://graph.threads.net/v1.0/%s" % uid
+    form = {"Content-Type": "application/x-www-form-urlencoded"}
+    c = _http_json(base + "/threads", urllib.parse.urlencode(
+        {"media_type": "TEXT", "text": text, "access_token": tok}).encode(), form)
+    last = None
+    for _ in range(4):
+        try:
+            _http_json(base + "/threads_publish", urllib.parse.urlencode(
+                {"creation_id": c["id"], "access_token": tok}).encode(), form)
+            return True
+        except Exception as e:   # a container can take a few seconds to be publishable
+            last = e
+            time.sleep(5)
+    raise last
+
+
+def _oauth1(method, url, params=None):
+    ck, cs, at, ats = (get_secret(k) for k in ("X_API_KEY", "X_API_SECRET", "X_ACCESS_TOKEN", "X_ACCESS_SECRET"))
+    enc = lambda s: urllib.parse.quote(str(s), safe="")
+    oauth = {"oauth_consumer_key": ck, "oauth_nonce": uuid.uuid4().hex, "oauth_signature_method": "HMAC-SHA1",
+             "oauth_timestamp": str(int(time.time())), "oauth_token": at, "oauth_version": "1.0"}
+    allp = dict(params or {}, **oauth)
+    base = "&".join([method, enc(url), enc("&".join("%s=%s" % (enc(k), enc(v)) for k, v in sorted(allp.items())))])
+    key = (enc(cs) + "&" + enc(ats)).encode()
+    oauth["oauth_signature"] = base64.b64encode(hmac.new(key, base.encode(), hashlib.sha1).digest()).decode()
+    return "OAuth " + ", ".join('%s="%s"' % (enc(k), enc(v)) for k, v in sorted(oauth.items()))
+
+
+def post_x(text, png, alt):
+    media = []
+    if png:
+        try:   # the card is a bonus on X; a media tier we don't have must not cost the words
+            url = "https://upload.twitter.com/1.1/media/upload.json"
+            bnd = "----divebell" + uuid.uuid4().hex
+            body = (("--%s\r\nContent-Disposition: form-data; name=\"media\"; filename=\"card.png\"\r\n"
+                     "Content-Type: image/png\r\n\r\n") % bnd).encode() + png + ("\r\n--%s--\r\n" % bnd).encode()
+            r = _http_json(url, body, {"Authorization": _oauth1("POST", url),
+                                       "Content-Type": "multipart/form-data; boundary=" + bnd})
+            media = [r["media_id_string"]]
+            murl = "https://upload.twitter.com/1.1/media/metadata/create.json"
+            _http_json(murl, {"media_id": media[0], "alt_text": {"text": (alt or text)[:1000]}},
+                       {"Authorization": _oauth1("POST", murl)})
+        except Exception as e:
+            print("x media skipped: %s" % str(e)[:80], file=sys.stderr)
+            media = []
+    url = "https://api.twitter.com/2/tweets"
+    payload = {"text": text}
+    if media:
+        payload["media"] = {"media_ids": media}
+    _http_json(url, payload, {"Authorization": _oauth1("POST", url)})
+    return True
+
+
+def social_networks():
+    nets = {}
+    if get_secret("BSKY_HANDLE") and get_secret("BSKY_APP_PASSWORD"):
+        nets["bluesky"] = post_bluesky
+    if get_secret("THREADS_USER_ID") and get_secret("THREADS_TOKEN"):
+        nets["threads"] = post_threads
+    if all(get_secret(k) for k in ("X_API_KEY", "X_API_SECRET", "X_ACCESS_TOKEN", "X_ACCESS_SECRET")):
+        nets["x"] = post_x
+    return nets
+
+
+def social_drain(state, nets, now, dry_run, render=True):
+    """Pay the queue: every fresh item to every wired network it has not yet
+    reached. Stale items expire unposted; a failed network keeps the debt."""
+    posted = state.setdefault("social_posted", {})
+    keep = []
+    for item in state.get("social_queue", []):
+        age_h = (now - datetime.fromisoformat(item["created"])).total_seconds() / 3600
+        if age_h > SOCIAL_STALE_H:
+            print("public voice: %s expired unposted (%.0fh old)" % (item["key"], age_h))
+            continue
+        if not nets:
+            keep.append(item)
+            continue
+        png = None
+        if render and item.get("card") and not dry_run:
+            png = svg_to_png(card_svg(item["card"]))
+            if png is None:
+                print("public voice: no rasterizer here - %s goes as words" % item["key"])
+        for name, fn in nets.items():
+            if name in item["done"]:
+                continue
+            if dry_run:
+                print("[dry] %s -> %s: %s" % (item["key"], name, item["text"][:90]))
+                item["done"].append(name)
+                continue
+            try:
+                fn(item["text"], png, item.get("alt"))
+                item["done"].append(name)
+                print("public voice: %s -> %s" % (item["key"], name))
+            except Exception as e:
+                print("public voice: %s -> %s failed: %s" % (item["key"], name, str(e)[:120]), file=sys.stderr)
+        if all(n in item["done"] for n in nets):
+            posted[item["key"]] = now.date().isoformat()
+        else:
+            keep.append(item)
+    state["social_queue"] = keep
+    cutoff = (now - timedelta(days=60)).date().isoformat()
+    for k in [k for k, d in posted.items() if d < cutoff]:
+        posted.pop(k)
+
+
+def cmd_post(args):
+    state = load_state()
+    nets = social_networks()
+    print("public voice: %d queued, accounts wired: %s" % (
+        len(state.get("social_queue", [])), ", ".join(sorted(nets)) or "none"))
+    social_drain(state, nets, datetime.now(timezone.utc), args.dry_run)
+    save_state(state, args.dry_run)
+
+
 def cmd_run(args):
     t_now = now_pt()
     state = load_state()
@@ -3752,6 +4076,7 @@ def cmd_run(args):
     if skill_corr:
         print("skill correction (measured lead bias, sign-flipped): %s" % skill_corr)
     zone_errors = {}   # one bell's failure must not silence the other fourteen
+    weekly_any = False
     for zk, zc in CONFIG["zones"].items():
         try:
             if not zc["enabled"]:
@@ -3788,6 +4113,8 @@ def cmd_run(args):
             weekly = bool(args.weekly) or weekly_owed(zk, state, t_now)
             if weekly and not args.weekly:
                 print("weekly reading (%s): no Wednesday run landed - opened by this run" % zk)
+            weekly_any = weekly_any or weekly
+            social_enqueue_hazard(state, zk, zc, scored)   # a vetoed 7 is news, once
             sst = zone_sst(fetches, t_now)
             if scored:
                 blind_map[zk] = gate_axis_blindness(scored[0]["feats"], sst)
@@ -3883,6 +4210,7 @@ def cmd_run(args):
                     delivered = notify(msg, args.dry_run, topic=ztopic)
                     if payload.get("gate"):
                         sms_ring(zk, zc, payload, state, args.dry_run, sst_c=sst)
+                        social_enqueue_ring(state, zk, zc, payload, sst)   # said in public, once
                     if delivered:
                         rec["promises"] += 1   # a promise nobody heard is not a promise
                     for r in rows:
@@ -3922,6 +4250,8 @@ def cmd_run(args):
                     "message": "%d of %d: %s" % (len(zone_errors), len(CONFIG["zones"]),
                                                  "; ".join("%s %s" % kv for kv in zone_errors.items())),
                     "priority": 4}, args.dry_run)
+    if weekly_any and board:
+        social_enqueue_week(state, board, t_now)   # the one ritual post, once a week
     # THE BELL PAGES: one real page per bell, rewritten every run, whose
     # OpenGraph tags still carry the live state for the unfurl - and whose
     # body now carries the reading itself (see bell_page). Plus sitemap.xml.
@@ -5912,6 +6242,63 @@ def cmd_test(args):
     check("(yy) the sitemap lists the board, every bell, and the terms",
           sm.count("<url>") == 4 and "/laguna-beach/</loc>" in sm and "/sms/</loc>" in sm)
 
+    # (zz) the public voice: rings, take-backs, the week and a vetoed 7 are
+    # queued as debts, once each, within X's limit, with a card that is valid
+    # SVG and Bluesky facets on the right bytes; the drain pays the fresh,
+    # expires the stale, and keeps a debt a network refused
+    st_z = {}
+    pz = dict(ring_week[1], entries=["Fisherman's Cove"])
+    check("(zz) a ring is queued once", social_enqueue_ring(st_z, "A", zc, pz, 22.2)
+          and not social_enqueue_ring(st_z, "A", zc, pz, 22.2) and len(st_z["social_queue"]) == 1)
+    item = st_z["social_queue"][0]
+    check("(zz) the ring post fits X and names the bell, the water, the cove and the page",
+          len(item["text"]) <= SOCIAL_TEXT_MAX and "LAGUNA BEACH" in item["text"] and "72F water" in item["text"]
+          and "Fisherman's Cove" in item["text"] and "thedivebell.com/laguna-beach/" in item["text"], item["text"])
+    import xml.dom.minidom
+    try:
+        xml.dom.minidom.parseString(card_svg(item["card"]))
+        svg_ok = True
+    except Exception:
+        svg_ok = False
+    check("(zz) the card is valid SVG carrying the ring, the cove and the join word",
+          svg_ok and "THE BELL IS RINGING" in card_svg(item["card"]) and "Fisherman" in card_svg(item["card"])
+          and "text LAGUNA to" in card_svg(item["card"]))
+    fac = bsky_facets("Ring. thedivebell.com/laguna-beach/ now")
+    check("(zz) the Bluesky link facet lands on the URL's bytes",
+          len(fac) == 1 and fac[0]["index"] == {"byteStart": 6, "byteEnd": 6 + len("thedivebell.com/laguna-beach/")}
+          and fac[0]["features"][0]["uri"] == "https://thedivebell.com/laguna-beach/", str(fac))
+    check("(zz) the Wednesday card is queued once per week",
+          social_enqueue_week(st_z, {"A": bz_y}, t_y) and not social_enqueue_week(st_z, {"A": bz_y}, t_y))
+    haz_sc = [dict(s, hazard="High Surf Advisory", score=7.4) for s in sc_y[:2]]
+    check("(zz) a vetoed 7 is told once; an unvetoed week is not",
+          social_enqueue_hazard(st_z, "A", zc, haz_sc) and not social_enqueue_hazard(st_z, "A", zc, haz_sc)
+          and not social_enqueue_hazard(st_z, "A", zc, sc_y))
+    social_enqueue_takeback(st_z, "A", zc, "2026-08-12", "Wednesday", "swell")
+    check("(zz) every queued text fits X and points home",
+          all(len(i["text"]) <= SOCIAL_TEXT_MAX and SITE_HOST in i["text"] for i in st_z["social_queue"]),
+          "lens=%s" % [len(i["text"]) for i in st_z["social_queue"]])
+    stale = dict(item, key="ring:A:stale", done=[],
+                 created=(datetime.now(timezone.utc) - timedelta(hours=SOCIAL_STALE_H + 1)).isoformat())
+    st_z["social_queue"].append(stale)
+    n_fresh = len(st_z["social_queue"]) - 1
+    sent_z = []
+    social_drain(st_z, {"fake": lambda t, p, a: sent_z.append(t)}, datetime.now(timezone.utc), False, render=False)
+    check("(zz) the drain pays the fresh, expires the stale, remembers what it paid",
+          len(sent_z) == n_fresh and st_z["social_queue"] == [] and "ring:A:stale" not in st_z["social_posted"]
+          and item["key"] in st_z["social_posted"], "sent=%d fresh=%d" % (len(sent_z), n_fresh))
+    check("(zz) paid once is paid for good", not social_enqueue_ring(st_z, "A", zc, pz, 22.2))
+    st_z2 = {}
+    social_enqueue_ring(st_z2, "A", zc, pz, 22.2)
+
+    def boom(t, p, a):
+        raise OSError("down")
+    social_drain(st_z2, {"bad": boom}, datetime.now(timezone.utc), False, render=False)
+    check("(zz) a network that refuses keeps the debt", len(st_z2["social_queue"]) == 1 and not st_z2["social_posted"])
+    st_z3 = {}
+    social_enqueue_ring(st_z3, "A", zc, pz, 22.2)
+    social_drain(st_z3, {}, datetime.now(timezone.utc), False, render=False)
+    check("(zz) no account wired: the debt waits, nothing leaves", len(st_z3["social_queue"]) == 1)
+
     # fixture suite: degraded + disagreement
     print("fixture tests:")
     for name in ("degraded", "disagreement"):
@@ -5979,6 +6366,8 @@ def main():
     p_skill.add_argument("--notify", action="store_true")
     sub.add_parser("ingest")
     sub.add_parser("share")
+    p_post = sub.add_parser("post", help="pay the public-voice queue to every wired account")
+    p_post.add_argument("--dry-run", action="store_true")
     p_sc = sub.add_parser("smscheck")
     p_sc.add_argument("--ping", action="store_true",
                       help="also send one test text to KEEPER_PHONE")
@@ -6018,6 +6407,8 @@ def main():
         cmd_report(args)
     elif args.cmd == "skill":
         cmd_skill(args)
+    elif args.cmd == "post":
+        cmd_post(args)
     elif args.cmd == "cast":
         cmd_cast(args)
     elif args.cmd == "setup":

@@ -90,6 +90,26 @@ assistant can call it with no key. Until this date every bell page was a
 694-byte redirect into the hash route — fifteen bells, one URL to Google.
 One human act, once: submit the sitemap in Google Search Console.
 
+## The public voice (2026-10-06)
+
+The bell posts only when it has something to say — never daily: a RING, a
+TAKE-BACK, the WEEK card (once per ISO week, the silence counter rides on
+it), and a HAZARD post when the forecaster vetoed a 7. Each is queued by the
+run as a debt in `state["social_queue"]` (deduped by key, `social_posted`
+remembers 60 days) and paid by `python dive_alert.py post` (the "Speak in
+public" step, `continue-on-error` so a dead network never costs the data
+commit). Accounts are wired by secret and nothing else: `BSKY_HANDLE` +
+`BSKY_APP_PASSWORD` (an app password, never the account password);
+`THREADS_USER_ID` + `THREADS_TOKEN` (a long-lived token — it expires every
+60 days and must be refreshed by hand; a failed Threads post stays owed and
+the log says why); `X_API_KEY/SECRET` + `X_ACCESS_TOKEN/SECRET` (OAuth 1.0a,
+signed in stdlib). No secret = that network does not exist. Cards are one
+SVG grammar (`card_svg`), rasterized on the runner by rsvg-convert or
+ImageMagick; with neither, the post goes as words. Threads is always words
+(its API fetches images by public URL, and the card is not public yet).
+Mark the accounts as automated in their settings — X requires it, and it
+is true. `python dive_alert.py post --dry-run` shows what would leave.
+
 ## The Wednesday reading rides whichever cron lands (don't "fix" this)
 
 GitHub fires crons hours late — 3-4h has been normal. The guard classifies

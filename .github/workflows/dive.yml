@@ -98,6 +98,26 @@ jobs:
           KEEPER_PHONE: ${{ secrets.KEEPER_PHONE }}
         run: python dive_alert.py run --weekly
 
+      # The public voice: rings, take-backs, the Wednesday card and a vetoed
+      # 7, queued by the run as debts and paid here to whichever accounts are
+      # wired by secret. Nothing wired = nothing posted. A posting failure
+      # must never cost the data commit, so this step cannot fail the job.
+      - name: Speak in public
+        if: steps.guard.outputs.go == 'yes' || steps.guard.outputs.go == 'weekly'
+        continue-on-error: true
+        env:
+          BSKY_HANDLE: ${{ secrets.BSKY_HANDLE }}
+          BSKY_APP_PASSWORD: ${{ secrets.BSKY_APP_PASSWORD }}
+          THREADS_USER_ID: ${{ secrets.THREADS_USER_ID }}
+          THREADS_TOKEN: ${{ secrets.THREADS_TOKEN }}
+          X_API_KEY: ${{ secrets.X_API_KEY }}
+          X_API_SECRET: ${{ secrets.X_API_SECRET }}
+          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_SECRET: ${{ secrets.X_ACCESS_SECRET }}
+        run: |
+          command -v rsvg-convert >/dev/null || command -v convert >/dev/null || echo "no rasterizer on this runner - cards go as words"
+          python dive_alert.py post
+
       - name: Ingest feedback only
         if: steps.guard.outputs.go == 'ingest'
         env:
