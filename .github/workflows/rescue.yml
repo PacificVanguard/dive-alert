@@ -1,0 +1,61 @@
+name: rescue
+
+# A run GitHub never started cannot text the keeper — the "on failure" step
+# lives inside the job that was never given a machine. On 2026-10-05 the
+# midday run sat 15 minutes unassigned ("The job was not acquired by Runner
+# of type hosted"), was cancelled, and the only word of it was GitHub's email.
+# This workflow fires when dive-alert finishes any way but success: it reruns
+# the run once (the guard reclassifies by the hour it lands in, and every
+# text is a deduped debt, so a rerun is always safe), and if the job never
+# started a second time, it texts the keeper itself.
+
+on:
+  workflow_run:
+    workflows: [dive-alert]
+    types: [completed]
+
+permissions:
+  actions: write
+
+jobs:
+  rescue:
+    if: github.event.workflow_run.conclusion != 'success' && github.event.workflow_run.conclusion != 'skipped'
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RUN_ID: ${{ github.event.workflow_run.id }}
+      ATTEMPT: ${{ github.event.workflow_run.run_attempt }}
+      CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+      RUN_URL: ${{ github.event.workflow_run.html_url }}
+    steps:
+      - name: Did the job ever start?
+        id: look
+        run: |
+          STEPS=$(gh api "repos/${{ github.repository }}/actions/runs/$RUN_ID/attempts/$ATTEMPT/jobs" \
+                  --jq '[.jobs[].steps | length] | add // 0')
+          echo "run $RUN_ID attempt $ATTEMPT ended $CONCLUSION with $STEPS steps recorded"
+          echo "started=$([ "$STEPS" -gt 0 ] && echo yes || echo no)" >> "$GITHUB_OUTPUT"
+
+      - name: Rerun once
+        if: env.ATTEMPT == '1'
+        run: |
+          sleep 90   # let a starved runner pool breathe before asking again
+          gh run rerun "$RUN_ID" --repo "${{ github.repository }}" && echo "rerun requested"
+
+      # The job's own failure step already texted if it ran. Only a job that
+      # never got a machine twice is news the keeper has not heard.
+      - name: Text the keeper when GitHub never started it twice
+        if: env.ATTEMPT != '1' && steps.look.outputs.started == 'no'
+        env:
+          TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
+          TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
+          TWILIO_FROM: ${{ secrets.TWILIO_FROM }}
+          KEEPER_PHONE: ${{ secrets.KEEPER_PHONE }}
+        run: |
+          if [ -z "$KEEPER_PHONE" ] || [ -z "$TWILIO_AUTH_TOKEN" ]; then
+            echo "no KEEPER_PHONE/Twilio secrets - keeper not texted"; exit 0; fi
+          curl -s -o /dev/null -w "keeper texted: %{http_code}\n" \
+            -u "$TWILIO_ACCOUNT_SID:$TWILIO_AUTH_TOKEN" \
+            --data-urlencode "To=$KEEPER_PHONE" --data-urlencode "From=$TWILIO_FROM" \
+            --data-urlencode "Body=DIVE BELL OPS - GitHub never started the dive-alert run, twice ($CONCLUSION). The next cron will pay what is owed; if this repeats, check GitHub status. $RUN_URL" \
+            "https://api.twilio.com/2010-04-01/Accounts/$TWILIO_ACCOUNT_SID/Messages.json"

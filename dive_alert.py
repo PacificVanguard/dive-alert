@@ -927,6 +927,9 @@ CONFIG = {
         "aodn_wfs": "https://geoserver-123.aodn.org.au/geoserver/ows",
         "tide_station": "9410580",  # Newport Bay Entrance — closest CO-OPS station to Laguna
         "tides": "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter",
+        # The forecaster's own word. A forecast that names a cove and a time
+        # must not do so under a High Surf Advisory the model never saw.
+        "nws_alerts": "https://api.weather.gov/alerts/active",
         "sst": "https://coastwatch.pfeg.noaa.gov/erddap/griddap/jplMURSST41.json",
         # Endpoint verified by identity 2026-08-10 but the server was slow;
         # fetch is best-effort with a short timeout and degrades gracefully.
@@ -1124,6 +1127,67 @@ def fetch_weather(src: Sources, lat, lon, tzname="America/Los_Angeles") -> Fetch
         return Fetch("weather", True, data)
     except Exception as e:
         return Fetch("weather", False, error=str(e))
+
+
+# NWS products that speak to the water a shore diver enters. Left out on
+# purpose: Small Craft Advisories (afternoon wind offshore; they would veto
+# most of the fleet's calm dawns) and Coastal Flood Advisories (king tides
+# overtopping low roads — issued in December and January, Laguna's best
+# months, often on glassy mornings; the tide term already weighs the tide).
+NWS_VETO_EVENTS = {
+    "High Surf Warning", "High Surf Advisory", "Beach Hazards Statement",
+    "Rip Current Statement", "Tsunami Warning", "Tsunami Advisory",
+    "Gale Warning", "Storm Warning", "Hurricane Warning",
+    "Tropical Storm Warning", "Hazardous Seas Warning",
+}
+NWS_TZS = ("America/Los_Angeles", "Pacific/Honolulu", "America/New_York",
+           "America/Chicago", "America/Anchorage")
+
+
+def nws_covered(zone_cfg) -> bool:
+    """NWS covers US water only. Bonaire's clock is American; its water is not."""
+    return bool(zone_cfg.get("nws", zone_cfg.get("tz", "America/Los_Angeles") in NWS_TZS))
+
+
+def fetch_nws_alerts(src: Sources, lat, lon) -> Fetch:
+    """Active NWS alerts at the bell's point, kept to the surf/sea products
+    in NWS_VETO_EVENTS, each with its onset and end. An empty list is a real
+    answer (no hazard); a failed fetch is not, and is reported as such."""
+    try:
+        url = "%s?point=%.4f,%.4f" % (CONFIG["sources"]["nws_alerts"], lat, lon)
+        return Fetch("nws", True, {"alerts": parse_nws_alerts(json.loads(src.get("nws", url, timeout=20)))})
+    except Exception as e:
+        return Fetch("nws", False, error=str(e))
+
+
+def parse_nws_alerts(d):
+    """GeoJSON from api.weather.gov -> [{event, onset, ends}] for the products
+    in NWS_VETO_EVENTS. A product with no onset or end is not a product."""
+    alerts = []
+    for ft in d.get("features") or []:
+        p = ft.get("properties") or {}
+        if p.get("event") not in NWS_VETO_EVENTS:
+            continue
+        onset, ends = p.get("onset") or p.get("effective"), p.get("ends") or p.get("expires")
+        if not onset or not ends:
+            continue
+        alerts.append({"event": p["event"],
+                       "onset": datetime.fromisoformat(onset),
+                       "ends": datetime.fromisoformat(ends)})
+    return alerts
+
+
+def nws_hazard_for(fetches, w):
+    """The first NWS product in force during any part of the window, or None.
+    No NWS key (water outside the US) and a failed fetch both answer None:
+    the model stands on its own there, and the log says the feed was down."""
+    f = fetches.get("nws")
+    if not f or not f.ok:
+        return None
+    for a in f.data["alerts"]:
+        if a["onset"] <= w["end"] and a["ends"] >= w["start"]:
+            return a["event"]
+    return None
 
 
 def parse_ndbc(text: str):
@@ -1343,6 +1407,10 @@ def fetch_all(zone_cfg, offline=False, fixture_set="normal"):
         # the second voice — feeds agreement, and stands in below
         "marine_alt": fetch_marine_alt(src, lat, lon, tzname),
     }
+    # the forecaster's word — a veto, not a pipeline input, so it carries no
+    # SOURCE_WEIGHT; only US bells carry the key at all
+    if nws_covered(zone_cfg):
+        f["nws"] = fetch_nws_alerts(src, lat, lon)
     if not f["marine"].ok and f["marine_alt"].ok:
         # the first voice is down; the second carries the read, marked so
         # confidence caps agreement and the message admits the substitution
@@ -2919,6 +2987,9 @@ def sms_digest_text(zone_cfg, scored, footer=True):
     approx = "weather" in ((best.get("feats") or {}).get("missing") or [])
     if approx:
         line += " The weather feed is down for this water - treat that as rough."
+    elif best.get("hazard"):
+        line += " NWS has a %s out for %s - no cove named under a warning." % (
+            best["hazard"].lower(), best["w"]["start"].strftime("%a"))
     elif best["score"] >= 7.0:
         line += " In by %s at %s." % (
             best["w"]["start"].strftime("%-I:%M%p").lower(),
@@ -3284,6 +3355,13 @@ def score_zone(zone_key, zone_cfg, fetches, t_now, horizon_h=72, skill_corr=None
                                                (feats["dmg_parts"] or {}).get("per_s"))
         sstv = zone_sst(fetches, t_now)
         gate_ok, _ = perfect_gate(feats, score, sstv, zone_cfg)
+        # the forecaster outranks the model: under an active NWS surf or sea
+        # product the bell does not ring and names no cove (2026-10-06, after
+        # the forecast began naming an entry and an hour)
+        hazard = nws_hazard_for(fetches, w)
+        if hazard:
+            gate_ok = False
+            flags = list(flags) + ["nws:%s" % hazard]
         # every bell rings on its own evidence, sworn or not; a provisional
         # bell's ring carries an honesty line instead of a lock (2026-09-01,
         # after Sydney's 9.2 passed every axis and had to stay silent)
@@ -3293,8 +3371,24 @@ def score_zone(zone_key, zone_cfg, fetches, t_now, horizon_h=72, skill_corr=None
                        "breakdown": breakdown, "cap_reason": cap_reason, "flags": flags,
                        "conf": conf_word, "completeness": comp, "agreement": agree,
                        "conf_notes": notes, "entries": entries, "tide_fyi": tide_fyi,
-                       "band": band, "gate": gate_ok})
+                       "band": band, "gate": gate_ok, "hazard": hazard})
     return scored
+
+
+def weekly_owed(zk, state, t_now):
+    """The Wednesday reading is a debt, not an appointment. If no run landed
+    in the weekly window — a cron hours late, a runner GitHub never started
+    (2026-10-05) — the first scoring run from Wednesday 6am through Thursday,
+    Pacific, opens the week's debt itself. The per-ISO-week dedupe in the
+    digest queues keeps it to exactly one reading."""
+    pt = t_now.astimezone(ZoneInfo("America/Los_Angeles"))
+    if not ((pt.weekday() == 2 and pt.hour >= 6) or pt.weekday() == 3):
+        return False
+    week = "%d-W%02d" % pt.isocalendar()[:2]
+    for q in ("ntfy_digest_due", "ntfy_digest_sent", "sms_digest_due", "sms_digest_sent"):
+        if state.get(q, {}).get(zk) == week:
+            return False
+    return True
 
 
 def merge_board(board, prev_zones):
@@ -3351,6 +3445,11 @@ def cmd_run(args):
             scored = score_zone(zk, zc, fetches, t_now, horizon, skill_corr=skill_corr)
             # only a gate that has held across runs may ring
             confirm_gates(zk, scored, state)
+            # the Wednesday reading: owed by the weekly run, or opened here
+            # when no weekly run landed (a debt, not an appointment)
+            weekly = bool(args.weekly) or weekly_owed(zk, state, t_now)
+            if weekly and not args.weekly:
+                print("weekly reading (%s): no Wednesday run landed - opened by this run" % zk)
             sst = zone_sst(fetches, t_now)
             if scored:
                 blind_map[zk] = gate_axis_blindness(scored[0]["feats"], sst)
@@ -3358,7 +3457,7 @@ def cmd_run(args):
             rows = []
             for s in scored:
                 lead = (s["w"]["start"] - t_now).total_seconds() / 3600.0
-                if lead > 72 and not args.weekly:
+                if lead > 72 and not weekly:
                     continue   # scored for the board; the log keeps far windows on weekly runs only
                 p = s["feats"]["dmg_parts"] or {}
                 rows.append({
@@ -3396,9 +3495,9 @@ def cmd_run(args):
                     " / ".join(s["entries"]),
                     ("  [%s]" % s["cap_reason"]) if s["cap_reason"] else ""))
 
-            if args.weekly:
+            if weekly:
                 ntfy_digest(zk, zc, scored, state, t_now, args.dry_run, weekly=True, sst=sst)
-            elif args.brief:
+            if args.brief:
                 best = max(scored, key=lambda s: s["score"]) if scored else None
                 if best:
                     txt = "Zone %s best: %.1f/10 %s — %s. %s" % (
@@ -3406,7 +3505,7 @@ def cmd_run(args):
                         best["tide_fyi"] or "")
                     notify({"title": "Dive brief — Zone %s" % zk, "message": txt, "priority": 2},
                            args.dry_run, topic=ztopic)
-            else:
+            elif not args.weekly:   # the Wednesday run is the reading alone; alerts ride ordinary runs
                 # a weekly reading deferred past its bell's night is paid here, by
                 # the first ordinary run in that bell's morning — re-scored at the
                 # digest horizon, since ordinary runs only look 72h out
@@ -3456,7 +3555,7 @@ def cmd_run(args):
                            args.dry_run, topic=ztopic)
             # the weekly reading by text: marked due on Wednesdays, delivered by
             # the first quiet-legal run of the week (see sms_digest)
-            sms_digest(zk, zc, scored, state, args.dry_run, weekly=bool(args.weekly))
+            sms_digest(zk, zc, scored, state, args.dry_run, weekly=weekly)
             append_log(LOG_PATH, LOG_COLS, rows, args.dry_run)
             # the bell remembers: a ring is recorded only when its DAY HAS COME —
             # a qualifying forecast is a promise, not history (audit repair
@@ -3497,7 +3596,8 @@ def cmd_run(args):
                              "gate": bool(s.get("gate")),
                              # every axis aligned this run, whether or not it has
                              # held long enough to be worth a promise
-                             "aligned": bool(s.get("gate_raw", s.get("gate")))}
+                             "aligned": bool(s.get("gate_raw", s.get("gate"))),
+                             "hazard": s.get("hazard")}
                             for s in scored],
             }
 
@@ -5435,6 +5535,63 @@ def cmd_test(args):
     finally:
         for n, fn in saved_v.items():
             g7[n] = fn
+
+    # (ww) the forecaster outranks the model: an NWS surf product in force
+    # during a window vetoes its gate, and the forecast names no cove under it
+    parsed = parse_nws_alerts({"features": [
+        {"properties": {"event": "High Surf Advisory", "onset": "2026-10-06T16:00:00-07:00",
+                        "ends": "2026-10-07T10:00:00-07:00"}},
+        {"properties": {"event": "Small Craft Advisory", "onset": "2026-10-06T12:00:00-07:00",
+                        "ends": "2026-10-07T12:00:00-07:00"}},
+        {"properties": {"event": "Beach Hazards Statement", "onset": "2026-10-06T16:00:00-07:00",
+                        "ends": None, "expires": None}}]})
+    check("(ww) parser keeps surf products, drops small craft and the undated",
+          [a["event"] for a in parsed] == ["High Surf Advisory"]
+          and parsed[0]["onset"].hour == 16, "parsed=%s" % [a["event"] for a in parsed])
+    fx_ww, src_ww = fetch_all(zc, offline=True, fixture_set="normal")
+    t_ww = src_ww.fixture_now() or t0
+    base_ww = score_zone("A", zc, fx_ww, t_ww, 24 * 7)
+    check("(ww) US bells carry the NWS key; an empty answer vetoes nothing",
+          "nws" in fx_ww and fx_ww["nws"].ok and bool(base_ww)
+          and all(s["hazard"] is None for s in base_ww), "keys=%s" % sorted(fx_ww))
+    fx_o, _ = fetch_all(CONFIG["zones"]["O"], offline=True, fixture_set="normal")
+    check("(ww) Sydney and Bonaire carry no NWS key",
+          "nws" not in fx_o and not nws_covered(CONFIG["zones"]["L"]))
+    if base_ww:
+        w0 = base_ww[0]["w"]
+        fx_ww["nws"] = Fetch("nws", True, {"alerts": [
+            {"event": "High Surf Advisory", "onset": w0["start"] - timedelta(hours=1),
+             "ends": w0["start"] + timedelta(hours=1)}]})
+        haz = score_zone("A", zc, fx_ww, t_ww, 24 * 7)
+        check("(ww) the covered window loses its gate and carries the product",
+              haz[0]["hazard"] == "High Surf Advisory" and haz[0]["gate"] is False
+              and "nws:High Surf Advisory" in haz[0]["flags"],
+              "hazard=%s gate=%s" % (haz[0]["hazard"], haz[0]["gate"]))
+        check("(ww) windows outside the product are untouched",
+              all(s["hazard"] is None for s in haz[1:]))
+        forced = [dict(s, score=9.0, gate=False, gate_raw=False, limit="all clear") for s in haz]
+        txt = sms_digest_text(zc, forced)
+        check("(ww) the forecast names no cove under a warning",
+              bool(txt) and "no cove named under a warning" in txt and "In by" not in txt
+              and "high surf advisory" in txt, (txt or "")[:160])
+        fx_ww["nws"] = Fetch("nws", False, error="down")
+        down = score_zone("A", zc, fx_ww, t_ww, 24 * 7)
+        check("(ww) a dead NWS feed vetoes nothing; the fetch says it was down",
+              all(s["hazard"] is None for s in down) and not fx_ww["nws"].ok)
+
+    # (xx) the Wednesday reading is a debt any Wed/Thu run can open — once
+    thu = datetime(2026, 10, 8, 15, 0, tzinfo=PT)
+    st_x = {}
+    check("(xx) Thursday with no reading opens the debt", weekly_owed("A", st_x, thu))
+    check("(xx) Wednesday 7:30 opens it; Wednesday 5am and Monday do not",
+          weekly_owed("A", st_x, datetime(2026, 10, 7, 7, 30, tzinfo=PT))
+          and not weekly_owed("A", st_x, datetime(2026, 10, 7, 5, 0, tzinfo=PT))
+          and not weekly_owed("A", st_x, datetime(2026, 10, 5, 9, 0, tzinfo=PT)))
+    check("(xx) a week already read is not read twice",
+          not weekly_owed("A", {"sms_digest_sent": {"A": "2026-W41"}}, thu))
+    st_x = {"ntfy_digest_due": {"O": "2026-W41"}}
+    check("(xx) a debt already open is not opened twice, and only for its bell",
+          not weekly_owed("O", st_x, thu) and weekly_owed("A", st_x, thu))
 
     # fixture suite: degraded + disagreement
     print("fixture tests:")

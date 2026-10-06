@@ -27,6 +27,7 @@ message history IS the subscriber database — zero PII in this repo.
 | code paths | drill family forces every rare branch, on every push | `ci.yml`, tests gg–jj |
 | capability | fleet-wide gate-axis blindness alarm | `capability_sentinel` |
 | outside the building | Healthchecks.io dead-man ping (external email) | `HEALTHCHECKS_URL` secret |
+| never started | a run GitHub gave no machine is rerun once; a second miss texts the keeper | `rescue.yml` |
 | rust | Dependabot PRs for aging Action pins | `.github/dependabot.yml` |
 
 ## Self-correction (don't break the loops)
@@ -47,6 +48,15 @@ message history IS the subscriber database — zero PII in this repo.
   hour, texted, and came in at 7.3. Any failing run resets the count.
   If you ever need the ring path in one run (drills), set GATE_CONFIRM_RUNS
   to 1 around it — never delete the rule.
+- **Forecaster's veto**: US bells fetch active NWS alerts at their point
+  (`fetch_nws_alerts`, products in `NWS_VETO_EVENTS` — Small Craft is
+  deliberately excluded). A window under one cannot ring and the forecast
+  names no cove for it. A dead NWS feed vetoes nothing; it is logged as
+  down like any instrument. Sydney and Bonaire carry no NWS key at all.
+- **Model review**: a weekly Claude scheduled task on the keeper's Mac
+  (`~/.claude/scheduled-tasks/dive-bell-model-review`, Mondays 7am) reads
+  the week's logs and opens at most ONE pull request with a drill. It never
+  merges; a human does. It runs only while the Claude app is open.
 
 ## What the bell is (and the only words it needs)
 
@@ -74,9 +84,12 @@ weekly run, and the real 9:00 weekly cron often slides into the midday
 ingest window. Together they cover Wed 6-10 for anything from punctual
 to ~5.5h late, and the per-ISO-week dedupe (`ntfy_digest_sent`,
 `sms_digest_sent`) guarantees exactly one reading. Collapsing this to a
-single cron would make the ritual depend on GitHub's punctuality. If a
-Wednesday ever passes with no reading, check the run list for a gap in
-6-10 local before touching anything else.
+single cron would make the ritual depend on GitHub's punctuality. And if
+no run lands in 6-10 at all (2026-10-05: GitHub never gave the run a
+machine), `weekly_owed` lets the first ordinary scoring run from Wednesday
+6am through Thursday open the week's debt itself — the dedupe still holds
+it to one reading. A Wednesday with no reading now means two days of runs
+all failed; check the run list before touching anything else.
 
 ## Is the bell actually texting?
 
