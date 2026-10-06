@@ -1,12 +1,12 @@
 {
  "streaks": {
   "D": {
-   "score": 9.2,
+   "score": 7.8,
    "entries": [
     "La Jolla Cove",
     "La Jolla Shores (Canyon)"
    ],
-   "window_key": "20261006T0616-dawn",
+   "window_key": "20261007T1730-dusk",
    "since": "2026-09-28T16:00:00-07:00",
    "gate": false
   },
@@ -28,7 +28,7 @@
    ],
    "window_key": "20261008T0638-dawn",
    "since": "2026-10-01T15:00:00-07:00",
-   "gate": true
+   "gate": false
   },
   "L": {
    "score": 7.7,
@@ -58,16 +58,6 @@
    ],
    "window_key": "20261006T1609-dusk",
    "since": "2026-10-05T14:00:00-07:00",
-   "gate": false
-  },
-  "I": {
-   "score": 7.3,
-   "entries": [
-    "Tajiguas Reef",
-    "Refugio State Beach"
-   ],
-   "window_key": "20261007T0629-dawn",
-   "since": "2026-10-05T17:00:00-07:00",
    "gate": false
   },
   "G": {
@@ -102,7 +92,7 @@
   "A:kd490": 0,
   "A:ndbc_spec": 0,
   "C:marine": 0,
-  "C:weather": 1,
+  "C:weather": 0,
   "C:ndbc_primary": 0,
   "C:ndbc_offshore": 0,
   "C:tides": 0,
@@ -111,7 +101,7 @@
   "C:kd490": 0,
   "C:ndbc_spec": 0,
   "D:marine": 0,
-  "D:weather": 0,
+  "D:weather": 1,
   "D:ndbc_primary": 0,
   "D:ndbc_offshore": 0,
   "D:tides": 0,
@@ -121,13 +111,13 @@
   "D:ndbc_spec": 0,
   "E:marine": 0,
   "E:weather": 0,
-  "E:ndbc_primary": 115,
+  "E:ndbc_primary": 116,
   "E:ndbc_offshore": 0,
   "E:tides": 0,
   "E:sst": 0,
   "E:chla": 0,
   "E:kd490": 0,
-  "E:ndbc_spec": 115,
+  "E:ndbc_spec": 116,
   "F:marine": 0,
   "F:weather": 0,
   "F:ndbc_primary": 0,
@@ -184,13 +174,13 @@
   "K:ndbc_spec": 0,
   "L:marine": 0,
   "L:weather": 0,
-  "L:ndbc_primary": 113,
-  "L:ndbc_offshore": 113,
-  "L:tides": 113,
+  "L:ndbc_primary": 114,
+  "L:ndbc_offshore": 114,
+  "L:tides": 114,
   "L:sst": 0,
   "L:chla": 0,
   "L:kd490": 0,
-  "L:ndbc_spec": 113,
+  "L:ndbc_spec": 114,
   "M:marine": 0,
   "M:weather": 0,
   "M:ndbc_primary": 0,
@@ -202,43 +192,43 @@
   "M:ndbc_spec": 0,
   "N:marine": 0,
   "N:weather": 0,
-  "N:ndbc_primary": 113,
+  "N:ndbc_primary": 114,
   "N:ndbc_offshore": 0,
   "N:tides": 0,
   "N:sst": 0,
   "N:chla": 0,
   "N:kd490": 0,
-  "N:ndbc_spec": 113,
+  "N:ndbc_spec": 114,
   "O:marine": 0,
   "O:weather": 0,
   "O:ndbc_primary": 0,
-  "O:ndbc_offshore": 113,
-  "O:tides": 113,
+  "O:ndbc_offshore": 114,
+  "O:tides": 114,
   "O:sst": 0,
   "O:chla": 0,
   "O:kd490": 0,
-  "O:ndbc_spec": 113,
+  "O:ndbc_spec": 114,
   "P:marine": 0,
   "P:weather": 0,
-  "P:ndbc_primary": 43,
-  "P:ndbc_offshore": 113,
+  "P:ndbc_primary": 44,
+  "P:ndbc_offshore": 114,
   "P:tides": 0,
   "P:sst": 0,
   "P:chla": 0,
   "P:kd490": 0,
-  "P:ndbc_spec": 43,
+  "P:ndbc_spec": 44,
   "A:marine_alt": 0,
   "C:marine_alt": 0,
   "D:marine_alt": 0,
   "E:marine_alt": 0,
-  "F:marine_alt": 0,
-  "G:marine_alt": 0,
+  "F:marine_alt": 1,
+  "G:marine_alt": 1,
   "H:marine_alt": 0,
   "I:marine_alt": 0,
   "J:marine_alt": 0,
-  "K:marine_alt": 0,
+  "K:marine_alt": 1,
   "L:marine_alt": 0,
-  "M:marine_alt": 1,
+  "M:marine_alt": 2,
   "N:marine_alt": 0,
   "O:marine_alt": 0,
   "P:marine_alt": 0,
@@ -256,7 +246,9 @@
   "N:nws": 0,
   "P:nws": 0
  },
- "fb_since_by_zone": {},
+ "fb_since_by_zone": {
+  "A": "1791318605"
+ },
  "record": {
   "A": {
    "promises": 17,
@@ -415,13 +407,11 @@
   "C": {},
   "D": {},
   "E": {
-   "20261007T1642-dusk": 1
+   "20261007T1642-dusk": 2
   },
   "F": {},
   "G": {},
-  "H": {
-   "20261008T0638-dawn": 4
-  },
+  "H": {},
   "I": {},
   "J": {},
   "K": {},
@@ -430,5 +420,46 @@
   "N": {},
   "O": {},
   "P": {}
- }
+ },
+ "social_posted": {},
+ "social_queue": [
+  {
+   "key": "hazard:D:2026-10-06",
+   "kind": "hazard",
+   "text": "La Jolla will not ring Tue: NWS Beach Hazards Statement through Wed. Tue dusk would have scored 7.4 - the forecaster outranks the model. thedivebell.com/la-jolla/",
+   "card": {
+    "kind": "hazard",
+    "eyebrow": "THE DIVE BELL \u00b7 LA JOLLA",
+    "lines": [
+     "NWS Beach Hazards Statement",
+     "in force through Wed",
+     "Tue dusk would have scored 7.4",
+     "The forecaster outranks the model."
+    ],
+    "foot": "thedivebell.com/la-jolla/"
+   },
+   "alt": "La Jolla will not ring Tue: NWS Beach Hazards Statement through Wed. Tue dusk would have scored 7.4 - the forecaster outranks the model. thedivebell.com/la-jolla/",
+   "created": "2026-10-06T20:41:24.402502+00:00",
+   "done": []
+  },
+  {
+   "key": "hazard:G:2026-10-06",
+   "kind": "hazard",
+   "text": "Palos Verdes will not ring Tue: NWS Beach Hazards Statement through Tue. Tue dusk would have scored 7.1 - the forecaster outranks the model. thedivebell.com/palos-verdes/",
+   "card": {
+    "kind": "hazard",
+    "eyebrow": "THE DIVE BELL \u00b7 PALOS VERDES",
+    "lines": [
+     "NWS Beach Hazards Statement",
+     "in force through Tue",
+     "Tue dusk would have scored 7.1",
+     "The forecaster outranks the model."
+    ],
+    "foot": "thedivebell.com/palos-verdes/"
+   },
+   "alt": "Palos Verdes will not ring Tue: NWS Beach Hazards Statement through Tue. Tue dusk would have scored 7.1 - the forecaster outranks the model. thedivebell.com/palos-verdes/",
+   "created": "2026-10-06T20:42:27.744951+00:00",
+   "done": []
+  }
+ ]
 }
