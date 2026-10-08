@@ -90,6 +90,18 @@ assistant can call it with no key. Until this date every bell page was a
 694-byte redirect into the hash route — fifteen bells, one URL to Google.
 One human act, once: submit the sitemap in Google Search Console.
 
+The page is also the instrument panel (2026-10-08): a "Right now" row
+(water, the buoy as it stands, the tide and its next turn, the satellite's
+last clear look at Kd490 — a witness, never a judge — and the dry spell),
+the water index as a UV-style band (`index_gauge_svg`; it is the setup
+score, never a visibility claim), each window as a card with its FIVE
+LIGHTS (`gate_axes`: flat · glass · dry · sun · warm, on / off / unknowable),
+swell, wind, tide and cloud, and three days of tide drawn from the same
+predictions the forecast reads (`tide_curve_svg`, `tide_at` — cosine
+between highs and lows). The board's week strip carries the lights too.
+All of it rides zones.json (`axes`, `swell`, `wind_kn`, `tide`, `tides`,
+`buoy_now`, `kd490`, `chla` per bell) — no new source, no new fetch.
+
 ## The public voice (2026-10-06)
 
 The bell posts only when it has something to say — never daily: a RING, a

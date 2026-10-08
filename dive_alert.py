@@ -3378,7 +3378,8 @@ def score_zone(zone_key, zone_cfg, fetches, t_now, horizon_h=72, skill_corr=None
         entries, tide_fyi, band = best_entries(zone_cfg, w, tides, feats["damage"],
                                                (feats["dmg_parts"] or {}).get("per_s"))
         sstv = zone_sst(fetches, t_now)
-        gate_ok, _ = perfect_gate(feats, score, sstv, zone_cfg)
+        gate_ok, failed = perfect_gate(feats, score, sstv, zone_cfg)
+        axes = gate_axes(feats, sstv, failed)   # the five lights, shown as well as judged
         # the forecaster outranks the model: under an active NWS surf or sea
         # product the bell does not ring and names no cove (2026-10-06, after
         # the forecast began naming an entry and an hour)
@@ -3395,7 +3396,7 @@ def score_zone(zone_key, zone_cfg, fetches, t_now, horizon_h=72, skill_corr=None
                        "breakdown": breakdown, "cap_reason": cap_reason, "flags": flags,
                        "conf": conf_word, "completeness": comp, "agreement": agree,
                        "conf_notes": notes, "entries": entries, "tide_fyi": tide_fyi,
-                       "band": band, "gate": gate_ok, "hazard": hazard})
+                       "band": band, "gate": gate_ok, "hazard": hazard, "axes": axes})
     return scored
 
 
@@ -3428,10 +3429,42 @@ def merge_board(board, prev_zones):
     return merged
 
 
-def board_entry(zk, zc, scored, state, rec, ztopic, sst):
+def board_entry(zk, zc, scored, state, rec, ztopic, sst, fetches=None):
     """One bell's plate on the public board (zones.json). `join` rides in
     the data itself so anything that answers from it — a page, an assistant,
     a crawler — carries the word and the number along with the reading."""
+    fetches = fetches or {}
+    r1 = lambda v: None if v is None else round(v, 1)
+    r0 = lambda v: None if v is None else round(v)
+    tides = fetches["tides"].data if fetches.get("tides") is not None and fetches["tides"].ok else []
+    mp = fetches.get("ndbc_primary")
+    buoy_now = None
+    if mp is not None and mp.ok and (mp.data or {}).get("latest"):
+        L = mp.data["latest"]
+        buoy_now = {"ft": r1(L["wvht_m"] * 3.281), "s": r1(L.get("dpd_s")), "dir": r0(L.get("mwd_deg")),
+                    "age_h": r1((datetime.now(timezone.utc) - L["t"]).total_seconds() / 3600)}
+    kd, ch = fetches.get("kd490"), fetches.get("chla")
+
+    def plate(s):
+        f, p = s["feats"], (s["feats"].get("dmg_parts") or {})
+        tide = tide_at(tides, s["w"]["start"]) if tides else None
+        return {"label": s["w"]["label"],
+                "start": s["w"]["start"].isoformat(), "end": s["w"]["end"].isoformat(),
+                "kind": s["w"].get("kind", "dawn"),
+                "score": s["score"], "conf": s["conf"],
+                "limit": s.get("limit"),
+                "entries": s["entries"][:2],
+                "gate": bool(s.get("gate")),
+                # every axis aligned this run, whether or not it has
+                # held long enough to be worth a promise
+                "aligned": bool(s.get("gate_raw", s.get("gate"))),
+                "hazard": s.get("hazard"),
+                "axes": s.get("axes"),
+                "swell": ({"ft": r1(p.get("hgt_ft", 0)), "s": r1(p.get("per_s", 0)), "dir": r0(p.get("dir", 0))}
+                          if p else None),
+                "wind_kn": r1(f.get("wind_window_eff_kn", f.get("wind_window_max_kn"))),
+                "cloud": r0(f.get("cloud_pct")), "dry_h": r0(f.get("dry_hours")),
+                "tide": ({"ft": tide["ft"], "trend": tide["trend"]} if tide else None)}
     return {
         "keeper": zc.get("keeper"),
         "region": zc.get("region", "Elsewhere"),
@@ -3456,18 +3489,14 @@ def board_entry(zk, zc, scored, state, rec, ztopic, sst):
         "forecast_sms": sms_digest_text(zc, scored, footer=False),
         "last_ring": state.get("last_ring", {}).get(zk),
         "sst_f": round(sst * 9 / 5 + 32) if sst is not None else None,
-        "windows": [{"label": s["w"]["label"],
-                     "start": s["w"]["start"].isoformat(),
-                     "kind": s["w"].get("kind", "dawn"),
-                     "score": s["score"], "conf": s["conf"],
-                     "limit": s.get("limit"),
-                     "entries": s["entries"][:2],
-                     "gate": bool(s.get("gate")),
-                     # every axis aligned this run, whether or not it has
-                     # held long enough to be worth a promise
-                     "aligned": bool(s.get("gate_raw", s.get("gate"))),
-                     "hazard": s.get("hazard")}
-                    for s in scored],
+        "windows": [plate(s) for s in scored],
+        # the obsessables: the tide to draw, the buoy as it reads right now,
+        # the satellite's last clear look at the water (a witness, never a judge)
+        "tides": [{"t": e["t"].isoformat(), "ft": e["ft"], "type": e["type"]} for e in tides][:40],
+        "buoy_now": buoy_now,
+        "kd490": ({"m1": round(kd.data["m1"], 3), "age_d": kd.data.get("age_d")}
+                  if kd is not None and kd.ok else None),
+        "chla": (round(ch.data["mg_m3"], 2) if ch is not None and ch.ok else None),
     }
 
 
@@ -3509,6 +3538,24 @@ li b{color:var(--sand);font-weight:normal}
 code{color:var(--glow)}
 footer{margin-top:48px;font-size:.7rem;color:var(--dim);line-height:2}
 a{color:var(--glow)}
+.wins{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:10px;margin-top:10px}
+.win{border:1px solid rgba(169,194,214,.18);border-radius:6px;padding:10px 12px}
+.win.ring{border-color:rgba(255,217,138,.75);box-shadow:0 0 18px rgba(255,217,138,.14)}
+.win .top{display:flex;align-items:baseline;gap:10px}
+.win .top b{font-weight:normal;color:var(--sand);font-size:1.05rem}
+.win .top .n{color:var(--gold);font-size:1.3rem;margin-right:auto}
+.win .facts{font-size:.82rem;color:var(--ink);margin-top:4px}
+.win .tag{margin-left:4px}
+.small{font-size:.8rem}
+.lights i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:3px;border:1px solid #7fd4ff}
+.lights i.on{background:#ffd98a;border-color:#ffd98a}
+.lights i.na{border-color:#64809b;opacity:.5}
+.now{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:8px}
+.now div div{border:0;padding:0}
+.now>div{border:1px solid rgba(127,212,255,.22);border-radius:6px;padding:12px}
+.now .v{font-size:1.45rem;color:var(--sand);line-height:1.2;margin:4px 0}
+.now .s{font-size:.78rem;color:var(--dim)}
+svg{display:block;margin:10px 0}
 """
 
 
@@ -3540,6 +3587,121 @@ def ring_ledger(zk, state):
                     c = VERDICT_WORDS.get((r.get("category") or "").lower(), (r.get("category") or "?").upper())
                     ring["verdicts"][c] = ring["verdicts"].get(c, 0) + 1
     return [rings[d] for d in sorted(rings)]
+
+
+GATE_AXES = ("flat", "glass", "dry", "sun", "warm")
+
+
+def gate_axes(feats, sst_c, failed):
+    """The five lights: True aligned, False not, None unknowable this run."""
+    vals = {"flat": feats.get("damage"),
+            "glass": feats.get("wind_window_eff_kn", feats.get("wind_window_max_kn")),
+            "dry": feats.get("dry_hours"), "sun": feats.get("cloud_pct"), "warm": sst_c}
+    return {a: (None if vals[a] is None else a not in failed) for a in GATE_AXES}
+
+
+def tide_at(events, t):
+    """Height and trend at t from high/low predictions, cosine-interpolated
+    (the rule of twelfths in closed form). None outside the predictions."""
+    ev = sorted((e for e in events if e.get("ft") is not None), key=lambda e: e["t"])
+    for a, b in zip(ev, ev[1:]):
+        if a["t"] <= t <= b["t"]:
+            span = (b["t"] - a["t"]).total_seconds() or 1.0
+            f = (t - a["t"]).total_seconds() / span
+            ft = a["ft"] + (b["ft"] - a["ft"]) * (1 - math.cos(math.pi * f)) / 2
+            return {"ft": round(ft, 1), "trend": "rising" if b["ft"] > a["ft"] else "falling",
+                    "next": b}
+    return None
+
+
+def kd_word(m1):
+    """VIIRS Kd490 in words. Bands are coastal rules of thumb, not a viz claim."""
+    return "clear" if m1 < 0.07 else "hazy" if m1 < 0.15 else "milky" if m1 < 0.30 else "murky"
+
+
+INDEX_BANDS = [(1.0, 5.0, "rough", "#64809b"), (5.0, 6.5, "marginal", "#8aa0b4"),
+               (6.5, 7.5, "workable", "#a9c2d6"), (7.5, 8.5, "good", "#7fd4ff"),
+               (8.5, 10.0, "excellent", "#ffd98a")]
+
+
+def index_gauge_svg(score):
+    """The water index as a UV-style band: five bands, one marker, one word."""
+    X = lambda v: 20 + (max(1.0, min(10.0, v)) - 1) / 9 * 560
+    out = ['<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 104" width="100%%" role="img" '
+           'aria-label="Water index %.1f of 10, %s">' % (score, score_word(score))]
+    for lo, hi, word, col in INDEX_BANDS:
+        x0, x1 = X(lo), X(hi)
+        out.append('<rect x="%.1f" y="48" width="%.1f" height="18" rx="3" fill="%s" opacity="0.55"/>' % (x0, x1 - x0 - 3, col))
+        out.append('<text x="%.1f" y="92" font-size="12.5" fill="#8aa0b4" text-anchor="middle" '
+                   'font-family="Menlo, monospace" letter-spacing="1">%s</text>' % ((x0 + x1) / 2, word.upper()))
+    x = X(score)
+    out.append('<polygon points="%.1f,46 %.1f,34 %.1f,34" fill="#ffd98a"/>' % (x, x - 8, x + 8))
+    out.append('<text x="%.1f" y="28" font-size="28" fill="#ffd98a" text-anchor="middle" '
+               'font-family="Georgia, serif">%.1f</text>' % (x, score))
+    out.append("</svg>")
+    return "".join(out)
+
+
+def tide_curve_svg(tides, windows, t0, tz, hours=72):
+    """Three days of tide as a curve: dawn and dusk windows shaded, highs and
+    lows labeled, now marked. Drawn from the same predictions the forecast
+    reads, so the chart and the text can never disagree."""
+    ev = [{"t": datetime.fromisoformat(e["t"]), "ft": e["ft"], "type": e["type"]} for e in tides or []]
+    ev = [e for e in ev if t0 - timedelta(hours=14) <= e["t"] <= t0 + timedelta(hours=hours + 14)]
+    if len(ev) < 2:
+        return ""
+    W, H, L, R, T, B = 640, 180, 34, 12, 22, 30
+    t_end = t0 + timedelta(hours=hours)
+    X = lambda t: L + (t - t0).total_seconds() / (hours * 3600.0) * (W - L - R)
+    fts = [e["ft"] for e in ev]
+    lo, hi = min(fts) - 0.6, max(fts) + 0.8
+    Y = lambda ft: T + (hi - ft) / (hi - lo) * (H - T - B)
+    out = ['<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 %d %d" width="100%%" role="img" '
+           'aria-label="Tide, next three days">' % (W, H)]
+    for w in windows or []:
+        ws, we = datetime.fromisoformat(w["start"]), datetime.fromisoformat(w["end"])
+        if we < t0 or ws > t_end:
+            continue
+        x0, x1 = X(max(ws, t0)), X(min(we, t_end))
+        out.append('<rect x="%.1f" y="%d" width="%.1f" height="%d" fill="#7fd4ff" opacity="%s"/>'
+                   % (x0, T, max(x1 - x0, 1), H - T - B, "0.22" if w.get("gate") else "0.10"))
+    day = t0.astimezone(tz).replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=1)
+    while day < t_end:
+        x = X(day)
+        out.append('<line x1="%.1f" y1="%d" x2="%.1f" y2="%d" stroke="#64809b" stroke-width="0.6" opacity="0.6"/>'
+                   % (x, T, x, H - B))
+        out.append('<text x="%.1f" y="%d" font-size="11" fill="#64809b" font-family="Menlo, monospace">%s</text>'
+                   % (x + 4, H - B + 14, day.strftime("%a")))
+        day += timedelta(days=1)
+    pts, t = [], t0
+    while t <= t_end:
+        ta = tide_at(ev, t)
+        if ta:
+            pts.append("%.1f,%.1f" % (X(t), Y(ta["ft"])))
+        t += timedelta(minutes=30)
+    if pts:
+        out.append('<polyline points="%s" fill="none" stroke="#a9c2d6" stroke-width="2"/>' % " ".join(pts))
+    for e in ev:
+        if t0 <= e["t"] <= t_end:
+            up = e["type"].upper().startswith("H")
+            out.append('<text x="%.1f" y="%.1f" font-size="11" fill="%s" text-anchor="middle" '
+                       'font-family="Menlo, monospace">%.1f %s</text>'
+                       % (X(e["t"]), Y(e["ft"]) + (-7 if up else 15), "#e8dcc3" if up else "#8aa0b4",
+                          e["ft"], e["t"].astimezone(tz).strftime("%-I%p").lower()))
+    out.append('<line x1="%.1f" y1="%d" x2="%.1f" y2="%d" stroke="#ffd98a" stroke-width="1.2"/>' % (X(t0), T - 6, X(t0), H - B))
+    out.append('<text x="%.1f" y="%d" font-size="10" fill="#ffd98a" font-family="Menlo, monospace">now</text>' % (X(t0) + 4, T - 8))
+    out.append('<text x="2" y="%d" font-size="10" fill="#64809b" font-family="Menlo, monospace">%.0f ft</text>' % (T + 4, hi - 0.8))
+    out.append('<text x="2" y="%d" font-size="10" fill="#64809b" font-family="Menlo, monospace">%.0f ft</text>' % (H - B, lo + 0.6))
+    out.append("</svg>")
+    return "".join(out)
+
+
+def lights_html(axes):
+    if not axes:
+        return ""
+    return "<span class='lights'>%s</span>" % "".join(
+        "<i class='%s' title='%s'></i>" % ("on" if axes.get(a) else "off" if axes.get(a) is False else "na", a)
+        for a in GATE_AXES)
 
 
 def _long_date(iso):
@@ -3606,18 +3768,64 @@ def bell_page(zk, bz, zc, state, t_now):
                  "The bell does not ring under one, and names no cove for those windows.</p>"
                  % (esc(haz[0]["hazard"]), esc(span)))
 
-    rows = []
+    cards_w = []
     for w in wins:
         mark = ("RINGING" if w.get("gate") else
                 ("NWS: %s" % w["hazard"]) if w.get("hazard") else
                 "every axis aligned" if w.get("aligned") else "")
-        rows.append("<tr%s><td>%s</td><td class='n'>%.1f</td><td>%s</td><td>%s</td><td>%s</td></tr>" % (
-            " class='ring'" if w.get("gate") else "", esc(w["label"]), w["score"],
-            esc(limit_phrase(w.get("limit") or "") if w.get("limit") not in (None, "all clear") else "all clear"),
-            esc((w.get("entries") or ["-"])[0]), esc(mark)))
-    week = ("<table><thead><tr><th>Window</th><th>Score</th><th>Held back by</th>"
-            "<th>Best cove</th><th></th></tr></thead><tbody>%s</tbody></table>" % "".join(rows)
-            if rows else "<p>No windows scored this run.</p>")
+        sw, td = w.get("swell") or {}, w.get("tide") or {}
+        facts = []
+        if sw.get("ft") is not None:
+            facts.append("swell %s ft @ %s s from %s\u00b0" % (sw["ft"], sw.get("s"), sw.get("dir")))
+        if w.get("wind_kn") is not None:
+            facts.append("wind %s kn" % w["wind_kn"])
+        if td:
+            facts.append("tide %s ft %s" % (td.get("ft"), {"rising": "\u2191", "falling": "\u2193"}.get(td.get("trend"), "")))
+        if w.get("cloud") is not None:
+            facts.append("cloud %s%%" % w["cloud"])
+        held = (limit_phrase(w.get("limit") or "") if w.get("limit") not in (None, "all clear") else "all clear")
+        cards_w.append(
+            "<div class='win%s'><div class='top'><b>%s</b><span class='n'>%.1f</span>%s</div>"
+            "<div class='facts'>%s</div><div class='facts'>held back by %s \u00b7 %s%s</div></div>" % (
+                " ring" if w.get("gate") else "", esc(w["label"]), w["score"], lights_html(w.get("axes")),
+                esc(" \u00b7 ".join(facts)), esc(held), esc((w.get("entries") or ["-"])[0]),
+                (" <span class='tag'>%s</span>" % esc(mark)) if mark else ""))
+    week = ("<div class='wins'>%s</div><p class='small'>Lights, left to right: flat \u00b7 glass \u00b7 dry \u00b7 sun "
+            "\u00b7 warm. All five, held across two readings, and the bell rings.</p>" % "".join(cards_w)
+            if cards_w else "<p>No windows scored this run.</p>")
+
+    # right now: the handful of numbers a diver checks before coffee
+    cards = []
+    if bz.get("sst_f") is not None:
+        cards.append(("Water", "%dF" % bz["sst_f"], "the bell wants %dF or warmer" % bz.get("warm_f", 0)))
+    bn = bz.get("buoy_now")
+    if bn and bn.get("ft") is not None:
+        age = "%d min ago" % round(bn["age_h"] * 60) if (bn.get("age_h") or 0) < 1.5 else "%.0f h ago" % bn["age_h"]
+        cards.append(("Buoy, right now", "%.1f ft @ %s s" % (bn["ft"], bn.get("s") if bn.get("s") is not None else "?"),
+                      "from %s\u00b0 \u00b7 %s" % (bn.get("dir") if bn.get("dir") is not None else "?", age)))
+    tnow = tide_at([{"t": datetime.fromisoformat(e["t"]), "ft": e["ft"], "type": e["type"]} for e in bz.get("tides") or []], t_now) \
+        if bz.get("tides") else None
+    if tnow:
+        nx = tnow["next"]
+        cards.append(("Tide", "%.1f ft %s" % (tnow["ft"], tnow["trend"]),
+                      "%s %.1f at %s" % ("high" if nx["type"].upper().startswith("H") else "low", nx["ft"],
+                                         nx["t"].astimezone(tz).strftime("%-I:%M%p").lower())))
+    kd = bz.get("kd490")
+    if kd and kd.get("m1") is not None:
+        cards.append(("Satellite clarity", kd_word(kd["m1"]),
+                      "Kd490 %.3f, %s days old \u00b7 a witness, not a forecast" % (kd["m1"], kd.get("age_d", "?"))))
+    first = wins[0] if wins else None
+    if first and first.get("dry_h") is not None:
+        cards.append(("Dry spell", "%s" % ("72 h+" if first["dry_h"] >= 72 else "%d h" % first["dry_h"]),
+                      "the gate wants 72 hours without rain"))
+    now_h = ("<h2>Right now</h2><div class='now'>%s</div>" % "".join(
+        "<div><div class='eyebrow'>%s</div><div class='v'>%s</div><div class='s'>%s</div></div>"
+        % (esc(k), esc(v), esc(sub)) for k, v, sub in cards)) if cards else ""
+    gauge_h = ("<h2>The water index</h2><p>%s - this bell's best window this week, scored on its own water.</p>%s"
+               % (esc(top["label"]), index_gauge_svg(top["score"]))) if top else ""
+    tide_svg = tide_curve_svg(bz.get("tides"), wins, t_now, tz) if bz.get("tides") else ""
+    tide_h = ("<h2>The tide</h2><p>Three days, from the same predictions the forecast reads. Shaded: the dawn and "
+              "dusk windows.</p>%s" % tide_svg) if tide_svg else ""
 
     named = {e for w in wins for e in (w.get("entries") or [])}
     coves = []
@@ -3705,10 +3913,10 @@ def bell_page(zk, bz, zc, state, t_now):
             "<div class='eyebrow'>The Dive Bell · Bell No. %(no)s · %(region)s</div>\n"
             "<h1>%(name)s dive conditions</h1>\n"
             "<p class='lead'>%(lead)s</p>\n"
-            "<p>%(verdict)s %(status)s</p>\n%(haz)s"
+            "<p>%(verdict)s %(status)s</p>\n%(haz)s%(now)s%(gauge)s"
             "<h2>The week, scored</h2>\n<p>Each window is scored 1 to 10 for this water alone; "
             "7 is worth the drive. The bell rings only when every condition aligns and holds "
-            "across two readings.</p>\n%(week)s\n"
+            "across two readings.</p>\n%(week)s\n%(tide)s\n"
             "<h2>The coves</h2>\n%(coves)s\n"
             "<h2>The instruments</h2>\n%(inst)s<p>%(about)s</p>\n"
             "%(join)s\n"
@@ -3722,7 +3930,7 @@ def bell_page(zk, bz, zc, state, t_now):
         "og": esc(og_state, quote=True), "ld": json.dumps(ld), "css": BELL_PAGE_CSS,
         "no": bz["bell"].get("no", "?"), "region": esc(bz.get("region") or ""),
         "lead": esc(lead), "verdict": esc(verdict), "status": esc(status), "haz": haz_p,
-        "week": week, "coves": coves_h, "inst": inst_p, "about": " ".join(about),
+        "week": week, "now": now_h, "gauge": gauge_h, "tide": tide_h, "coves": coves_h, "inst": inst_p, "about": " ".join(about),
         "join": join_h, "ledger": ledger_h, "slug": slug,
         "updated": esc(now_loc.strftime("%a %b %-d, %-I:%M%p %Z").replace("AM", "am").replace("PM", "pm"))}
 
@@ -4235,7 +4443,7 @@ def cmd_run(args):
                 if max(gate_days_seen) != prev:
                     rec["rings"] += 1
                 state["last_ring"][zk] = max(gate_days_seen)
-            board[zk] = board_entry(zk, zc, scored, state, rec, ztopic, sst)
+            board[zk] = board_entry(zk, zc, scored, state, rec, ztopic, sst, fetches)
 
         except Exception as e:
             # 2026-09-30: a dead network on the runner raised out of one
@@ -6298,6 +6506,38 @@ def cmd_test(args):
     social_enqueue_ring(st_z3, "A", zc, pz, 22.2)
     social_drain(st_z3, {}, datetime.now(timezone.utc), False, render=False)
     check("(zz) no account wired: the debt waits, nothing leaves", len(st_z3["social_queue"]) == 1)
+
+    # (ab) the obsessables: five lights per window, the tide drawn from the
+    # same predictions the forecast reads, the buoy as it stands, the index
+    # as a band - all on the plate and the page, never a made-up number
+    hi0 = datetime(2026, 8, 10, 0, 0, tzinfo=PT)
+    ev_ab = [{"t": hi0, "ft": 5.0, "type": "H"}, {"t": hi0 + timedelta(hours=6), "ft": -1.0, "type": "L"},
+             {"t": hi0 + timedelta(hours=12), "ft": 4.0, "type": "H"}]
+    ta0, ta3, ta6 = tide_at(ev_ab, hi0), tide_at(ev_ab, hi0 + timedelta(hours=3)), tide_at(ev_ab, hi0 + timedelta(hours=6))
+    check("(ab) the tide curve passes through the highs and lows and falls between them",
+          ta0["ft"] == 5.0 and ta6["ft"] == -1.0 and ta3["ft"] == 2.0 and ta3["trend"] == "falling"
+          and tide_at(ev_ab, hi0 + timedelta(hours=9))["trend"] == "rising"
+          and tide_at(ev_ab, hi0 - timedelta(hours=1)) is None, "%s %s %s" % (ta0, ta3, ta6))
+    bz_ab = board_entry("A", zc, sc_y, st_y, {"promises": 3, "rings": 1}, "topic-y", 20.0, fx_y)
+    w_ab = bz_ab["windows"][0]
+    check("(ab) every window carries its five lights, its swell, wind, dry hours and tide",
+          set(w_ab["axes"]) == set(GATE_AXES) and all(v in (True, False, None) for v in w_ab["axes"].values())
+          and w_ab["swell"] and w_ab["swell"]["ft"] is not None and w_ab["wind_kn"] is not None
+          and w_ab["dry_h"] is not None and w_ab["tide"] and w_ab["tide"]["trend"] in ("rising", "falling")
+          and w_ab["end"] > w_ab["start"], str({k: w_ab[k] for k in ("axes", "swell", "wind_kn", "tide")}))
+    check("(ab) the plate carries the tide predictions, the buoy as it stands, and the satellite's word",
+          len(bz_ab["tides"]) >= 10 and bz_ab["buoy_now"] and bz_ab["buoy_now"]["ft"] > 0
+          and (bz_ab["kd490"] is None or bz_ab["kd490"]["m1"] > 0))
+    pg_ab = bell_page("A", bz_ab, zc, st_y, t_y)
+    check("(ab) the page draws the index band, the tide, the lights and the now-panel",
+          pg_ab.count("<svg") >= 2 and "Tide, next three days" in pg_ab and "Water index" in pg_ab
+          and "class='lights'" in pg_ab and "Right now" in pg_ab and "Buoy, right now" in pg_ab)
+    check("(ab) no None leaks onto the page", ">None<" not in pg_ab and "None ft" not in pg_ab and "None kn" not in pg_ab)
+    check("(ab) the gauge names the number and the word",
+          "7.7" in index_gauge_svg(7.7) and "GOOD" in index_gauge_svg(7.7) and "EXCELLENT" in index_gauge_svg(9.0))
+    g_ab = gate_axes({"damage": 1.0, "wind_window_eff_kn": 3.0, "dry_hours": 72, "cloud_pct": None}, 18.0, ["sun"])
+    check("(ab) a light is on, off, or unknowable - never guessed",
+          g_ab == {"flat": True, "glass": True, "dry": True, "sun": None, "warm": True}, str(g_ab))
 
     # fixture suite: degraded + disagreement
     print("fixture tests:")

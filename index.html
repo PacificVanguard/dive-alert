@@ -116,6 +116,11 @@
   .day.hot { border-color: rgba(255,217,138,.75);
              box-shadow: 0 0 22px rgba(255,217,138,.16); }
   .day.hot .s { color: var(--gold); }
+  .lights { display: block; margin-top: 6px; }
+  .lights i { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin: 0 1.5px;
+              border: 1px solid rgba(127,212,255,.7); }
+  .lights i.on { background: var(--gold); border-color: var(--gold); }
+  .lights i.na { border-color: var(--dim); opacity: .45; }
   .weeknote { color: var(--dim); font-size: .95rem; margin-top: 16px;
               font-style: italic; }
 
@@ -518,6 +523,17 @@
     const buoy = inst.buoy && inst.buoy !== "none" ? inst.buoy : null;
     const tide = inst.tide && inst.tide !== "none" ? inst.tide : null;
     const cards = [];
+    const bn = z.buoy_now;
+    if (bn && bn.ft != null) {
+      cards.push(["The buoy, right now", bn.ft.toFixed(1) + " ft at " + (bn.s != null ? bn.s : "?") +
+        " s from " + (bn.dir != null ? bn.dir : "?") + "&deg; &mdash; read " +
+        (bn.age_h < 1.5 ? Math.round(bn.age_h * 60) + " minutes" : Math.round(bn.age_h) + " hours") + " ago"]);
+    }
+    if (z.kd490 && z.kd490.m1 != null) {
+      const m = z.kd490.m1, word = m < 0.07 ? "clear" : m < 0.15 ? "hazy" : m < 0.30 ? "milky" : "murky";
+      cards.push(["The satellite&rsquo;s last clear look: " + word,
+        "Kd490 " + m.toFixed(3) + ", " + z.kd490.age_d + " days old &mdash; a witness to the water, never a forecast of it"]);
+    }
     if (buoy) {
       cards.push([/^\d+$/.test(buoy)
         ? "Waverider buoy " + buoy + (BUOY_NAME[buoy] ? " · " + BUOY_NAME[buoy] : "")
@@ -558,6 +574,12 @@
   };
   let PITCH = 1;   // each casting strikes its own note
 
+  // the five lights: flat, glass, dry, sun, warm - on, off, or unknowable
+  function lights(ax) {
+    if (!ax) return "";
+    return "<span class='lights'>" + ["flat", "glass", "dry", "sun", "warm"].map(a =>
+      "<i class='" + (ax[a] ? "on" : ax[a] === false ? "off" : "na") + "' title='" + a + "'></i>").join("") + "</span>";
+  }
   function bellState(z) {
     const best = {};
     (z.windows || []).forEach(w => {
@@ -627,12 +649,13 @@
       el.innerHTML = "<div class='d'>" + w.label.split(" ")[0] +
         (w.kind ? " " + w.kind : "") + "</div><div class='s'>" +
         w.score.toFixed(1) + (w.gate ? " ✨" : "") + "</div>" +
-        (w.limit ? "<span class='lim'>" + w.limit + "</span>" : "");
+        (w.limit ? "<span class='lim'>" + w.limit + "</span>" : "") + lights(w.axes);
       strip.appendChild(el);
     });
-    document.getElementById("weeknote").textContent = st.top && st.top.score >= 7
+    document.getElementById("weeknote").innerHTML = (st.top && st.top.score >= 7
       ? st.top.label + " is the one — " + st.top.entries.join(" or ") + "."
-      : "A quiet stretch. The bell is listening.";
+      : "A quiet stretch. The bell is listening.") +
+      " <a href='/" + slug(z.bell.name) + "/' style='color:var(--glow)'>The tide, the buoy, every cove →</a>";
     document.getElementById("week").style.display = st.days.length ? "block" : "none";
 
     joinCeremony(z);
