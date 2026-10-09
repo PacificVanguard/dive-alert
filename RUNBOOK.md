@@ -101,6 +101,14 @@ predictions the forecast reads (`tide_curve_svg`, `tide_at` — cosine
 between highs and lows). The board's week strip carries the lights too.
 All of it rides zones.json (`axes`, `swell`, `wind_kn`, `tide`, `tides`,
 `buoy_now`, `kd490`, `chla` per bell) — no new source, no new fetch.
+Round two (2026-10-09): the moon by arithmetic (`moon_phase`, from the
+2000-01-06 new moon), plankton as a word (`chla_word`), the buoy's verdict
+on the model (`anchor` = `buoy_anchor`), the water's week as a sparkline
+(`sst_trend_days` from the marine SST series: four days behind, three
+ahead), first light / sun up / sun down on each window card (derived from
+the window itself), and the cove each ring named (`log_cove`, from
+score_log). Instrument alarms are now ONE text per dead instrument naming
+every bell it died at, not one per bell.
 
 ## The public voice (2026-10-06)
 

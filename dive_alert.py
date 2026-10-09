@@ -3429,7 +3429,7 @@ def merge_board(board, prev_zones):
     return merged
 
 
-def board_entry(zk, zc, scored, state, rec, ztopic, sst, fetches=None):
+def board_entry(zk, zc, scored, state, rec, ztopic, sst, fetches=None, t_now=None):
     """One bell's plate on the public board (zones.json). `join` rides in
     the data itself so anything that answers from it — a page, an assistant,
     a crawler — carries the word and the number along with the reading."""
@@ -3444,6 +3444,9 @@ def board_entry(zk, zc, scored, state, rec, ztopic, sst, fetches=None):
         buoy_now = {"ft": r1(L["wvht_m"] * 3.281), "s": r1(L.get("dpd_s")), "dir": r0(L.get("mwd_deg")),
                     "age_h": r1((datetime.now(timezone.utc) - L["t"]).total_seconds() / 3600)}
     kd, ch = fetches.get("kd490"), fetches.get("chla")
+    t_now = t_now or now_pt()
+    ztz = zone_tz(zc)
+    sst_trend = sst_trend_days(fetches.get("marine"), t_now, ztz)
 
     def plate(s):
         f, p = s["feats"], (s["feats"].get("dmg_parts") or {})
@@ -3494,6 +3497,9 @@ def board_entry(zk, zc, scored, state, rec, ztopic, sst, fetches=None):
         # the satellite's last clear look at the water (a witness, never a judge)
         "tides": [{"t": e["t"].isoformat(), "ft": e["ft"], "type": e["type"]} for e in tides][:40],
         "buoy_now": buoy_now,
+        "anchor": buoy_anchor(fetches, t_now) if fetches else None,   # the buoy's verdict on the model
+        "sst_trend": sst_trend,
+        "moon": moon_phase(t_now),
         "kd490": ({"m1": round(kd.data["m1"], 3), "age_d": kd.data.get("age_d")}
                   if kd is not None and kd.ok else None),
         "chla": (round(ch.data["mg_m3"], 2) if ch is not None and ch.ok else None),
@@ -3578,7 +3584,7 @@ def ring_ledger(zk, state):
             day = datetime.strptime(stamp, "%Y%m%dT%H%M").date().isoformat()
         except ValueError:
             continue
-        rings[day] = {"date": day, "kind": kind or "dawn", "verdicts": {}}
+        rings[day] = {"date": day, "kind": kind or "dawn", "verdicts": {}, "cove": log_cove(zk, wkey)}
     if rings and os.path.exists(DIVE_LOG):
         with open(DIVE_LOG) as f:
             for r in csv.DictReader(f):
@@ -3704,6 +3710,97 @@ def lights_html(axes):
         for a in GATE_AXES)
 
 
+SYNODIC_D = 29.530588853
+MOON_NAMES = ["new", "waxing crescent", "first quarter", "waxing gibbous",
+              "full", "waning gibbous", "last quarter", "waning crescent"]
+
+
+def moon_phase(t):
+    """Pure arithmetic from the new moon of 2000-01-06 18:14 UTC: the moon's
+    age, its lit fraction, its name, and the days to the next full and new.
+    Good to a few hours; nobody plans a night dive to the hour of the moon."""
+    epoch = datetime(2000, 1, 6, 18, 14, tzinfo=timezone.utc)
+    age = ((t.astimezone(timezone.utc) - epoch).total_seconds() / 86400.0) % SYNODIC_D
+    frac = age / SYNODIC_D
+    return {"name": MOON_NAMES[int(round(frac * 8)) % 8],
+            "pct": int(round((1 - math.cos(2 * math.pi * frac)) / 2 * 100)),
+            "age_d": round(age, 1),
+            "full_in_d": int(round((SYNODIC_D / 2 - age) % SYNODIC_D)) % 30,
+            "new_in_d": int(round((SYNODIC_D - age) % SYNODIC_D)) % 30}
+
+
+def chla_word(mg):
+    """Satellite chlorophyll in words - green water is plankton, and plankton
+    is the clarity story a swell model never tells. Coastal rules of thumb."""
+    return "blue" if mg < 1.0 else "clear" if mg < 2.5 else "greening" if mg < 5.0 else "green bloom"
+
+
+_LOG_COVES = None
+
+
+def log_cove(zk, wkey):
+    """Which cove the bell named for a window, from the score log - the only
+    place a past window's best entry survives. Read once per process."""
+    global _LOG_COVES
+    if _LOG_COVES is None:
+        _LOG_COVES = {}
+        if os.path.exists(LOG_PATH):
+            with open(LOG_PATH) as f:
+                for r in csv.DictReader(f):
+                    be = (r.get("best_entries") or "").split(" / ")[0].strip()
+                    if be:
+                        _LOG_COVES[(r.get("zone"), r.get("window_key"))] = be
+    return _LOG_COVES.get((zk, wkey))
+
+
+def sst_trend_days(marine, t_now, tz):
+    """The water's temperature day by day from the marine series: four days
+    measured behind, three modeled ahead, as daily means in Fahrenheit."""
+    if marine is None or not marine.ok:
+        return []
+    by_day = {}
+    for dt, v in (marine.data.get("sea_surface_temperature") or {}).items():
+        if v is not None:
+            by_day.setdefault(dt.astimezone(tz).date(), []).append(v)
+    today = t_now.astimezone(tz).date()
+    return [{"d": d.isoformat(), "f": round(sum(by_day[d]) / len(by_day[d]) * 9 / 5 + 32, 1)}
+            for d in sorted(by_day) if -4 <= (d - today).days <= 3]
+
+
+def sst_spark_svg(trend, today_iso):
+    """Seven days of water temperature as a sparkline: the measured days
+    solid, the modeled days to come dotted, today marked."""
+    pts = [p for p in trend or [] if p.get("f") is not None]
+    if len(pts) < 3:
+        return ""
+    W, H, L, R, T, B = 640, 120, 40, 16, 18, 26
+    fs = [p["f"] for p in pts]
+    lo, hi = min(fs) - 1.5, max(fs) + 1.5
+    X = lambda i: L + i * (W - L - R) / (len(pts) - 1)
+    Y = lambda f: T + (hi - f) / (hi - lo) * (H - T - B)
+    past = [i for i, p in enumerate(pts) if p["d"] <= today_iso]
+    out = ['<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 %d %d" width="100%%" role="img" '
+           'aria-label="Water temperature, seven days">' % (W, H)]
+    if len(past) >= 2:
+        out.append('<polyline points="%s" fill="none" stroke="#a9c2d6" stroke-width="2"/>'
+                   % " ".join("%.1f,%.1f" % (X(i), Y(pts[i]["f"])) for i in past))
+    if past and past[-1] < len(pts) - 1:
+        out.append('<polyline points="%s" fill="none" stroke="#a9c2d6" stroke-width="2" stroke-dasharray="4 5"/>'
+                   % " ".join("%.1f,%.1f" % (X(i), Y(pts[i]["f"])) for i in range(past[-1], len(pts))))
+    for i, p in enumerate(pts):
+        out.append('<text x="%.1f" y="%d" font-size="11" fill="#64809b" text-anchor="middle" '
+                   'font-family="Menlo, monospace">%s</text>'
+                   % (X(i), H - 8, datetime.strptime(p["d"], "%Y-%m-%d").strftime("%a")))
+        if i in (0, len(pts) - 1) or p["d"] == today_iso:
+            out.append('<text x="%.1f" y="%.1f" font-size="12" fill="%s" text-anchor="middle" '
+                       'font-family="Georgia, serif">%.0fF</text>'
+                       % (X(i), Y(p["f"]) - 8, "#ffd98a" if p["d"] == today_iso else "#e8dcc3", p["f"]))
+        if p["d"] == today_iso:
+            out.append('<circle cx="%.1f" cy="%.1f" r="4" fill="#ffd98a"/>' % (X(i), Y(p["f"])))
+    out.append("</svg>")
+    return "".join(out)
+
+
 def _long_date(iso):
     d = datetime.strptime(iso, "%Y-%m-%d")
     return d.strftime("%B %-d, %Y")
@@ -3783,6 +3880,13 @@ def bell_page(zk, bz, zc, state, t_now):
             facts.append("tide %s ft %s" % (td.get("ft"), {"rising": "\u2191", "falling": "\u2193"}.get(td.get("trend"), "")))
         if w.get("cloud") is not None:
             facts.append("cloud %s%%" % w["cloud"])
+        ws_, we_ = datetime.fromisoformat(w["start"]), datetime.fromisoformat(w["end"])
+        hm = lambda d: d.strftime("%-I:%M%p").lower()
+        if w.get("kind") == "dawn":
+            facts.append("first light %s \u00b7 sun up %s" % (
+                hm(ws_), hm(ws_ + timedelta(minutes=CONFIG["windows"]["dawn_first_light_offset_min"]))))
+        elif w.get("kind") == "dusk":
+            facts.append("sun down %s" % hm(we_))
         held = (limit_phrase(w.get("limit") or "") if w.get("limit") not in (None, "all clear") else "all clear")
         cards_w.append(
             "<div class='win%s'><div class='top'><b>%s</b><span class='n'>%.1f</span>%s</div>"
@@ -3818,25 +3922,48 @@ def bell_page(zk, bz, zc, state, t_now):
     if first and first.get("dry_h") is not None:
         cards.append(("Dry spell", "%s" % ("72 h+" if first["dry_h"] >= 72 else "%d h" % first["dry_h"]),
                       "the gate wants 72 hours without rain"))
+    ch = bz.get("chla")
+    if ch is not None:
+        cards.append(("Plankton", chla_word(ch), "chlorophyll %.1f mg/m\u00b3 by satellite \u00b7 green water is plankton" % ch))
+    an = bz.get("anchor")
+    if an is not None:
+        cards.append(("Buoy vs model", "%.2fx" % an,
+                      "the buoy reads %d%% %s than the model this week" % (round(abs(an - 1) * 100), "higher" if an >= 1 else "lower")
+                      if abs(an - 1) >= 0.005 else "the buoy and the model agree this week"))
+    mo = bz.get("moon") or moon_phase(t_now)
+    cards.append(("Moon", "%s \u00b7 %d%%" % (mo["name"], mo["pct"]),
+                  "full in %d days \u00b7 new in %d" % (mo["full_in_d"], mo["new_in_d"])))
     now_h = ("<h2>Right now</h2><div class='now'>%s</div>" % "".join(
         "<div><div class='eyebrow'>%s</div><div class='v'>%s</div><div class='s'>%s</div></div>"
         % (esc(k), esc(v), esc(sub)) for k, v, sub in cards)) if cards else ""
     gauge_h = ("<h2>The water index</h2><p>%s - this bell's best window this week, scored on its own water.</p>%s"
                % (esc(top["label"]), index_gauge_svg(top["score"]))) if top else ""
+    spark = sst_spark_svg(bz.get("sst_trend"), today.isoformat())
+    spark_h = ("<h2>Water temperature</h2><p>Four days measured, three days modeled (dotted), today marked.</p>%s"
+               % spark) if spark else ""
     tide_svg = tide_curve_svg(bz.get("tides"), wins, t_now, tz) if bz.get("tides") else ""
     tide_h = ("<h2>The tide</h2><p>Three days, from the same predictions the forecast reads. Shaded: the dawn and "
               "dusk windows.</p>%s" % tide_svg) if tide_svg else ""
+    tide_h += spark_h
 
     named = {e for w in wins for e in (w.get("entries") or [])}
+    ledger = ring_ledger(zk, state)
+    last_by_cove = {}
+    for r in ledger:
+        if r.get("cove"):
+            last_by_cove[r["cove"]] = r["date"]
     coves = []
     for s in zc.get("sites") or []:
         bits = ["%d ft" % s["depth_ft"]] if s.get("depth_ft") else []
         bits += [b for b in (s.get("entry"), s.get("note")) if b]
         if s.get("tide") and s["tide"] != "any":
             bits.append("best at %s tide" % s["tide"])
-        coves.append("<li><b>%s</b>%s<br>%s</li>" % (
-            esc(s["name"]), "<span class='tag'>named this week</span>" if s["name"] in named else "",
-            esc(" · ".join(bits))))
+        tags = ""
+        if s["name"] in named:
+            tags += "<span class='tag'>named this week</span>"
+        if s["name"] in last_by_cove:
+            tags += "<span class='tag'>rang here %s</span>" % esc(_long_date(last_by_cove[s["name"]]))
+        coves.append("<li><b>%s</b>%s<br>%s</li>" % (esc(s["name"]), tags, esc(" · ".join(bits))))
     coves_h = "<ul>%s</ul>" % "".join(coves) if coves else ""
 
     inst = bz.get("instruments") or {}
@@ -3864,14 +3991,13 @@ def bell_page(zk, bz, zc, state, t_now):
                   "there the rare morning this water is perfect, and the week's forecast arrives "
                   "every Wednesday.</p></div>" % esc(bz.get("topic") or ""))
 
-    ledger = ring_ledger(zk, state)
     if ledger:
         lrows = []
         for r in ledger:
             back = ", ".join("%d %s" % (n, k) for k, n in sorted(r["verdicts"].items())) or "no word back yet"
-            lrows.append("<tr><td>%s</td><td>%s</td><td>%s</td></tr>" % (
-                esc(_long_date(r["date"])), esc(r["kind"]), esc(back)))
-        ledger_h = ("<table><thead><tr><th>Rang</th><th>Window</th><th>Divers reported</th></tr></thead>"
+            lrows.append("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>" % (
+                esc(_long_date(r["date"])), esc(r["kind"]), esc(r.get("cove") or "-"), esc(back)))
+        ledger_h = ("<table><thead><tr><th>Rang</th><th>Window</th><th>Cove</th><th>Divers reported</th></tr></thead>"
                     "<tbody>%s</tbody></table>" % "".join(lrows))
         if len(ledger) < 5:
             ledger_h += "<p>A diary until five rings; a score after.</p>"
@@ -4285,6 +4411,7 @@ def cmd_run(args):
         print("skill correction (measured lead bias, sign-flipped): %s" % skill_corr)
     zone_errors = {}   # one bell's failure must not silence the other fourteen
     weekly_any = False
+    quiet = {}   # instrument -> bells it went quiet at, said once per run (2026-10-08: two texts for one dead server)
     for zk, zc in CONFIG["zones"].items():
         try:
             if not zc["enabled"]:
@@ -4303,12 +4430,7 @@ def cmd_run(args):
                 if not f.ok:
                     print("degraded: %s failed (%s)" % (name, f.error), file=sys.stderr)
             for dead in sentinel_update(state, fetches, zk):
-                notify_ops({"title": "An instrument went quiet 🔧",
-                            "message": "%s (bell %s) has failed %d straight runs (~3 days). "
-                                       "The bell scores on without it, at lower confidence. "
-                                       "github.com/PacificVanguard/dive-alert/actions"
-                                       % (dead, zc.get("bell", {}).get("name", zk), SENTINEL_RUNS),
-                            "priority": 4}, args.dry_run)
+                quiet.setdefault(dead, []).append(zc.get("bell", {}).get("name", zk))
             if not swell_ok:
                 print("zone %s: ALL swell sources failed" % zk, file=sys.stderr)
                 continue
@@ -4443,7 +4565,7 @@ def cmd_run(args):
                 if max(gate_days_seen) != prev:
                     rec["rings"] += 1
                 state["last_ring"][zk] = max(gate_days_seen)
-            board[zk] = board_entry(zk, zc, scored, state, rec, ztopic, sst, fetches)
+            board[zk] = board_entry(zk, zc, scored, state, rec, ztopic, sst, fetches, t_now)
 
         except Exception as e:
             # 2026-09-30: a dead network on the runner raised out of one
@@ -4453,6 +4575,12 @@ def cmd_run(args):
             zone_errors[zk] = str(e)[:120]
             print("ZONE %s FAILED: %s" % (zk, e), file=sys.stderr)
             traceback.print_exc()
+    for dead, bells in quiet.items():
+        notify_ops({"title": "An instrument went quiet 🔧",
+                    "message": "%s has failed %d straight runs (~3 days) at %s. The bells score on "
+                               "without it, at lower confidence. github.com/PacificVanguard/dive-alert/actions"
+                               % (dead, SENTINEL_RUNS, ", ".join(bells)),
+                    "priority": 4}, args.dry_run)
     if zone_errors:
         notify_ops({"title": "Bells failed this run 🔧",
                     "message": "%d of %d: %s" % (len(zone_errors), len(CONFIG["zones"]),
@@ -6538,6 +6666,39 @@ def cmd_test(args):
     g_ab = gate_axes({"damage": 1.0, "wind_window_eff_kn": 3.0, "dry_hours": 72, "cloud_pct": None}, 18.0, ["sun"])
     check("(ab) a light is on, off, or unknowable - never guessed",
           g_ab == {"flat": True, "glass": True, "dry": True, "sun": None, "warm": True}, str(g_ab))
+
+    # (ac) round two of the obsessables: the moon by arithmetic, plankton in
+    # words, the buoy's verdict on the model, the water's week, the sun on
+    # each window, the cove a ring named, and one text per dead instrument
+    ep = datetime(2000, 1, 6, 18, 14, tzinfo=timezone.utc)
+    m0, m2, m4 = moon_phase(ep), moon_phase(ep + timedelta(days=SYNODIC_D / 4)), moon_phase(ep + timedelta(days=SYNODIC_D / 2))
+    check("(ac) the moon is new at the epoch, half at a quarter, full at half a month",
+          m0["name"] == "new" and m0["pct"] == 0 and m2["name"] == "first quarter" and 48 <= m2["pct"] <= 52
+          and m4["name"] == "full" and m4["pct"] == 100 and m4["full_in_d"] == 0 and m0["full_in_d"] == 15,
+          "%s %s %s" % (m0, m2, m4))
+    check("(ac) plankton has four honest words", [chla_word(v) for v in (0.4, 1.8, 3.9, 7.0)]
+          == ["blue", "clear", "greening", "green bloom"])
+    series = {t_y + timedelta(hours=h): 20.0 + h / 48.0 for h in range(-96, 96, 3)}
+    tr_ac = sst_trend_days(Fetch("marine", True, {"sea_surface_temperature": series}), t_y, PT)
+    check("(ac) the water's week is eight daily means, four behind and three ahead, warming as fed",
+          len(tr_ac) == 8 and tr_ac == sorted(tr_ac, key=lambda p: p["d"]) and tr_ac[-1]["f"] > tr_ac[0]["f"]
+          and tr_ac[4]["d"] == t_y.date().isoformat() and sst_trend_days(Fetch("marine", False, error="x"), t_y, PT) == [],
+          str(tr_ac[:2]))
+    bz_ac = board_entry("A", zc, sc_y, st_y, {"promises": 3, "rings": 1}, "topic-y", 20.0, fx_y, t_y)
+    check("(ac) the plate carries the moon, the buoy's verdict and a trend list",
+          bz_ac["moon"]["name"] in MOON_NAMES and "anchor" in bz_ac and isinstance(bz_ac["sst_trend"], list),
+          "anchor=%s" % bz_ac["anchor"])
+    bz_ac["sst_trend"], bz_ac["chla"] = tr_ac, 1.8
+    pg_ac = bell_page("A", bz_ac, zc, st_y, t_y)
+    check("(ac) the page shows the moon, the plankton, the sun on each window and the water's week",
+          "Moon" in pg_ac and "Plankton" in pg_ac and "clear" in pg_ac and "first light" in pg_ac
+          and "sun down" in pg_ac and "Water temperature, seven days" in pg_ac and pg_ac.count("<svg") >= 3)
+    sp = sst_spark_svg([{"d": "2026-08-08", "f": 70.0}, {"d": "2026-08-09", "f": 71.0}, {"d": "2026-08-10", "f": 72.0},
+                        {"d": "2026-08-11", "f": 71.5}], "2026-08-10")
+    check("(ac) the sparkline draws measured days solid and the model dotted, today marked",
+          sp.count("<polyline") == 2 and "stroke-dasharray" in sp and "<circle" in sp and "72F" in sp)
+    check("(ac) a ring remembers the cove it named, if the log knows it",
+          all("cove" in r for r in ring_ledger("A", st_y)))
 
     # fixture suite: degraded + disagreement
     print("fixture tests:")
