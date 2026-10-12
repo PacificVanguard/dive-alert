@@ -69,8 +69,11 @@ message history IS the subscriber database — zero PII in this repo.
   down like any instrument. Sydney and Bonaire carry no NWS key at all.
 - **Model review**: a weekly Claude scheduled task on the keeper's Mac
   (`~/.claude/scheduled-tasks/dive-bell-model-review`, Mondays 7am) reads
-  the week's logs and opens at most ONE pull request with a drill. It never
-  merges; a human does. It runs only while the Claude app is open.
+  the week's logs and opens at most ONE pull request with a drill. Since
+  2026-10-12 it merges that PR itself once the drill, the test suite and
+  the audit pass on the pushed commit (the keeper lifted the human-merge
+  rule; the never-edit list and the no-dispatch rule still stand). It runs
+  only while the Claude app is open.
 
 ## What the bell is (and the only words it needs)
 
