@@ -198,6 +198,9 @@ CONFIG = {
             "tier": "provisional",
             "keeper": None,
             "tide_station": "9410230", "buoy": "46254", "buoy_offshore": "46086",
+            # the model at 46254 reads 46% / 37% high (drift log 2026-09-03,
+            # 2026-10-03: suggested 0.69, 0.73); Laguna's 1.13 is the wrong coast
+            "model_height_scale": 0.73,
             "offshore_dir": 75,
             "cove_damage_factor": 0.62,   # the Cove is a true pocket, Laguna-like
             "region": 'Southern California',
@@ -236,7 +239,9 @@ CONFIG = {
             "topic": "monterey-dive-d01f1d8e",
             "tier": "provisional",
             "keeper": None,
-            "tide_station": "9413450", "buoy": "46240", "buoy_offshore": "46042",
+            # 46240 Cabrillo Point left NDBC realtime2 in Oct 2026; 46236 Monterey
+            # Canyon Outer (CDIP 156) is the nearest live station with a .spec
+            "tide_station": "9413450", "buoy": "46236", "buoy_offshore": "46042",
             "offshore_dir": 190,          # land lies south of the breakwater shore
             "cove_damage_factor": 0.50,   # famously protected inside the bay
             "perfect_gate_overrides": {"min_sst_c": 11.5},   # ~53°F: warm, for Monterey
@@ -530,7 +535,11 @@ CONFIG = {
             # The Anacapa Passage buoy is the right ear for this water.
             "bell": {"no": 13, "name": "Ventura County", "cast": "2026-08-17"},
             "topic": "ventura-dive-b1a44410", "tier": "provisional", "keeper": None,
-            "tide_station": "9411189", "buoy": "46217", "buoy_offshore": "46054",
+            # 46217 Anacapa Passage left NDBC realtime2 in Oct 2026; 46053 East
+            # Santa Barbara Channel is the nearest station in the same water —
+            # it reports in fits (silent 10-06 to 10-12), and a silent buoy is
+            # scored as no buoy, which is what it was
+            "tide_station": "9411189", "buoy": "46053", "buoy_offshore": "46054",
             "offshore_dir": 40,
             "cove_damage_factor": 0.80,   # open reef coast, little pocket shelter
             "region": 'Southern California',
@@ -565,6 +574,9 @@ CONFIG = {
             # near-real-time WFS — the first non-NDBC instrument in the fleet
             "tide_station": "none", "buoy": "none", "buoy_offshore": "none",
             "buoy_aodn": "Sydney",
+            # the model at the Sydney waverider reads 27% low two months running
+            # (drift log 2026-09-03, 2026-10-03: suggested 1.38, 1.38)
+            "model_height_scale": 1.38,
             "offshore_dir": 240,
             "cove_damage_factor": 0.55,
             "perfect_gate_overrides": {"min_sst_c": 15.0},
@@ -1565,7 +1577,15 @@ def window_hours(w):
     return out or [w["start"].replace(minute=0)]
 
 
-def swell_damage(marine, w, exposure_map, cove_factor=1.0, h_scale=1.0):
+def model_height_scale(zone_cfg=None):
+    """The swell model's own bias at THIS bell's buoy. The global 1.13 is
+    Laguna's (46253: drift log 1.13, 1.11); a bell may carry its own after two
+    consistent months of `validate`, or every buoy-down hour is scored with
+    another coast's correction. Geography is `marine_height_scale`, not this."""
+    return (zone_cfg or {}).get("model_height_scale") or CONFIG["scoring"]["model_height_scale"]
+
+
+def swell_damage(marine, w, exposure_map, cove_factor=1.0, h_scale=1.0, base_scale=None):
     """Mean over window hours of h_ft^2 * period_factor * exposure, swell and
     wind-wave partitions scored jointly then summed — height, period and
     direction always interact, never scored independently."""
@@ -1577,7 +1597,7 @@ def swell_damage(marine, w, exposure_map, cove_factor=1.0, h_scale=1.0):
         sh = marine.get("swell_wave_height", {}).get(t)
         sp = marine.get("swell_wave_period", {}).get(t)
         sd = marine.get("swell_wave_direction", {}).get(t)
-        scale = CONFIG["scoring"]["model_height_scale"] * h_scale
+        scale = (base_scale or CONFIG["scoring"]["model_height_scale"]) * h_scale
         if sh is not None and sp is not None and sd is not None:
             d += (m_to_ft(sh) * scale) ** 2 * piecewise(sp, pf) * piecewise(sd % 360, exposure_map)
             parts["hgt_ft"] += m_to_ft(sh) * scale; parts["per_s"] += sp; parts["dir"] += sd
@@ -1617,7 +1637,7 @@ def tide_range_ft(tides, w):
     return (max(fts) - min(fts)) if len(fts) >= 2 else None
 
 
-def buoy_anchor(fetches, t_now):
+def buoy_anchor(fetches, t_now, zone_cfg=None):
     """Rolling correction of the model against the zone's own buoy: median of
     obs/model height over the last 48h of matched hours. The casting scale
     says how this GEOGRAPHY differs from the model; the anchor says how THIS
@@ -1643,7 +1663,7 @@ def buoy_anchor(fetches, t_now):
             # (audit repair 2026-09-14: obs/raw-model was then multiplied by
             # the static 1.13 again downstream — the same bias counted twice;
             # this ratio is 1.0 when the already-scaled model matches the buoy)
-            ratios.append(r["wvht_m"] / (mv * CONFIG["scoring"]["model_height_scale"]))
+            ratios.append(r["wvht_m"] / (mv * model_height_scale(zone_cfg)))
     if len(ratios) < 12:
         return None
     ratios.sort()
@@ -1664,7 +1684,7 @@ def compute_features(w, fetches, zone_cfg, t_now, anchor=None):
     keep the calibration they were fit against."""
     fc = CONFIG["features"]
     anchor_dmg = 1.0 if anchor is None else anchor
-    anchor_turb = 1.0 if anchor is None else anchor * CONFIG["scoring"]["model_height_scale"]
+    anchor_turb = 1.0 if anchor is None else anchor * model_height_scale(zone_cfg)
     marine = fetches["marine"].data if fetches["marine"].ok else {}
     wx = fetches["weather"].data if fetches["weather"].ok else {}
     wind = wx.get("wind_speed_10m", {})
@@ -1705,7 +1725,8 @@ def compute_features(w, fetches, zone_cfg, t_now, anchor=None):
         dry = 0.0   # it is raining on the dive itself
     dmg, dmg_parts = swell_damage(marine, w, zone_cfg["exposure"],
                                   zone_cfg.get("cove_damage_factor", 1.0),
-                                  zone_cfg.get("marine_height_scale", 1.0) * anchor_dmg)
+                                  zone_cfg.get("marine_height_scale", 1.0) * anchor_dmg,
+                                  base_scale=model_height_scale(zone_cfg))
     # window wind/cloud need EVERY hour of a 2-3h window — one lucky sample
     # cannot certify glass or sun (audit repair, same date)
     wind_in_window = [wind.get(t) for t in win_hrs]
@@ -2218,11 +2239,26 @@ def load_skill_correction(path=None):
     for r in rows:   # file is append-only: later rows overwrite, newest wins
         try:
             if int(float(r["n"])) >= SKILL_CORR_MIN_N:
-                corr[r["bucket"]] = max(-SKILL_CORR_CAP,
-                                        min(SKILL_CORR_CAP, round(-float(r["bias"]), 2)))
+                adj = max(-SKILL_CORR_CAP, min(SKILL_CORR_CAP, round(-float(r["bias"]), 2)))
+                zone = (r.get("zone") or "").strip()
+                # fleet rows keep the flat shape; a bell's own rows nest under
+                # its key (2026-10-12: the fleet bias was -0.70 while the drift
+                # log showed bells biased in opposite directions)
+                (corr.setdefault(zone, {}) if zone else corr)[r["bucket"]] = adj
         except (KeyError, ValueError):
             continue
     return corr
+
+
+def skill_adjust(skill_corr, zone_key, bucket):
+    """A bell's own measured bias where it has one (n >= 25), the fleet's
+    where it does not — per bucket, so a thin bucket falls back alone."""
+    if not skill_corr or not bucket:
+        return 0.0
+    own = skill_corr.get(zone_key)
+    if isinstance(own, dict) and bucket in own:
+        return own[bucket]
+    return skill_corr.get(bucket, 0.0)
 
 
 def skill_bucket(lead_h):
@@ -3368,7 +3404,7 @@ def score_zone(zone_key, zone_cfg, fetches, t_now, horizon_h=72, skill_corr=None
     windows = build_windows(fetches["weather"], t_now, zone_cfg, horizon_h)
     tides = fetches["tides"].data if fetches["tides"].ok else []
     scored = []
-    anchor = buoy_anchor(fetches, t_now)
+    anchor = buoy_anchor(fetches, t_now, zone_cfg)
     for w in windows:
         feats = compute_features(w, fetches, zone_cfg, t_now, anchor)
         creek = False  # zone-level scoring; creek rule applies per-site when Zone B wakes
@@ -3376,7 +3412,7 @@ def score_zone(zone_key, zone_cfg, fetches, t_now, horizon_h=72, skill_corr=None
         raw_score = score
         if skill_corr:
             bucket = skill_bucket((w["start"] - t_now).total_seconds() / 3600.0)
-            adj = skill_corr.get(bucket, 0.0) if bucket else 0.0
+            adj = skill_adjust(skill_corr, zone_key, bucket)
             # a learned correction may never lift a hard cap (audit repair
             # 2026-09-14: a rain-capped 3.0 was becoming 3.5)
             if adj > 0 and cap_reason:
@@ -3507,7 +3543,7 @@ def board_entry(zk, zc, scored, state, rec, ztopic, sst, fetches=None, t_now=Non
         # the satellite's last clear look at the water (a witness, never a judge)
         "tides": [{"t": e["t"].isoformat(), "ft": e["ft"], "type": e["type"]} for e in tides][:40],
         "buoy_now": buoy_now,
-        "anchor": buoy_anchor(fetches, t_now) if fetches else None,   # the buoy's verdict on the model
+        "anchor": buoy_anchor(fetches, t_now, zc) if fetches else None,   # the buoy's verdict on the model
         "sst_trend": sst_trend,
         "moon": moon_phase(t_now),
         "kd490": ({"m1": round(kd.data["m1"], 3), "age_d": kd.data.get("age_d")}
@@ -4418,7 +4454,10 @@ def cmd_run(args):
     blind_map = {}
     skill_corr = load_skill_correction()
     if skill_corr:
-        print("skill correction (measured lead bias, sign-flipped): %s" % skill_corr)
+        own = sorted(k for k, v in skill_corr.items() if isinstance(v, dict))
+        print("skill correction (measured lead bias, sign-flipped): fleet %s; own rows: %s"
+              % ({k: v for k, v in skill_corr.items() if not isinstance(v, dict)},
+                 "".join(own) or "none yet"))
     zone_errors = {}   # one bell's failure must not silence the other fourteen
     weekly_any = False
     quiet = {}   # instrument -> bells it went quiet at, said once per run (2026-10-08: two texts for one dead server)
@@ -4940,11 +4979,11 @@ def cmd_share(args):
 # =====================================================================
 
 BUOY_POSITIONS = {"46253": (33.576, -118.181), "46254": (32.868, -117.267),
-                  "46240": (36.626, -121.907), "46086": (32.499, -118.052),
+                  "46236": (36.759, -121.950), "46086": (32.499, -118.052),
                   "46042": (36.785, -122.398), "46221": (33.855, -118.633),
                   "46239": (36.342, -122.102), "46054": (34.265, -120.477),
                   "51201": (21.673, -158.117), "51003": (19.196, -160.639),
-                  "51205": (21.018, -156.425), "46217": (34.167, -119.435),
+                  "51205": (21.018, -156.425), "46053": (34.246, -119.842),
                   "Sydney": (-33.75, 151.4)}   # MHL waverider, via AODN WFS
 
 
@@ -5017,9 +5056,9 @@ def cmd_validate(args):
           (m_to_ft(mo), m_to_ft(mm), bias_pct))
     print("  height MAE:   %.2fft      correlation r=%.2f" % (mae_ft, corr(0, 1)))
     print("  period MAE:   %.1fs (dominant vs model mean — expect a gap; different definitions)" % per_mae)
-    scale = CONFIG["scoring"]["model_height_scale"]
+    scale = model_height_scale(zc)
     suggested = round(mo / mm, 2) if mm else 1.0
-    print("  model_height_scale: current %.2f, data suggests %.2f" % (scale, suggested))
+    print("  model_height_scale: this bell's %.2f, data suggests %.2f" % (scale, suggested))
     breach = abs(suggested - scale) / scale > 0.10
     if breach:
         print("  → drift past 10%% of current scale: consider model_height_scale = %.2f" % suggested)
@@ -5029,9 +5068,10 @@ def cmd_validate(args):
     # The 20-year memory: every validation appends to a drift log, so 'has the
     # upstream model quietly changed?' is a chart, not a recollection.
     append_log(os.path.join(DATA, "drift_log.csv"),
-               ["date", "n_hours", "buoy_ft", "model_ft", "bias_pct", "mae_ft",
+               ["date", "zone", "n_hours", "buoy_ft", "model_ft", "bias_pct", "mae_ft",
                 "r", "scale_current", "scale_suggested"],
-               [{"date": now_pt().date().isoformat(), "n_hours": n,
+               [{"date": now_pt().date().isoformat(), "zone": getattr(args, "zone", "A"),
+                 "n_hours": n,
                  "buoy_ft": round(m_to_ft(mo), 2), "model_ft": round(m_to_ft(mm), 2),
                  "bias_pct": round(bias_pct, 1), "mae_ft": round(mae_ft, 2),
                  "r": round(corr(0, 1), 3), "scale_current": scale,
@@ -5088,6 +5128,23 @@ def gate_hold_rates(log_rows):
     how many still passed at the final near reading (<=14h)? Every run logs
     every window's gate verdict, so the data was already being collected —
     it just was never asked this question."""
+    hold = {}
+    for lst in _gate_history(log_rows).values():
+        truth_lead, truth_row = lst[0]
+        if truth_lead > 14:
+            continue   # no near-final reading: this window can't grade anyone
+        truth = truth_row.get("perfect_gate") == "PASS"
+        for lead, r in lst:
+            if lead < 24 or r.get("perfect_gate") != "PASS":
+                continue
+            b = "24-72h" if lead <= 72 else ">72h"
+            n, h = hold.get(b, (0, 0))
+            hold[b] = (n + 1, h + (1 if truth else 0))
+    return hold
+
+
+def _gate_history(log_rows):
+    """Every logged reading of every window, nearest lead first."""
     per = {}
     for r in log_rows:
         try:
@@ -5096,21 +5153,40 @@ def gate_hold_rates(log_rows):
             continue
         if "no swell" in (r.get("flags") or ""):
             continue   # flat-by-absence rows (pre-repair) must not grade anyone
-        per.setdefault((r.get("zone", "A"), r.get("window_start")), []).append(
-            (lead, r.get("perfect_gate") == "PASS"))
-    hold = {}
+        per.setdefault((r.get("zone", "A"), r.get("window_start")), []).append((lead, r))
     for lst in per.values():
-        lst.sort()
-        truth_lead, truth = lst[0]
-        if truth_lead > 14:
-            continue   # no near-final reading: this window can't grade anyone
-        for lead, passed in lst:
-            if lead < 24 or not passed:
-                continue
-            b = "24-72h" if lead <= 72 else ">72h"
-            n, h = hold.get(b, (0, 0))
-            hold[b] = (n + 1, h + (1 if truth else 0))
-    return hold
+        lst.sort(key=lambda x: x[0])
+    return per
+
+
+def gate_flip_axes(log_rows):
+    """Of the windows the gate PASSED at 24-72h and lost by the morning, which
+    light went out? The morning row carries every axis the gate judges, so it
+    is re-judged by perfect_gate itself — no second opinion. First reading,
+    2026-10-12: 53 flips of 71; sun 31, flat 23, glass 16, dry 3, warm 2. The
+    cloud forecast is where the bell is most sure and most wrong at lead."""
+    def num(v):
+        try:
+            return float(v)
+        except (TypeError, ValueError):
+            return None
+    flips = {}
+    for (zone, _), lst in _gate_history(log_rows).items():
+        truth_lead, morning = lst[0]
+        if truth_lead > 14 or morning.get("perfect_gate") == "PASS":
+            continue
+        if not any(24 <= lead <= 72 and r.get("perfect_gate") == "PASS" for lead, r in lst):
+            continue
+        feats = {k: num(morning.get(k)) for k in ("damage", "dry_hours", "cloud_pct")}
+        feats["wind_window_eff_kn"] = (num(morning.get("wind_window_eff_kn"))
+                                       if num(morning.get("wind_window_eff_kn")) is not None
+                                       else num(morning.get("wind_window_max_kn")))
+        _, failed = perfect_gate(feats, num(morning.get("score")) or 0.0,
+                                 num(morning.get("sst_c")), CONFIG["zones"].get(zone))
+        for ax in failed:
+            flips[ax] = flips.get(ax, 0) + 1
+        flips["windows"] = flips.get("windows", 0) + 1
+    return flips
 
 
 def cmd_skill(args):
@@ -5184,23 +5260,48 @@ def cmd_skill(args):
         print("  %-7s n=%-3d MAE %.2f  bias %+.2f  |err|>=1.5: %.0f%%" % (bucket, len(e), mae, bias, big))
         out_rows.append({"date": now_pt().date().isoformat(), "bucket": bucket,
                          "n": len(e), "mae": round(mae, 2), "bias": round(bias, 2),
-                         "big_miss_pct": round(big, 1)})
+                         "big_miss_pct": round(big, 1), "zone": ""})
+    # each bell's own rows: the fleet bias is an average of coasts that miss
+    # in opposite directions, and a bell with enough graded windows (n >= 25
+    # per bucket) earns its own correction — thin buckets keep the fleet's
+    for zk in sorted(set(z for z, _, _, _ in errs)):
+        own = []
+        for bucket in ("12-24h", "24-48h", ">48h"):
+            e = [(p, t) for z, b, p, t in errs if z == zk and b == bucket]
+            if len(e) < SKILL_CORR_MIN_N:
+                continue
+            bias = sum(p - t for p, t in e) / len(e)
+            own.append("%s %+.2f (n=%d)" % (bucket, bias, len(e)))
+            out_rows.append({"date": now_pt().date().isoformat(), "bucket": bucket,
+                             "n": len(e), "mae": round(sum(abs(p - t) for p, t in e) / len(e), 2),
+                             "bias": round(bias, 2),
+                             "big_miss_pct": round(100 * sum(1 for p, t in e if abs(p - t) >= 1.5) / len(e), 1),
+                             "zone": zk})
+        if own:
+            print("  %s: %s" % (zk, "; ".join(own)))
     append_log(os.path.join(DATA, "skill_log.csv"),
-               ["date", "bucket", "n", "mae", "bias", "big_miss_pct"], out_rows, dry_run=False)
+               ["date", "bucket", "n", "mae", "bias", "big_miss_pct", "zone"], out_rows, dry_run=False)
     # gate promises vs what the morning delivered — the number that governs
     # how far out the digest may speak (Tuesday 2026-09-15 was promised at
     # six days and washed out; this measures how often that happens)
-    hold = gate_hold_rates(_read_csv(LOG_PATH))
+    log_rows = _read_csv(LOG_PATH)
+    hold = gate_hold_rates(log_rows)
+    flips = gate_flip_axes(log_rows)
+    flip_word = " ".join("%s:%d" % (ax, flips[ax]) for ax in
+                         sorted((k for k in flips if k != "windows"), key=lambda k: -flips[k]))
     hold_rows = []
     for b in ("24-72h", ">72h"):
         if b in hold:
             n, h = hold[b]
             print("  gate hold-rate %-6s %d/%d held (%.0f%%)" % (b, h, n, 100.0 * h / n))
             hold_rows.append({"date": now_pt().date().isoformat(), "bucket": b,
-                              "n": n, "held": h, "held_pct": round(100.0 * h / n, 1)})
+                              "n": n, "held": h, "held_pct": round(100.0 * h / n, 1),
+                              "flips": flip_word if b == "24-72h" else ""})
+    if flips:
+        print("  of %d lost 24-72h promises, the light that went out: %s" % (flips["windows"], flip_word))
     if hold_rows:
         append_log(os.path.join(DATA, "gate_skill.csv"),
-                   ["date", "bucket", "n", "held", "held_pct"], hold_rows, dry_run=False)
+                   ["date", "bucket", "n", "held", "held_pct", "flips"], hold_rows, dry_run=False)
     worst = max((r["mae"] for r in out_rows), default=0)
     if getattr(args, "notify", False) and worst >= 1.2:
         notify_ops({"title": "The bell's foresight is slipping 🔎",
@@ -5798,6 +5899,35 @@ def cmd_test(args):
           abs(ft_none["swell_energy_72h"] - ft_one["swell_energy_72h"] / _static ** 2)
           < 0.01 * ft_none["swell_energy_72h"],
           "none=%.0f one=%.0f" % (ft_none["swell_energy_72h"], ft_one["swell_energy_72h"]))
+
+    # (ae) A BELL'S OWN MODEL BIAS: the global 1.13 is Laguna's buoy talking.
+    # Sydney's model read 27% low two months running, La Jolla's 37-46% high
+    # (drift log 2026-09-03, 2026-10-03), and every buoy-down hour there was
+    # scored with Laguna's correction. A bell may carry model_height_scale;
+    # swell_damage, the turbidity term and the anchor must all read the same
+    # one, or (ee5) is quietly broken for that bell alone.
+    zc_own = dict(zc, model_height_scale=1.38)
+    ft_def = compute_features(w, _mk(), zc, t0, None)
+    ft_own = compute_features(w, _mk(), zc_own, t0, None)
+    check("(ae) with no buoy, the bell's own scale moves damage by (1.38/1.13)^2",
+          abs(ft_own["damage"] / ft_def["damage"] - (1.38 / _static) ** 2) < 0.06,
+          "ratio=%.3f" % (ft_own["damage"] / ft_def["damage"]))
+    rows_138 = [dict(r, wvht_m=r["wvht_m"] / 1.3 * 1.38) for r in rows_13]
+    f_an["ndbc_primary"] = Fetch("ndbc_primary", True,
+                                 {"rows": rows_138, "station": "x", "latest": rows_138[0]})
+    a_own = buoy_anchor(f_an, t0, zc_own)
+    check("(ae) a buoy agreeing with the bell's own scale is a residual of 1.0",
+          abs(a_own - 1.0) <= 0.05, "a=%.3f" % a_own)
+    check("(ae) and the same buoy against Laguna's scale is not",
+          abs(buoy_anchor(f_an, t0, zc) - 1.38 / _static) <= 0.05)
+    f_an["ndbc_primary"] = Fetch("ndbc_primary", False, error="gone")
+    ft_13o = compute_features(w, _mk(), zc_own, t0, 1.3 / 1.38)
+    ft_10o = compute_features(w, _mk(), zc_own, t0, 1.0 / 1.38)
+    dmg_o = ft_13o["damage"] / ft_10o["damage"]
+    turb_o = ft_13o["swell_energy_72h"] / ft_10o["swell_energy_72h"]
+    check("(ae) the two consumers still agree under the bell's own scale",
+          abs(dmg_o - turb_o) / dmg_o < 0.02 and abs(turb_o - 1.3 ** 2) < 0.06,
+          "dmg x%.3f turb x%.3f" % (dmg_o, turb_o))
 
     # (ff) SMS layer: quiet hours by the bell's clock; keywords name bells;
     # no env means no sends, ever.
@@ -6751,6 +6881,49 @@ def cmd_test(args):
     finally:
         globals()["http_get"] = _oh_ad
         Sources._HOST_FAILS.clear()
+    # (af) A BELL'S OWN FORESIGHT: the fleet bias was -0.70 at 24-48h on
+    # 2026-10-03, pinned at the ±0.5 cap, while the drift log showed bells
+    # biased in opposite directions. A bell with n >= 25 graded windows in a
+    # bucket gets its own sign-flipped correction; a thin bucket keeps the
+    # fleet's, alone; rows without a zone column (every row before today)
+    # still read as the fleet's.
+    import tempfile as _tf
+    sp_af = os.path.join(_tf.gettempdir(), "skill_log_drill.csv")
+    with open(sp_af, "w") as fh:
+        fh.write("date,bucket,n,mae,bias,big_miss_pct,zone\n"
+                 "2026-10-03,12-24h,1310,1.39,-0.69,36.3,\n"
+                 "2026-10-03,24-48h,1970,1.48,-0.7,38.8,\n"
+                 "2026-10-03,24-48h,130,1.1,0.4,20.0,D\n"
+                 "2026-10-03,12-24h,12,1.1,0.9,20.0,D\n")
+    sc_af = load_skill_correction(sp_af)
+    os.remove(sp_af)
+    check("(af) fleet rows keep their flat shape, capped",
+          sc_af.get("12-24h") == 0.5 and sc_af.get("24-48h") == 0.5, str(sc_af))
+    check("(af) a bell's own bucket outranks the fleet, sign-flipped",
+          skill_adjust(sc_af, "D", "24-48h") == -0.4)
+    check("(af) a thin bucket falls back to the fleet, alone",
+          skill_adjust(sc_af, "D", "12-24h") == 0.5 and skill_adjust(sc_af, "A", "24-48h") == 0.5)
+    check("(af) a flat (pre-zone) correction still applies as the fleet's",
+          skill_adjust({"24-48h": 0.3}, "D", "24-48h") == 0.3
+          and skill_adjust({"24-48h": 0.3}, "D", None) == 0.0)
+
+    # (ag) WHICH LIGHT WENT OUT: only ~25% of gates seen at 24-72h hold to
+    # the morning, and until today the log said how often, never which axis.
+    # The morning row carries every axis the gate judges, so the lost promise
+    # is re-judged by perfect_gate itself. First reading: sun 31 of 53.
+    lr_ag = [{"zone": "A", "window_start": "W1", "lead_h": "60", "perfect_gate": "PASS"},
+             {"zone": "A", "window_start": "W1", "lead_h": "10", "perfect_gate": "",
+              "damage": "1.0", "wind_window_eff_kn": "4", "dry_hours": "72",
+              "cloud_pct": "95", "sst_c": "20", "score": "9.0"},
+             {"zone": "A", "window_start": "W2", "lead_h": "48", "perfect_gate": "PASS"},
+             {"zone": "A", "window_start": "W2", "lead_h": "9", "perfect_gate": "PASS"},
+             {"zone": "A", "window_start": "W3", "lead_h": "90", "perfect_gate": "PASS"},
+             {"zone": "A", "window_start": "W3", "lead_h": "9", "perfect_gate": ""}]
+    fl_ag = gate_flip_axes(lr_ag)
+    check("(ag) the morning row names the one light that went out",
+          fl_ag == {"sun": 1, "windows": 1}, str(fl_ag))
+    check("(ag) a held promise and a >72h promise grade no axis",
+          gate_hold_rates(lr_ag).get("24-72h") == (2, 1), str(gate_hold_rates(lr_ag)))
 
     # fixture suite: degraded + disagreement
     print("fixture tests:")
