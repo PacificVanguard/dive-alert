@@ -179,6 +179,11 @@ shipped without them once, so DIGEST could never send.
   means it is safe to run even if you're not sure — a reading already
   sent this ISO week will not be sent twice. The app copy waits for the
   bell's own morning (6am-1pm local); the text goes within 8am-9pm.
+- **A bell's buoys "declared down" while NDBC is up**: a retired station's
+  404 was once counted as an outage (46240 Monterey and 46217 Ventura left
+  realtime2 in Oct 2026) and two in a row tripped the breaker before Maui's
+  turn. A 404 now resets the count (drill (ad)); the real fix is a new
+  station ID in that zone's config.
 - **One bell failed, the rest ran**: normal now. The failed bell keeps its
   last plate on the board marked `stale`; ops (and the keeper's phone, if
   `KEEPER_PHONE` is set) get "Bells failed this run". Look at the ZONE

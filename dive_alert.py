@@ -33,6 +33,7 @@ import sys
 import time
 import traceback
 import uuid
+import urllib.error
 import urllib.parse
 import urllib.request
 from datetime import datetime, timedelta, timezone
@@ -1057,6 +1058,13 @@ class Sources:
                           % (host, self.host_fails[host]))
         try:
             body = http_get(url, timeout)
+        except urllib.error.HTTPError as e:
+            # A 404 is a missing station, not a dead host: the host answered.
+            # 46240 and 46217 vanished from NDBC realtime2 (Oct 2026) and their
+            # 404s, counted as outages, declared NDBC down right before Maui's
+            # turn — three live buoy fetches lost every run for a week.
+            self.host_fails[host] = 0 if e.code == 404 else self.host_fails.get(host, 0) + 1
+            raise
         except Exception:
             self.host_fails[host] = self.host_fails.get(host, 0) + 1
             raise
@@ -1377,6 +1385,8 @@ def parse_ndbc_spec(text: str):
 
 
 def fetch_ndbc_spec(src: Sources, station: str) -> Fetch:
+    if station in (None, "none"):   # Bonaire and Sydney were dialing none.spec
+        return Fetch("ndbc_spec", False, error="no buoy for this water")
     try:
         url = "https://www.ndbc.noaa.gov/data/realtime2/%s.spec" % station
         rows = parse_ndbc_spec(src.get("ndbc_spec", url, timeout=20))
@@ -6699,6 +6709,48 @@ def cmd_test(args):
           sp.count("<polyline") == 2 and "stroke-dasharray" in sp and "<circle" in sp and "72F" in sp)
     check("(ac) a ring remembers the cove it named, if the log knows it",
           all("cove" in r for r in ring_ledger("A", st_y)))
+
+    # (ad) A MISSING STATION IS NOT A DEAD HOST: 46240 and 46217 left NDBC
+    # realtime2 in Oct 2026 and the breaker counted their 404s as outages —
+    # two in a row, right before Maui's turn, and Maui's three buoy fetches
+    # were "declared down" every run for a week. The host answered; it just
+    # has no such file. A true outage must still trip it ((oo) survives).
+    _oh_ad = globals()["http_get"]
+    try:
+        gone_url = "https://www.ndbc.noaa.gov/data/realtime2/46240.txt"
+        dials = {"n": 0}
+
+        def _gone(url, timeout=25):
+            dials["n"] += 1
+            raise urllib.error.HTTPError(url, 404, "Not Found", {}, None)
+        globals()["http_get"] = _gone
+        Sources._HOST_FAILS.clear()
+        for _ in range(4):
+            try:
+                Sources(offline=False).get("ndbc_primary", gone_url, timeout=1)
+            except urllib.error.HTTPError:
+                pass
+        check("(ad) four 404s in a row never declare the host down",
+              dials["n"] == 4 and Sources._HOST_FAILS.get("www.ndbc.noaa.gov", 0) == 0,
+              "dialed %d, fails=%s" % (dials["n"], Sources._HOST_FAILS))
+        dials["n"] = 0
+        f_ad = fetch_ndbc_spec(Sources(offline=False), "none")
+        check("(ad) a bell with no buoy never dials none.spec",
+              dials["n"] == 0 and not f_ad.ok and "no buoy" in (f_ad.error or ""))
+
+        def _dead(url, timeout=25):
+            raise OSError("unreachable")
+        globals()["http_get"] = _dead
+        tripped = 0
+        for _ in range(3):
+            try:
+                Sources(offline=False).get("ndbc_primary", gone_url, timeout=1)
+            except OSError as e:
+                tripped += "declared down" in str(e)
+        check("(ad) a true outage still trips the breaker", tripped == 1, "tripped %d" % tripped)
+    finally:
+        globals()["http_get"] = _oh_ad
+        Sources._HOST_FAILS.clear()
 
     # fixture suite: degraded + disagreement
     print("fixture tests:")
