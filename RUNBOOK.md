@@ -67,13 +67,16 @@ message history IS the subscriber database — zero PII in this repo.
   deliberately excluded). A window under one cannot ring and the forecast
   names no cove for it. A dead NWS feed vetoes nothing; it is logged as
   down like any instrument. Sydney and Bonaire carry no NWS key at all.
-- **Model review**: a weekly Claude scheduled task on the keeper's Mac
-  (`~/.claude/scheduled-tasks/dive-bell-model-review`, Mondays 7am) reads
-  the week's logs and opens at most ONE pull request with a drill. Since
-  2026-10-12 it merges that PR itself once the drill, the test suite and
-  the audit pass on the pushed commit (the keeper lifted the human-merge
-  rule; the never-edit list and the no-dispatch rule still stand). It runs
-  only while the Claude app is open.
+- **Improvement loop**: a daily Claude scheduled task on the keeper's Mac
+  (`~/.claude/scheduled-tasks/dive-bell-model-review`, 7am, only while the
+  Claude app is open). Each run: re-read the evidence, land ONE change with
+  a drill on its own branch, merge it once drill + tests + audit pass, then
+  re-read and go again — up to three changes a run, stopping the moment
+  nothing meets the bar (most days). It also re-checks its own past changes
+  against `REVIEW_LOG.md`, where every change carries what would prove it
+  wrong and a check date; a proven-wrong change is reverted first. A knob it
+  turned is frozen for 14 days. The keeper lifted the human-merge rule on
+  2026-10-12; the never-edit list and the no-dispatch rule still stand.
 
 ## What the bell is (and the only words it needs)
 
