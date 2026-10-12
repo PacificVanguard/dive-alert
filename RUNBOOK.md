@@ -33,11 +33,25 @@ message history IS the subscriber database — zero PII in this repo.
 ## Self-correction (don't break the loops)
 
 - **Buoy anchor**: rolling 48h obs/model height ratio, applied live per zone.
+  It is a residual on top of `model_height_scale` — the swell model's own
+  bias at that bell's buoy. The global 1.13 is Laguna's; a bell may carry
+  its own in its zone config after two consistent months of `validate`
+  (La Jolla 0.73 and Sydney 1.38 since 2026-10-12), so a buoy-down hour is
+  scored with its own coast's correction. Geography is `marine_height_scale`,
+  a different knob, fit by castings — don't retune one to fix the other.
 - **Skill loop**: `cmd_skill` (monthly) grades logged forecasts against
   archive truth into `data/skill_log.csv`; `load_skill_correction` applies
-  the sign-flipped bias live (capped ±0.5, n≥25). **`score_log.csv` stores
+  the sign-flipped bias live (capped ±0.5, n≥25). Since 2026-10-12 each
+  bell with n≥25 in a bucket gets its own row (`zone` column) and its own
+  correction; thin buckets keep the fleet's. **`score_log.csv` stores
   the RAW score** so the grader measures residual bias — never log the
   corrected score there or the loop oscillates.
+- **Drift log**: `validate` writes `data/drift_log.csv` with a `zone`
+  column since 2026-10-12. Rows before that ran in drift.yml's order
+  (A D E F H I J K O; a bell with <100 matched hours is skipped silently).
+- **Gate hold**: `gate_skill.csv` carries `flips` — which axis a lost 24-72h
+  promise failed on its morning. First reading (2026-10-12, 53 of 71 lost):
+  sun 31, flat 23, glass 16. The cloud forecast is the overconfident one.
 - **Second voice**: ECMWF wave model fetched alongside best_match;
   disagreement dents confidence, and it substitutes (marked, capped) when
   the primary dies.
