@@ -13,6 +13,7 @@ oscillates instead of converging.
 
 | date | change (commit) | evidence | proves it wrong | check by | status |
 |---|---|---|---|---|---|
+| 2026-10-13 | per-zone `model_height_scale`: J Oahu North Shore 0.85 | the unlabeled +14.3% / +17.9% drift rows (2026-09-03, 2026-10-03; suggested 0.88, 0.85) are J's: a read-only 45-day re-read of 51201 today gives +17.7% (n=1082, r=0.908, both halves +15.6/+19.9%, suggested 0.85) while I 46054 reads +2.6% and K 51003 +1.1% | the 2026-11-03 validate row for J suggests a value >10% from 0.85, or J's buoy-down windows score farther from its buoy-up windows of the same day than they did in October | 2026-11-04 | open |
 | 2026-10-12 | runbook: the review merges its own PR once drill+tests+audit pass (07182da) | keeper's decision | — | — | rule |
 | 2026-10-12 | gate_flip_axes + `flips` column in gate_skill.csv (9db88de) | 53 of 71 far promises lost; sun 31, flat 23, glass 16 | the first monthly `flips` column has an axis other than sun on top, or the drill (ag) breaks on real rows | 2026-11-04 | open |
 | 2026-10-12 | drift_log.csv gains a `zone` column (9db88de) | rows were unattributable; drift.yml order A D E F H I J K O | the 2026-11-03 drift run writes rows without a zone, or append_log misaligns old rows | 2026-11-04 | open |

@@ -36,8 +36,10 @@ message history IS the subscriber database — zero PII in this repo.
   It is a residual on top of `model_height_scale` — the swell model's own
   bias at that bell's buoy. The global 1.13 is Laguna's; a bell may carry
   its own in its zone config after two consistent months of `validate`
-  (La Jolla 0.73 and Sydney 1.38 since 2026-10-12), so a buoy-down hour is
-  scored with its own coast's correction. Geography is `marine_height_scale`,
+  (La Jolla 0.73 and Sydney 1.38 since 2026-10-12, Oahu North Shore 0.85
+  since 2026-10-13), so a buoy-down hour is scored with its own coast's
+  correction. With the buoy up the anchor cancels this scale exactly, so
+  it moves buoy-down and hindcast scores only — judge it by those. Geography is `marine_height_scale`,
   a different knob, fit by castings — don't retune one to fix the other.
 - **Skill loop**: `cmd_skill` (monthly) grades logged forecasts against
   archive truth into `data/skill_log.csv`; `load_skill_correction` applies
