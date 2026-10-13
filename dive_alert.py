@@ -410,6 +410,10 @@ CONFIG = {
             "tz": "Pacific/Honolulu",
             "first_flush_months": [],
             "tide_station": "1612340", "buoy": "51201", "buoy_offshore": "51003",
+            # the model at 51201 (Waimea) reads 14% / 18% / 18% high (drift log
+            # 2026-09-03, 2026-10-03, read-only check 2026-10-13: suggested 0.88,
+            # 0.85, 0.85); until then the unlabeled drift rows hid which bell
+            "model_height_scale": 0.85,
             "offshore_dir": 140,          # trades come over the island from ESE
             "cove_damage_factor": 0.62,
             # Fit on this bell's own casting evidence (the cell drinks the full N Pacific winter Shark's Cove never swims in).
@@ -5928,6 +5932,27 @@ def cmd_test(args):
     check("(ae) the two consumers still agree under the bell's own scale",
           abs(dmg_o - turb_o) / dmg_o < 0.02 and abs(turb_o - 1.3 ** 2) < 0.06,
           "dmg x%.3f turb x%.3f" % (dmg_o, turb_o))
+
+    # (ah) OAHU'S OWN EAR: the model at Waimea 51201 read 14-18% high three
+    # readings running (drift log 2026-09-03/10-03, read-only 2026-10-13), so
+    # J carries 0.85 in its real config — not a dict built in a drill. A
+    # buoy-down hour at Shark's Cove must now be scored with Oahu's correction
+    # while a buoy agreeing with it reads as a residual of 1.0.
+    zc_j = CONFIG["zones"]["J"]
+    zc_j_laguna = dict(zc_j, model_height_scale=None)   # None falls back to the global
+    check("(ah) Oahu's config carries its own model scale, below Laguna's",
+          0 < model_height_scale(zc_j) < _static, "scale=%.2f" % model_height_scale(zc_j))
+    ft_j = compute_features(w, _mk(), zc_j, t0, None)
+    ft_jl = compute_features(w, _mk(), zc_j_laguna, t0, None)
+    check("(ah) with no buoy, damage at Oahu moves by (own/1.13)^2",
+          abs(ft_j["damage"] / ft_jl["damage"] - (model_height_scale(zc_j) / _static) ** 2) < 0.06,
+          "ratio=%.3f" % (ft_j["damage"] / ft_jl["damage"]))
+    rows_j = [dict(r, wvht_m=r["wvht_m"] / 1.3 * model_height_scale(zc_j)) for r in rows_13]
+    f_an["ndbc_primary"] = Fetch("ndbc_primary", True,
+                                 {"rows": rows_j, "station": "51201", "latest": rows_j[0]})
+    check("(ah) a Waimea buoy agreeing with Oahu's scale is a residual of 1.0",
+          abs(buoy_anchor(f_an, t0, zc_j) - 1.0) <= 0.05, "a=%.3f" % buoy_anchor(f_an, t0, zc_j))
+    f_an["ndbc_primary"] = Fetch("ndbc_primary", False, error="gone")
 
     # (ff) SMS layer: quiet hours by the bell's clock; keywords name bells;
     # no env means no sends, ever.
