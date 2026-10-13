@@ -11,12 +11,12 @@
    "gate": false
   },
   "E": {
-   "score": 7.2,
+   "score": 9.1,
    "entries": [
-    "Breakwater (San Carlos)",
-    "McAbee Beach"
+    "McAbee Beach",
+    "Breakwater (San Carlos)"
    ],
-   "window_key": "20261014T1632-dusk",
+   "window_key": "20261014T0644-dawn",
    "since": "2026-10-12T17:00:00-07:00",
    "gate": false
   },
@@ -52,7 +52,7 @@
   "A:kd490": 0,
   "A:ndbc_spec": 0,
   "C:marine": 0,
-  "C:weather": 1,
+  "C:weather": 0,
   "C:ndbc_primary": 0,
   "C:ndbc_offshore": 0,
   "C:tides": 0,
@@ -79,7 +79,7 @@
   "E:kd490": 0,
   "E:ndbc_spec": 0,
   "F:marine": 0,
-  "F:weather": 1,
+  "F:weather": 0,
   "F:ndbc_primary": 0,
   "F:ndbc_offshore": 0,
   "F:tides": 0,
@@ -134,13 +134,13 @@
   "K:ndbc_spec": 0,
   "L:marine": 0,
   "L:weather": 0,
-  "L:ndbc_primary": 132,
-  "L:ndbc_offshore": 132,
-  "L:tides": 132,
+  "L:ndbc_primary": 133,
+  "L:ndbc_offshore": 133,
+  "L:tides": 133,
   "L:sst": 0,
   "L:chla": 0,
   "L:kd490": 0,
-  "L:ndbc_spec": 132,
+  "L:ndbc_spec": 133,
   "M:marine": 0,
   "M:weather": 0,
   "M:ndbc_primary": 0,
@@ -160,14 +160,14 @@
   "N:kd490": 0,
   "N:ndbc_spec": 0,
   "O:marine": 0,
-  "O:weather": 1,
+  "O:weather": 0,
   "O:ndbc_primary": 0,
-  "O:ndbc_offshore": 132,
-  "O:tides": 132,
+  "O:ndbc_offshore": 133,
+  "O:tides": 133,
   "O:sst": 0,
   "O:chla": 0,
   "O:kd490": 0,
-  "O:ndbc_spec": 132,
+  "O:ndbc_spec": 133,
   "P:marine": 0,
   "P:weather": 0,
   "P:ndbc_primary": 0,
@@ -177,17 +177,17 @@
   "P:chla": 0,
   "P:kd490": 0,
   "P:ndbc_spec": 0,
-  "A:marine_alt": 0,
+  "A:marine_alt": 1,
   "C:marine_alt": 0,
-  "D:marine_alt": 0,
+  "D:marine_alt": 1,
   "E:marine_alt": 0,
-  "F:marine_alt": 0,
-  "G:marine_alt": 2,
-  "H:marine_alt": 1,
-  "I:marine_alt": 0,
-  "J:marine_alt": 1,
-  "K:marine_alt": 1,
-  "L:marine_alt": 0,
+  "F:marine_alt": 1,
+  "G:marine_alt": 0,
+  "H:marine_alt": 0,
+  "I:marine_alt": 1,
+  "J:marine_alt": 0,
+  "K:marine_alt": 0,
+  "L:marine_alt": 1,
   "M:marine_alt": 0,
   "N:marine_alt": 0,
   "O:marine_alt": 0,
@@ -199,7 +199,7 @@
   "F:nws": 0,
   "G:nws": 0,
   "H:nws": 0,
-  "I:nws": 0,
+  "I:nws": 1,
   "J:nws": 0,
   "K:nws": 0,
   "M:nws": 0,
@@ -223,7 +223,7 @@
    "rings": 6
   },
   "E": {
-   "promises": 25,
+   "promises": 26,
    "rings": 4
   },
   "F": {
@@ -271,7 +271,7 @@
    "rings": 1
   }
  },
- "hook_idx": 185,
+ "hook_idx": 186,
  "axis_blind": {
   "flat": 0,
   "glass": 0,
@@ -354,19 +354,27 @@
   "A": {},
   "C": {},
   "D": {
-   "20261017T1613-dusk": 3,
-   "20261017T0624-dawn": 1
+   "20261017T1613-dusk": 4,
+   "20261017T0624-dawn": 2
   },
-  "E": {},
+  "E": {
+   "20261014T0644-dawn": 1,
+   "20261014T1632-dusk": 1,
+   "20261015T0645-dawn": 1,
+   "20261015T1631-dusk": 1,
+   "20261016T0646-dawn": 1,
+   "20261016T1629-dusk": 1,
+   "20261017T0647-dawn": 1,
+   "20261017T1628-dusk": 1,
+   "20261018T0647-dawn": 1
+  },
   "F": {},
   "G": {
-   "20261017T0630-dawn": 5,
-   "20261016T0629-dawn": 1
+   "20261017T0630-dawn": 6,
+   "20261016T0629-dawn": 2,
+   "20261016T1618-dusk": 1
   },
-  "H": {
-   "20261016T1629-dusk": 1,
-   "20261017T0646-dawn": 1
-  },
+  "H": {},
   "I": {},
   "J": {},
   "K": {},
