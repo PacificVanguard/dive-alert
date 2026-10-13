@@ -206,6 +206,12 @@ shipped without them once, so DIGEST could never send.
   realtime2 in Oct 2026) and two in a row tripped the breaker before Maui's
   turn. A 404 now resets the count (drill (ad)); the real fix is a new
   station ID in that zone's config.
+- **`degraded: marine_alt failed (... handshake operation timed out)` on a
+  few bells every run**: Open-Meteo's second rapid dial per bell stalls at
+  the TLS handshake now and then (a fifth of bell-fetches, Oct 2026) while
+  the first never does. `Sources._dial` redials once after a 2s breath
+  before counting a failure (drill (ai)); if the line still shows on >5% of
+  bell-fetches a week later, the pause is too short, not the limit too low.
 - **One bell failed, the rest ran**: normal now. The failed bell keeps its
   last plate on the board marked `stale`; ops (and the keeper's phone, if
   `KEEPER_PHONE` is set) get "Bells failed this run". Look at the ZONE

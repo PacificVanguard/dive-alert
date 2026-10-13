@@ -1047,6 +1047,15 @@ class Sources:
     # again, and each zone still records its own failure, so the source
     # sentinel and confidence math see exactly what they saw before.
     HOST_FAIL_LIMIT = 2
+    # A STALLED HANDSHAKE IS NOT AN OUTAGE. Ten runs, 2026-10-09..13: the
+    # second voice (marine_alt) died 31 times in 150 bell-fetches and weather
+    # 11 times, every one "_ssl.c:993: The handshake operation timed out",
+    # while the primary marine fetch — same host, dialed one second earlier —
+    # never failed once. A second rapid dial to Open-Meteo stalls now and
+    # then; 7.4% of bell-runs over two weeks lost wind, cloud and rain to it.
+    # One more dial after a breath, only for a connection-stage timeout, before
+    # any failure is counted. A host that is truly down still trips in two.
+    RETRY_PAUSE_S = 2
     # SHARED across every Sources in the process. fetch_all builds a fresh
     # Sources per zone, so a per-instance ledger reset fifteen times and a
     # dead host was still dialed twice per zone — chla alone cost 2×20s×15
@@ -1073,7 +1082,7 @@ class Sources:
             raise OSError("%s declared down for this run after %d failures"
                           % (host, self.host_fails[host]))
         try:
-            body = http_get(url, timeout)
+            body = self._dial(url, timeout)
         except urllib.error.HTTPError as e:
             # A 404 is a missing station, not a dead host: the host answered.
             # 46240 and 46217 vanished from NDBC realtime2 (Oct 2026) and their
@@ -1087,6 +1096,22 @@ class Sources:
         self.host_fails[host] = 0
         self.recorded[key] = body
         return body
+
+    @staticmethod
+    def _stalled_handshake(e):
+        # urllib wraps a connect/handshake timeout in URLError(TimeoutError);
+        # a read timeout surfaces bare and an HTTP status is an answer.
+        return (isinstance(e, urllib.error.URLError) and not isinstance(e, urllib.error.HTTPError)
+                and "timed out" in str(getattr(e, "reason", e)))
+
+    def _dial(self, url, timeout):
+        try:
+            return http_get(url, timeout)
+        except Exception as e:
+            if not self._stalled_handshake(e):
+                raise
+            time.sleep(self.RETRY_PAUSE_S)
+            return http_get(url, timeout)
 
     def fixture_now(self):
         meta = os.path.join(self.dir, "meta.json")
@@ -6905,6 +6930,50 @@ def cmd_test(args):
         check("(ad) a true outage still trips the breaker", tripped == 1, "tripped %d" % tripped)
     finally:
         globals()["http_get"] = _oh_ad
+        Sources._HOST_FAILS.clear()
+
+    # (ai) A STALLED HANDSHAKE IS NOT AN OUTAGE: Open-Meteo's second rapid
+    # dial per bell timed out at the TLS handshake in a fifth of bell-fetches
+    # (Oct 2026) while the first never did. One more dial before a failure is
+    # counted; a true outage still trips (oo) in two, and nothing else retries.
+    _oh_ai, _pause_ai = globals()["http_get"], Sources.RETRY_PAUSE_S
+    try:
+        Sources.RETRY_PAUSE_S = 0
+        dials_ai = {"n": 0, "stall": 1}
+
+        def _stall(url, timeout=25):
+            dials_ai["n"] += 1
+            if dials_ai["n"] <= dials_ai["stall"]:
+                raise urllib.error.URLError(TimeoutError("_ssl.c:993: The handshake operation timed out"))
+            return "ok"
+        globals()["http_get"] = _stall
+        Sources._HOST_FAILS.clear()
+        om = "https://marine-api.open-meteo.com/v1/marine"
+        body_ai = Sources(offline=False).get("marine_alt", om, timeout=1)
+        check("(ai) one stalled handshake is redialed and counted as nothing",
+              body_ai == "ok" and dials_ai["n"] == 2 and Sources._HOST_FAILS.get("marine-api.open-meteo.com") == 0,
+              "dialed %d fails=%s" % (dials_ai["n"], Sources._HOST_FAILS))
+        dials_ai["n"], dials_ai["stall"] = 0, 99
+        try:
+            Sources(offline=False).get("marine_alt", om, timeout=1)
+        except urllib.error.URLError:
+            pass
+        check("(ai) a host that stalls twice fails once — two dials, one strike",
+              dials_ai["n"] == 2 and Sources._HOST_FAILS.get("marine-api.open-meteo.com") == 1,
+              "dialed %d fails=%s" % (dials_ai["n"], Sources._HOST_FAILS))
+        dials_ai["n"] = 0
+
+        def _refused(url, timeout=25):
+            dials_ai["n"] += 1
+            raise OSError("unreachable")
+        globals()["http_get"] = _refused
+        try:
+            Sources(offline=False).get("marine_alt", om, timeout=1)
+        except OSError:
+            pass
+        check("(ai) anything but a stalled handshake is never redialed", dials_ai["n"] == 1)
+    finally:
+        globals()["http_get"], Sources.RETRY_PAUSE_S = _oh_ai, _pause_ai
         Sources._HOST_FAILS.clear()
     # (af) A BELL'S OWN FORESIGHT: the fleet bias was -0.70 at 24-48h on
     # 2026-10-03, pinned at the ±0.5 cap, while the drift log showed bells
