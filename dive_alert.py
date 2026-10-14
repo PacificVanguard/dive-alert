@@ -1789,6 +1789,7 @@ def compute_features(w, fetches, zone_cfg, t_now, anchor=None):
         "month": w["start"].month,
         "first_flush_months": zone_cfg.get("first_flush_months"),
         "buoy_anchor": anchor_dmg,
+        "anchor": anchor,   # the measurement itself: None stays None here, for the log
         "obs_frac": (obs_fraction(w["start"], fc["wind_lookback_h"], t_now)
                      + obs_fraction(w["start"], fc["swell_lookback_h"], t_now)) / 2.0,
         "missing": [k for k, f in fetches.items() if not f.ok],
@@ -3354,7 +3355,10 @@ LOG_COLS = ["run_ts", "zone", "window_key", "window_start", "window_kind", "lead
             # both winds: the hard cap reads RAW, the score reads EFFECTIVE —
             # logging one made the cap decision unauditable after the fact
             "wind_window_eff_kn",
-            "obs_frac", "cloud_pct", "sst_c", "chla_mg_m3", "kd490_m1",
+            # the buoy's residual that scaled swell_hgt_ft and damage — logged
+            # post-anchor, the raw model height was unrecoverable, and the only
+            # record of the anchor was zones.json inside bot commits (2026-10-14)
+            "obs_frac", "anchor", "cloud_pct", "sst_c", "chla_mg_m3", "kd490_m1",
             # perfect_gate stays the PHYSICAL answer (so gate_hold_rates keeps
             # grading the same quantity across the change); rang records what
             # the bell was actually willing to promise
@@ -4560,6 +4564,7 @@ def cmd_run(args):
                     "wind_window_max_kn": round(s["feats"]["wind_window_max_kn"], 1) if s["feats"]["wind_window_max_kn"] is not None else "",
                     "wind_window_eff_kn": round(s["feats"]["wind_window_eff_kn"], 1) if s["feats"].get("wind_window_eff_kn") is not None else "",
                     "obs_frac": round(s["feats"]["obs_frac"], 2),
+                    "anchor": s["feats"]["anchor"] if s["feats"].get("anchor") is not None else "",
                     "cloud_pct": round(s["feats"]["cloud_pct"]) if s["feats"].get("cloud_pct") is not None else "",
                     "sst_c": sst if sst is not None else "", "chla_mg_m3": chla if chla is not None else "",
                     "kd490_m1": s["feats"].get("kd490") if s["feats"].get("kd490") is not None else "",
@@ -7051,6 +7056,28 @@ def cmd_test(args):
           1.6 <= ft_k13["damage"] / ft_k["damage"] <= 1.8,
           "ratio=%.3f" % (ft_k13["damage"] / ft_k["damage"]))
     f_an["ndbc_primary"] = Fetch("ndbc_primary", False, error="gone")
+
+    # (ak) THE ANCHOR LEAVES A RECORD: swell_hgt_ft and damage are logged
+    # after the anchor scaled them, and until today the anchor itself lived
+    # only in zones.json snapshots inside bot commits — the (aj) evidence had
+    # to be dug out of fifteen of them. Every row now carries the residual
+    # that scaled it, and "no measurement" stays blank, never 1.0.
+    ft_ak = compute_features(w, _mk_fetches(t0, swell_ft=2.0, per_s=12, dir_deg=200), zc, t0, 1.3)
+    ft_ak0 = compute_features(w, _mk_fetches(t0, swell_ft=2.0, per_s=12, dir_deg=200), zc, t0, None)
+    check("(ak) the feature dict keeps the measurement apart from its 1.0 default",
+          ft_ak["anchor"] == 1.3 and ft_ak0["anchor"] is None and ft_ak0["buoy_anchor"] == 1.0)
+    check("(ak) the log has a column for it", "anchor" in LOG_COLS)
+    lp_ak = os.path.join(tempfile.gettempdir(), "anchor_col_drill.csv")
+    if os.path.exists(lp_ak):
+        os.remove(lp_ak)
+    append_log(lp_ak, [c for c in LOG_COLS if c != "anchor"], [{"run_ts": "r0", "zone": "K", "score": "1.0"}], dry_run=False)
+    append_log(lp_ak, LOG_COLS, [{"run_ts": "r1", "zone": "K", "score": "4.0", "anchor": ""},
+                                 {"run_ts": "r1", "zone": "P", "score": "5.3", "anchor": 1.6}], dry_run=False)
+    back_ak = _read_csv(lp_ak)
+    check("(ak) an old row migrates blank, a bell without a measurement stays blank, Maui's 1.6 lands",
+          back_ak[0].get("anchor", "") == "" and back_ak[0]["score"] == "1.0"
+          and back_ak[1]["anchor"] == "" and back_ak[2]["anchor"] == "1.6" and back_ak[2]["zone"] == "P",
+          str(back_ak))
 
     # fixture suite: degraded + disagreement
     print("fixture tests:")

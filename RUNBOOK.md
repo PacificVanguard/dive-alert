@@ -44,6 +44,8 @@ message history IS the subscriber database — zero PII in this repo.
   A bell whose primary buoy IS its offshore buoy (Kona 51003, Santa
   Barbara 46054) gets no anchor at all (2026-10-14): that ratio is
   geography, and Kona sat at the 1.6 clamp scoring 1.0 for three weeks.
+  Since 2026-10-14 every `score_log.csv` row carries the `anchor` that
+  scaled it (blank = no measurement) — the raw model height is not logged.
 - **Skill loop**: `cmd_skill` (monthly) grades logged forecasts against
   archive truth into `data/skill_log.csv`; `load_skill_correction` applies
   the sign-flipped bias live (capped ±0.5, n≥25). Since 2026-10-12 each
