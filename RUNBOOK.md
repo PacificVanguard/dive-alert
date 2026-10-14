@@ -41,6 +41,9 @@ message history IS the subscriber database — zero PII in this repo.
   correction. With the buoy up the anchor cancels this scale exactly, so
   it moves buoy-down and hindcast scores only — judge it by those. Geography is `marine_height_scale`,
   a different knob, fit by castings — don't retune one to fix the other.
+  A bell whose primary buoy IS its offshore buoy (Kona 51003, Santa
+  Barbara 46054) gets no anchor at all (2026-10-14): that ratio is
+  geography, and Kona sat at the 1.6 clamp scoring 1.0 for three weeks.
 - **Skill loop**: `cmd_skill` (monthly) grades logged forecasts against
   archive truth into `data/skill_log.csv`; `load_skill_correction` applies
   the sign-flipped bias live (capped ±0.5, n≥25). Since 2026-10-12 each

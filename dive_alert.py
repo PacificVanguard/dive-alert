@@ -1675,6 +1675,15 @@ def buoy_anchor(fetches, t_now, zone_cfg=None):
     corrects, and "no measurement" must stay distinguishable from "measured
     1.0" (the two consumers scale differently). Absent from hindcasts by
     necessity (no archived realtime buoy): a live-accuracy layer."""
+    # THE ANCHOR NEEDS THE ZONE'S OWN WATER. A bell whose only ear is its
+    # offshore buoy (Kona 51003, 205 NM out in the open ocean; Santa Barbara
+    # 46054, west of Conception) has no own buoy: obs/model there is the
+    # geography the casting scale already carries, not this week's model
+    # error. Kona's anchor read 1.39-1.60 every run 2026-10-09..14 and the
+    # bell scored 1.0 in 103 of 108 windows against a 23% casting band — the
+    # hindcast it was certified on never had an anchor at all.
+    if zone_cfg and zone_cfg.get("buoy") and zone_cfg.get("buoy") == zone_cfg.get("buoy_offshore"):
+        return None
     mp, ma = fetches.get("ndbc_primary"), fetches.get("marine")
     if not (mp and mp.ok and ma and ma.ok):
         return None
@@ -7018,6 +7027,30 @@ def cmd_test(args):
           fl_ag == {"sun": 1, "windows": 1}, str(fl_ag))
     check("(ag) a held promise and a >72h promise grade no axis",
           gate_hold_rates(lr_ag).get("24-72h") == (2, 1), str(gate_hold_rates(lr_ag)))
+
+    # (aj) NO OWN BUOY, NO ANCHOR: Kona's only ear is 51003, 205 NM out in
+    # the open ocean, and the anchor read it against the leeward model cell —
+    # 1.39-1.60 every run 2026-10-09..14, Kona pinned at 1.0 in 103 of 108
+    # windows while its casting band says 23%. Santa Barbara's 46054 is the
+    # same shape. A bell whose primary buoy is its offshore buoy has no own
+    # water to anchor to and must score as its casting did: unanchored.
+    zc_k, zc_i = CONFIG["zones"]["K"], CONFIG["zones"]["I"]
+    check("(aj) Kona and Santa Barbara lean on their offshore buoy alone",
+          zc_k["buoy"] == zc_k["buoy_offshore"] and zc_i["buoy"] == zc_i["buoy_offshore"])
+    f_an["ndbc_primary"] = Fetch("ndbc_primary", True,
+                                 {"rows": rows_13, "station": "51003", "latest": rows_13[0]})
+    check("(aj) 29 matched hours anchor nothing for an offshore-only bell",
+          buoy_anchor(f_an, t0, zc_k) is None and buoy_anchor(f_an, t0, zc_i) is None)
+    check("(aj) the same rows still anchor a bell with its own buoy",
+          buoy_anchor(f_an, t0, zc) is not None
+          and buoy_anchor(f_an, t0, dict(zc_k, buoy_offshore="51101")) is not None)
+    ft_k = compute_features(w, _mk_fetches(t0, swell_ft=2.0, per_s=12, dir_deg=200), zc_k, t0,
+                            buoy_anchor(f_an, t0, zc_k))
+    ft_k13 = compute_features(w, _mk_fetches(t0, swell_ft=2.0, per_s=12, dir_deg=200), zc_k, t0, 1.3)
+    check("(aj) unanchored Kona scores as cast: a 1.3 anchor would have cost 1.69x damage",
+          1.6 <= ft_k13["damage"] / ft_k["damage"] <= 1.8,
+          "ratio=%.3f" % (ft_k13["damage"] / ft_k["damage"]))
+    f_an["ndbc_primary"] = Fetch("ndbc_primary", False, error="gone")
 
     # fixture suite: degraded + disagreement
     print("fixture tests:")
