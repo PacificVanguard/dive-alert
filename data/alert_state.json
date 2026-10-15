@@ -48,7 +48,7 @@
    ],
    "window_key": "20261016T0624-dawn",
    "since": "2026-10-14T14:00:00-07:00",
-   "gate": true
+   "gate": false
   },
   "I": {
    "score": 8.2,
@@ -70,24 +70,24 @@
    "since": "2026-10-14T18:00:00-07:00",
    "gate": false
   },
-  "M": {
-   "score": 7.2,
+  "L": {
+   "score": 7.1,
    "entries": [
-    "Point Dume Cove",
-    "Leo Carrillo (Sequit Point)"
+    "Bari Reef",
+    "1000 Steps"
    ],
-   "window_key": "20261017T0632-dawn",
-   "since": "2026-10-15T08:00:00-07:00",
+   "window_key": "20261017T1613-dusk",
+   "since": "2026-10-15T14:00:00-07:00",
    "gate": false
   },
-  "P": {
-   "score": 8.4,
+  "N": {
+   "score": 8.3,
    "entries": [
-    "Kahekili (Airport Beach)",
-    "Black Rock (Pu'u Keka'a)"
+    "County Line Reef (Yerba Buena)",
+    "La Jenelle (Port Hueneme)"
    ],
-   "window_key": "20261016T0552-dawn",
-   "since": "2026-10-15T08:00:00-07:00",
+   "window_key": "20261016T1620-dusk",
+   "since": "2026-10-15T14:00:00-07:00",
    "gate": false
   }
  },
@@ -109,7 +109,7 @@
   "A:tides": 0,
   "A:sst": 0,
   "A:chla": 0,
-  "A:kd490": 1,
+  "A:kd490": 0,
   "A:ndbc_spec": 0,
   "C:marine": 0,
   "C:weather": 0,
@@ -118,7 +118,7 @@
   "C:tides": 0,
   "C:sst": 0,
   "C:chla": 0,
-  "C:kd490": 1,
+  "C:kd490": 0,
   "C:ndbc_spec": 0,
   "D:marine": 0,
   "D:weather": 0,
@@ -127,7 +127,7 @@
   "D:tides": 0,
   "D:sst": 0,
   "D:chla": 0,
-  "D:kd490": 1,
+  "D:kd490": 0,
   "D:ndbc_spec": 0,
   "E:marine": 0,
   "E:weather": 0,
@@ -136,7 +136,7 @@
   "E:tides": 0,
   "E:sst": 0,
   "E:chla": 0,
-  "E:kd490": 1,
+  "E:kd490": 0,
   "E:ndbc_spec": 0,
   "F:marine": 0,
   "F:weather": 0,
@@ -145,7 +145,7 @@
   "F:tides": 0,
   "F:sst": 0,
   "F:chla": 0,
-  "F:kd490": 1,
+  "F:kd490": 0,
   "F:ndbc_spec": 0,
   "G:marine": 0,
   "G:weather": 0,
@@ -154,7 +154,7 @@
   "G:tides": 0,
   "G:sst": 0,
   "G:chla": 0,
-  "G:kd490": 1,
+  "G:kd490": 0,
   "G:ndbc_spec": 0,
   "H:marine": 0,
   "H:weather": 0,
@@ -163,7 +163,7 @@
   "H:tides": 0,
   "H:sst": 0,
   "H:chla": 0,
-  "H:kd490": 1,
+  "H:kd490": 0,
   "H:ndbc_spec": 0,
   "I:marine": 0,
   "I:weather": 0,
@@ -172,7 +172,7 @@
   "I:tides": 0,
   "I:sst": 0,
   "I:chla": 0,
-  "I:kd490": 1,
+  "I:kd490": 0,
   "I:ndbc_spec": 0,
   "J:marine": 0,
   "J:weather": 0,
@@ -181,7 +181,7 @@
   "J:tides": 0,
   "J:sst": 0,
   "J:chla": 0,
-  "J:kd490": 1,
+  "J:kd490": 0,
   "J:ndbc_spec": 0,
   "K:marine": 0,
   "K:weather": 0,
@@ -190,17 +190,17 @@
   "K:tides": 0,
   "K:sst": 0,
   "K:chla": 0,
-  "K:kd490": 1,
+  "K:kd490": 0,
   "K:ndbc_spec": 0,
   "L:marine": 0,
   "L:weather": 0,
-  "L:ndbc_primary": 139,
-  "L:ndbc_offshore": 139,
-  "L:tides": 139,
+  "L:ndbc_primary": 140,
+  "L:ndbc_offshore": 140,
+  "L:tides": 140,
   "L:sst": 0,
   "L:chla": 0,
-  "L:kd490": 1,
-  "L:ndbc_spec": 139,
+  "L:kd490": 0,
+  "L:ndbc_spec": 140,
   "M:marine": 0,
   "M:weather": 0,
   "M:ndbc_primary": 0,
@@ -208,7 +208,7 @@
   "M:tides": 0,
   "M:sst": 0,
   "M:chla": 0,
-  "M:kd490": 1,
+  "M:kd490": 0,
   "M:ndbc_spec": 0,
   "N:marine": 0,
   "N:weather": 0,
@@ -217,17 +217,17 @@
   "N:tides": 0,
   "N:sst": 0,
   "N:chla": 0,
-  "N:kd490": 1,
+  "N:kd490": 0,
   "N:ndbc_spec": 0,
   "O:marine": 0,
   "O:weather": 0,
   "O:ndbc_primary": 0,
-  "O:ndbc_offshore": 139,
-  "O:tides": 139,
+  "O:ndbc_offshore": 140,
+  "O:tides": 140,
   "O:sst": 0,
   "O:chla": 0,
-  "O:kd490": 1,
-  "O:ndbc_spec": 139,
+  "O:kd490": 0,
+  "O:ndbc_spec": 140,
   "P:marine": 0,
   "P:weather": 0,
   "P:ndbc_primary": 0,
@@ -235,7 +235,7 @@
   "P:tides": 0,
   "P:sst": 0,
   "P:chla": 0,
-  "P:kd490": 1,
+  "P:kd490": 0,
   "P:ndbc_spec": 0,
   "A:marine_alt": 0,
   "C:marine_alt": 0,
@@ -311,7 +311,7 @@
    "rings": 0
   },
   "L": {
-   "promises": 15,
+   "promises": 16,
    "rings": 0
   },
   "M": {
@@ -319,7 +319,7 @@
    "rings": 1
   },
   "N": {
-   "promises": 14,
+   "promises": 15,
    "rings": 1
   },
   "O": {
@@ -331,7 +331,7 @@
    "rings": 1
   }
  },
- "hook_idx": 195,
+ "hook_idx": 197,
  "axis_blind": {
   "flat": 0,
   "glass": 0,
@@ -451,34 +451,29 @@
   "A": {},
   "C": {},
   "D": {
-   "20261016T0624-dawn": 5,
-   "20261018T0625-dawn": 2,
-   "20261022T0628-dawn": 1
+   "20261016T0624-dawn": 6,
+   "20261017T1613-dusk": 1
   },
   "E": {
-   "20261016T0646-dawn": 7,
-   "20261016T1629-dusk": 7,
-   "20261017T0647-dawn": 7,
-   "20261017T1628-dusk": 7,
-   "20261015T1631-dusk": 1
+   "20261016T0646-dawn": 8,
+   "20261016T1629-dusk": 8,
+   "20261017T0647-dawn": 8,
+   "20261017T1628-dusk": 8
   },
   "F": {},
   "G": {
-   "20261017T0630-dawn": 1
+   "20261016T0629-dawn": 1
   },
   "H": {
-   "20261017T0646-dawn": 5
+   "20261017T0646-dawn": 6
   },
-  "I": {
-   "20261018T0638-dawn": 1
-  },
+  "I": {},
   "J": {},
   "K": {
-   "20261020T0549-dawn": 2,
-   "20261020T1556-dusk": 1
+   "20261021T1555-dusk": 1
   },
   "L": {
-   "20261019T1612-dusk": 2
+   "20261019T1612-dusk": 3
   },
   "M": {},
   "N": {},
@@ -634,6 +629,44 @@
    },
    "alt": "The Dive Bell: Point Lobos is ringing for Sat Oct 17 at dawn, 64F water, in by 6:46am at Whalers Cove.",
    "created": "2026-10-15T15:42:20.302413+00:00",
+   "done": []
+  },
+  {
+   "key": "hazard:I:2026-10-16",
+   "kind": "hazard",
+   "text": "Santa Barbara will not ring Fri: NWS Gale Warning through Fri. Fri dawn would have scored 7.7 - the forecaster outranks the model. thedivebell.com/santa-barbara/",
+   "card": {
+    "kind": "hazard",
+    "eyebrow": "THE DIVE BELL \u00b7 SANTA BARBARA",
+    "lines": [
+     "NWS Gale Warning",
+     "in force through Fri",
+     "Fri dawn would have scored 7.7",
+     "The forecaster outranks the model."
+    ],
+    "foot": "thedivebell.com/santa-barbara/"
+   },
+   "alt": "Santa Barbara will not ring Fri: NWS Gale Warning through Fri. Fri dawn would have scored 7.7 - the forecaster outranks the model. thedivebell.com/santa-barbara/",
+   "created": "2026-10-15T21:40:47.054059+00:00",
+   "done": []
+  },
+  {
+   "key": "hazard:N:2026-10-16",
+   "kind": "hazard",
+   "text": "Ventura County will not ring Fri: NWS Gale Warning through Fri. Fri dusk would have scored 8.3 - the forecaster outranks the model. thedivebell.com/ventura-county/",
+   "card": {
+    "kind": "hazard",
+    "eyebrow": "THE DIVE BELL \u00b7 VENTURA COUNTY",
+    "lines": [
+     "NWS Gale Warning",
+     "in force through Fri",
+     "Fri dusk would have scored 8.3",
+     "The forecaster outranks the model."
+    ],
+    "foot": "thedivebell.com/ventura-county/"
+   },
+   "alt": "Ventura County will not ring Fri: NWS Gale Warning through Fri. Fri dusk would have scored 8.3 - the forecaster outranks the model. thedivebell.com/ventura-county/",
+   "created": "2026-10-15T21:43:01.742197+00:00",
    "done": []
   }
  ]
