@@ -18,17 +18,17 @@
    ],
    "window_key": "20261018T0630-dawn",
    "since": "2026-10-12T17:00:00-07:00",
-   "gate": true
+   "gate": false
   },
   "D": {
-   "score": 8.9,
+   "score": 9.8,
    "entries": [
     "La Jolla Cove",
     "La Jolla Shores (Canyon)"
    ],
-   "window_key": "20261016T0624-dawn",
+   "window_key": "20261018T0625-dawn",
    "since": "2026-10-14T14:00:00-07:00",
-   "gate": false
+   "gate": true
   },
   "I": {
    "score": 8.2,
@@ -89,6 +89,26 @@
    "window_key": "20261018T0632-dawn",
    "since": "2026-10-16T17:00:00-07:00",
    "gate": false
+  },
+  "K": {
+   "score": 7.8,
+   "entries": [
+    "Two Step (Honaunau)",
+    "Kahalu'u"
+   ],
+   "window_key": "20261019T0549-dawn",
+   "since": "2026-10-17T17:00:00-07:00",
+   "gate": false
+  },
+  "O": {
+   "score": 7.1,
+   "entries": [
+    "Shelly Beach (Cabbage Tree Bay)",
+    "Fairy Bower"
+   ],
+   "window_key": "20261020T0538-dawn",
+   "since": "2026-10-17T17:00:00-07:00",
+   "gate": false
   }
  },
  "last_tip_id": "fi1",
@@ -148,7 +168,7 @@
   "F:kd490": 0,
   "F:ndbc_spec": 0,
   "G:marine": 0,
-  "G:weather": 0,
+  "G:weather": 1,
   "G:ndbc_primary": 0,
   "G:ndbc_offshore": 0,
   "G:tides": 0,
@@ -157,7 +177,7 @@
   "G:kd490": 0,
   "G:ndbc_spec": 0,
   "H:marine": 0,
-  "H:weather": 0,
+  "H:weather": 1,
   "H:ndbc_primary": 0,
   "H:ndbc_offshore": 0,
   "H:tides": 0,
@@ -194,13 +214,13 @@
   "K:ndbc_spec": 0,
   "L:marine": 0,
   "L:weather": 0,
-  "L:ndbc_primary": 145,
-  "L:ndbc_offshore": 145,
-  "L:tides": 145,
+  "L:ndbc_primary": 146,
+  "L:ndbc_offshore": 146,
+  "L:tides": 146,
   "L:sst": 0,
   "L:chla": 0,
   "L:kd490": 0,
-  "L:ndbc_spec": 145,
+  "L:ndbc_spec": 146,
   "M:marine": 0,
   "M:weather": 0,
   "M:ndbc_primary": 0,
@@ -222,12 +242,12 @@
   "O:marine": 0,
   "O:weather": 0,
   "O:ndbc_primary": 0,
-  "O:ndbc_offshore": 145,
-  "O:tides": 145,
+  "O:ndbc_offshore": 146,
+  "O:tides": 146,
   "O:sst": 0,
   "O:chla": 0,
   "O:kd490": 0,
-  "O:ndbc_spec": 145,
+  "O:ndbc_spec": 146,
   "P:marine": 0,
   "P:weather": 0,
   "P:ndbc_primary": 0,
@@ -279,7 +299,7 @@
    "rings": 7
   },
   "D": {
-   "promises": 24,
+   "promises": 25,
    "rings": 6
   },
   "E": {
@@ -307,7 +327,7 @@
    "rings": 4
   },
   "K": {
-   "promises": 3,
+   "promises": 4,
    "rings": 0
   },
   "L": {
@@ -323,7 +343,7 @@
    "rings": 1
   },
   "O": {
-   "promises": 9,
+   "promises": 10,
    "rings": 4
   },
   "P": {
@@ -331,7 +351,7 @@
    "rings": 1
   }
  },
- "hook_idx": 202,
+ "hook_idx": 204,
  "axis_blind": {
   "flat": 0,
   "glass": 0,
@@ -351,7 +371,7 @@
  "sms_rung": {
   "O": "20260906T0537-dawn",
   "L": "20260904T1641-dusk",
-  "D": "20261016T0624-dawn",
+  "D": "20261018T0625-dawn",
   "E": "20261015T1631-dusk",
   "H": "20261017T0646-dawn",
   "C": "20260913T1659-dusk",
@@ -455,91 +475,31 @@
   "A": {},
   "C": {},
   "D": {
-   "20261018T0625-dawn": 1,
-   "20261019T0626-dawn": 1,
-   "20261020T0627-dawn": 1
+   "20261018T0625-dawn": 2,
+   "20261019T0626-dawn": 2,
+   "20261020T0627-dawn": 2,
+   "20261018T1612-dusk": 1,
+   "20261021T0627-dawn": 1
   },
-  "E": {
-   "20261022T0651-dawn": 1
-  },
+  "E": {},
   "F": {},
-  "G": {
-   "20261018T0630-dawn": 4
+  "G": {},
+  "H": {},
+  "I": {},
+  "J": {
+   "20261024T0601-dawn": 1
   },
-  "H": {
-   "20261017T1628-dusk": 2
-  },
-  "I": {
-   "20261018T0638-dawn": 1
-  },
-  "J": {},
   "K": {},
   "L": {},
   "M": {},
   "N": {},
   "O": {},
   "P": {
-   "20261022T0554-dawn": 1
+   "20261022T0554-dawn": 2
   }
  },
  "social_posted": {},
  "social_queue": [
-  {
-   "key": "ring:H:20261017T0646-dawn",
-   "kind": "ring",
-   "text": "THE BELL IS RINGING - POINT LOBOS. Sat Oct 17 at dawn: flat, glassy, dry, sunny, 64F water. In by 6:46am at Whalers Cove. thedivebell.com/point-lobos/",
-   "card": {
-    "kind": "ring",
-    "eyebrow": "THE DIVE BELL \u00b7 BELL NO. 7",
-    "lines": [
-     "Point Lobos \u00b7 Sat Oct 17 at dawn",
-     "flat \u00b7 glassy \u00b7 dry \u00b7 sunny \u00b7 64F water",
-     "In by 6:46am at Whalers Cove"
-    ],
-    "foot": "thedivebell.com/point-lobos/  \u00b7  text LOBOS to 833-858-2355"
-   },
-   "alt": "The Dive Bell: Point Lobos is ringing for Sat Oct 17 at dawn, 64F water, in by 6:46am at Whalers Cove.",
-   "created": "2026-10-15T15:42:20.302413+00:00",
-   "done": []
-  },
-  {
-   "key": "hazard:I:2026-10-16",
-   "kind": "hazard",
-   "text": "Santa Barbara will not ring Fri: NWS Gale Warning through Fri. Fri dawn would have scored 7.7 - the forecaster outranks the model. thedivebell.com/santa-barbara/",
-   "card": {
-    "kind": "hazard",
-    "eyebrow": "THE DIVE BELL \u00b7 SANTA BARBARA",
-    "lines": [
-     "NWS Gale Warning",
-     "in force through Fri",
-     "Fri dawn would have scored 7.7",
-     "The forecaster outranks the model."
-    ],
-    "foot": "thedivebell.com/santa-barbara/"
-   },
-   "alt": "Santa Barbara will not ring Fri: NWS Gale Warning through Fri. Fri dawn would have scored 7.7 - the forecaster outranks the model. thedivebell.com/santa-barbara/",
-   "created": "2026-10-15T21:40:47.054059+00:00",
-   "done": []
-  },
-  {
-   "key": "hazard:N:2026-10-16",
-   "kind": "hazard",
-   "text": "Ventura County will not ring Fri: NWS Gale Warning through Fri. Fri dusk would have scored 8.3 - the forecaster outranks the model. thedivebell.com/ventura-county/",
-   "card": {
-    "kind": "hazard",
-    "eyebrow": "THE DIVE BELL \u00b7 VENTURA COUNTY",
-    "lines": [
-     "NWS Gale Warning",
-     "in force through Fri",
-     "Fri dusk would have scored 8.3",
-     "The forecaster outranks the model."
-    ],
-    "foot": "thedivebell.com/ventura-county/"
-   },
-   "alt": "Ventura County will not ring Fri: NWS Gale Warning through Fri. Fri dusk would have scored 8.3 - the forecaster outranks the model. thedivebell.com/ventura-county/",
-   "created": "2026-10-15T21:43:01.742197+00:00",
-   "done": []
-  },
   {
    "key": "takeback:H:2026-10-17",
    "kind": "takeback",
@@ -648,6 +608,62 @@
    },
    "alt": "The bell takes back its word at Monterey: Saturday's perfect morning didn't hold - all clear filled in. The bell only rings when it's sure. thedivebell.com/monterey/",
    "created": "2026-10-17T14:20:40.842585+00:00",
+   "done": []
+  },
+  {
+   "key": "ring:D:20261018T0625-dawn",
+   "kind": "ring",
+   "text": "THE BELL IS RINGING - LA JOLLA. Sun Oct 18 at dawn: flat, glassy, dry, sunny, 72F water. In by 6:25am at La Jolla Cove. thedivebell.com/la-jolla/",
+   "card": {
+    "kind": "ring",
+    "eyebrow": "THE DIVE BELL \u00b7 BELL NO. 3",
+    "lines": [
+     "La Jolla \u00b7 Sun Oct 18 at dawn",
+     "flat \u00b7 glassy \u00b7 dry \u00b7 sunny \u00b7 72F water",
+     "In by 6:25am at La Jolla Cove"
+    ],
+    "foot": "thedivebell.com/la-jolla/  \u00b7  text JOLLA to 833-858-2355"
+   },
+   "alt": "The Dive Bell: La Jolla is ringing for Sun Oct 18 at dawn, 72F water, in by 6:25am at La Jolla Cove.",
+   "created": "2026-10-18T00:33:03.965197+00:00",
+   "done": []
+  },
+  {
+   "key": "hazard:E:2026-10-18",
+   "kind": "hazard",
+   "text": "Monterey will not ring Sun: NWS Beach Hazards Statement through Sun. Sun dawn would have scored 8.9 - the forecaster outranks the model. thedivebell.com/monterey/",
+   "card": {
+    "kind": "hazard",
+    "eyebrow": "THE DIVE BELL \u00b7 MONTEREY",
+    "lines": [
+     "NWS Beach Hazards Statement",
+     "in force through Sun",
+     "Sun dawn would have scored 8.9",
+     "The forecaster outranks the model."
+    ],
+    "foot": "thedivebell.com/monterey/"
+   },
+   "alt": "Monterey will not ring Sun: NWS Beach Hazards Statement through Sun. Sun dawn would have scored 8.9 - the forecaster outranks the model. thedivebell.com/monterey/",
+   "created": "2026-10-18T00:33:37.398107+00:00",
+   "done": []
+  },
+  {
+   "key": "hazard:G:2026-10-18",
+   "kind": "hazard",
+   "text": "Palos Verdes will not ring Sun: NWS Beach Hazards Statement through Tue. Sun dusk would have scored 7.3 - the forecaster outranks the model. thedivebell.com/palos-verdes/",
+   "card": {
+    "kind": "hazard",
+    "eyebrow": "THE DIVE BELL \u00b7 PALOS VERDES",
+    "lines": [
+     "NWS Beach Hazards Statement",
+     "in force through Tue",
+     "Sun dusk would have scored 7.3",
+     "The forecaster outranks the model."
+    ],
+    "foot": "thedivebell.com/palos-verdes/"
+   },
+   "alt": "Palos Verdes will not ring Sun: NWS Beach Hazards Statement through Tue. Sun dusk would have scored 7.3 - the forecaster outranks the model. thedivebell.com/palos-verdes/",
+   "created": "2026-10-18T00:34:20.122476+00:00",
    "done": []
   }
  ]
