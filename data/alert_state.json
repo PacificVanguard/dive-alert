@@ -1,34 +1,14 @@
 {
  "streaks": {
   "D": {
-   "score": 9.8,
+   "score": 9.5,
    "entries": [
     "La Jolla Cove",
     "La Jolla Shores (Canyon)"
    ],
-   "window_key": "20261018T0625-dawn",
+   "window_key": "20261021T0627-dawn",
    "since": "2026-10-14T14:00:00-07:00",
-   "gate": false
-  },
-  "I": {
-   "score": 7.0,
-   "entries": [
-    "Tajiguas Reef",
-    "Refugio State Beach"
-   ],
-   "window_key": "20261019T0639-dawn",
-   "since": "2026-10-14T14:00:00-07:00",
-   "gate": false
-  },
-  "N": {
-   "score": 8.3,
-   "entries": [
-    "County Line Reef (Yerba Buena)",
-    "La Jenelle (Port Hueneme)"
-   ],
-   "window_key": "20261016T1620-dusk",
-   "since": "2026-10-15T14:00:00-07:00",
-   "gate": false
+   "gate": true
   },
   "P": {
    "score": 8.4,
@@ -60,14 +40,14 @@
    "since": "2026-10-17T17:00:00-07:00",
    "gate": false
   },
-  "O": {
+  "J": {
    "score": 7.1,
    "entries": [
-    "Shelly Beach (Cabbage Tree Bay)",
-    "Fairy Bower"
+    "Three Tables",
+    "Shark's Cove"
    ],
-   "window_key": "20261020T0538-dawn",
-   "since": "2026-10-17T17:00:00-07:00",
+   "window_key": "20261021T0600-dawn",
+   "since": "2026-10-19T15:00:00-07:00",
    "gate": false
   }
  },
@@ -174,13 +154,13 @@
   "K:ndbc_spec": 0,
   "L:marine": 0,
   "L:weather": 0,
-  "L:ndbc_primary": 148,
-  "L:ndbc_offshore": 148,
-  "L:tides": 148,
+  "L:ndbc_primary": 149,
+  "L:ndbc_offshore": 149,
+  "L:tides": 149,
   "L:sst": 0,
   "L:chla": 0,
   "L:kd490": 0,
-  "L:ndbc_spec": 148,
+  "L:ndbc_spec": 149,
   "M:marine": 0,
   "M:weather": 0,
   "M:ndbc_primary": 0,
@@ -202,12 +182,12 @@
   "O:marine": 0,
   "O:weather": 0,
   "O:ndbc_primary": 0,
-  "O:ndbc_offshore": 148,
-  "O:tides": 148,
+  "O:ndbc_offshore": 149,
+  "O:tides": 149,
   "O:sst": 0,
   "O:chla": 0,
   "O:kd490": 0,
-  "O:ndbc_spec": 148,
+  "O:ndbc_spec": 149,
   "P:marine": 0,
   "P:weather": 0,
   "P:ndbc_primary": 0,
@@ -259,7 +239,7 @@
    "rings": 7
   },
   "D": {
-   "promises": 25,
+   "promises": 26,
    "rings": 6
   },
   "E": {
@@ -283,7 +263,7 @@
    "rings": 1
   },
   "J": {
-   "promises": 19,
+   "promises": 20,
    "rings": 4
   },
   "K": {
@@ -311,7 +291,7 @@
    "rings": 1
   }
  },
- "hook_idx": 204,
+ "hook_idx": 205,
  "axis_blind": {
   "flat": 0,
   "glass": 0,
@@ -331,7 +311,7 @@
  "sms_rung": {
   "O": "20260906T0537-dawn",
   "L": "20260904T1641-dusk",
-  "D": "20261018T0625-dawn",
+  "D": "20261021T0627-dawn",
   "E": "20261015T1631-dusk",
   "H": "20261017T0646-dawn",
   "C": "20260913T1659-dusk",
@@ -435,46 +415,30 @@
   "A": {},
   "C": {},
   "D": {
-   "20261021T0627-dawn": 3,
-   "20261020T1609-dusk": 1
+   "20261021T0627-dawn": 4,
+   "20261026T0631-dawn": 1
   },
   "E": {},
   "F": {},
-  "G": {},
-  "H": {},
-  "I": {
-   "20261025T1613-dusk": 1
+  "G": {
+   "20261026T0637-dawn": 1
   },
+  "H": {},
+  "I": {},
   "J": {},
   "K": {},
   "L": {},
   "M": {},
-  "N": {},
+  "N": {
+   "20261026T0640-dawn": 1
+  },
   "O": {},
   "P": {
-   "20261022T0554-dawn": 1
+   "20261022T1556-dusk": 1
   }
  },
  "social_posted": {},
  "social_queue": [
-  {
-   "key": "takeback:E:2026-10-17",
-   "kind": "takeback",
-   "text": "The bell takes back its word at Monterey: Saturday's perfect morning didn't hold - all clear filled in. The bell only rings when it's sure. thedivebell.com/monterey/",
-   "card": {
-    "kind": "takeback",
-    "eyebrow": "THE DIVE BELL \u00b7 MONTEREY",
-    "lines": [
-     "Saturday's perfect morning didn't hold.",
-     "A filled in where the promise stood.ll clear",
-     "The bell only rings when it's sure."
-    ],
-    "foot": "thedivebell.com/monterey/"
-   },
-   "alt": "The bell takes back its word at Monterey: Saturday's perfect morning didn't hold - all clear filled in. The bell only rings when it's sure. thedivebell.com/monterey/",
-   "created": "2026-10-17T14:20:40.842585+00:00",
-   "done": []
-  },
   {
    "key": "ring:D:20261018T0625-dawn",
    "kind": "ring",
@@ -567,6 +531,24 @@
    },
    "alt": "La Jolla will not ring Mon: NWS Beach Hazards Statement through Tue. Mon dawn would have scored 9.8 - the forecaster outranks the model. thedivebell.com/la-jolla/",
    "created": "2026-10-19T00:40:38.040601+00:00",
+   "done": []
+  },
+  {
+   "key": "ring:D:20261021T0627-dawn",
+   "kind": "ring",
+   "text": "THE BELL IS RINGING - LA JOLLA. Wed Oct 21 at dawn: flat, glassy, dry, sunny, 73F water. In by 6:27am at La Jolla Cove. thedivebell.com/la-jolla/",
+   "card": {
+    "kind": "ring",
+    "eyebrow": "THE DIVE BELL \u00b7 BELL NO. 3",
+    "lines": [
+     "La Jolla \u00b7 Wed Oct 21 at dawn",
+     "flat \u00b7 glassy \u00b7 dry \u00b7 sunny \u00b7 73F water",
+     "In by 6:27am at La Jolla Cove"
+    ],
+    "foot": "thedivebell.com/la-jolla/  \u00b7  text JOLLA to 833-858-2355"
+   },
+   "alt": "The Dive Bell: La Jolla is ringing for Wed Oct 21 at dawn, 73F water, in by 6:27am at La Jolla Cove.",
+   "created": "2026-10-19T22:33:59.011747+00:00",
    "done": []
   }
  ]
