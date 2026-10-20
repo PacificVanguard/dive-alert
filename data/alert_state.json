@@ -154,13 +154,13 @@
   "K:ndbc_spec": 0,
   "L:marine": 0,
   "L:weather": 0,
-  "L:ndbc_primary": 149,
-  "L:ndbc_offshore": 149,
-  "L:tides": 149,
+  "L:ndbc_primary": 150,
+  "L:ndbc_offshore": 150,
+  "L:tides": 150,
   "L:sst": 0,
   "L:chla": 0,
   "L:kd490": 0,
-  "L:ndbc_spec": 149,
+  "L:ndbc_spec": 150,
   "M:marine": 0,
   "M:weather": 0,
   "M:ndbc_primary": 0,
@@ -182,12 +182,12 @@
   "O:marine": 0,
   "O:weather": 0,
   "O:ndbc_primary": 0,
-  "O:ndbc_offshore": 149,
-  "O:tides": 149,
+  "O:ndbc_offshore": 150,
+  "O:tides": 150,
   "O:sst": 0,
   "O:chla": 0,
   "O:kd490": 0,
-  "O:ndbc_spec": 149,
+  "O:ndbc_spec": 150,
   "P:marine": 0,
   "P:weather": 0,
   "P:ndbc_primary": 0,
@@ -415,86 +415,29 @@
   "A": {},
   "C": {},
   "D": {
-   "20261021T0627-dawn": 4,
-   "20261026T0631-dawn": 1
+   "20261021T0627-dawn": 5
   },
-  "E": {},
+  "E": {
+   "20261026T1617-dusk": 1
+  },
   "F": {},
-  "G": {
-   "20261026T0637-dawn": 1
-  },
+  "G": {},
   "H": {},
   "I": {},
   "J": {},
   "K": {},
   "L": {},
   "M": {},
-  "N": {
-   "20261026T0640-dawn": 1
-  },
+  "N": {},
   "O": {},
   "P": {
-   "20261022T1556-dusk": 1
+   "20261022T1556-dusk": 2,
+   "20261022T0554-dawn": 1,
+   "20261023T0555-dawn": 1
   }
  },
  "social_posted": {},
  "social_queue": [
-  {
-   "key": "ring:D:20261018T0625-dawn",
-   "kind": "ring",
-   "text": "THE BELL IS RINGING - LA JOLLA. Sun Oct 18 at dawn: flat, glassy, dry, sunny, 72F water. In by 6:25am at La Jolla Cove. thedivebell.com/la-jolla/",
-   "card": {
-    "kind": "ring",
-    "eyebrow": "THE DIVE BELL \u00b7 BELL NO. 3",
-    "lines": [
-     "La Jolla \u00b7 Sun Oct 18 at dawn",
-     "flat \u00b7 glassy \u00b7 dry \u00b7 sunny \u00b7 72F water",
-     "In by 6:25am at La Jolla Cove"
-    ],
-    "foot": "thedivebell.com/la-jolla/  \u00b7  text JOLLA to 833-858-2355"
-   },
-   "alt": "The Dive Bell: La Jolla is ringing for Sun Oct 18 at dawn, 72F water, in by 6:25am at La Jolla Cove.",
-   "created": "2026-10-18T00:33:03.965197+00:00",
-   "done": []
-  },
-  {
-   "key": "hazard:E:2026-10-18",
-   "kind": "hazard",
-   "text": "Monterey will not ring Sun: NWS Beach Hazards Statement through Sun. Sun dawn would have scored 8.9 - the forecaster outranks the model. thedivebell.com/monterey/",
-   "card": {
-    "kind": "hazard",
-    "eyebrow": "THE DIVE BELL \u00b7 MONTEREY",
-    "lines": [
-     "NWS Beach Hazards Statement",
-     "in force through Sun",
-     "Sun dawn would have scored 8.9",
-     "The forecaster outranks the model."
-    ],
-    "foot": "thedivebell.com/monterey/"
-   },
-   "alt": "Monterey will not ring Sun: NWS Beach Hazards Statement through Sun. Sun dawn would have scored 8.9 - the forecaster outranks the model. thedivebell.com/monterey/",
-   "created": "2026-10-18T00:33:37.398107+00:00",
-   "done": []
-  },
-  {
-   "key": "hazard:G:2026-10-18",
-   "kind": "hazard",
-   "text": "Palos Verdes will not ring Sun: NWS Beach Hazards Statement through Tue. Sun dusk would have scored 7.3 - the forecaster outranks the model. thedivebell.com/palos-verdes/",
-   "card": {
-    "kind": "hazard",
-    "eyebrow": "THE DIVE BELL \u00b7 PALOS VERDES",
-    "lines": [
-     "NWS Beach Hazards Statement",
-     "in force through Tue",
-     "Sun dusk would have scored 7.3",
-     "The forecaster outranks the model."
-    ],
-    "foot": "thedivebell.com/palos-verdes/"
-   },
-   "alt": "Palos Verdes will not ring Sun: NWS Beach Hazards Statement through Tue. Sun dusk would have scored 7.3 - the forecaster outranks the model. thedivebell.com/palos-verdes/",
-   "created": "2026-10-18T00:34:20.122476+00:00",
-   "done": []
-  },
   {
    "key": "hazard:D:2026-10-18",
    "kind": "hazard",
@@ -549,6 +492,25 @@
    },
    "alt": "The Dive Bell: La Jolla is ringing for Wed Oct 21 at dawn, 73F water, in by 6:27am at La Jolla Cove.",
    "created": "2026-10-19T22:33:59.011747+00:00",
+   "done": []
+  },
+  {
+   "key": "hazard:D:2026-10-20",
+   "kind": "hazard",
+   "text": "La Jolla will not ring Tue: NWS Beach Hazards Statement through Tue. Tue dawn would have scored 8.6 - the forecaster outranks the model. thedivebell.com/la-jolla/",
+   "card": {
+    "kind": "hazard",
+    "eyebrow": "THE DIVE BELL \u00b7 LA JOLLA",
+    "lines": [
+     "NWS Beach Hazards Statement",
+     "in force through Tue",
+     "Tue dawn would have scored 8.6",
+     "The forecaster outranks the model."
+    ],
+    "foot": "thedivebell.com/la-jolla/"
+   },
+   "alt": "La Jolla will not ring Tue: NWS Beach Hazards Statement through Tue. Tue dawn would have scored 8.6 - the forecaster outranks the model. thedivebell.com/la-jolla/",
+   "created": "2026-10-20T01:25:36.583830+00:00",
    "done": []
   }
  ]
