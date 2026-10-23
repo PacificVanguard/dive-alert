@@ -39,6 +39,16 @@
    "window_key": "20261025T0633-dawn",
    "since": "2026-10-23T08:00:00-07:00",
    "gate": false
+  },
+  "L": {
+   "score": 7.0,
+   "entries": [
+    "Bari Reef",
+    "1000 Steps"
+   ],
+   "window_key": "20261025T1609-dusk",
+   "since": "2026-10-23T14:00:00-07:00",
+   "gate": false
   }
  },
  "last_tip_id": "fi2",
@@ -77,7 +87,7 @@
   "D:tides": 0,
   "D:sst": 0,
   "D:chla": 0,
-  "D:kd490": 0,
+  "D:kd490": 1,
   "D:ndbc_spec": 0,
   "E:marine": 0,
   "E:weather": 0,
@@ -86,7 +96,7 @@
   "E:tides": 0,
   "E:sst": 0,
   "E:chla": 0,
-  "E:kd490": 0,
+  "E:kd490": 1,
   "E:ndbc_spec": 0,
   "F:marine": 0,
   "F:weather": 0,
@@ -95,7 +105,7 @@
   "F:tides": 0,
   "F:sst": 0,
   "F:chla": 0,
-  "F:kd490": 0,
+  "F:kd490": 1,
   "F:ndbc_spec": 0,
   "G:marine": 0,
   "G:weather": 0,
@@ -144,13 +154,13 @@
   "K:ndbc_spec": 0,
   "L:marine": 0,
   "L:weather": 0,
-  "L:ndbc_primary": 160,
-  "L:ndbc_offshore": 160,
-  "L:tides": 160,
+  "L:ndbc_primary": 161,
+  "L:ndbc_offshore": 161,
+  "L:tides": 161,
   "L:sst": 0,
   "L:chla": 0,
   "L:kd490": 0,
-  "L:ndbc_spec": 160,
+  "L:ndbc_spec": 161,
   "M:marine": 0,
   "M:weather": 0,
   "M:ndbc_primary": 0,
@@ -167,17 +177,17 @@
   "N:tides": 0,
   "N:sst": 0,
   "N:chla": 0,
-  "N:kd490": 4,
+  "N:kd490": 0,
   "N:ndbc_spec": 0,
   "O:marine": 0,
   "O:weather": 0,
   "O:ndbc_primary": 0,
-  "O:ndbc_offshore": 160,
-  "O:tides": 160,
+  "O:ndbc_offshore": 161,
+  "O:tides": 161,
   "O:sst": 0,
   "O:chla": 0,
-  "O:kd490": 4,
-  "O:ndbc_spec": 160,
+  "O:kd490": 0,
+  "O:ndbc_spec": 161,
   "P:marine": 0,
   "P:weather": 0,
   "P:ndbc_primary": 0,
@@ -185,7 +195,7 @@
   "P:tides": 0,
   "P:sst": 0,
   "P:chla": 0,
-  "P:kd490": 4,
+  "P:kd490": 0,
   "P:ndbc_spec": 0,
   "A:marine_alt": 0,
   "C:marine_alt": 0,
@@ -261,7 +271,7 @@
    "rings": 0
   },
   "L": {
-   "promises": 18,
+   "promises": 19,
    "rings": 0
   },
   "M": {
@@ -281,7 +291,7 @@
    "rings": 2
   }
  },
- "hook_idx": 214,
+ "hook_idx": 215,
  "axis_blind": {
   "flat": 0,
   "glass": 0,
@@ -414,54 +424,36 @@
   "A": {},
   "C": {},
   "D": {
-   "20261025T0631-dawn": 2,
-   "20261026T0631-dawn": 2,
-   "20261024T1605-dusk": 1,
-   "20261028T1601-dusk": 1,
-   "20261029T1600-dusk": 1
+   "20261025T0631-dawn": 3,
+   "20261026T0631-dawn": 3,
+   "20261024T1605-dusk": 2
   },
-  "E": {},
+  "E": {
+   "20261028T0657-dawn": 1,
+   "20261028T1614-dusk": 1,
+   "20261030T0659-dawn": 1
+  },
   "F": {},
   "G": {
-   "20261026T0637-dawn": 1
+   "20261029T0640-dawn": 1
   },
   "H": {},
-  "I": {
-   "20261027T1611-dusk": 1
-  },
+  "I": {},
   "J": {},
   "K": {},
   "L": {},
   "M": {},
-  "N": {},
+  "N": {
+   "20261029T0642-dawn": 1
+  },
   "O": {
-   "20261030T0527-dawn": 1
+   "20261028T0529-dawn": 1,
+   "20261029T0528-dawn": 1
   },
   "P": {}
  },
  "social_posted": {},
  "social_queue": [
-  {
-   "key": "week:2026-W43",
-   "kind": "week",
-   "text": "The week ahead, 15 bells. Best: Oahu North Shore Thu dusk 9.4, Maui Thu dawn 9.2, Monterey Mon dusk 9.0. Maui is ringing. Quietest: Laguna Beach, 71 days. thedivebell.com/",
-   "card": {
-    "kind": "week",
-    "eyebrow": "THE DIVE BELL \u00b7 15 BELLS \u00b7 OCT 21",
-    "lines": [
-     "Oahu North Shore \u00b7 Thu dusk \u00b7 9.4",
-     "Maui \u00b7 Thu dawn \u00b7 9.2  RINGING",
-     "Monterey \u00b7 Mon dusk \u00b7 9.0",
-     "Santa Barbara \u00b7 Mon dusk \u00b7 8.8",
-     "La Jolla \u00b7 Wed dawn \u00b7 8.6",
-     "Bonaire \u00b7 Mon dusk \u00b7 8.3"
-    ],
-    "foot": "thedivebell.com/  \u00b7  Maui is ringing"
-   },
-   "alt": "The Dive Bell, the week ahead across 15 bells. Oahu North Shore Thu dusk 9.4, Maui Thu dawn 9.2, Monterey Mon dusk 9.0",
-   "created": "2026-10-21T16:08:22.033065+00:00",
-   "done": []
-  },
   {
    "key": "takeback:P:2026-10-22",
    "kind": "takeback",
