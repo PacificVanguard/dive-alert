@@ -1,15 +1,5 @@
 {
  "streaks": {
-  "J": {
-   "score": 9.1,
-   "entries": [
-    "Three Tables",
-    "Shark's Cove"
-   ],
-   "window_key": "20261022T0601-dawn",
-   "since": "2026-10-20T18:00:00-07:00",
-   "gate": false
-  },
   "D": {
    "score": 9.3,
    "entries": [
@@ -21,14 +11,14 @@
    "gate": true
   },
   "E": {
-   "score": 7.3,
+   "score": 9.1,
    "entries": [
-    "Breakwater (San Carlos)",
-    "McAbee Beach"
+    "McAbee Beach",
+    "Breakwater (San Carlos)"
    ],
-   "window_key": "20261025T1618-dusk",
+   "window_key": "20261026T0655-dawn",
    "since": "2026-10-22T18:00:00-07:00",
-   "gate": false
+   "gate": true
   },
   "A": {
    "score": 7.3,
@@ -38,6 +28,26 @@
    ],
    "window_key": "20261025T0633-dawn",
    "since": "2026-10-23T08:00:00-07:00",
+   "gate": false
+  },
+  "G": {
+   "score": 8.3,
+   "entries": [
+    "Terranea (Old Marineland)",
+    "Christmas Tree Cove"
+   ],
+   "window_key": "20261026T0637-dawn",
+   "since": "2026-10-24T07:00:00-07:00",
+   "gate": false
+  },
+  "H": {
+   "score": 8.2,
+   "entries": [
+    "Whalers Cove",
+    "Bluefish Cove"
+   ],
+   "window_key": "20261026T0655-dawn",
+   "since": "2026-10-24T07:00:00-07:00",
    "gate": false
   }
  },
@@ -144,13 +154,13 @@
   "K:ndbc_spec": 0,
   "L:marine": 0,
   "L:weather": 0,
-  "L:ndbc_primary": 162,
-  "L:ndbc_offshore": 162,
-  "L:tides": 162,
+  "L:ndbc_primary": 163,
+  "L:ndbc_offshore": 163,
+  "L:tides": 163,
   "L:sst": 0,
   "L:chla": 0,
   "L:kd490": 0,
-  "L:ndbc_spec": 162,
+  "L:ndbc_spec": 163,
   "M:marine": 0,
   "M:weather": 0,
   "M:ndbc_primary": 0,
@@ -172,12 +182,12 @@
   "O:marine": 0,
   "O:weather": 0,
   "O:ndbc_primary": 0,
-  "O:ndbc_offshore": 162,
-  "O:tides": 162,
+  "O:ndbc_offshore": 163,
+  "O:tides": 163,
   "O:sst": 0,
   "O:chla": 0,
   "O:kd490": 0,
-  "O:ndbc_spec": 162,
+  "O:ndbc_spec": 163,
   "P:marine": 0,
   "P:weather": 0,
   "P:ndbc_primary": 0,
@@ -233,7 +243,7 @@
    "rings": 6
   },
   "E": {
-   "promises": 32,
+   "promises": 33,
    "rings": 6
   },
   "F": {
@@ -241,11 +251,11 @@
    "rings": 1
   },
   "G": {
-   "promises": 19,
+   "promises": 20,
    "rings": 1
   },
   "H": {
-   "promises": 19,
+   "promises": 20,
    "rings": 11
   },
   "I": {
@@ -281,7 +291,7 @@
    "rings": 2
   }
  },
- "hook_idx": 216,
+ "hook_idx": 218,
  "axis_blind": {
   "flat": 0,
   "glass": 0,
@@ -335,7 +345,9 @@
    "+14046683867"
   ]
  },
- "sms_ring_due": {},
+ "sms_ring_due": {
+  "E": "20261026T0655-dawn"
+ },
  "ntfy_digest_due": {},
  "ntfy_digest_sent": {
   "A": "2026-W43",
@@ -414,31 +426,26 @@
   "A": {},
   "C": {},
   "D": {
-   "20261025T0631-dawn": 4,
-   "20261026T0631-dawn": 4,
-   "20261024T1605-dusk": 3
+   "20261025T0631-dawn": 5,
+   "20261027T0632-dawn": 1
   },
   "E": {
-   "20261028T0657-dawn": 2,
-   "20261030T0659-dawn": 2,
-   "20261026T0655-dawn": 1,
-   "20261029T1613-dusk": 1
+   "20261030T0659-dawn": 3,
+   "20261026T0655-dawn": 2
   },
   "F": {},
   "G": {},
-  "H": {
-   "20261026T0655-dawn": 1,
-   "20261030T0659-dawn": 1
-  },
+  "H": {},
   "I": {},
   "J": {},
   "K": {},
-  "L": {},
+  "L": {
+   "20261028T1608-dusk": 1,
+   "20261029T0554-dawn": 1
+  },
   "M": {},
   "N": {},
-  "O": {
-   "20261029T0528-dawn": 2
-  },
+  "O": {},
   "P": {}
  },
  "social_posted": {},
@@ -459,6 +466,24 @@
    },
    "alt": "The Dive Bell: La Jolla is ringing for Sun Oct 25 at dawn, 73F water, in by 6:31am at La Jolla Cove.",
    "created": "2026-10-23T15:50:02.142824+00:00",
+   "done": []
+  },
+  {
+   "key": "ring:E:20261026T0655-dawn",
+   "kind": "ring",
+   "text": "THE BELL IS RINGING - MONTEREY. Mon Oct 26 at dawn: flat, glassy, dry, sunny, 65F water. In by 6:55am at McAbee Beach. thedivebell.com/monterey/",
+   "card": {
+    "kind": "ring",
+    "eyebrow": "THE DIVE BELL \u00b7 BELL NO. 4",
+    "lines": [
+     "Monterey \u00b7 Mon Oct 26 at dawn",
+     "flat \u00b7 glassy \u00b7 dry \u00b7 sunny \u00b7 65F water",
+     "In by 6:55am at McAbee Beach"
+    ],
+    "foot": "thedivebell.com/monterey/  \u00b7  text MONTEREY to 833-858-2355"
+   },
+   "alt": "The Dive Bell: Monterey is ringing for Mon Oct 26 at dawn, 65F water, in by 6:55am at McAbee Beach.",
+   "created": "2026-10-24T14:44:59.885772+00:00",
    "done": []
   }
  ]
