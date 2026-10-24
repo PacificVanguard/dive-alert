@@ -21,12 +21,12 @@
    "gate": true
   },
   "E": {
-   "score": 7.6,
+   "score": 7.3,
    "entries": [
-    "McAbee Beach",
-    "Breakwater (San Carlos)"
+    "Breakwater (San Carlos)",
+    "McAbee Beach"
    ],
-   "window_key": "20261025T0654-dawn",
+   "window_key": "20261025T1618-dusk",
    "since": "2026-10-22T18:00:00-07:00",
    "gate": false
   },
@@ -38,16 +38,6 @@
    ],
    "window_key": "20261025T0633-dawn",
    "since": "2026-10-23T08:00:00-07:00",
-   "gate": false
-  },
-  "L": {
-   "score": 7.0,
-   "entries": [
-    "Bari Reef",
-    "1000 Steps"
-   ],
-   "window_key": "20261025T1609-dusk",
-   "since": "2026-10-23T14:00:00-07:00",
    "gate": false
   }
  },
@@ -87,7 +77,7 @@
   "D:tides": 0,
   "D:sst": 0,
   "D:chla": 0,
-  "D:kd490": 1,
+  "D:kd490": 0,
   "D:ndbc_spec": 0,
   "E:marine": 0,
   "E:weather": 0,
@@ -96,7 +86,7 @@
   "E:tides": 0,
   "E:sst": 0,
   "E:chla": 0,
-  "E:kd490": 1,
+  "E:kd490": 0,
   "E:ndbc_spec": 0,
   "F:marine": 0,
   "F:weather": 0,
@@ -105,7 +95,7 @@
   "F:tides": 0,
   "F:sst": 0,
   "F:chla": 0,
-  "F:kd490": 1,
+  "F:kd490": 0,
   "F:ndbc_spec": 0,
   "G:marine": 0,
   "G:weather": 0,
@@ -154,13 +144,13 @@
   "K:ndbc_spec": 0,
   "L:marine": 0,
   "L:weather": 0,
-  "L:ndbc_primary": 161,
-  "L:ndbc_offshore": 161,
-  "L:tides": 161,
+  "L:ndbc_primary": 162,
+  "L:ndbc_offshore": 162,
+  "L:tides": 162,
   "L:sst": 0,
   "L:chla": 0,
   "L:kd490": 0,
-  "L:ndbc_spec": 161,
+  "L:ndbc_spec": 162,
   "M:marine": 0,
   "M:weather": 0,
   "M:ndbc_primary": 0,
@@ -182,12 +172,12 @@
   "O:marine": 0,
   "O:weather": 0,
   "O:ndbc_primary": 0,
-  "O:ndbc_offshore": 161,
-  "O:tides": 161,
+  "O:ndbc_offshore": 162,
+  "O:tides": 162,
   "O:sst": 0,
   "O:chla": 0,
   "O:kd490": 0,
-  "O:ndbc_spec": 161,
+  "O:ndbc_spec": 162,
   "P:marine": 0,
   "P:weather": 0,
   "P:ndbc_primary": 0,
@@ -243,7 +233,7 @@
    "rings": 6
   },
   "E": {
-   "promises": 31,
+   "promises": 32,
    "rings": 6
   },
   "F": {
@@ -291,7 +281,7 @@
    "rings": 2
   }
  },
- "hook_idx": 215,
+ "hook_idx": 216,
  "axis_blind": {
   "flat": 0,
   "glass": 0,
@@ -424,54 +414,35 @@
   "A": {},
   "C": {},
   "D": {
-   "20261025T0631-dawn": 3,
-   "20261026T0631-dawn": 3,
-   "20261024T1605-dusk": 2
+   "20261025T0631-dawn": 4,
+   "20261026T0631-dawn": 4,
+   "20261024T1605-dusk": 3
   },
   "E": {
-   "20261028T0657-dawn": 1,
-   "20261028T1614-dusk": 1,
-   "20261030T0659-dawn": 1
+   "20261028T0657-dawn": 2,
+   "20261030T0659-dawn": 2,
+   "20261026T0655-dawn": 1,
+   "20261029T1613-dusk": 1
   },
   "F": {},
-  "G": {
-   "20261029T0640-dawn": 1
+  "G": {},
+  "H": {
+   "20261026T0655-dawn": 1,
+   "20261030T0659-dawn": 1
   },
-  "H": {},
   "I": {},
   "J": {},
   "K": {},
   "L": {},
   "M": {},
-  "N": {
-   "20261029T0642-dawn": 1
-  },
+  "N": {},
   "O": {
-   "20261028T0529-dawn": 1,
-   "20261029T0528-dawn": 1
+   "20261029T0528-dawn": 2
   },
   "P": {}
  },
  "social_posted": {},
  "social_queue": [
-  {
-   "key": "takeback:P:2026-10-22",
-   "kind": "takeback",
-   "text": "The bell takes back its word at Maui: Thursday's perfect morning didn't hold - all clear filled in. The bell only rings when it's sure. thedivebell.com/maui/",
-   "card": {
-    "kind": "takeback",
-    "eyebrow": "THE DIVE BELL \u00b7 MAUI",
-    "lines": [
-     "Thursday's perfect morning didn't hold.",
-     "A filled in where the promise stood.ll clear",
-     "The bell only rings when it's sure."
-    ],
-    "foot": "thedivebell.com/maui/"
-   },
-   "alt": "The bell takes back its word at Maui: Thursday's perfect morning didn't hold - all clear filled in. The bell only rings when it's sure. thedivebell.com/maui/",
-   "created": "2026-10-21T21:56:43.835534+00:00",
-   "done": []
-  },
   {
    "key": "ring:D:20261025T0631-dawn",
    "kind": "ring",
