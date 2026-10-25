@@ -1,5 +1,5 @@
 {
- "updated": "2026-10-25T07:00:00-07:00",
+ "updated": "2026-10-25T14:00:00-07:00",
  "sms_live": true,
  "zones": {
   "A": {
@@ -37,7 +37,7 @@
     "number": "833-858-2355",
     "text": "Text LAGUNA to 833-858-2355"
    },
-   "forecast_sms": "THE DIVE BELL - LAGUNA BEACH, the week ahead.\nBest: Mon dawn, 7.4 of 10 - workable, held back by swell. In by 6:34am at Fisherman's Cove.\nSun 6.4 / Mon 7.4 / Tue 6.3 / Wed 6.7 / Thu 6.4 / Fri 6.2 / Sat 6.0\nNo ring in sight, but a morning worth having.",
+   "forecast_sms": "THE DIVE BELL - LAGUNA BEACH, the week ahead.\nBest: Thu dawn, 6.2 of 10 - marginal, held back by swell.\nSun 6.1 / Mon 6.1 / Tue 6.0 / Wed 5.9 / Thu 6.2 / Fri 5.8 / Sat 5.8\nA quiet week.",
    "last_ring": null,
    "sst_f": 72,
    "windows": [
@@ -46,7 +46,7 @@
      "start": "2026-10-25T16:05:00-07:00",
      "end": "2026-10-25T18:05:00-07:00",
      "kind": "dusk",
-     "score": 6.4,
+     "score": 6.1,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -58,18 +58,18 @@
      "hazard": null,
      "axes": {
       "flat": false,
-      "glass": false,
+      "glass": true,
       "dry": true,
       "sun": true,
       "warm": true
      },
      "swell": {
-      "ft": 2.2,
+      "ft": 2.3,
       "s": 12.1,
       "dir": 190
      },
-     "wind_kn": 9.3,
-     "cloud": 3,
+     "wind_kn": 7.0,
+     "cloud": 6,
      "dry_h": 72,
      "tide": {
       "ft": -0.3,
@@ -81,7 +81,7 @@
      "start": "2026-10-26T06:34:00-07:00",
      "end": "2026-10-26T09:34:00-07:00",
      "kind": "dawn",
-     "score": 7.4,
+     "score": 6.1,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -95,16 +95,16 @@
       "flat": false,
       "glass": true,
       "dry": true,
-      "sun": true,
+      "sun": false,
       "warm": true
      },
      "swell": {
-      "ft": 2.1,
+      "ft": 2.2,
       "s": 12.0,
       "dir": 191
      },
-     "wind_kn": 2.0,
-     "cloud": 2,
+     "wind_kn": 2.2,
+     "cloud": 99,
      "dry_h": 72,
      "tide": {
       "ft": 4.5,
@@ -116,7 +116,7 @@
      "start": "2026-10-26T16:04:00-07:00",
      "end": "2026-10-26T18:04:00-07:00",
      "kind": "dusk",
-     "score": 5.3,
+     "score": 5.0,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -134,11 +134,11 @@
       "warm": true
      },
      "swell": {
-      "ft": 1.9,
+      "ft": 2.0,
       "s": 11.8,
       "dir": 188
      },
-     "wind_kn": 11.3,
+     "wind_kn": 11.7,
      "cloud": 1,
      "dry_h": 72,
      "tide": {
@@ -151,7 +151,7 @@
      "start": "2026-10-27T06:35:00-07:00",
      "end": "2026-10-27T09:35:00-07:00",
      "kind": "dawn",
-     "score": 6.3,
+     "score": 6.0,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -169,11 +169,11 @@
       "warm": true
      },
      "swell": {
-      "ft": 2.2,
+      "ft": 2.3,
       "s": 4.6,
       "dir": 271
      },
-     "wind_kn": 4.0,
+     "wind_kn": 2.4,
      "cloud": 6,
      "dry_h": 72,
      "tide": {
@@ -185,6 +185,76 @@
      "label": "Tue dusk",
      "start": "2026-10-27T16:03:00-07:00",
      "end": "2026-10-27T18:03:00-07:00",
+     "kind": "dusk",
+     "score": 4.5,
+     "conf": "medium",
+     "limit": "swell",
+     "entries": [
+      "Shaw's Cove",
+      "Divers Cove"
+     ],
+     "gate": false,
+     "aligned": false,
+     "hazard": null,
+     "axes": {
+      "flat": false,
+      "glass": false,
+      "dry": true,
+      "sun": false,
+      "warm": true
+     },
+     "swell": {
+      "ft": 2.1,
+      "s": 5.5,
+      "dir": 262
+     },
+     "wind_kn": 7.8,
+     "cloud": 99,
+     "dry_h": 72,
+     "tide": {
+      "ft": -0.5,
+      "trend": "falling"
+     }
+    },
+    {
+     "label": "Wed dawn",
+     "start": "2026-10-28T06:36:00-07:00",
+     "end": "2026-10-28T09:36:00-07:00",
+     "kind": "dawn",
+     "score": 5.5,
+     "conf": "medium",
+     "limit": "swell",
+     "entries": [
+      "Fisherman's Cove",
+      "Shaw's Cove"
+     ],
+     "gate": false,
+     "aligned": false,
+     "hazard": null,
+     "axes": {
+      "flat": false,
+      "glass": true,
+      "dry": true,
+      "sun": false,
+      "warm": true
+     },
+     "swell": {
+      "ft": 2.3,
+      "s": 5.8,
+      "dir": 264
+     },
+     "wind_kn": 2.8,
+     "cloud": 32,
+     "dry_h": 72,
+     "tide": {
+      "ft": 3.6,
+      "trend": "rising"
+     }
+    },
+    {
+     "label": "Wed dusk",
+     "start": "2026-10-28T16:02:00-07:00",
+     "end": "2026-10-28T18:02:00-07:00",
      "kind": "dusk",
      "score": 5.9,
      "conf": "medium",
@@ -204,82 +274,12 @@
       "warm": true
      },
      "swell": {
-      "ft": 2.0,
-      "s": 5.5,
-      "dir": 262
-     },
-     "wind_kn": 7.5,
-     "cloud": 26,
-     "dry_h": 72,
-     "tide": {
-      "ft": -0.5,
-      "trend": "falling"
-     }
-    },
-    {
-     "label": "Wed dawn",
-     "start": "2026-10-28T06:36:00-07:00",
-     "end": "2026-10-28T09:36:00-07:00",
-     "kind": "dawn",
-     "score": 4.9,
-     "conf": "medium",
-     "limit": "swell",
-     "entries": [
-      "Fisherman's Cove",
-      "Shaw's Cove"
-     ],
-     "gate": false,
-     "aligned": false,
-     "hazard": null,
-     "axes": {
-      "flat": false,
-      "glass": true,
-      "dry": true,
-      "sun": false,
-      "warm": true
-     },
-     "swell": {
-      "ft": 2.2,
-      "s": 5.8,
-      "dir": 264
-     },
-     "wind_kn": 3.9,
-     "cloud": 100,
-     "dry_h": 72,
-     "tide": {
-      "ft": 3.6,
-      "trend": "rising"
-     }
-    },
-    {
-     "label": "Wed dusk",
-     "start": "2026-10-28T16:02:00-07:00",
-     "end": "2026-10-28T18:02:00-07:00",
-     "kind": "dusk",
-     "score": 6.7,
-     "conf": "medium",
-     "limit": "swell",
-     "entries": [
-      "Shaw's Cove",
-      "Divers Cove"
-     ],
-     "gate": false,
-     "aligned": false,
-     "hazard": null,
-     "axes": {
-      "flat": false,
-      "glass": false,
-      "dry": true,
-      "sun": false,
-      "warm": true
-     },
-     "swell": {
-      "ft": 2.0,
+      "ft": 2.1,
       "s": 12.6,
       "dir": 196
      },
-     "wind_kn": 7.4,
-     "cloud": 66,
+     "wind_kn": 7.2,
+     "cloud": 100,
      "dry_h": 72,
      "tide": {
       "ft": 0.3,
@@ -291,7 +291,7 @@
      "start": "2026-10-29T06:37:00-07:00",
      "end": "2026-10-29T09:37:00-07:00",
      "kind": "dawn",
-     "score": 6.4,
+     "score": 6.2,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -309,11 +309,11 @@
       "warm": true
      },
      "swell": {
-      "ft": 2.2,
+      "ft": 2.3,
       "s": 12.8,
       "dir": 196
      },
-     "wind_kn": 2.6,
+     "wind_kn": 2.2,
      "cloud": 100,
      "dry_h": 72,
      "tide": {
@@ -326,7 +326,7 @@
      "start": "2026-10-29T16:01:00-07:00",
      "end": "2026-10-29T18:01:00-07:00",
      "kind": "dusk",
-     "score": 6.2,
+     "score": 6.0,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -344,12 +344,12 @@
       "warm": true
      },
      "swell": {
-      "ft": 2.1,
+      "ft": 2.2,
       "s": 13.0,
       "dir": 190
      },
-     "wind_kn": 8.9,
-     "cloud": 89,
+     "wind_kn": 7.1,
+     "cloud": 100,
      "dry_h": 72,
      "tide": {
       "ft": 1.6,
@@ -361,7 +361,7 @@
      "start": "2026-10-30T06:38:00-07:00",
      "end": "2026-10-30T09:38:00-07:00",
      "kind": "dawn",
-     "score": 6.2,
+     "score": 5.8,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -379,12 +379,12 @@
       "warm": true
      },
      "swell": {
-      "ft": 2.4,
+      "ft": 2.6,
       "s": 12.6,
       "dir": 196
      },
-     "wind_kn": 4.5,
-     "cloud": 82,
+     "wind_kn": 2.7,
+     "cloud": 100,
      "dry_h": 72,
      "tide": {
       "ft": 3.1,
@@ -396,7 +396,7 @@
      "start": "2026-10-30T16:00:00-07:00",
      "end": "2026-10-30T18:00:00-07:00",
      "kind": "dusk",
-     "score": 6.2,
+     "score": 5.7,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -414,12 +414,12 @@
       "warm": true
      },
      "swell": {
-      "ft": 2.4,
+      "ft": 2.6,
       "s": 12.5,
       "dir": 196
      },
-     "wind_kn": 7.7,
-     "cloud": 48,
+     "wind_kn": 8.1,
+     "cloud": 72,
      "dry_h": 72,
      "tide": {
       "ft": 3.0,
@@ -431,7 +431,7 @@
      "start": "2026-10-31T06:39:00-07:00",
      "end": "2026-10-31T09:39:00-07:00",
      "kind": "dawn",
-     "score": 6.0,
+     "score": 5.8,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -449,12 +449,12 @@
       "warm": true
      },
      "swell": {
-      "ft": 2.1,
+      "ft": 2.2,
       "s": 10.9,
       "dir": 194
      },
-     "wind_kn": 2.4,
-     "cloud": 94,
+     "wind_kn": 1.4,
+     "cloud": 97,
      "dry_h": 72,
      "tide": {
       "ft": 3.2,
@@ -466,7 +466,7 @@
      "start": "2026-10-31T15:59:00-07:00",
      "end": "2026-10-31T17:59:00-07:00",
      "kind": "dusk",
-     "score": 5.4,
+     "score": 4.8,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -478,17 +478,17 @@
      "hazard": null,
      "axes": {
       "flat": false,
-      "glass": true,
+      "glass": false,
       "dry": true,
       "sun": false,
       "warm": true
      },
      "swell": {
-      "ft": 2.9,
+      "ft": 3.0,
       "s": 12.9,
       "dir": 196
      },
-     "wind_kn": 6.1,
+     "wind_kn": 7.8,
      "cloud": 100,
      "dry_h": 72,
      "tide": {
@@ -501,7 +501,7 @@
      "start": "2026-11-01T06:39:00-08:00",
      "end": "2026-11-01T09:39:00-08:00",
      "kind": "dawn",
-     "score": 1.2,
+     "score": 3.9,
      "conf": "medium",
      "limit": "rain",
      "entries": [
@@ -513,17 +513,17 @@
      "hazard": null,
      "axes": {
       "flat": false,
-      "glass": false,
+      "glass": true,
       "dry": false,
       "sun": false,
       "warm": true
      },
      "swell": {
-      "ft": 3.2,
+      "ft": 3.4,
       "s": 12.6,
       "dir": 196
      },
-     "wind_kn": 20.2,
+     "wind_kn": 3.0,
      "cloud": 100,
      "dry_h": 0,
      "tide": {
@@ -710,12 +710,12 @@
     }
    ],
    "buoy_now": {
-    "ft": 3.0,
-    "s": 14.0,
-    "dir": 185,
+    "ft": 2.6,
+    "s": 15.0,
+    "dir": 160,
     "age_h": 0.6
    },
-   "anchor": 0.936,
+   "anchor": 0.983,
    "sst_trend": [
     {
      "d": "2026-10-21",
@@ -753,13 +753,13 @@
    "moon": {
     "name": "full",
     "pct": 100,
-    "age_d": 14.2,
-    "full_in_d": 1,
+    "age_d": 14.5,
+    "full_in_d": 0,
     "new_in_d": 15
    },
    "kd490": {
-    "m1": 0.065,
-    "age_d": 11
+    "m1": 0.058,
+    "age_d": 10
    },
    "chla": 0.44
   },
@@ -797,7 +797,7 @@
     "number": "833-858-2355",
     "text": "Text DANA to 833-858-2355"
    },
-   "forecast_sms": "THE DIVE BELL - DANA POINT, the week ahead.\nBest: Tue dusk, 6.0 of 10 - marginal, held back by swell.\nSun 3.0 / Mon 3.0 / Tue 6.0 / Wed 6.0 / Thu 5.5 / Fri 5.2 / Sat 5.0\nA quiet week.",
+   "forecast_sms": "THE DIVE BELL - DANA POINT, the week ahead.\nBest: Wed dawn, 5.9 of 10 - marginal, held back by swell.\nSun 3.0 / Mon 3.0 / Tue 5.0 / Wed 5.9 / Thu 5.2 / Fri 4.8 / Sat 4.8\nA quiet week.",
    "last_ring": null,
    "sst_f": 72,
    "windows": [
@@ -824,12 +824,12 @@
       "warm": true
      },
      "swell": {
-      "ft": 2.2,
+      "ft": 2.3,
       "s": 12.1,
       "dir": 190
      },
-     "wind_kn": 8.9,
-     "cloud": 4,
+     "wind_kn": 7.4,
+     "cloud": 6,
      "dry_h": 36,
      "tide": {
       "ft": -0.3,
@@ -855,16 +855,16 @@
       "flat": false,
       "glass": true,
       "dry": false,
-      "sun": true,
+      "sun": false,
       "warm": true
      },
      "swell": {
-      "ft": 2.2,
+      "ft": 2.3,
       "s": 12.0,
       "dir": 192
      },
-     "wind_kn": 1.8,
-     "cloud": 2,
+     "wind_kn": 2.0,
+     "cloud": 99,
      "dry_h": 50,
      "tide": {
       "ft": 4.5,
@@ -894,11 +894,11 @@
       "warm": true
      },
      "swell": {
-      "ft": 2.0,
+      "ft": 2.1,
       "s": 11.8,
       "dir": 190
      },
-     "wind_kn": 10.9,
+     "wind_kn": 11.2,
      "cloud": 1,
      "dry_h": 60,
      "tide": {
@@ -911,7 +911,7 @@
      "start": "2026-10-27T06:35:00-07:00",
      "end": "2026-10-27T09:35:00-07:00",
      "kind": "dawn",
-     "score": 5.2,
+     "score": 5.0,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -929,12 +929,12 @@
       "warm": true
      },
      "swell": {
-      "ft": 2.0,
+      "ft": 2.1,
       "s": 6.9,
       "dir": 248
      },
-     "wind_kn": 3.8,
-     "cloud": 6,
+     "wind_kn": 1.9,
+     "cloud": 5,
      "dry_h": 72,
      "tide": {
       "ft": 4.1,
@@ -946,7 +946,7 @@
      "start": "2026-10-27T16:03:00-07:00",
      "end": "2026-10-27T18:03:00-07:00",
      "kind": "dusk",
-     "score": 6.0,
+     "score": 4.8,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -968,8 +968,8 @@
       "s": 11.2,
       "dir": 195
      },
-     "wind_kn": 7.3,
-     "cloud": 27,
+     "wind_kn": 7.8,
+     "cloud": 100,
      "dry_h": 72,
      "tide": {
       "ft": -0.5,
@@ -981,7 +981,7 @@
      "start": "2026-10-28T06:36:00-07:00",
      "end": "2026-10-28T09:36:00-07:00",
      "kind": "dawn",
-     "score": 5.2,
+     "score": 5.9,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -999,12 +999,12 @@
       "warm": true
      },
      "swell": {
-      "ft": 2.2,
+      "ft": 2.3,
       "s": 11.6,
       "dir": 196
      },
-     "wind_kn": 3.8,
-     "cloud": 100,
+     "wind_kn": 2.8,
+     "cloud": 39,
      "dry_h": 72,
      "tide": {
       "ft": 3.6,
@@ -1016,42 +1016,7 @@
      "start": "2026-10-28T16:02:00-07:00",
      "end": "2026-10-28T18:02:00-07:00",
      "kind": "dusk",
-     "score": 6.0,
-     "conf": "medium",
-     "limit": "swell",
-     "entries": [
-      "Dana Point Harbor breakwall (outside)",
-      "Salt Creek"
-     ],
-     "gate": false,
-     "aligned": false,
-     "hazard": null,
-     "axes": {
-      "flat": false,
-      "glass": true,
-      "dry": true,
-      "sun": false,
-      "warm": true
-     },
-     "swell": {
-      "ft": 2.2,
-      "s": 12.8,
-      "dir": 196
-     },
-     "wind_kn": 6.8,
-     "cloud": 59,
-     "dry_h": 72,
-     "tide": {
-      "ft": 0.3,
-      "trend": "falling"
-     }
-    },
-    {
-     "label": "Thu dawn",
-     "start": "2026-10-29T06:37:00-07:00",
-     "end": "2026-10-29T09:37:00-07:00",
-     "kind": "dawn",
-     "score": 5.5,
+     "score": 5.0,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -1073,7 +1038,42 @@
       "s": 12.8,
       "dir": 196
      },
-     "wind_kn": 2.2,
+     "wind_kn": 6.7,
+     "cloud": 100,
+     "dry_h": 72,
+     "tide": {
+      "ft": 0.3,
+      "trend": "falling"
+     }
+    },
+    {
+     "label": "Thu dawn",
+     "start": "2026-10-29T06:37:00-07:00",
+     "end": "2026-10-29T09:37:00-07:00",
+     "kind": "dawn",
+     "score": 5.2,
+     "conf": "medium",
+     "limit": "swell",
+     "entries": [
+      "Dana Point Harbor breakwall (outside)",
+      "Salt Creek"
+     ],
+     "gate": false,
+     "aligned": false,
+     "hazard": null,
+     "axes": {
+      "flat": false,
+      "glass": true,
+      "dry": true,
+      "sun": false,
+      "warm": true
+     },
+     "swell": {
+      "ft": 2.4,
+      "s": 12.8,
+      "dir": 196
+     },
+     "wind_kn": 2.1,
      "cloud": 100,
      "dry_h": 72,
      "tide": {
@@ -1086,7 +1086,7 @@
      "start": "2026-10-29T16:01:00-07:00",
      "end": "2026-10-29T18:01:00-07:00",
      "kind": "dusk",
-     "score": 5.4,
+     "score": 5.0,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -1098,18 +1098,18 @@
      "hazard": null,
      "axes": {
       "flat": false,
-      "glass": false,
+      "glass": true,
       "dry": true,
       "sun": false,
       "warm": true
      },
      "swell": {
-      "ft": 2.3,
+      "ft": 2.4,
       "s": 12.8,
       "dir": 196
      },
-     "wind_kn": 7.6,
-     "cloud": 85,
+     "wind_kn": 6.0,
+     "cloud": 99,
      "dry_h": 72,
      "tide": {
       "ft": 1.6,
@@ -1121,7 +1121,7 @@
      "start": "2026-10-30T06:37:00-07:00",
      "end": "2026-10-30T09:37:00-07:00",
      "kind": "dawn",
-     "score": 5.0,
+     "score": 4.8,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -1139,12 +1139,12 @@
       "warm": true
      },
      "swell": {
-      "ft": 2.5,
+      "ft": 2.6,
       "s": 12.6,
       "dir": 196
      },
-     "wind_kn": 4.1,
-     "cloud": 99,
+     "wind_kn": 2.3,
+     "cloud": 100,
      "dry_h": 72,
      "tide": {
       "ft": 3.1,
@@ -1156,7 +1156,7 @@
      "start": "2026-10-30T16:00:00-07:00",
      "end": "2026-10-30T18:00:00-07:00",
      "kind": "dusk",
-     "score": 5.2,
+     "score": 4.3,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -1168,18 +1168,18 @@
      "hazard": null,
      "axes": {
       "flat": false,
-      "glass": true,
+      "glass": false,
       "dry": true,
       "sun": false,
       "warm": true
      },
      "swell": {
-      "ft": 2.5,
+      "ft": 2.6,
       "s": 12.5,
       "dir": 197
      },
-     "wind_kn": 7.0,
-     "cloud": 53,
+     "wind_kn": 7.1,
+     "cloud": 94,
      "dry_h": 72,
      "tide": {
       "ft": 3.0,
@@ -1191,7 +1191,7 @@
      "start": "2026-10-31T06:38:00-07:00",
      "end": "2026-10-31T09:38:00-07:00",
      "kind": "dawn",
-     "score": 5.0,
+     "score": 4.8,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -1209,12 +1209,12 @@
       "warm": true
      },
      "swell": {
-      "ft": 2.2,
+      "ft": 2.3,
       "s": 10.8,
       "dir": 195
      },
-     "wind_kn": 2.6,
-     "cloud": 93,
+     "wind_kn": 1.9,
+     "cloud": 94,
      "dry_h": 72,
      "tide": {
       "ft": 3.2,
@@ -1226,7 +1226,7 @@
      "start": "2026-10-31T15:59:00-07:00",
      "end": "2026-10-31T17:59:00-07:00",
      "kind": "dusk",
-     "score": 4.2,
+     "score": 3.7,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -1238,18 +1238,18 @@
      "hazard": null,
      "axes": {
       "flat": false,
-      "glass": true,
+      "glass": false,
       "dry": true,
       "sun": false,
       "warm": true
      },
      "swell": {
-      "ft": 3.0,
+      "ft": 3.1,
       "s": 12.9,
       "dir": 197
      },
-     "wind_kn": 5.7,
-     "cloud": 97,
+     "wind_kn": 7.6,
+     "cloud": 100,
      "dry_h": 72,
      "tide": {
       "ft": 4.1,
@@ -1261,7 +1261,7 @@
      "start": "2026-11-01T06:39:00-08:00",
      "end": "2026-11-01T09:39:00-08:00",
      "kind": "dawn",
-     "score": 1.0,
+     "score": 2.7,
      "conf": "medium",
      "limit": "rain",
      "entries": [
@@ -1273,17 +1273,17 @@
      "hazard": null,
      "axes": {
       "flat": false,
-      "glass": false,
+      "glass": true,
       "dry": false,
       "sun": false,
       "warm": true
      },
      "swell": {
-      "ft": 3.2,
+      "ft": 3.3,
       "s": 12.6,
       "dir": 196
      },
-     "wind_kn": 19.8,
+     "wind_kn": 6.7,
      "cloud": 100,
      "dry_h": 0,
      "tide": {
@@ -1470,12 +1470,12 @@
     }
    ],
    "buoy_now": {
-    "ft": 3.0,
-    "s": 14.0,
-    "dir": 185,
+    "ft": 2.6,
+    "s": 15.0,
+    "dir": 160,
     "age_h": 0.6
    },
-   "anchor": 0.941,
+   "anchor": 0.983,
    "sst_trend": [
     {
      "d": "2026-10-21",
@@ -1513,13 +1513,13 @@
    "moon": {
     "name": "full",
     "pct": 100,
-    "age_d": 14.2,
-    "full_in_d": 1,
+    "age_d": 14.5,
+    "full_in_d": 0,
     "new_in_d": 15
    },
    "kd490": {
-    "m1": 0.05,
-    "age_d": 11
+    "m1": 0.043,
+    "age_d": 10
    },
    "chla": 0.35
   },
@@ -1557,7 +1557,7 @@
     "number": "833-858-2355",
     "text": "Text JOLLA to 833-858-2355"
    },
-   "forecast_sms": "THE DIVE BELL - LA JOLLA, the week ahead.\nBest: Mon dawn, 8.7 of 10 - excellent. In by 6:31am at La Jolla Cove.\nSun 7.0 / Mon 8.7 / Tue 5.5 / Wed 7.2 / Thu 7.5 / Fri 8.4 / Sat 7.4\nMon dawn is perfect - the bell is ringing.",
+   "forecast_sms": "THE DIVE BELL - LA JOLLA, the week ahead.\nBest: Mon dawn, 8.7 of 10 - excellent. In by 6:31am at La Jolla Cove.\nSun 7.4 / Mon 8.7 / Tue 5.7 / Wed 7.9 / Thu 7.5 / Fri 7.5 / Sat 7.5\nMon dawn is perfect - the bell is ringing.",
    "last_ring": null,
    "sst_f": 73,
    "windows": [
@@ -1566,7 +1566,7 @@
      "start": "2026-10-25T16:04:00-07:00",
      "end": "2026-10-25T18:04:00-07:00",
      "kind": "dusk",
-     "score": 7.0,
+     "score": 7.4,
      "conf": "medium",
      "limit": "wind",
      "entries": [
@@ -1584,12 +1584,12 @@
       "warm": true
      },
      "swell": {
-      "ft": 1.6,
+      "ft": 1.5,
       "s": 12.3,
       "dir": 202
      },
-     "wind_kn": 10.9,
-     "cloud": 13,
+     "wind_kn": 8.9,
+     "cloud": 3,
      "dry_h": 72,
      "tide": {
       "ft": -0.2,
@@ -1623,8 +1623,8 @@
       "s": 11.2,
       "dir": 197
      },
-     "wind_kn": 2.7,
-     "cloud": 1,
+     "wind_kn": 2.6,
+     "cloud": 22,
      "dry_h": 72,
      "tide": {
       "ft": 4.4,
@@ -1636,7 +1636,7 @@
      "start": "2026-10-26T16:03:00-07:00",
      "end": "2026-10-26T18:03:00-07:00",
      "kind": "dusk",
-     "score": 6.6,
+     "score": 6.8,
      "conf": "medium",
      "limit": "wind",
      "entries": [
@@ -1658,8 +1658,8 @@
       "s": 12.5,
       "dir": 224
      },
-     "wind_kn": 11.9,
-     "cloud": 3,
+     "wind_kn": 11.6,
+     "cloud": 2,
      "dry_h": 72,
      "tide": {
       "ft": -0.7,
@@ -1671,7 +1671,7 @@
      "start": "2026-10-27T06:32:00-07:00",
      "end": "2026-10-27T09:32:00-07:00",
      "kind": "dawn",
-     "score": 5.5,
+     "score": 5.7,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -1693,8 +1693,8 @@
       "s": 4.4,
       "dir": 278
      },
-     "wind_kn": 1.3,
-     "cloud": 1,
+     "wind_kn": 2.3,
+     "cloud": 7,
      "dry_h": 72,
      "tide": {
       "ft": 4.0,
@@ -1706,7 +1706,7 @@
      "start": "2026-10-27T16:02:00-07:00",
      "end": "2026-10-27T18:02:00-07:00",
      "kind": "dusk",
-     "score": 5.0,
+     "score": 4.8,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -1718,9 +1718,9 @@
      "hazard": null,
      "axes": {
       "flat": false,
-      "glass": true,
+      "glass": false,
       "dry": true,
-      "sun": true,
+      "sun": false,
       "warm": true
      },
      "swell": {
@@ -1728,8 +1728,8 @@
       "s": 4.9,
       "dir": 278
      },
-     "wind_kn": 6.9,
-     "cloud": 10,
+     "wind_kn": 7.7,
+     "cloud": 51,
      "dry_h": 72,
      "tide": {
       "ft": -0.5,
@@ -1741,9 +1741,9 @@
      "start": "2026-10-28T06:33:00-07:00",
      "end": "2026-10-28T09:33:00-07:00",
      "kind": "dawn",
-     "score": 7.0,
+     "score": 7.9,
      "conf": "medium",
-     "limit": "grey",
+     "limit": "swell",
      "entries": [
       "La Jolla Cove",
       "La Jolla Shores (Canyon)"
@@ -1763,8 +1763,8 @@
       "s": 11.7,
       "dir": 224
      },
-     "wind_kn": 3.0,
-     "cloud": 100,
+     "wind_kn": 2.0,
+     "cloud": 66,
      "dry_h": 72,
      "tide": {
       "ft": 3.6,
@@ -1794,11 +1794,11 @@
       "warm": true
      },
      "swell": {
-      "ft": 1.7,
+      "ft": 1.6,
       "s": 13.0,
       "dir": 210
      },
-     "wind_kn": 6.8,
+     "wind_kn": 6.7,
      "cloud": 100,
      "dry_h": 72,
      "tide": {
@@ -1833,7 +1833,7 @@
       "s": 12.7,
       "dir": 213
      },
-     "wind_kn": 1.7,
+     "wind_kn": 1.8,
      "cloud": 100,
      "dry_h": 72,
      "tide": {
@@ -1868,7 +1868,7 @@
       "s": 12.8,
       "dir": 211
      },
-     "wind_kn": 6.6,
+     "wind_kn": 6.4,
      "cloud": 100,
      "dry_h": 72,
      "tide": {
@@ -1881,9 +1881,9 @@
      "start": "2026-10-30T06:35:00-07:00",
      "end": "2026-10-30T09:35:00-07:00",
      "kind": "dawn",
-     "score": 8.4,
+     "score": 7.5,
      "conf": "medium",
-     "limit": "stirred up",
+     "limit": "grey",
      "entries": [
       "La Jolla Cove",
       "La Jolla Shores (Canyon)"
@@ -1903,8 +1903,8 @@
       "s": 12.6,
       "dir": 208
      },
-     "wind_kn": 2.8,
-     "cloud": 30,
+     "wind_kn": 3.6,
+     "cloud": 100,
      "dry_h": 72,
      "tide": {
       "ft": 3.0,
@@ -1916,7 +1916,7 @@
      "start": "2026-10-30T15:59:00-07:00",
      "end": "2026-10-30T17:59:00-07:00",
      "kind": "dusk",
-     "score": 6.8,
+     "score": 7.2,
      "conf": "medium",
      "limit": "grey",
      "entries": [
@@ -1928,7 +1928,7 @@
      "hazard": null,
      "axes": {
       "flat": false,
-      "glass": false,
+      "glass": true,
       "dry": true,
       "sun": false,
       "warm": true
@@ -1938,8 +1938,8 @@
       "s": 12.6,
       "dir": 208
      },
-     "wind_kn": 9.5,
-     "cloud": 89,
+     "wind_kn": 5.9,
+     "cloud": 100,
      "dry_h": 72,
      "tide": {
       "ft": 2.9,
@@ -1951,7 +1951,7 @@
      "start": "2026-10-31T06:36:00-07:00",
      "end": "2026-10-31T09:36:00-07:00",
      "kind": "dawn",
-     "score": 7.4,
+     "score": 7.5,
      "conf": "medium",
      "limit": "grey",
      "entries": [
@@ -1973,8 +1973,8 @@
       "s": 12.2,
       "dir": 207
      },
-     "wind_kn": 1.3,
-     "cloud": 100,
+     "wind_kn": 1.8,
+     "cloud": 98,
      "dry_h": 72,
      "tide": {
       "ft": 3.1,
@@ -1986,7 +1986,7 @@
      "start": "2026-10-31T15:58:00-07:00",
      "end": "2026-10-31T17:58:00-07:00",
      "kind": "dusk",
-     "score": 6.9,
+     "score": 7.0,
      "conf": "medium",
      "limit": "grey",
      "entries": [
@@ -2008,8 +2008,8 @@
       "s": 12.8,
       "dir": 206
      },
-     "wind_kn": 7.4,
-     "cloud": 100,
+     "wind_kn": 7.9,
+     "cloud": 92,
      "dry_h": 72,
      "tide": {
       "ft": 4.0,
@@ -2021,9 +2021,9 @@
      "start": "2026-11-01T06:36:00-08:00",
      "end": "2026-11-01T09:36:00-08:00",
      "kind": "dawn",
-     "score": 3.4,
+     "score": 4.0,
      "conf": "medium",
-     "limit": "wind",
+     "limit": "rain",
      "entries": [
       "La Jolla Cove",
       "La Jolla Shores (Canyon)"
@@ -2034,7 +2034,7 @@
      "axes": {
       "flat": false,
       "glass": false,
-      "dry": true,
+      "dry": false,
       "sun": false,
       "warm": true
      },
@@ -2043,9 +2043,9 @@
       "s": 12.5,
       "dir": 204
      },
-     "wind_kn": 17.7,
+     "wind_kn": 11.5,
      "cloud": 100,
-     "dry_h": 72,
+     "dry_h": 0,
      "tide": {
       "ft": 3.3,
       "trend": "falling"
@@ -2230,12 +2230,12 @@
     }
    ],
    "buoy_now": {
-    "ft": 1.6,
-    "s": 9.0,
-    "dir": 282,
-    "age_h": 0.6
+    "ft": 2.0,
+    "s": 10.0,
+    "dir": 292,
+    "age_h": 0.7
    },
-   "anchor": 1.045,
+   "anchor": 1.034,
    "sst_trend": [
     {
      "d": "2026-10-21",
@@ -2273,13 +2273,13 @@
    "moon": {
     "name": "full",
     "pct": 100,
-    "age_d": 14.2,
-    "full_in_d": 1,
+    "age_d": 14.5,
+    "full_in_d": 0,
     "new_in_d": 15
    },
    "kd490": {
-    "m1": 0.086,
-    "age_d": 11
+    "m1": 0.084,
+    "age_d": 10
    },
    "chla": 0.81
   },
@@ -2317,7 +2317,7 @@
     "number": "833-858-2355",
     "text": "Text MONTEREY to 833-858-2355"
    },
-   "forecast_sms": "THE DIVE BELL - MONTEREY, the week ahead.\nBest: Sat dawn, 8.5 of 10 - excellent. In by 7:00am at McAbee Beach.\nSun 7.3 / Mon 8.1 / Tue 7.0 / Wed 6.8 / Thu 5.9 / Fri 7.9 / Sat 8.5\nNo ring in sight, but a morning worth having.",
+   "forecast_sms": "THE DIVE BELL - MONTEREY, the week ahead.\nBest: Sat dawn, 8.6 of 10 - excellent. In by 7:00am at McAbee Beach.\nSun 6.9 / Mon 8.3 / Tue 6.4 / Wed 6.9 / Thu 6.0 / Fri 7.5 / Sat 8.6\nNo ring in sight, but a morning worth having.",
    "last_ring": "2026-10-16",
    "sst_f": 66,
    "windows": [
@@ -2326,7 +2326,7 @@
      "start": "2026-10-25T16:18:00-07:00",
      "end": "2026-10-25T18:18:00-07:00",
      "kind": "dusk",
-     "score": 7.3,
+     "score": 6.9,
      "conf": "medium",
      "limit": "grey",
      "entries": [
@@ -2348,7 +2348,7 @@
       "s": 6.4,
       "dir": 306
      },
-     "wind_kn": 5.8,
+     "wind_kn": 5.4,
      "cloud": 100,
      "dry_h": 72,
      "tide": {
@@ -2361,7 +2361,7 @@
      "start": "2026-10-26T06:55:00-07:00",
      "end": "2026-10-26T09:55:00-07:00",
      "kind": "dawn",
-     "score": 8.1,
+     "score": 8.3,
      "conf": "medium",
      "limit": "grey",
      "entries": [
@@ -2379,12 +2379,12 @@
       "warm": true
      },
      "swell": {
-      "ft": 1.2,
+      "ft": 1.1,
       "s": 11.8,
       "dir": 296
      },
-     "wind_kn": 7.0,
-     "cloud": 80,
+     "wind_kn": 5.7,
+     "cloud": 78,
      "dry_h": 72,
      "tide": {
       "ft": 3.6,
@@ -2396,7 +2396,7 @@
      "start": "2026-10-26T16:17:00-07:00",
      "end": "2026-10-26T18:17:00-07:00",
      "kind": "dusk",
-     "score": 5.2,
+     "score": 4.5,
      "conf": "medium",
      "limit": "wind",
      "entries": [
@@ -2418,8 +2418,8 @@
       "s": 9.7,
       "dir": 306
      },
-     "wind_kn": 14.3,
-     "cloud": 4,
+     "wind_kn": 15.2,
+     "cloud": 5,
      "dry_h": 72,
      "tide": {
       "ft": -0.0,
@@ -2431,47 +2431,12 @@
      "start": "2026-10-27T06:56:00-07:00",
      "end": "2026-10-27T09:56:00-07:00",
      "kind": "dawn",
-     "score": 7.0,
+     "score": 6.2,
      "conf": "medium",
      "limit": "recent wind",
      "entries": [
-      "Breakwater (San Carlos)",
-      "McAbee Beach"
-     ],
-     "gate": false,
-     "aligned": false,
-     "hazard": null,
-     "axes": {
-      "flat": false,
-      "glass": true,
-      "dry": true,
-      "sun": false,
-      "warm": true
-     },
-     "swell": {
-      "ft": 2.0,
-      "s": 5.2,
-      "dir": 306
-     },
-     "wind_kn": 1.0,
-     "cloud": 39,
-     "dry_h": 72,
-     "tide": {
-      "ft": 3.4,
-      "trend": "rising"
-     }
-    },
-    {
-     "label": "Tue dusk",
-     "start": "2026-10-27T16:16:00-07:00",
-     "end": "2026-10-27T18:16:00-07:00",
-     "kind": "dusk",
-     "score": 5.5,
-     "conf": "medium",
-     "limit": "swell",
-     "entries": [
-      "Breakwater (San Carlos)",
-      "McAbee Beach"
+      "McAbee Beach",
+      "Breakwater (San Carlos)"
      ],
      "gate": false,
      "aligned": false,
@@ -2484,164 +2449,24 @@
       "warm": true
      },
      "swell": {
-      "ft": 2.3,
-      "s": 6.6,
-      "dir": 302
+      "ft": 1.9,
+      "s": 5.2,
+      "dir": 306
      },
-     "wind_kn": 8.3,
-     "cloud": 72,
+     "wind_kn": 8.0,
+     "cloud": 66,
      "dry_h": 72,
      "tide": {
-      "ft": 0.6,
-      "trend": "falling"
-     }
-    },
-    {
-     "label": "Wed dawn",
-     "start": "2026-10-28T06:57:00-07:00",
-     "end": "2026-10-28T09:57:00-07:00",
-     "kind": "dawn",
-     "score": 6.8,
-     "conf": "medium",
-     "limit": "swell",
-     "entries": [
-      "Breakwater (San Carlos)",
-      "McAbee Beach"
-     ],
-     "gate": false,
-     "aligned": false,
-     "hazard": null,
-     "axes": {
-      "flat": false,
-      "glass": true,
-      "dry": true,
-      "sun": false,
-      "warm": true
-     },
-     "swell": {
-      "ft": 2.5,
-      "s": 6.1,
-      "dir": 302
-     },
-     "wind_kn": 1.7,
-     "cloud": 30,
-     "dry_h": 72,
-     "tide": {
-      "ft": 3.2,
+      "ft": 3.4,
       "trend": "rising"
      }
     },
     {
-     "label": "Wed dusk",
-     "start": "2026-10-28T16:14:00-07:00",
-     "end": "2026-10-28T18:14:00-07:00",
+     "label": "Tue dusk",
+     "start": "2026-10-27T16:16:00-07:00",
+     "end": "2026-10-27T18:16:00-07:00",
      "kind": "dusk",
-     "score": 5.7,
-     "conf": "medium",
-     "limit": "swell",
-     "entries": [
-      "Breakwater (San Carlos)",
-      "McAbee Beach"
-     ],
-     "gate": false,
-     "aligned": false,
-     "hazard": null,
-     "axes": {
-      "flat": false,
-      "glass": true,
-      "dry": true,
-      "sun": false,
-      "warm": true
-     },
-     "swell": {
-      "ft": 2.5,
-      "s": 6.3,
-      "dir": 304
-     },
-     "wind_kn": 5.3,
-     "cloud": 100,
-     "dry_h": 72,
-     "tide": {
-      "ft": 1.7,
-      "trend": "falling"
-     }
-    },
-    {
-     "label": "Thu dawn",
-     "start": "2026-10-29T06:58:00-07:00",
-     "end": "2026-10-29T09:58:00-07:00",
-     "kind": "dawn",
-     "score": 5.9,
-     "conf": "medium",
-     "limit": "swell",
-     "entries": [
-      "Breakwater (San Carlos)",
-      "McAbee Beach"
-     ],
-     "gate": false,
-     "aligned": false,
-     "hazard": null,
-     "axes": {
-      "flat": false,
-      "glass": true,
-      "dry": true,
-      "sun": false,
-      "warm": true
-     },
-     "swell": {
-      "ft": 2.6,
-      "s": 6.2,
-      "dir": 305
-     },
-     "wind_kn": 1.0,
-     "cloud": 100,
-     "dry_h": 72,
-     "tide": {
-      "ft": 3.1,
-      "trend": "rising"
-     }
-    },
-    {
-     "label": "Thu dusk",
-     "start": "2026-10-29T16:13:00-07:00",
-     "end": "2026-10-29T18:13:00-07:00",
-     "kind": "dusk",
-     "score": 5.9,
-     "conf": "medium",
-     "limit": "swell",
-     "entries": [
-      "Breakwater (San Carlos)",
-      "McAbee Beach"
-     ],
-     "gate": false,
-     "aligned": false,
-     "hazard": null,
-     "axes": {
-      "flat": false,
-      "glass": true,
-      "dry": true,
-      "sun": false,
-      "warm": true
-     },
-     "swell": {
-      "ft": 2.5,
-      "s": 6.1,
-      "dir": 305
-     },
-     "wind_kn": 5.2,
-     "cloud": 100,
-     "dry_h": 72,
-     "tide": {
-      "ft": 3.0,
-      "trend": "falling"
-     }
-    },
-    {
-     "label": "Fri dawn",
-     "start": "2026-10-30T06:59:00-07:00",
-     "end": "2026-10-30T09:59:00-07:00",
-     "kind": "dawn",
-     "score": 7.9,
+     "score": 6.4,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -2659,12 +2484,187 @@
       "warm": true
      },
      "swell": {
+      "ft": 2.3,
+      "s": 6.6,
+      "dir": 302
+     },
+     "wind_kn": 5.5,
+     "cloud": 13,
+     "dry_h": 72,
+     "tide": {
+      "ft": 0.6,
+      "trend": "falling"
+     }
+    },
+    {
+     "label": "Wed dawn",
+     "start": "2026-10-28T06:57:00-07:00",
+     "end": "2026-10-28T09:57:00-07:00",
+     "kind": "dawn",
+     "score": 6.9,
+     "conf": "medium",
+     "limit": "swell",
+     "entries": [
+      "Breakwater (San Carlos)",
+      "McAbee Beach"
+     ],
+     "gate": false,
+     "aligned": false,
+     "hazard": null,
+     "axes": {
+      "flat": false,
+      "glass": true,
+      "dry": true,
+      "sun": false,
+      "warm": true
+     },
+     "swell": {
+      "ft": 2.5,
+      "s": 6.1,
+      "dir": 302
+     },
+     "wind_kn": 3.1,
+     "cloud": 41,
+     "dry_h": 72,
+     "tide": {
+      "ft": 3.2,
+      "trend": "rising"
+     }
+    },
+    {
+     "label": "Wed dusk",
+     "start": "2026-10-28T16:14:00-07:00",
+     "end": "2026-10-28T18:14:00-07:00",
+     "kind": "dusk",
+     "score": 5.9,
+     "conf": "medium",
+     "limit": "swell",
+     "entries": [
+      "Breakwater (San Carlos)",
+      "McAbee Beach"
+     ],
+     "gate": false,
+     "aligned": false,
+     "hazard": null,
+     "axes": {
+      "flat": false,
+      "glass": true,
+      "dry": true,
+      "sun": false,
+      "warm": true
+     },
+     "swell": {
+      "ft": 2.4,
+      "s": 6.3,
+      "dir": 304
+     },
+     "wind_kn": 4.7,
+     "cloud": 100,
+     "dry_h": 72,
+     "tide": {
+      "ft": 1.7,
+      "trend": "falling"
+     }
+    },
+    {
+     "label": "Thu dawn",
+     "start": "2026-10-29T06:58:00-07:00",
+     "end": "2026-10-29T09:58:00-07:00",
+     "kind": "dawn",
+     "score": 6.0,
+     "conf": "medium",
+     "limit": "swell",
+     "entries": [
+      "Breakwater (San Carlos)",
+      "McAbee Beach"
+     ],
+     "gate": false,
+     "aligned": false,
+     "hazard": null,
+     "axes": {
+      "flat": false,
+      "glass": true,
+      "dry": true,
+      "sun": false,
+      "warm": true
+     },
+     "swell": {
+      "ft": 2.5,
+      "s": 6.2,
+      "dir": 305
+     },
+     "wind_kn": 1.7,
+     "cloud": 100,
+     "dry_h": 72,
+     "tide": {
+      "ft": 3.1,
+      "trend": "rising"
+     }
+    },
+    {
+     "label": "Thu dusk",
+     "start": "2026-10-29T16:13:00-07:00",
+     "end": "2026-10-29T18:13:00-07:00",
+     "kind": "dusk",
+     "score": 6.0,
+     "conf": "medium",
+     "limit": "swell",
+     "entries": [
+      "Breakwater (San Carlos)",
+      "McAbee Beach"
+     ],
+     "gate": false,
+     "aligned": false,
+     "hazard": null,
+     "axes": {
+      "flat": false,
+      "glass": true,
+      "dry": true,
+      "sun": false,
+      "warm": true
+     },
+     "swell": {
+      "ft": 2.4,
+      "s": 6.1,
+      "dir": 305
+     },
+     "wind_kn": 4.7,
+     "cloud": 100,
+     "dry_h": 72,
+     "tide": {
+      "ft": 3.0,
+      "trend": "falling"
+     }
+    },
+    {
+     "label": "Fri dawn",
+     "start": "2026-10-30T06:59:00-07:00",
+     "end": "2026-10-30T09:59:00-07:00",
+     "kind": "dawn",
+     "score": 6.9,
+     "conf": "medium",
+     "limit": "swell",
+     "entries": [
+      "Breakwater (San Carlos)",
+      "McAbee Beach"
+     ],
+     "gate": false,
+     "aligned": false,
+     "hazard": null,
+     "axes": {
+      "flat": false,
+      "glass": true,
+      "dry": true,
+      "sun": false,
+      "warm": true
+     },
+     "swell": {
       "ft": 2.0,
       "s": 5.3,
       "dir": 306
      },
      "wind_kn": 0.9,
-     "cloud": 6,
+     "cloud": 99,
      "dry_h": 72,
      "tide": {
       "ft": 3.3,
@@ -2676,7 +2676,7 @@
      "start": "2026-10-30T16:12:00-07:00",
      "end": "2026-10-30T18:12:00-07:00",
      "kind": "dusk",
-     "score": 7.2,
+     "score": 7.5,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -2698,8 +2698,8 @@
       "s": 7.0,
       "dir": 312
      },
-     "wind_kn": 6.9,
-     "cloud": 48,
+     "wind_kn": 6.2,
+     "cloud": 43,
      "dry_h": 72,
      "tide": {
       "ft": 4.1,
@@ -2711,7 +2711,7 @@
      "start": "2026-10-31T07:00:00-07:00",
      "end": "2026-10-31T10:00:00-07:00",
      "kind": "dawn",
-     "score": 8.5,
+     "score": 8.6,
      "conf": "medium",
      "limit": "all clear",
      "entries": [
@@ -2729,12 +2729,12 @@
       "warm": true
      },
      "swell": {
-      "ft": 1.1,
+      "ft": 1.0,
       "s": 10.9,
       "dir": 232
      },
-     "wind_kn": 2.6,
-     "cloud": 74,
+     "wind_kn": 1.6,
+     "cloud": 73,
      "dry_h": 72,
      "tide": {
       "ft": 3.6,
@@ -2746,7 +2746,7 @@
      "start": "2026-10-31T16:11:00-07:00",
      "end": "2026-10-31T18:11:00-07:00",
      "kind": "dusk",
-     "score": 7.9,
+     "score": 8.2,
      "conf": "medium",
      "limit": "grey",
      "entries": [
@@ -2768,11 +2768,46 @@
       "s": 12.4,
       "dir": 217
      },
-     "wind_kn": 6.3,
+     "wind_kn": 3.9,
      "cloud": 100,
      "dry_h": 72,
      "tide": {
       "ft": 4.9,
+      "trend": "falling"
+     }
+    },
+    {
+     "label": "Sun dawn",
+     "start": "2026-11-01T07:01:00-08:00",
+     "end": "2026-11-01T10:01:00-08:00",
+     "kind": "dawn",
+     "score": 4.0,
+     "conf": "medium",
+     "limit": "rain",
+     "entries": [
+      "McAbee Beach",
+      "Breakwater (San Carlos)"
+     ],
+     "gate": false,
+     "aligned": false,
+     "hazard": null,
+     "axes": {
+      "flat": true,
+      "glass": true,
+      "dry": false,
+      "sun": false,
+      "warm": true
+     },
+     "swell": {
+      "ft": 1.4,
+      "s": 13.0,
+      "dir": 202
+     },
+     "wind_kn": 3.2,
+     "cloud": 100,
+     "dry_h": 0,
+     "tide": {
+      "ft": 3.7,
       "trend": "falling"
      }
     }
@@ -2957,10 +2992,10 @@
    "buoy_now": {
     "ft": 3.3,
     "s": 9.0,
-    "dir": 288,
-    "age_h": 0.5
+    "dir": 301,
+    "age_h": 0.6
    },
-   "anchor": 0.877,
+   "anchor": 0.854,
    "sst_trend": [
     {
      "d": "2026-10-21",
@@ -2998,13 +3033,13 @@
    "moon": {
     "name": "full",
     "pct": 100,
-    "age_d": 14.2,
-    "full_in_d": 1,
+    "age_d": 14.5,
+    "full_in_d": 0,
     "new_in_d": 15
    },
    "kd490": {
-    "m1": 0.151,
-    "age_d": 11
+    "m1": 0.143,
+    "age_d": 10
    },
    "chla": 2.2
   },
@@ -3042,7 +3077,7 @@
     "number": "833-858-2355",
     "text": "Text CATALINA to 833-858-2355"
    },
-   "forecast_sms": "THE DIVE BELL - CATALINA, the week ahead.\nBest: Fri dusk, 7.5 of 10 - good, held back by stirred-up water. In by 4:03pm at Casino Point Dive Park.\nSun 7.0 / Mon 7.3 / Tue 6.4 / Wed 6.9 / Thu 6.5 / Fri 7.5 / Sat 7.0\nNo ring in sight, but a morning worth having.",
+   "forecast_sms": "THE DIVE BELL - CATALINA, the week ahead.\nBest: Fri dusk, 7.4 of 10 - workable, held back by stirred-up water. In by 4:03pm at Casino Point Dive Park.\nSun 6.6 / Mon 6.9 / Tue 6.3 / Wed 6.0 / Thu 6.2 / Fri 7.4 / Sat 6.9\nNo ring in sight, but a morning worth having.",
    "last_ring": "2026-09-04",
    "sst_f": 71,
    "windows": [
@@ -3051,7 +3086,7 @@
      "start": "2026-10-25T16:08:00-07:00",
      "end": "2026-10-25T18:08:00-07:00",
      "kind": "dusk",
-     "score": 7.0,
+     "score": 6.6,
      "conf": "medium",
      "limit": "stirred up",
      "entries": [
@@ -3073,8 +3108,8 @@
       "s": 12.1,
       "dir": 187
      },
-     "wind_kn": 5.5,
-     "cloud": 8,
+     "wind_kn": 2.9,
+     "cloud": 3,
      "dry_h": 72,
      "tide": {
       "ft": -0.3,
@@ -3086,7 +3121,7 @@
      "start": "2026-10-26T06:36:00-07:00",
      "end": "2026-10-26T09:36:00-07:00",
      "kind": "dawn",
-     "score": 7.3,
+     "score": 6.9,
      "conf": "medium",
      "limit": "stirred up",
      "entries": [
@@ -3100,16 +3135,16 @@
       "flat": true,
       "glass": true,
       "dry": true,
-      "sun": true,
+      "sun": false,
       "warm": true
      },
      "swell": {
-      "ft": 2.8,
+      "ft": 2.9,
       "s": 11.6,
       "dir": 184
      },
-     "wind_kn": 5.1,
-     "cloud": 0,
+     "wind_kn": 3.8,
+     "cloud": 63,
      "dry_h": 72,
      "tide": {
       "ft": 4.5,
@@ -3121,6 +3156,41 @@
      "start": "2026-10-26T16:07:00-07:00",
      "end": "2026-10-26T18:07:00-07:00",
      "kind": "dusk",
+     "score": 6.2,
+     "conf": "medium",
+     "limit": "stirred up",
+     "entries": [
+      "Casino Point Dive Park",
+      "Lover's Cove"
+     ],
+     "gate": false,
+     "aligned": false,
+     "hazard": null,
+     "axes": {
+      "flat": false,
+      "glass": true,
+      "dry": true,
+      "sun": true,
+      "warm": true
+     },
+     "swell": {
+      "ft": 3.0,
+      "s": 9.3,
+      "dir": 203
+     },
+     "wind_kn": 6.9,
+     "cloud": 0,
+     "dry_h": 72,
+     "tide": {
+      "ft": -0.8,
+      "trend": "falling"
+     }
+    },
+    {
+     "label": "Tue dawn",
+     "start": "2026-10-27T06:37:00-07:00",
+     "end": "2026-10-27T09:37:00-07:00",
+     "kind": "dawn",
      "score": 6.3,
      "conf": "medium",
      "limit": "stirred up",
@@ -3135,51 +3205,16 @@
       "flat": false,
       "glass": true,
       "dry": true,
-      "sun": false,
-      "warm": true
-     },
-     "swell": {
-      "ft": 3.0,
-      "s": 9.3,
-      "dir": 203
-     },
-     "wind_kn": 6.7,
-     "cloud": 30,
-     "dry_h": 72,
-     "tide": {
-      "ft": -0.8,
-      "trend": "falling"
-     }
-    },
-    {
-     "label": "Tue dawn",
-     "start": "2026-10-27T06:37:00-07:00",
-     "end": "2026-10-27T09:37:00-07:00",
-     "kind": "dawn",
-     "score": 6.4,
-     "conf": "medium",
-     "limit": "stirred up",
-     "entries": [
-      "Casino Point Dive Park",
-      "Lover's Cove"
-     ],
-     "gate": false,
-     "aligned": false,
-     "hazard": null,
-     "axes": {
-      "flat": false,
-      "glass": true,
-      "dry": true,
       "sun": true,
       "warm": true
      },
      "swell": {
-      "ft": 4.4,
+      "ft": 4.5,
       "s": 5.0,
       "dir": 276
      },
-     "wind_kn": 3.7,
-     "cloud": 5,
+     "wind_kn": 2.3,
+     "cloud": 1,
      "dry_h": 72,
      "tide": {
       "ft": 4.1,
@@ -3191,41 +3226,6 @@
      "start": "2026-10-27T16:06:00-07:00",
      "end": "2026-10-27T18:06:00-07:00",
      "kind": "dusk",
-     "score": 6.4,
-     "conf": "medium",
-     "limit": "stirred up",
-     "entries": [
-      "Casino Point Dive Park",
-      "Lover's Cove"
-     ],
-     "gate": false,
-     "aligned": false,
-     "hazard": null,
-     "axes": {
-      "flat": false,
-      "glass": true,
-      "dry": true,
-      "sun": false,
-      "warm": true
-     },
-     "swell": {
-      "ft": 3.9,
-      "s": 5.5,
-      "dir": 277
-     },
-     "wind_kn": 5.0,
-     "cloud": 44,
-     "dry_h": 72,
-     "tide": {
-      "ft": -0.6,
-      "trend": "falling"
-     }
-    },
-    {
-     "label": "Wed dawn",
-     "start": "2026-10-28T06:38:00-07:00",
-     "end": "2026-10-28T09:38:00-07:00",
-     "kind": "dawn",
      "score": 5.5,
      "conf": "medium",
      "limit": "stirred up",
@@ -3244,12 +3244,47 @@
       "warm": true
      },
      "swell": {
-      "ft": 4.1,
+      "ft": 4.0,
+      "s": 5.5,
+      "dir": 277
+     },
+     "wind_kn": 3.7,
+     "cloud": 93,
+     "dry_h": 72,
+     "tide": {
+      "ft": -0.6,
+      "trend": "falling"
+     }
+    },
+    {
+     "label": "Wed dawn",
+     "start": "2026-10-28T06:38:00-07:00",
+     "end": "2026-10-28T09:38:00-07:00",
+     "kind": "dawn",
+     "score": 6.0,
+     "conf": "medium",
+     "limit": "stirred up",
+     "entries": [
+      "Casino Point Dive Park",
+      "Lover's Cove"
+     ],
+     "gate": false,
+     "aligned": false,
+     "hazard": null,
+     "axes": {
+      "flat": false,
+      "glass": true,
+      "dry": true,
+      "sun": false,
+      "warm": true
+     },
+     "swell": {
+      "ft": 4.3,
       "s": 5.9,
       "dir": 276
      },
-     "wind_kn": 1.1,
-     "cloud": 100,
+     "wind_kn": 2.3,
+     "cloud": 58,
      "dry_h": 72,
      "tide": {
       "ft": 3.7,
@@ -3261,7 +3296,7 @@
      "start": "2026-10-28T16:05:00-07:00",
      "end": "2026-10-28T18:05:00-07:00",
      "kind": "dusk",
-     "score": 6.9,
+     "score": 6.0,
      "conf": "medium",
      "limit": "stirred up",
      "entries": [
@@ -3272,19 +3307,19 @@
      "aligned": false,
      "hazard": null,
      "axes": {
-      "flat": true,
+      "flat": false,
       "glass": true,
       "dry": true,
-      "sun": true,
+      "sun": false,
       "warm": true
      },
      "swell": {
-      "ft": 3.5,
+      "ft": 3.6,
       "s": 6.0,
       "dir": 276
      },
-     "wind_kn": 2.4,
-     "cloud": 16,
+     "wind_kn": 1.9,
+     "cloud": 83,
      "dry_h": 72,
      "tide": {
       "ft": 0.2,
@@ -3296,7 +3331,7 @@
      "start": "2026-10-29T06:39:00-07:00",
      "end": "2026-10-29T09:39:00-07:00",
      "kind": "dawn",
-     "score": 6.4,
+     "score": 6.2,
      "conf": "medium",
      "limit": "stirred up",
      "entries": [
@@ -3318,7 +3353,7 @@
       "s": 13.0,
       "dir": 196
      },
-     "wind_kn": 1.3,
+     "wind_kn": 3.4,
      "cloud": 100,
      "dry_h": 72,
      "tide": {
@@ -3331,7 +3366,7 @@
      "start": "2026-10-29T16:04:00-07:00",
      "end": "2026-10-29T18:04:00-07:00",
      "kind": "dusk",
-     "score": 6.5,
+     "score": 6.2,
      "conf": "medium",
      "limit": "stirred up",
      "entries": [
@@ -3349,11 +3384,11 @@
       "warm": true
      },
      "swell": {
-      "ft": 3.1,
+      "ft": 3.2,
       "s": 12.5,
       "dir": 196
      },
-     "wind_kn": 2.8,
+     "wind_kn": 2.9,
      "cloud": 100,
      "dry_h": 72,
      "tide": {
@@ -3366,7 +3401,7 @@
      "start": "2026-10-30T06:40:00-07:00",
      "end": "2026-10-30T09:40:00-07:00",
      "kind": "dawn",
-     "score": 7.0,
+     "score": 6.5,
      "conf": "medium",
      "limit": "stirred up",
      "entries": [
@@ -3388,8 +3423,8 @@
       "s": 12.7,
       "dir": 201
      },
-     "wind_kn": 2.9,
-     "cloud": 86,
+     "wind_kn": 2.4,
+     "cloud": 100,
      "dry_h": 72,
      "tide": {
       "ft": 3.2,
@@ -3401,7 +3436,7 @@
      "start": "2026-10-30T16:03:00-07:00",
      "end": "2026-10-30T18:03:00-07:00",
      "kind": "dusk",
-     "score": 7.5,
+     "score": 7.4,
      "conf": "medium",
      "limit": "stirred up",
      "entries": [
@@ -3419,12 +3454,12 @@
       "warm": true
      },
      "swell": {
-      "ft": 3.3,
+      "ft": 3.4,
       "s": 12.3,
       "dir": 199
      },
-     "wind_kn": 4.4,
-     "cloud": 42,
+     "wind_kn": 1.5,
+     "cloud": 40,
      "dry_h": 72,
      "tide": {
       "ft": 2.7,
@@ -3436,7 +3471,7 @@
      "start": "2026-10-31T06:41:00-07:00",
      "end": "2026-10-31T09:41:00-07:00",
      "kind": "dawn",
-     "score": 7.0,
+     "score": 6.9,
      "conf": "medium",
      "limit": "stirred up",
      "entries": [
@@ -3454,12 +3489,12 @@
       "warm": true
      },
      "swell": {
-      "ft": 3.0,
+      "ft": 3.1,
       "s": 11.1,
       "dir": 198
      },
-     "wind_kn": 1.8,
-     "cloud": 92,
+     "wind_kn": 1.9,
+     "cloud": 94,
      "dry_h": 72,
      "tide": {
       "ft": 3.2,
@@ -3489,12 +3524,12 @@
       "warm": true
      },
      "swell": {
-      "ft": 3.7,
+      "ft": 3.8,
       "s": 12.4,
       "dir": 199
      },
-     "wind_kn": 1.9,
-     "cloud": 100,
+     "wind_kn": 2.4,
+     "cloud": 95,
      "dry_h": 72,
      "tide": {
       "ft": 3.8,
@@ -3506,9 +3541,9 @@
      "start": "2026-11-01T06:42:00-08:00",
      "end": "2026-11-01T09:42:00-08:00",
      "kind": "dawn",
-     "score": 1.9,
+     "score": 1.8,
      "conf": "medium",
-     "limit": "wind",
+     "limit": "rain",
      "entries": [
       "Casino Point Dive Park",
       "Lover's Cove"
@@ -3519,18 +3554,18 @@
      "axes": {
       "flat": true,
       "glass": false,
-      "dry": true,
+      "dry": false,
       "sun": false,
       "warm": true
      },
      "swell": {
-      "ft": 4.0,
+      "ft": 4.1,
       "s": 12.5,
       "dir": 197
      },
-     "wind_kn": 28.8,
+     "wind_kn": 17.8,
      "cloud": 100,
-     "dry_h": 72,
+     "dry_h": 0,
      "tide": {
       "ft": 3.4,
       "trend": "falling"
@@ -3716,11 +3751,11 @@
    ],
    "buoy_now": {
     "ft": 2.6,
-    "s": 14.0,
-    "dir": 204,
-    "age_h": 0.6
+    "s": 13.0,
+    "dir": 205,
+    "age_h": 0.7
    },
-   "anchor": 0.957,
+   "anchor": 0.983,
    "sst_trend": [
     {
      "d": "2026-10-21",
@@ -3758,13 +3793,13 @@
    "moon": {
     "name": "full",
     "pct": 100,
-    "age_d": 14.2,
-    "full_in_d": 1,
+    "age_d": 14.5,
+    "full_in_d": 0,
     "new_in_d": 15
    },
    "kd490": {
-    "m1": 0.035,
-    "age_d": 11
+    "m1": 0.038,
+    "age_d": 10
    },
    "chla": 0.34
   },
@@ -3802,7 +3837,7 @@
     "number": "833-858-2355",
     "text": "Text PALOS to 833-858-2355"
    },
-   "forecast_sms": "THE DIVE BELL - PALOS VERDES, the week ahead.\nBest: Mon dawn, 8.4 of 10 - good, held back by recent wind. In by 6:37am at Terranea (Old Marineland).\nSun 3.0 / Mon 8.4 / Tue 5.2 / Wed 5.8 / Thu 7.5 / Fri 8.2 / Sat 7.5\nNo ring in sight, but a morning worth having.",
+   "forecast_sms": "THE DIVE BELL - PALOS VERDES, the week ahead.\nBest: Mon dawn, 7.9 of 10 - good, held back by grey skies. In by 6:37am at Terranea (Old Marineland).\nSun 3.0 / Mon 7.9 / Tue 4.3 / Wed 4.7 / Thu 7.4 / Fri 7.5 / Sat 7.8\nNo ring in sight, but a morning worth having.",
    "last_ring": null,
    "sst_f": 71,
    "windows": [
@@ -3833,8 +3868,8 @@
       "s": 6.5,
       "dir": 263
      },
-     "wind_kn": 10.0,
-     "cloud": 5,
+     "wind_kn": 7.2,
+     "cloud": 2,
      "dry_h": 71,
      "tide": {
       "ft": -0.3,
@@ -3846,9 +3881,9 @@
      "start": "2026-10-26T06:37:00-07:00",
      "end": "2026-10-26T09:37:00-07:00",
      "kind": "dawn",
-     "score": 8.4,
+     "score": 7.9,
      "conf": "medium",
-     "limit": "recent wind",
+     "limit": "grey",
      "entries": [
       "Terranea (Old Marineland)",
       "Christmas Tree Cove"
@@ -3860,7 +3895,7 @@
       "flat": true,
       "glass": true,
       "dry": true,
-      "sun": true,
+      "sun": false,
       "warm": true
      },
      "swell": {
@@ -3868,8 +3903,8 @@
       "s": 11.5,
       "dir": 180
      },
-     "wind_kn": 6.3,
-     "cloud": 0,
+     "wind_kn": 5.7,
+     "cloud": 83,
      "dry_h": 72,
      "tide": {
       "ft": 4.6,
@@ -3881,7 +3916,7 @@
      "start": "2026-10-26T16:06:00-07:00",
      "end": "2026-10-26T18:06:00-07:00",
      "kind": "dusk",
-     "score": 4.2,
+     "score": 4.6,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -3895,7 +3930,7 @@
       "flat": false,
       "glass": false,
       "dry": true,
-      "sun": false,
+      "sun": true,
       "warm": true
      },
      "swell": {
@@ -3903,8 +3938,8 @@
       "s": 4.5,
       "dir": 268
      },
-     "wind_kn": 10.9,
-     "cloud": 67,
+     "wind_kn": 11.1,
+     "cloud": 1,
      "dry_h": 72,
      "tide": {
       "ft": -0.7,
@@ -3916,7 +3951,7 @@
      "start": "2026-10-27T06:38:00-07:00",
      "end": "2026-10-27T09:38:00-07:00",
      "kind": "dawn",
-     "score": 4.4,
+     "score": 4.3,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -3938,8 +3973,8 @@
       "s": 4.9,
       "dir": 272
      },
-     "wind_kn": 4.9,
-     "cloud": 4,
+     "wind_kn": 5.3,
+     "cloud": 6,
      "dry_h": 72,
      "tide": {
       "ft": 4.2,
@@ -3951,7 +3986,7 @@
      "start": "2026-10-27T16:05:00-07:00",
      "end": "2026-10-27T18:05:00-07:00",
      "kind": "dusk",
-     "score": 5.2,
+     "score": 4.0,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -3974,7 +4009,7 @@
       "dir": 272
      },
      "wind_kn": 4.9,
-     "cloud": 29,
+     "cloud": 100,
      "dry_h": 72,
      "tide": {
       "ft": -0.5,
@@ -3986,7 +4021,7 @@
      "start": "2026-10-28T06:39:00-07:00",
      "end": "2026-10-28T09:39:00-07:00",
      "kind": "dawn",
-     "score": 3.8,
+     "score": 4.0,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -4008,8 +4043,8 @@
       "s": 5.8,
       "dir": 272
      },
-     "wind_kn": 4.3,
-     "cloud": 100,
+     "wind_kn": 5.4,
+     "cloud": 82,
      "dry_h": 72,
      "tide": {
       "ft": 3.7,
@@ -4021,7 +4056,7 @@
      "start": "2026-10-28T16:04:00-07:00",
      "end": "2026-10-28T18:04:00-07:00",
      "kind": "dusk",
-     "score": 5.8,
+     "score": 4.7,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -4039,12 +4074,12 @@
       "warm": true
      },
      "swell": {
-      "ft": 2.0,
+      "ft": 2.1,
       "s": 5.8,
       "dir": 271
      },
-     "wind_kn": 5.1,
-     "cloud": 44,
+     "wind_kn": 5.8,
+     "cloud": 100,
      "dry_h": 72,
      "tide": {
       "ft": 0.4,
@@ -4056,7 +4091,7 @@
      "start": "2026-10-29T06:40:00-07:00",
      "end": "2026-10-29T09:40:00-07:00",
      "kind": "dawn",
-     "score": 7.5,
+     "score": 7.4,
      "conf": "medium",
      "limit": "grey",
      "entries": [
@@ -4078,7 +4113,7 @@
       "s": 12.3,
       "dir": 212
      },
-     "wind_kn": 3.7,
+     "wind_kn": 4.2,
      "cloud": 100,
      "dry_h": 72,
      "tide": {
@@ -4091,7 +4126,7 @@
      "start": "2026-10-29T16:03:00-07:00",
      "end": "2026-10-29T18:03:00-07:00",
      "kind": "dusk",
-     "score": 7.5,
+     "score": 7.2,
      "conf": "medium",
      "limit": "grey",
      "entries": [
@@ -4113,8 +4148,8 @@
       "s": 12.0,
       "dir": 209
      },
-     "wind_kn": 6.4,
-     "cloud": 95,
+     "wind_kn": 6.0,
+     "cloud": 100,
      "dry_h": 72,
      "tide": {
       "ft": 1.7,
@@ -4126,9 +4161,9 @@
      "start": "2026-10-30T06:41:00-07:00",
      "end": "2026-10-30T09:41:00-07:00",
      "kind": "dawn",
-     "score": 8.2,
+     "score": 7.5,
      "conf": "medium",
-     "limit": "stirred up",
+     "limit": "grey",
      "entries": [
       "Terranea (Old Marineland)",
       "Christmas Tree Cove"
@@ -4148,8 +4183,8 @@
       "s": 12.8,
       "dir": 205
      },
-     "wind_kn": 4.3,
-     "cloud": 72,
+     "wind_kn": 3.5,
+     "cloud": 100,
      "dry_h": 72,
      "tide": {
       "ft": 3.2,
@@ -4161,7 +4196,7 @@
      "start": "2026-10-30T16:02:00-07:00",
      "end": "2026-10-30T18:02:00-07:00",
      "kind": "dusk",
-     "score": 7.4,
+     "score": 7.2,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -4173,7 +4208,7 @@
      "hazard": null,
      "axes": {
       "flat": false,
-      "glass": true,
+      "glass": false,
       "dry": true,
       "sun": false,
       "warm": true
@@ -4183,8 +4218,8 @@
       "s": 12.5,
       "dir": 204
      },
-     "wind_kn": 7.0,
-     "cloud": 44,
+     "wind_kn": 7.3,
+     "cloud": 57,
      "dry_h": 72,
      "tide": {
       "ft": 3.1,
@@ -4196,7 +4231,7 @@
      "start": "2026-10-31T06:41:00-07:00",
      "end": "2026-10-31T09:41:00-07:00",
      "kind": "dawn",
-     "score": 7.5,
+     "score": 7.8,
      "conf": "medium",
      "limit": "grey",
      "entries": [
@@ -4214,12 +4249,12 @@
       "warm": true
      },
      "swell": {
-      "ft": 1.2,
+      "ft": 1.3,
       "s": 10.6,
       "dir": 205
      },
-     "wind_kn": 2.6,
-     "cloud": 100,
+     "wind_kn": 3.2,
+     "cloud": 95,
      "dry_h": 72,
      "tide": {
       "ft": 3.3,
@@ -4233,7 +4268,7 @@
      "kind": "dusk",
      "score": 7.0,
      "conf": "medium",
-     "limit": "grey",
+     "limit": "swell",
      "entries": [
       "Terranea (Old Marineland)",
       "Christmas Tree Cove"
@@ -4253,8 +4288,8 @@
       "s": 12.6,
       "dir": 207
      },
-     "wind_kn": 5.0,
-     "cloud": 100,
+     "wind_kn": 6.7,
+     "cloud": 92,
      "dry_h": 72,
      "tide": {
       "ft": 4.2,
@@ -4266,7 +4301,7 @@
      "start": "2026-11-01T06:42:00-08:00",
      "end": "2026-11-01T09:42:00-08:00",
      "kind": "dawn",
-     "score": 3.4,
+     "score": 4.0,
      "conf": "medium",
      "limit": "rain",
      "entries": [
@@ -4278,7 +4313,7 @@
      "hazard": null,
      "axes": {
       "flat": false,
-      "glass": false,
+      "glass": true,
       "dry": false,
       "sun": false,
       "warm": true
@@ -4288,7 +4323,7 @@
       "s": 12.7,
       "dir": 204
      },
-     "wind_kn": 29.3,
+     "wind_kn": 4.0,
      "cloud": 100,
      "dry_h": 0,
      "tide": {
@@ -4476,11 +4511,11 @@
    ],
    "buoy_now": {
     "ft": 2.6,
-    "s": 14.0,
-    "dir": 204,
-    "age_h": 0.6
+    "s": 13.0,
+    "dir": 205,
+    "age_h": 0.7
    },
-   "anchor": 0.948,
+   "anchor": 0.957,
    "sst_trend": [
     {
      "d": "2026-10-21",
@@ -4518,13 +4553,13 @@
    "moon": {
     "name": "full",
     "pct": 100,
-    "age_d": 14.2,
-    "full_in_d": 1,
+    "age_d": 14.5,
+    "full_in_d": 0,
     "new_in_d": 15
    },
    "kd490": {
-    "m1": 0.078,
-    "age_d": 11
+    "m1": 0.061,
+    "age_d": 10
    },
    "chla": 0.48
   },
@@ -4562,7 +4597,7 @@
     "number": "833-858-2355",
     "text": "Text LOBOS to 833-858-2355"
    },
-   "forecast_sms": "THE DIVE BELL - POINT LOBOS, the week ahead.\nBest: Sat dawn, 7.9 of 10 - good, held back by stirred-up water. In by 7:00am at Whalers Cove.\nSun 3.0 / Mon 7.2 / Tue 4.8 / Wed 4.5 / Thu 3.4 / Fri 6.2 / Sat 7.9\nNo ring in sight, but a morning worth having.",
+   "forecast_sms": "THE DIVE BELL - POINT LOBOS, the week ahead.\nBest: Sat dawn, 8.2 of 10 - good, held back by stirred-up water. In by 7:00am at Whalers Cove.\nSun 3.0 / Mon 7.3 / Tue 4.7 / Wed 4.5 / Thu 3.5 / Fri 6.5 / Sat 8.2\nNo ring in sight, but a morning worth having.",
    "last_ring": "2026-10-17",
    "sst_f": 66,
    "windows": [
@@ -4593,7 +4628,7 @@
       "s": 6.4,
       "dir": 308
      },
-     "wind_kn": 8.1,
+     "wind_kn": 7.0,
      "cloud": 100,
      "dry_h": 71,
      "tide": {
@@ -4606,7 +4641,7 @@
      "start": "2026-10-26T06:55:00-07:00",
      "end": "2026-10-26T09:55:00-07:00",
      "kind": "dawn",
-     "score": 7.2,
+     "score": 7.3,
      "conf": "medium",
      "limit": "grey",
      "entries": [
@@ -4624,11 +4659,11 @@
       "warm": true
      },
      "swell": {
-      "ft": 1.3,
+      "ft": 1.4,
       "s": 11.9,
       "dir": 296
      },
-     "wind_kn": 5.4,
+     "wind_kn": 4.6,
      "cloud": 100,
      "dry_h": 72,
      "tide": {
@@ -4663,8 +4698,8 @@
       "s": 10.0,
       "dir": 303
      },
-     "wind_kn": 9.8,
-     "cloud": 10,
+     "wind_kn": 9.6,
+     "cloud": 9,
      "dry_h": 72,
      "tide": {
       "ft": -0.0,
@@ -4676,7 +4711,7 @@
      "start": "2026-10-27T06:56:00-07:00",
      "end": "2026-10-27T09:56:00-07:00",
      "kind": "dawn",
-     "score": 4.8,
+     "score": 4.7,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -4698,8 +4733,8 @@
       "s": 7.2,
       "dir": 307
      },
-     "wind_kn": 3.7,
-     "cloud": 56,
+     "wind_kn": 3.3,
+     "cloud": 69,
      "dry_h": 72,
      "tide": {
       "ft": 3.4,
@@ -4711,7 +4746,7 @@
      "start": "2026-10-27T16:16:00-07:00",
      "end": "2026-10-27T18:16:00-07:00",
      "kind": "dusk",
-     "score": 3.2,
+     "score": 4.0,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -4733,8 +4768,8 @@
       "s": 6.6,
       "dir": 304
      },
-     "wind_kn": 9.1,
-     "cloud": 79,
+     "wind_kn": 8.2,
+     "cloud": 46,
      "dry_h": 72,
      "tide": {
       "ft": 0.6,
@@ -4760,16 +4795,16 @@
       "flat": false,
       "glass": true,
       "dry": true,
-      "sun": true,
+      "sun": false,
       "warm": true
      },
      "swell": {
-      "ft": 3.1,
+      "ft": 3.2,
       "s": 6.1,
       "dir": 305
      },
-     "wind_kn": 1.7,
-     "cloud": 19,
+     "wind_kn": 2.8,
+     "cloud": 32,
      "dry_h": 72,
      "tide": {
       "ft": 3.2,
@@ -4781,7 +4816,7 @@
      "start": "2026-10-28T16:15:00-07:00",
      "end": "2026-10-28T18:15:00-07:00",
      "kind": "dusk",
-     "score": 3.4,
+     "score": 3.5,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -4803,7 +4838,7 @@
       "s": 6.3,
       "dir": 306
      },
-     "wind_kn": 5.2,
+     "wind_kn": 4.3,
      "cloud": 100,
      "dry_h": 72,
      "tide": {
@@ -4816,7 +4851,42 @@
      "start": "2026-10-29T06:58:00-07:00",
      "end": "2026-10-29T09:58:00-07:00",
      "kind": "dawn",
-     "score": 3.4,
+     "score": 3.5,
+     "conf": "medium",
+     "limit": "swell",
+     "entries": [
+      "Whalers Cove",
+      "Bluefish Cove"
+     ],
+     "gate": false,
+     "aligned": false,
+     "hazard": null,
+     "axes": {
+      "flat": false,
+      "glass": true,
+      "dry": true,
+      "sun": false,
+      "warm": true
+     },
+     "swell": {
+      "ft": 3.3,
+      "s": 6.2,
+      "dir": 307
+     },
+     "wind_kn": 1.5,
+     "cloud": 100,
+     "dry_h": 72,
+     "tide": {
+      "ft": 3.1,
+      "trend": "rising"
+     }
+    },
+    {
+     "label": "Thu dusk",
+     "start": "2026-10-29T16:14:00-07:00",
+     "end": "2026-10-29T18:14:00-07:00",
+     "kind": "dusk",
+     "score": 3.5,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -4835,45 +4905,10 @@
      },
      "swell": {
       "ft": 3.2,
-      "s": 6.2,
-      "dir": 307
-     },
-     "wind_kn": 3.2,
-     "cloud": 100,
-     "dry_h": 72,
-     "tide": {
-      "ft": 3.1,
-      "trend": "rising"
-     }
-    },
-    {
-     "label": "Thu dusk",
-     "start": "2026-10-29T16:14:00-07:00",
-     "end": "2026-10-29T18:14:00-07:00",
-     "kind": "dusk",
-     "score": 3.2,
-     "conf": "medium",
-     "limit": "swell",
-     "entries": [
-      "Whalers Cove",
-      "Bluefish Cove"
-     ],
-     "gate": false,
-     "aligned": false,
-     "hazard": null,
-     "axes": {
-      "flat": false,
-      "glass": false,
-      "dry": true,
-      "sun": false,
-      "warm": true
-     },
-     "swell": {
-      "ft": 3.1,
       "s": 6.1,
       "dir": 308
      },
-     "wind_kn": 7.1,
+     "wind_kn": 4.6,
      "cloud": 100,
      "dry_h": 72,
      "tide": {
@@ -4886,7 +4921,7 @@
      "start": "2026-10-30T06:59:00-07:00",
      "end": "2026-10-30T09:59:00-07:00",
      "kind": "dawn",
-     "score": 5.9,
+     "score": 5.0,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -4900,16 +4935,16 @@
       "flat": false,
       "glass": true,
       "dry": true,
-      "sun": true,
+      "sun": false,
       "warm": true
      },
      "swell": {
-      "ft": 2.3,
+      "ft": 2.4,
       "s": 5.4,
       "dir": 305
      },
-     "wind_kn": 4.4,
-     "cloud": 6,
+     "wind_kn": 2.7,
+     "cloud": 96,
      "dry_h": 72,
      "tide": {
       "ft": 3.3,
@@ -4921,7 +4956,7 @@
      "start": "2026-10-30T16:12:00-07:00",
      "end": "2026-10-30T18:12:00-07:00",
      "kind": "dusk",
-     "score": 6.2,
+     "score": 6.5,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -4933,7 +4968,7 @@
      "hazard": null,
      "axes": {
       "flat": false,
-      "glass": false,
+      "glass": true,
       "dry": true,
       "sun": false,
       "warm": true
@@ -4943,8 +4978,8 @@
       "s": 10.2,
       "dir": 281
      },
-     "wind_kn": 7.7,
-     "cloud": 56,
+     "wind_kn": 5.4,
+     "cloud": 76,
      "dry_h": 72,
      "tide": {
       "ft": 4.1,
@@ -4956,7 +4991,7 @@
      "start": "2026-10-31T07:00:00-07:00",
      "end": "2026-10-31T10:00:00-07:00",
      "kind": "dawn",
-     "score": 7.9,
+     "score": 8.2,
      "conf": "medium",
      "limit": "stirred up",
      "entries": [
@@ -4978,8 +5013,8 @@
       "s": 11.2,
       "dir": 203
      },
-     "wind_kn": 2.3,
-     "cloud": 75,
+     "wind_kn": 1.5,
+     "cloud": 72,
      "dry_h": 72,
      "tide": {
       "ft": 3.6,
@@ -5013,11 +5048,46 @@
       "s": 12.7,
       "dir": 200
      },
-     "wind_kn": 4.7,
+     "wind_kn": 4.3,
      "cloud": 100,
      "dry_h": 72,
      "tide": {
       "ft": 4.9,
+      "trend": "falling"
+     }
+    },
+    {
+     "label": "Sun dawn",
+     "start": "2026-11-01T07:01:00-08:00",
+     "end": "2026-11-01T10:01:00-08:00",
+     "kind": "dawn",
+     "score": 4.0,
+     "conf": "medium",
+     "limit": "rain",
+     "entries": [
+      "Whalers Cove",
+      "Bluefish Cove"
+     ],
+     "gate": false,
+     "aligned": false,
+     "hazard": null,
+     "axes": {
+      "flat": true,
+      "glass": true,
+      "dry": false,
+      "sun": false,
+      "warm": true
+     },
+     "swell": {
+      "ft": 2.0,
+      "s": 13.0,
+      "dir": 198
+     },
+     "wind_kn": 6.5,
+     "cloud": 100,
+     "dry_h": 0,
+     "tide": {
+      "ft": 3.7,
       "trend": "falling"
      }
     }
@@ -5203,9 +5273,9 @@
     "ft": 6.6,
     "s": 10.0,
     "dir": 315,
-    "age_h": 12.0
+    "age_h": 18.1
    },
-   "anchor": 1.153,
+   "anchor": 1.166,
    "sst_trend": [
     {
      "d": "2026-10-21",
@@ -5243,13 +5313,13 @@
    "moon": {
     "name": "full",
     "pct": 100,
-    "age_d": 14.2,
-    "full_in_d": 1,
+    "age_d": 14.5,
+    "full_in_d": 0,
     "new_in_d": 15
    },
    "kd490": {
-    "m1": 0.127,
-    "age_d": 11
+    "m1": 0.118,
+    "age_d": 10
    },
    "chla": 1.61
   },
@@ -5287,7 +5357,7 @@
     "number": "833-858-2355",
     "text": "Text BARBARA to 833-858-2355"
    },
-   "forecast_sms": "THE DIVE BELL - SANTA BARBARA, the week ahead.\nBest: Tue dawn, 7.3 of 10 - workable, held back by swell. In by 6:46am at Tajiguas Reef.\nSun 3.0 / Mon 5.0 / Tue 7.3 / Wed 6.5 / Thu 6.0 / Fri 6.5 / Sat 6.5\nNo ring in sight, but a morning worth having.",
+   "forecast_sms": "THE DIVE BELL - SANTA BARBARA, the week ahead.\nBest: Tue dawn, 7.3 of 10 - workable, held back by swell. In by 6:46am at Tajiguas Reef.\nSun 3.0 / Mon 5.0 / Tue 7.3 / Wed 5.8 / Thu 6.0 / Fri 6.0 / Sat 6.2\nNo ring in sight, but a morning worth having.",
    "last_ring": "2026-09-07",
    "sst_f": 70,
    "windows": [
@@ -5310,7 +5380,7 @@
       "flat": false,
       "glass": true,
       "dry": false,
-      "sun": false,
+      "sun": true,
       "warm": true
      },
      "swell": {
@@ -5318,8 +5388,8 @@
       "s": 10.7,
       "dir": 207
      },
-     "wind_kn": 6.4,
-     "cloud": 59,
+     "wind_kn": 4.4,
+     "cloud": 21,
      "dry_h": 50,
      "tide": {
       "ft": -0.2,
@@ -5353,8 +5423,8 @@
       "s": 11.1,
       "dir": 271
      },
-     "wind_kn": 4.7,
-     "cloud": 0,
+     "wind_kn": 3.6,
+     "cloud": 25,
      "dry_h": 64,
      "tide": {
       "ft": 4.4,
@@ -5380,7 +5450,7 @@
       "flat": false,
       "glass": true,
       "dry": true,
-      "sun": false,
+      "sun": true,
       "warm": true
      },
      "swell": {
@@ -5388,8 +5458,8 @@
       "s": 8.6,
       "dir": 277
      },
-     "wind_kn": 5.9,
-     "cloud": 100,
+     "wind_kn": 6.5,
+     "cloud": 0,
      "dry_h": 72,
      "tide": {
       "ft": -0.5,
@@ -5423,8 +5493,8 @@
       "s": 6.6,
       "dir": 285
      },
-     "wind_kn": 2.3,
-     "cloud": 22,
+     "wind_kn": 4.3,
+     "cloud": 5,
      "dry_h": 72,
      "tide": {
       "ft": 4.0,
@@ -5436,7 +5506,7 @@
      "start": "2026-10-27T16:11:00-07:00",
      "end": "2026-10-27T18:11:00-07:00",
      "kind": "dusk",
-     "score": 6.5,
+     "score": 6.2,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -5458,8 +5528,8 @@
       "s": 7.0,
       "dir": 281
      },
-     "wind_kn": 5.5,
-     "cloud": 35,
+     "wind_kn": 3.8,
+     "cloud": 68,
      "dry_h": 72,
      "tide": {
       "ft": -0.2,
@@ -5471,7 +5541,7 @@
      "start": "2026-10-28T06:47:00-07:00",
      "end": "2026-10-28T09:47:00-07:00",
      "kind": "dawn",
-     "score": 6.5,
+     "score": 5.8,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -5493,8 +5563,8 @@
       "s": 7.2,
       "dir": 282
      },
-     "wind_kn": 2.0,
-     "cloud": 36,
+     "wind_kn": 2.2,
+     "cloud": 94,
      "dry_h": 72,
      "tide": {
       "ft": 3.6,
@@ -5528,8 +5598,8 @@
       "s": 9.6,
       "dir": 235
      },
-     "wind_kn": 5.8,
-     "cloud": 85,
+     "wind_kn": 5.0,
+     "cloud": 100,
      "dry_h": 72,
      "tide": {
       "ft": 0.8,
@@ -5563,7 +5633,7 @@
       "s": 12.6,
       "dir": 212
      },
-     "wind_kn": 1.8,
+     "wind_kn": 4.1,
      "cloud": 100,
      "dry_h": 72,
      "tide": {
@@ -5598,7 +5668,7 @@
       "s": 12.4,
       "dir": 213
      },
-     "wind_kn": 4.9,
+     "wind_kn": 4.7,
      "cloud": 100,
      "dry_h": 72,
      "tide": {
@@ -5611,7 +5681,7 @@
      "start": "2026-10-30T06:48:00-07:00",
      "end": "2026-10-30T09:48:00-07:00",
      "kind": "dawn",
-     "score": 6.5,
+     "score": 6.0,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -5633,8 +5703,8 @@
       "s": 12.5,
       "dir": 218
      },
-     "wind_kn": 1.7,
-     "cloud": 82,
+     "wind_kn": 3.6,
+     "cloud": 100,
      "dry_h": 72,
      "tide": {
       "ft": 3.1,
@@ -5646,7 +5716,7 @@
      "start": "2026-10-30T16:08:00-07:00",
      "end": "2026-10-30T18:08:00-07:00",
      "kind": "dusk",
-     "score": 6.5,
+     "score": 6.0,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -5668,8 +5738,8 @@
       "s": 12.4,
       "dir": 218
      },
-     "wind_kn": 4.8,
-     "cloud": 75,
+     "wind_kn": 4.5,
+     "cloud": 96,
      "dry_h": 72,
      "tide": {
       "ft": 3.4,
@@ -5681,7 +5751,7 @@
      "start": "2026-10-31T06:49:00-07:00",
      "end": "2026-10-31T09:49:00-07:00",
      "kind": "dawn",
-     "score": 6.5,
+     "score": 6.2,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -5693,7 +5763,7 @@
      "hazard": null,
      "axes": {
       "flat": false,
-      "glass": true,
+      "glass": false,
       "dry": true,
       "sun": false,
       "warm": true
@@ -5703,8 +5773,8 @@
       "s": 11.1,
       "dir": 225
      },
-     "wind_kn": 3.1,
-     "cloud": 100,
+     "wind_kn": 7.4,
+     "cloud": 98,
      "dry_h": 72,
      "tide": {
       "ft": 3.3,
@@ -5716,7 +5786,7 @@
      "start": "2026-10-31T16:07:00-07:00",
      "end": "2026-10-31T18:07:00-07:00",
      "kind": "dusk",
-     "score": 4.8,
+     "score": 4.9,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -5738,7 +5808,7 @@
       "s": 12.3,
       "dir": 210
      },
-     "wind_kn": 6.6,
+     "wind_kn": 5.3,
      "cloud": 100,
      "dry_h": 72,
      "tide": {
@@ -5751,7 +5821,7 @@
      "start": "2026-11-01T06:50:00-08:00",
      "end": "2026-11-01T09:50:00-08:00",
      "kind": "dawn",
-     "score": 2.1,
+     "score": 4.0,
      "conf": "medium",
      "limit": "rain",
      "entries": [
@@ -5763,7 +5833,7 @@
      "hazard": null,
      "axes": {
       "flat": false,
-      "glass": false,
+      "glass": true,
       "dry": false,
       "sun": false,
       "warm": true
@@ -5773,7 +5843,7 @@
       "s": 12.3,
       "dir": 206
      },
-     "wind_kn": 13.2,
+     "wind_kn": 6.1,
      "cloud": 100,
      "dry_h": 0,
      "tide": {
@@ -5960,10 +6030,10 @@
     }
    ],
    "buoy_now": {
-    "ft": 4.3,
-    "s": 9.0,
+    "ft": 3.9,
+    "s": 10.0,
     "dir": 304,
-    "age_h": 0.7
+    "age_h": 1.8
    },
    "anchor": null,
    "sst_trend": [
@@ -6003,13 +6073,13 @@
    "moon": {
     "name": "full",
     "pct": 100,
-    "age_d": 14.2,
-    "full_in_d": 1,
+    "age_d": 14.5,
+    "full_in_d": 0,
     "new_in_d": 15
    },
    "kd490": {
-    "m1": 0.071,
-    "age_d": 11
+    "m1": 0.048,
+    "age_d": 10
    },
    "chla": 0.47
   },
@@ -6047,51 +6117,16 @@
     "number": "833-858-2355",
     "text": "Text OAHU to 833-858-2355"
    },
-   "forecast_sms": "THE DIVE BELL - OAHU NORTH SHORE, the week ahead.\nBest: Tue dawn, 6.7 of 10 - workable, held back by swell.\nSun 4.8 / Mon 6.4 / Tue 6.7 / Wed 4.0 / Thu 4.0 / Fri 4.0 / Sat 4.0\nA quiet week.",
+   "forecast_sms": "THE DIVE BELL - OAHU NORTH SHORE, the week ahead.\nBest: Tue dawn, 6.4 of 10 - marginal, held back by swell.\nSun 3.7 / Mon 5.6 / Tue 6.4 / Wed 4.0 / Thu 4.0 / Fri 4.0 / Sat 4.0\nA quiet week.",
    "last_ring": "2026-10-22",
    "sst_f": 78,
    "windows": [
-    {
-     "label": "Sun dawn",
-     "start": "2026-10-25T06:02:00-10:00",
-     "end": "2026-10-25T09:02:00-10:00",
-     "kind": "dawn",
-     "score": 4.7,
-     "conf": "medium",
-     "limit": "swell",
-     "entries": [
-      "Three Tables",
-      "Shark's Cove"
-     ],
-     "gate": false,
-     "aligned": false,
-     "hazard": null,
-     "axes": {
-      "flat": false,
-      "glass": true,
-      "dry": true,
-      "sun": true,
-      "warm": true
-     },
-     "swell": {
-      "ft": 2.5,
-      "s": 8.4,
-      "dir": 344
-     },
-     "wind_kn": 5.1,
-     "cloud": 18,
-     "dry_h": 72,
-     "tide": {
-      "ft": 1.6,
-      "trend": "falling"
-     }
-    },
     {
      "label": "Sun dusk",
      "start": "2026-10-25T15:59:00-10:00",
      "end": "2026-10-25T17:59:00-10:00",
      "kind": "dusk",
-     "score": 4.8,
+     "score": 3.7,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -6109,12 +6144,12 @@
       "warm": true
      },
      "swell": {
-      "ft": 2.2,
+      "ft": 2.4,
       "s": 7.8,
       "dir": 343
      },
-     "wind_kn": 8.2,
-     "cloud": 73,
+     "wind_kn": 7.2,
+     "cloud": 89,
      "dry_h": 72,
      "tide": {
       "ft": 1.2,
@@ -6125,6 +6160,76 @@
      "label": "Mon dawn",
      "start": "2026-10-26T06:02:00-10:00",
      "end": "2026-10-26T09:02:00-10:00",
+     "kind": "dawn",
+     "score": 5.6,
+     "conf": "medium",
+     "limit": "swell",
+     "entries": [
+      "Three Tables",
+      "Shark's Cove"
+     ],
+     "gate": false,
+     "aligned": false,
+     "hazard": null,
+     "axes": {
+      "flat": false,
+      "glass": true,
+      "dry": true,
+      "sun": false,
+      "warm": true
+     },
+     "swell": {
+      "ft": 2.1,
+      "s": 7.2,
+      "dir": 350
+     },
+     "wind_kn": 3.0,
+     "cloud": 74,
+     "dry_h": 72,
+     "tide": {
+      "ft": 2.0,
+      "trend": "falling"
+     }
+    },
+    {
+     "label": "Mon dusk",
+     "start": "2026-10-26T15:59:00-10:00",
+     "end": "2026-10-26T17:59:00-10:00",
+     "kind": "dusk",
+     "score": 5.5,
+     "conf": "medium",
+     "limit": "swell",
+     "entries": [
+      "Three Tables",
+      "Shark's Cove"
+     ],
+     "gate": false,
+     "aligned": false,
+     "hazard": null,
+     "axes": {
+      "flat": false,
+      "glass": false,
+      "dry": true,
+      "sun": false,
+      "warm": true
+     },
+     "swell": {
+      "ft": 2.0,
+      "s": 7.6,
+      "dir": 356
+     },
+     "wind_kn": 7.2,
+     "cloud": 85,
+     "dry_h": 72,
+     "tide": {
+      "ft": 1.1,
+      "trend": "falling"
+     }
+    },
+    {
+     "label": "Tue dawn",
+     "start": "2026-10-27T06:03:00-10:00",
+     "end": "2026-10-27T09:03:00-10:00",
      "kind": "dawn",
      "score": 6.4,
      "conf": "medium",
@@ -6144,82 +6249,12 @@
       "warm": true
      },
      "swell": {
-      "ft": 1.9,
-      "s": 7.2,
-      "dir": 350
-     },
-     "wind_kn": 2.0,
-     "cloud": 48,
-     "dry_h": 72,
-     "tide": {
       "ft": 2.0,
-      "trend": "falling"
-     }
-    },
-    {
-     "label": "Mon dusk",
-     "start": "2026-10-26T15:59:00-10:00",
-     "end": "2026-10-26T17:59:00-10:00",
-     "kind": "dusk",
-     "score": 5.8,
-     "conf": "medium",
-     "limit": "swell",
-     "entries": [
-      "Three Tables",
-      "Shark's Cove"
-     ],
-     "gate": false,
-     "aligned": false,
-     "hazard": null,
-     "axes": {
-      "flat": false,
-      "glass": false,
-      "dry": true,
-      "sun": false,
-      "warm": true
-     },
-     "swell": {
-      "ft": 1.8,
-      "s": 7.6,
-      "dir": 356
-     },
-     "wind_kn": 7.8,
-     "cloud": 88,
-     "dry_h": 72,
-     "tide": {
-      "ft": 1.1,
-      "trend": "falling"
-     }
-    },
-    {
-     "label": "Tue dawn",
-     "start": "2026-10-27T06:03:00-10:00",
-     "end": "2026-10-27T09:03:00-10:00",
-     "kind": "dawn",
-     "score": 6.7,
-     "conf": "medium",
-     "limit": "swell",
-     "entries": [
-      "Three Tables",
-      "Shark's Cove"
-     ],
-     "gate": false,
-     "aligned": false,
-     "hazard": null,
-     "axes": {
-      "flat": false,
-      "glass": true,
-      "dry": true,
-      "sun": false,
-      "warm": true
-     },
-     "swell": {
-      "ft": 1.8,
       "s": 10.7,
       "dir": 334
      },
-     "wind_kn": 2.2,
-     "cloud": 100,
+     "wind_kn": 3.0,
+     "cloud": 99,
      "dry_h": 72,
      "tide": {
       "ft": 2.3,
@@ -6249,11 +6284,11 @@
       "warm": true
      },
      "swell": {
-      "ft": 1.8,
+      "ft": 1.9,
       "s": 11.3,
       "dir": 322
      },
-     "wind_kn": 3.0,
+     "wind_kn": 3.9,
      "cloud": 100,
      "dry_h": 0,
      "tide": {
@@ -6278,19 +6313,19 @@
      "hazard": null,
      "axes": {
       "flat": false,
-      "glass": true,
+      "glass": false,
       "dry": false,
       "sun": false,
       "warm": true
      },
      "swell": {
-      "ft": 1.5,
+      "ft": 1.6,
       "s": 10.2,
       "dir": 323
      },
-     "wind_kn": 6.6,
+     "wind_kn": 10.6,
      "cloud": 100,
-     "dry_h": 1,
+     "dry_h": 0,
      "tide": {
       "ft": 2.5,
       "trend": "falling"
@@ -6319,12 +6354,12 @@
       "warm": true
      },
      "swell": {
-      "ft": 1.5,
+      "ft": 1.6,
       "s": 8.1,
       "dir": 16
      },
      "wind_kn": 6.2,
-     "cloud": 100,
+     "cloud": 99,
      "dry_h": 1,
      "tide": {
       "ft": 0.6,
@@ -6354,13 +6389,13 @@
       "warm": true
      },
      "swell": {
-      "ft": 1.5,
+      "ft": 1.6,
       "s": 8.0,
       "dir": 20
      },
-     "wind_kn": 4.7,
-     "cloud": 100,
-     "dry_h": 0,
+     "wind_kn": 5.9,
+     "cloud": 98,
+     "dry_h": 1,
      "tide": {
       "ft": 2.4,
       "trend": "rising"
@@ -6389,13 +6424,13 @@
       "warm": true
      },
      "swell": {
-      "ft": 1.5,
+      "ft": 1.6,
       "s": 8.2,
       "dir": 24
      },
-     "wind_kn": 4.8,
-     "cloud": 100,
-     "dry_h": 0,
+     "wind_kn": 6.3,
+     "cloud": 89,
+     "dry_h": 6,
      "tide": {
       "ft": 0.5,
       "trend": "rising"
@@ -6424,13 +6459,13 @@
       "warm": true
      },
      "swell": {
-      "ft": 1.5,
+      "ft": 1.6,
       "s": 8.0,
       "dir": 27
      },
-     "wind_kn": 3.5,
-     "cloud": 100,
-     "dry_h": 0,
+     "wind_kn": 5.6,
+     "cloud": 99,
+     "dry_h": 21,
      "tide": {
       "ft": 2.1,
       "trend": "rising"
@@ -6459,13 +6494,13 @@
       "warm": true
      },
      "swell": {
-      "ft": 1.4,
+      "ft": 1.5,
       "s": 7.7,
       "dir": 27
      },
-     "wind_kn": 3.9,
-     "cloud": 99,
-     "dry_h": 0,
+     "wind_kn": 5.6,
+     "cloud": 100,
+     "dry_h": 30,
      "tide": {
       "ft": 0.3,
       "trend": "rising"
@@ -6494,13 +6529,13 @@
       "warm": true
      },
      "swell": {
-      "ft": 1.3,
+      "ft": 1.4,
       "s": 7.1,
       "dir": 26
      },
-     "wind_kn": 3.2,
+     "wind_kn": 3.7,
      "cloud": 98,
-     "dry_h": 1,
+     "dry_h": 45,
      "tide": {
       "ft": 1.8,
       "trend": "rising"
@@ -6529,16 +6564,51 @@
       "warm": true
      },
      "swell": {
-      "ft": 1.3,
+      "ft": 1.4,
       "s": 6.8,
       "dir": 27
      },
-     "wind_kn": 1.6,
-     "cloud": 100,
-     "dry_h": 1,
+     "wind_kn": 3.5,
+     "cloud": 74,
+     "dry_h": 54,
      "tide": {
       "ft": 0.3,
       "trend": "falling"
+     }
+    },
+    {
+     "label": "Sun dawn",
+     "start": "2026-11-01T06:05:00-10:00",
+     "end": "2026-11-01T09:05:00-10:00",
+     "kind": "dawn",
+     "score": 4.0,
+     "conf": "medium",
+     "limit": "rain",
+     "entries": [
+      "Three Tables",
+      "Shark's Cove"
+     ],
+     "gate": false,
+     "aligned": false,
+     "hazard": null,
+     "axes": {
+      "flat": false,
+      "glass": true,
+      "dry": false,
+      "sun": false,
+      "warm": true
+     },
+     "swell": {
+      "ft": 1.4,
+      "s": 13.5,
+      "dir": 252
+     },
+     "wind_kn": 0.9,
+     "cloud": 99,
+     "dry_h": 69,
+     "tide": {
+      "ft": 1.3,
+      "trend": "rising"
      }
     }
    ],
@@ -6715,12 +6785,12 @@
     }
    ],
    "buoy_now": {
-    "ft": 7.2,
-    "s": 13.0,
-    "dir": 331,
-    "age_h": 0.6
+    "ft": 6.6,
+    "s": 12.0,
+    "dir": 339,
+    "age_h": 0.7
    },
-   "anchor": 1.07,
+   "anchor": 1.146,
    "sst_trend": [
     {
      "d": "2026-10-21",
@@ -6758,13 +6828,13 @@
    "moon": {
     "name": "full",
     "pct": 100,
-    "age_d": 14.2,
-    "full_in_d": 1,
+    "age_d": 14.5,
+    "full_in_d": 0,
     "new_in_d": 15
    },
    "kd490": {
-    "m1": 0.044,
-    "age_d": 12
+    "m1": 0.045,
+    "age_d": 10
    },
    "chla": 0.08
   },
@@ -6802,53 +6872,18 @@
     "number": "833-858-2355",
     "text": "Text KONA to 833-858-2355"
    },
-   "forecast_sms": "THE DIVE BELL - KONA, the week ahead.\nBest: Sun dusk, 4.9 of 10 - rough, held back by swell.\nSun 4.9 / Mon 4.8 / Tue 3.6 / Wed 2.3 / Thu 3.1 / Fri 2.9 / Sat 3.8\nA quiet week.",
+   "forecast_sms": "THE DIVE BELL - KONA, the week ahead.\nBest: Sun dusk, 4.0 of 10 - rough, held back by rain.\nSun 4.0 / Mon 4.0 / Tue 3.6 / Wed 2.4 / Thu 2.5 / Fri 2.8 / Sat 4.0\nA quiet week.",
    "last_ring": null,
    "sst_f": 82,
    "windows": [
-    {
-     "label": "Sun dawn",
-     "start": "2026-10-25T05:51:00-10:00",
-     "end": "2026-10-25T08:51:00-10:00",
-     "kind": "dawn",
-     "score": 4.4,
-     "conf": "medium",
-     "limit": "swell",
-     "entries": [
-      "Two Step (Honaunau)",
-      "Kahalu'u"
-     ],
-     "gate": false,
-     "aligned": false,
-     "hazard": null,
-     "axes": {
-      "flat": false,
-      "glass": true,
-      "dry": true,
-      "sun": false,
-      "warm": true
-     },
-     "swell": {
-      "ft": 4.4,
-      "s": 11.1,
-      "dir": 198
-     },
-     "wind_kn": 1.0,
-     "cloud": 90,
-     "dry_h": 72,
-     "tide": {
-      "ft": 1.8,
-      "trend": "falling"
-     }
-    },
     {
      "label": "Sun dusk",
      "start": "2026-10-25T15:53:00-10:00",
      "end": "2026-10-25T17:53:00-10:00",
      "kind": "dusk",
-     "score": 4.9,
-     "conf": "medium",
-     "limit": "swell",
+     "score": 4.0,
+     "conf": "low",
+     "limit": "rain",
      "entries": [
       "Two Step (Honaunau)",
       "Kahalu'u"
@@ -6859,7 +6894,7 @@
      "axes": {
       "flat": false,
       "glass": true,
-      "dry": true,
+      "dry": false,
       "sun": false,
       "warm": true
      },
@@ -6868,9 +6903,9 @@
       "s": 11.3,
       "dir": 197
      },
-     "wind_kn": 1.9,
-     "cloud": 79,
-     "dry_h": 72,
+     "wind_kn": 2.0,
+     "cloud": 74,
+     "dry_h": 0,
      "tide": {
       "ft": 1.4,
       "trend": "falling"
@@ -6881,9 +6916,9 @@
      "start": "2026-10-26T05:51:00-10:00",
      "end": "2026-10-26T08:51:00-10:00",
      "kind": "dawn",
-     "score": 4.8,
-     "conf": "medium",
-     "limit": "swell",
+     "score": 4.0,
+     "conf": "low",
+     "limit": "rain",
      "entries": [
       "Two Step (Honaunau)",
       "Kahalu'u"
@@ -6894,7 +6929,7 @@
      "axes": {
       "flat": false,
       "glass": true,
-      "dry": true,
+      "dry": false,
       "sun": false,
       "warm": true
      },
@@ -6903,9 +6938,9 @@
       "s": 11.3,
       "dir": 196
      },
-     "wind_kn": 0.7,
-     "cloud": 63,
-     "dry_h": 72,
+     "wind_kn": 1.2,
+     "cloud": 61,
+     "dry_h": 1,
      "tide": {
       "ft": 2.3,
       "trend": "falling"
@@ -6916,9 +6951,9 @@
      "start": "2026-10-26T15:52:00-10:00",
      "end": "2026-10-26T17:52:00-10:00",
      "kind": "dusk",
-     "score": 3.7,
-     "conf": "medium",
-     "limit": "swell",
+     "score": 3.1,
+     "conf": "low",
+     "limit": "rain",
      "entries": [
       "Two Step (Honaunau)",
       "Kahalu'u"
@@ -6929,7 +6964,7 @@
      "axes": {
       "flat": false,
       "glass": true,
-      "dry": true,
+      "dry": false,
       "sun": false,
       "warm": true
      },
@@ -6938,9 +6973,9 @@
       "s": 11.1,
       "dir": 196
      },
-     "wind_kn": 3.0,
-     "cloud": 94,
-     "dry_h": 72,
+     "wind_kn": 3.3,
+     "cloud": 100,
+     "dry_h": 1,
      "tide": {
       "ft": 1.3,
       "trend": "rising"
@@ -6952,8 +6987,8 @@
      "end": "2026-10-27T08:52:00-10:00",
      "kind": "dawn",
      "score": 3.6,
-     "conf": "medium",
-     "limit": "swell",
+     "conf": "low",
+     "limit": "rain",
      "entries": [
       "Two Step (Honaunau)",
       "Kahalu'u"
@@ -6964,7 +6999,7 @@
      "axes": {
       "flat": false,
       "glass": true,
-      "dry": true,
+      "dry": false,
       "sun": false,
       "warm": true
      },
@@ -6974,8 +7009,8 @@
       "dir": 195
      },
      "wind_kn": 0.5,
-     "cloud": 80,
-     "dry_h": 72,
+     "cloud": 48,
+     "dry_h": 15,
      "tide": {
       "ft": 2.6,
       "trend": "falling"
@@ -6986,9 +7021,9 @@
      "start": "2026-10-27T15:52:00-10:00",
      "end": "2026-10-27T17:52:00-10:00",
      "kind": "dusk",
-     "score": 2.9,
-     "conf": "medium",
-     "limit": "swell",
+     "score": 2.7,
+     "conf": "low",
+     "limit": "rain",
      "entries": [
       "Two Step (Honaunau)",
       "Kahalu'u"
@@ -6999,7 +7034,7 @@
      "axes": {
       "flat": false,
       "glass": true,
-      "dry": true,
+      "dry": false,
       "sun": false,
       "warm": true
      },
@@ -7008,9 +7043,9 @@
       "s": 10.6,
       "dir": 194
      },
-     "wind_kn": 2.7,
-     "cloud": 99,
-     "dry_h": 72,
+     "wind_kn": 4.0,
+     "cloud": 82,
+     "dry_h": 25,
      "tide": {
       "ft": 1.0,
       "trend": "rising"
@@ -7021,8 +7056,8 @@
      "start": "2026-10-28T05:52:00-10:00",
      "end": "2026-10-28T08:52:00-10:00",
      "kind": "dawn",
-     "score": 2.2,
-     "conf": "medium",
+     "score": 2.4,
+     "conf": "low",
      "limit": "rain",
      "entries": [
       "Two Step (Honaunau)",
@@ -7043,9 +7078,9 @@
       "s": 10.5,
       "dir": 196
      },
-     "wind_kn": 2.0,
-     "cloud": 100,
-     "dry_h": 0,
+     "wind_kn": 1.1,
+     "cloud": 93,
+     "dry_h": 1,
      "tide": {
       "ft": 2.7,
       "trend": "falling"
@@ -7057,7 +7092,7 @@
      "end": "2026-10-28T17:51:00-10:00",
      "kind": "dusk",
      "score": 2.3,
-     "conf": "medium",
+     "conf": "low",
      "limit": "rain",
      "entries": [
       "Two Step (Honaunau)",
@@ -7078,9 +7113,9 @@
       "s": 10.7,
       "dir": 194
      },
-     "wind_kn": 0.8,
-     "cloud": 98,
-     "dry_h": 1,
+     "wind_kn": 2.0,
+     "cloud": 99,
+     "dry_h": 0,
      "tide": {
       "ft": 0.8,
       "trend": "rising"
@@ -7091,8 +7126,8 @@
      "start": "2026-10-29T05:53:00-10:00",
      "end": "2026-10-29T08:53:00-10:00",
      "kind": "dawn",
-     "score": 3.1,
-     "conf": "medium",
+     "score": 2.5,
+     "conf": "low",
      "limit": "rain",
      "entries": [
       "Two Step (Honaunau)",
@@ -7113,9 +7148,9 @@
       "s": 10.8,
       "dir": 193
      },
-     "wind_kn": 0.8,
-     "cloud": 70,
-     "dry_h": 1,
+     "wind_kn": 1.1,
+     "cloud": 99,
+     "dry_h": 0,
      "tide": {
       "ft": 2.7,
       "trend": "rising"
@@ -7127,7 +7162,7 @@
      "end": "2026-10-29T17:51:00-10:00",
      "kind": "dusk",
      "score": 2.0,
-     "conf": "medium",
+     "conf": "low",
      "limit": "rain",
      "entries": [
       "Two Step (Honaunau)",
@@ -7148,9 +7183,9 @@
       "s": 10.5,
       "dir": 194
      },
-     "wind_kn": 1.7,
+     "wind_kn": 2.3,
      "cloud": 100,
-     "dry_h": 0,
+     "dry_h": 1,
      "tide": {
       "ft": 0.5,
       "trend": "rising"
@@ -7161,8 +7196,8 @@
      "start": "2026-10-30T05:53:00-10:00",
      "end": "2026-10-30T08:53:00-10:00",
      "kind": "dawn",
-     "score": 2.8,
-     "conf": "medium",
+     "score": 2.7,
+     "conf": "low",
      "limit": "rain",
      "entries": [
       "Two Step (Honaunau)",
@@ -7183,8 +7218,8 @@
       "s": 10.9,
       "dir": 188
      },
-     "wind_kn": 0.2,
-     "cloud": 94,
+     "wind_kn": 1.0,
+     "cloud": 97,
      "dry_h": 1,
      "tide": {
       "ft": 2.3,
@@ -7196,8 +7231,8 @@
      "start": "2026-10-30T15:50:00-10:00",
      "end": "2026-10-30T17:50:00-10:00",
      "kind": "dusk",
-     "score": 2.9,
-     "conf": "medium",
+     "score": 2.8,
+     "conf": "low",
      "limit": "rain",
      "entries": [
       "Two Step (Honaunau)",
@@ -7218,7 +7253,7 @@
       "s": 10.8,
       "dir": 187
      },
-     "wind_kn": 1.7,
+     "wind_kn": 2.1,
      "cloud": 100,
      "dry_h": 1,
      "tide": {
@@ -7231,8 +7266,8 @@
      "start": "2026-10-31T05:54:00-10:00",
      "end": "2026-10-31T08:54:00-10:00",
      "kind": "dawn",
-     "score": 3.8,
-     "conf": "medium",
+     "score": 4.0,
+     "conf": "low",
      "limit": "rain",
      "entries": [
       "Kahalu'u",
@@ -7253,9 +7288,9 @@
       "s": 10.7,
       "dir": 186
      },
-     "wind_kn": 0.9,
-     "cloud": 75,
-     "dry_h": 1,
+     "wind_kn": 1.0,
+     "cloud": 52,
+     "dry_h": 9,
      "tide": {
       "ft": 1.9,
       "trend": "rising"
@@ -7266,8 +7301,8 @@
      "start": "2026-10-31T15:50:00-10:00",
      "end": "2026-10-31T17:50:00-10:00",
      "kind": "dusk",
-     "score": 3.6,
-     "conf": "medium",
+     "score": 3.8,
+     "conf": "low",
      "limit": "rain",
      "entries": [
       "Two Step (Honaunau)",
@@ -7288,12 +7323,47 @@
       "s": 10.6,
       "dir": 186
      },
-     "wind_kn": 1.8,
-     "cloud": 100,
-     "dry_h": 7,
+     "wind_kn": 2.1,
+     "cloud": 89,
+     "dry_h": 19,
      "tide": {
       "ft": 0.3,
       "trend": "falling"
+     }
+    },
+    {
+     "label": "Sun dawn",
+     "start": "2026-11-01T05:54:00-10:00",
+     "end": "2026-11-01T08:54:00-10:00",
+     "kind": "dawn",
+     "score": 3.9,
+     "conf": "low",
+     "limit": "rain",
+     "entries": [
+      "Two Step (Honaunau)",
+      "Kahalu'u"
+     ],
+     "gate": false,
+     "aligned": false,
+     "hazard": null,
+     "axes": {
+      "flat": false,
+      "glass": true,
+      "dry": false,
+      "sun": false,
+      "warm": true
+     },
+     "swell": {
+      "ft": 4.0,
+      "s": 10.4,
+      "dir": 185
+     },
+     "wind_kn": 0.8,
+     "cloud": 98,
+     "dry_h": 1,
+     "tide": {
+      "ft": 1.4,
+      "trend": "rising"
      }
     }
    ],
@@ -7470,10 +7540,10 @@
     }
    ],
    "buoy_now": {
-    "ft": 6.2,
-    "s": 7.0,
-    "dir": 50,
-    "age_h": 0.7
+    "ft": 6.9,
+    "s": 12.0,
+    "dir": 324,
+    "age_h": 1.3
    },
    "anchor": null,
    "sst_trend": [
@@ -7513,8 +7583,8 @@
    "moon": {
     "name": "full",
     "pct": 100,
-    "age_d": 14.2,
-    "full_in_d": 1,
+    "age_d": 14.5,
+    "full_in_d": 0,
     "new_in_d": 15
    },
    "kd490": {
@@ -7535,7 +7605,7 @@
    "warm_f": 62,
    "tz": "America/Kralendijk",
    "record": {
-    "promises": 20,
+    "promises": 21,
     "rings": 0
    },
    "bell": {
@@ -7557,16 +7627,16 @@
     "topic": "bonaire-dive-c06b33ce",
     "text": "Subscribe to bonaire-dive-c06b33ce in the ntfy app"
    },
-   "forecast_sms": "THE DIVE BELL - BONAIRE, the week ahead.\nBest: Mon dusk, 7.6 of 10 - good, held back by stirred-up water. In by 4:09pm at Bari Reef.\nSun 5.6 / Mon 7.6 / Tue 4.0 / Wed 4.0 / Thu 4.0 / Fri 4.0 / Sat 4.0\nNo ring in sight, but a morning worth having.",
+   "forecast_sms": "THE DIVE BELL - BONAIRE, the week ahead.\nBest: Tue dusk, 8.8 of 10 - excellent. In by 4:08pm at Bari Reef.\nMon 8.0 / Tue 8.8 / Wed 4.0 / Thu 4.0 / Fri 4.0 / Sat 4.0 / Sun 4.0\nNo ring in sight, but a morning worth having.",
    "last_ring": "2026-09-04",
    "sst_f": 86,
    "windows": [
     {
-     "label": "Sun dusk",
-     "start": "2026-10-25T16:09:00-04:00",
-     "end": "2026-10-25T18:09:00-04:00",
-     "kind": "dusk",
-     "score": 5.6,
+     "label": "Mon dawn",
+     "start": "2026-10-26T05:54:00-04:00",
+     "end": "2026-10-26T08:54:00-04:00",
+     "kind": "dawn",
+     "score": 6.3,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -7584,23 +7654,23 @@
       "warm": true
      },
      "swell": {
-      "ft": 4.5,
-      "s": 4.8,
-      "dir": 94
+      "ft": 3.7,
+      "s": 4.7,
+      "dir": 79
      },
-     "wind_kn": 4.8,
+     "wind_kn": 4.6,
      "cloud": 87,
      "dry_h": 72,
      "tide": null
     },
     {
-     "label": "Mon dawn",
-     "start": "2026-10-26T05:54:00-04:00",
-     "end": "2026-10-26T08:54:00-04:00",
-     "kind": "dawn",
-     "score": 7.0,
+     "label": "Mon dusk",
+     "start": "2026-10-26T16:09:00-04:00",
+     "end": "2026-10-26T18:09:00-04:00",
+     "kind": "dusk",
+     "score": 8.0,
      "conf": "medium",
-     "limit": "swell",
+     "limit": "stirred up",
      "entries": [
       "Bari Reef",
       "1000 Steps"
@@ -7616,21 +7686,21 @@
       "warm": true
      },
      "swell": {
-      "ft": 3.7,
-      "s": 4.7,
-      "dir": 79
+      "ft": 3.4,
+      "s": 4.3,
+      "dir": 84
      },
-     "wind_kn": 5.0,
-     "cloud": 20,
+     "wind_kn": 3.5,
+     "cloud": 13,
      "dry_h": 72,
      "tide": null
     },
     {
-     "label": "Mon dusk",
-     "start": "2026-10-26T16:09:00-04:00",
-     "end": "2026-10-26T18:09:00-04:00",
-     "kind": "dusk",
-     "score": 7.6,
+     "label": "Tue dawn",
+     "start": "2026-10-27T05:54:00-04:00",
+     "end": "2026-10-27T08:54:00-04:00",
+     "kind": "dawn",
+     "score": 7.8,
      "conf": "medium",
      "limit": "stirred up",
      "entries": [
@@ -7648,45 +7718,13 @@
       "warm": true
      },
      "swell": {
-      "ft": 3.4,
-      "s": 4.3,
-      "dir": 84
-     },
-     "wind_kn": 3.1,
-     "cloud": 67,
-     "dry_h": 72,
-     "tide": null
-    },
-    {
-     "label": "Tue dawn",
-     "start": "2026-10-27T05:54:00-04:00",
-     "end": "2026-10-27T08:54:00-04:00",
-     "kind": "dawn",
-     "score": 4.0,
-     "conf": "medium",
-     "limit": "rain",
-     "entries": [
-      "Bari Reef",
-      "1000 Steps"
-     ],
-     "gate": false,
-     "aligned": false,
-     "hazard": null,
-     "axes": {
-      "flat": false,
-      "glass": true,
-      "dry": false,
-      "sun": false,
-      "warm": true
-     },
-     "swell": {
       "ft": 3.2,
       "s": 4.4,
       "dir": 79
      },
-     "wind_kn": 1.8,
-     "cloud": 92,
-     "dry_h": 1,
+     "wind_kn": 2.6,
+     "cloud": 75,
+     "dry_h": 72,
      "tide": null
     },
     {
@@ -7694,9 +7732,9 @@
      "start": "2026-10-27T16:08:00-04:00",
      "end": "2026-10-27T18:08:00-04:00",
      "kind": "dusk",
-     "score": 4.0,
-     "conf": "low",
-     "limit": "rain",
+     "score": 8.8,
+     "conf": "medium",
+     "limit": "all clear",
      "entries": [
       "Bari Reef",
       "1000 Steps"
@@ -7707,7 +7745,7 @@
      "axes": {
       "flat": true,
       "glass": true,
-      "dry": false,
+      "dry": true,
       "sun": false,
       "warm": true
      },
@@ -7716,9 +7754,9 @@
       "s": 4.7,
       "dir": 75
      },
-     "wind_kn": 2.9,
-     "cloud": 71,
-     "dry_h": 1,
+     "wind_kn": 2.7,
+     "cloud": 48,
+     "dry_h": 72,
      "tide": null
     },
     {
@@ -7740,7 +7778,7 @@
       "flat": true,
       "glass": true,
       "dry": false,
-      "sun": false,
+      "sun": true,
       "warm": true
      },
      "swell": {
@@ -7748,9 +7786,9 @@
       "s": 4.2,
       "dir": 74
      },
-     "wind_kn": 2.5,
-     "cloud": 40,
-     "dry_h": 0,
+     "wind_kn": 2.6,
+     "cloud": 24,
+     "dry_h": 1,
      "tide": null
     },
     {
@@ -7780,8 +7818,8 @@
       "s": 4.6,
       "dir": 73
      },
-     "wind_kn": 3.8,
-     "cloud": 17,
+     "wind_kn": 3.4,
+     "cloud": 24,
      "dry_h": 1,
      "tide": null
     },
@@ -7804,7 +7842,7 @@
       "flat": false,
       "glass": true,
       "dry": false,
-      "sun": true,
+      "sun": false,
       "warm": true
      },
      "swell": {
@@ -7812,9 +7850,9 @@
       "s": 4.1,
       "dir": 84
      },
-     "wind_kn": 4.0,
-     "cloud": 24,
-     "dry_h": 2,
+     "wind_kn": 3.8,
+     "cloud": 66,
+     "dry_h": 14,
      "tide": null
     },
     {
@@ -7844,9 +7882,9 @@
       "s": 5.0,
       "dir": 68
      },
-     "wind_kn": 4.1,
-     "cloud": 66,
-     "dry_h": 13,
+     "wind_kn": 4.4,
+     "cloud": 36,
+     "dry_h": 25,
      "tide": null
     },
     {
@@ -7876,9 +7914,9 @@
       "s": 4.8,
       "dir": 76
      },
-     "wind_kn": 4.4,
-     "cloud": 93,
-     "dry_h": 26,
+     "wind_kn": 3.6,
+     "cloud": 53,
+     "dry_h": 38,
      "tide": null
     },
     {
@@ -7908,9 +7946,9 @@
       "s": 4.9,
       "dir": 71
      },
-     "wind_kn": 5.2,
-     "cloud": 99,
-     "dry_h": 3,
+     "wind_kn": 3.5,
+     "cloud": 97,
+     "dry_h": 49,
      "tide": null
     },
     {
@@ -7940,9 +7978,9 @@
       "s": 4.7,
       "dir": 70
      },
-     "wind_kn": 4.2,
-     "cloud": 88,
-     "dry_h": 16,
+     "wind_kn": 3.5,
+     "cloud": 53,
+     "dry_h": 62,
      "tide": null
     },
     {
@@ -7972,9 +8010,9 @@
       "s": 4.7,
       "dir": 78
      },
-     "wind_kn": 4.0,
+     "wind_kn": 4.1,
      "cloud": 100,
-     "dry_h": 27,
+     "dry_h": 1,
      "tide": null
     },
     {
@@ -8004,9 +8042,41 @@
       "s": 4.7,
       "dir": 72
      },
-     "wind_kn": 4.8,
-     "cloud": 64,
-     "dry_h": 40,
+     "wind_kn": 4.0,
+     "cloud": 83,
+     "dry_h": 4,
+     "tide": null
+    },
+    {
+     "label": "Sun dusk",
+     "start": "2026-11-01T16:07:00-04:00",
+     "end": "2026-11-01T18:07:00-04:00",
+     "kind": "dusk",
+     "score": 4.0,
+     "conf": "low",
+     "limit": "rain",
+     "entries": [
+      "Bari Reef",
+      "1000 Steps"
+     ],
+     "gate": false,
+     "aligned": false,
+     "hazard": null,
+     "axes": {
+      "flat": false,
+      "glass": true,
+      "dry": false,
+      "sun": false,
+      "warm": true
+     },
+     "swell": {
+      "ft": 3.1,
+      "s": 4.8,
+      "dir": 72
+     },
+     "wind_kn": 3.5,
+     "cloud": 92,
+     "dry_h": 15,
      "tide": null
     }
    ],
@@ -8050,8 +8120,8 @@
    "moon": {
     "name": "full",
     "pct": 100,
-    "age_d": 14.2,
-    "full_in_d": 1,
+    "age_d": 14.5,
+    "full_in_d": 0,
     "new_in_d": 15
    },
    "kd490": {
@@ -8094,7 +8164,7 @@
     "number": "833-858-2355",
     "text": "Text MALIBU to 833-858-2355"
    },
-   "forecast_sms": "THE DIVE BELL - MALIBU, the week ahead.\nBest: Fri dawn, 6.7 of 10 - workable, held back by swell.\nSun 3.6 / Mon 5.2 / Tue 5.2 / Wed 6.5 / Thu 6.4 / Fri 6.7 / Sat 5.8\nA quiet week.",
+   "forecast_sms": "THE DIVE BELL - MALIBU, the week ahead.\nBest: Thu dawn, 6.2 of 10 - marginal, held back by swell.\nSun 5.1 / Mon 5.8 / Tue 4.3 / Wed 5.9 / Thu 6.2 / Fri 6.2 / Sat 5.8\nA quiet week.",
    "last_ring": null,
    "sst_f": 72,
    "windows": [
@@ -8103,7 +8173,7 @@
      "start": "2026-10-25T16:09:00-07:00",
      "end": "2026-10-25T18:09:00-07:00",
      "kind": "dusk",
-     "score": 3.6,
+     "score": 5.1,
      "conf": "medium",
      "limit": "wind",
      "entries": [
@@ -8125,8 +8195,8 @@
       "s": 11.9,
       "dir": 192
      },
-     "wind_kn": 16.5,
-     "cloud": 13,
+     "wind_kn": 11.3,
+     "cloud": 8,
      "dry_h": 72,
      "tide": {
       "ft": -0.3,
@@ -8138,7 +8208,7 @@
      "start": "2026-10-26T06:39:00-07:00",
      "end": "2026-10-26T09:39:00-07:00",
      "kind": "dawn",
-     "score": 5.2,
+     "score": 5.8,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -8152,7 +8222,7 @@
       "flat": false,
       "glass": false,
       "dry": true,
-      "sun": true,
+      "sun": false,
       "warm": true
      },
      "swell": {
@@ -8160,8 +8230,8 @@
       "s": 11.9,
       "dir": 192
      },
-     "wind_kn": 10.5,
-     "cloud": 0,
+     "wind_kn": 8.5,
+     "cloud": 50,
      "dry_h": 72,
      "tide": {
       "ft": 4.5,
@@ -8187,7 +8257,7 @@
       "flat": false,
       "glass": false,
       "dry": true,
-      "sun": false,
+      "sun": true,
       "warm": true
      },
      "swell": {
@@ -8195,8 +8265,8 @@
       "s": 10.8,
       "dir": 207
      },
-     "wind_kn": 16.2,
-     "cloud": 69,
+     "wind_kn": 17.0,
+     "cloud": 1,
      "dry_h": 72,
      "tide": {
       "ft": -0.7,
@@ -8230,8 +8300,8 @@
       "s": 5.4,
       "dir": 266
      },
-     "wind_kn": 2.3,
-     "cloud": 6,
+     "wind_kn": 5.6,
+     "cloud": 18,
      "dry_h": 72,
      "tide": {
       "ft": 4.1,
@@ -8243,7 +8313,7 @@
      "start": "2026-10-27T16:07:00-07:00",
      "end": "2026-10-27T18:07:00-07:00",
      "kind": "dusk",
-     "score": 5.2,
+     "score": 4.3,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -8265,8 +8335,8 @@
       "s": 9.7,
       "dir": 201
      },
-     "wind_kn": 5.1,
-     "cloud": 27,
+     "wind_kn": 5.0,
+     "cloud": 100,
      "dry_h": 72,
      "tide": {
       "ft": -0.5,
@@ -8300,7 +8370,7 @@
       "s": 6.4,
       "dir": 263
      },
-     "wind_kn": 2.3,
+     "wind_kn": 2.4,
      "cloud": 100,
      "dry_h": 72,
      "tide": {
@@ -8313,7 +8383,7 @@
      "start": "2026-10-28T16:06:00-07:00",
      "end": "2026-10-28T18:06:00-07:00",
      "kind": "dusk",
-     "score": 6.5,
+     "score": 5.9,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -8335,8 +8405,8 @@
       "s": 12.3,
       "dir": 201
      },
-     "wind_kn": 5.5,
-     "cloud": 74,
+     "wind_kn": 6.0,
+     "cloud": 100,
      "dry_h": 72,
      "tide": {
       "ft": 0.4,
@@ -8348,7 +8418,7 @@
      "start": "2026-10-29T06:42:00-07:00",
      "end": "2026-10-29T09:42:00-07:00",
      "kind": "dawn",
-     "score": 6.4,
+     "score": 6.2,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -8370,7 +8440,7 @@
       "s": 12.6,
       "dir": 196
      },
-     "wind_kn": 2.2,
+     "wind_kn": 3.9,
      "cloud": 100,
      "dry_h": 72,
      "tide": {
@@ -8405,7 +8475,7 @@
       "s": 12.6,
       "dir": 196
      },
-     "wind_kn": 5.9,
+     "wind_kn": 5.8,
      "cloud": 100,
      "dry_h": 72,
      "tide": {
@@ -8418,7 +8488,7 @@
      "start": "2026-10-30T06:43:00-07:00",
      "end": "2026-10-30T09:43:00-07:00",
      "kind": "dawn",
-     "score": 6.7,
+     "score": 6.2,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -8440,8 +8510,8 @@
       "s": 12.6,
       "dir": 200
      },
-     "wind_kn": 2.3,
-     "cloud": 76,
+     "wind_kn": 1.3,
+     "cloud": 96,
      "dry_h": 72,
      "tide": {
       "ft": 3.1,
@@ -8453,7 +8523,7 @@
      "start": "2026-10-30T16:04:00-07:00",
      "end": "2026-10-30T18:04:00-07:00",
      "kind": "dusk",
-     "score": 6.0,
+     "score": 5.8,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -8475,8 +8545,8 @@
       "s": 12.4,
       "dir": 199
      },
-     "wind_kn": 4.1,
-     "cloud": 54,
+     "wind_kn": 4.9,
+     "cloud": 76,
      "dry_h": 72,
      "tide": {
       "ft": 3.0,
@@ -8510,7 +8580,7 @@
       "s": 11.0,
       "dir": 200
      },
-     "wind_kn": 2.5,
+     "wind_kn": 2.0,
      "cloud": 100,
      "dry_h": 72,
      "tide": {
@@ -8523,7 +8593,7 @@
      "start": "2026-10-31T16:03:00-07:00",
      "end": "2026-10-31T18:03:00-07:00",
      "kind": "dusk",
-     "score": 5.2,
+     "score": 5.0,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -8545,8 +8615,8 @@
       "s": 12.7,
       "dir": 198
      },
-     "wind_kn": 5.1,
-     "cloud": 100,
+     "wind_kn": 6.2,
+     "cloud": 97,
      "dry_h": 72,
      "tide": {
       "ft": 4.2,
@@ -8558,7 +8628,7 @@
      "start": "2026-11-01T06:44:00-08:00",
      "end": "2026-11-01T09:44:00-08:00",
      "kind": "dawn",
-     "score": 1.0,
+     "score": 3.9,
      "conf": "medium",
      "limit": "rain",
      "entries": [
@@ -8570,7 +8640,7 @@
      "hazard": null,
      "axes": {
       "flat": false,
-      "glass": false,
+      "glass": true,
       "dry": false,
       "sun": false,
       "warm": true
@@ -8580,7 +8650,7 @@
       "s": 12.6,
       "dir": 196
      },
-     "wind_kn": 28.1,
+     "wind_kn": 2.6,
      "cloud": 100,
      "dry_h": 0,
      "tide": {
@@ -8768,9 +8838,9 @@
    ],
    "buoy_now": {
     "ft": 2.6,
-    "s": 14.0,
-    "dir": 204,
-    "age_h": 0.6
+    "s": 13.0,
+    "dir": 205,
+    "age_h": 0.7
    },
    "anchor": 0.908,
    "sst_trend": [
@@ -8810,8 +8880,8 @@
    "moon": {
     "name": "full",
     "pct": 100,
-    "age_d": 14.2,
-    "full_in_d": 1,
+    "age_d": 14.5,
+    "full_in_d": 0,
     "new_in_d": 15
    },
    "kd490": {
@@ -8854,7 +8924,7 @@
     "number": "833-858-2355",
     "text": "Text VENTURA to 833-858-2355"
    },
-   "forecast_sms": "THE DIVE BELL - VENTURA COUNTY, the week ahead.\nBest: Fri dawn, 6.2 of 10 - marginal, held back by swell.\nSun 3.0 / Mon 3.0 / Tue 6.0 / Wed 5.5 / Thu 5.2 / Fri 6.2 / Sat 4.8\nA quiet week.",
+   "forecast_sms": "THE DIVE BELL - VENTURA COUNTY, the week ahead.\nBest: Wed dawn, 5.5 of 10 - marginal, held back by swell.\nSun 3.0 / Mon 3.1 / Tue 5.0 / Wed 5.5 / Thu 5.2 / Fri 5.2 / Sat 4.9\nA quiet week.",
    "last_ring": null,
    "sst_f": 71,
    "windows": [
@@ -8875,7 +8945,7 @@
      "hazard": null,
      "axes": {
       "flat": false,
-      "glass": false,
+      "glass": true,
       "dry": false,
       "sun": true,
       "warm": true
@@ -8885,8 +8955,8 @@
       "s": 11.7,
       "dir": 187
      },
-     "wind_kn": 9.5,
-     "cloud": 15,
+     "wind_kn": 6.4,
+     "cloud": 2,
      "dry_h": 55,
      "tide": {
       "ft": -0.3,
@@ -8912,7 +8982,7 @@
       "flat": false,
       "glass": true,
       "dry": false,
-      "sun": true,
+      "sun": false,
       "warm": true
      },
      "swell": {
@@ -8920,8 +8990,8 @@
       "s": 11.7,
       "dir": 191
      },
-     "wind_kn": 6.7,
-     "cloud": 0,
+     "wind_kn": 4.5,
+     "cloud": 50,
      "dry_h": 69,
      "tide": {
       "ft": 4.4,
@@ -8933,8 +9003,8 @@
      "start": "2026-10-26T16:08:00-07:00",
      "end": "2026-10-26T18:08:00-07:00",
      "kind": "dusk",
-     "score": 2.7,
-     "conf": "medium",
+     "score": 3.1,
+     "conf": "high",
      "limit": "swell",
      "entries": [
       "La Jenelle (Port Hueneme)",
@@ -8947,7 +9017,7 @@
       "flat": false,
       "glass": false,
       "dry": true,
-      "sun": false,
+      "sun": true,
       "warm": true
      },
      "swell": {
@@ -8955,8 +9025,8 @@
       "s": 11.2,
       "dir": 199
      },
-     "wind_kn": 10.8,
-     "cloud": 71,
+     "wind_kn": 11.4,
+     "cloud": 0,
      "dry_h": 72,
      "tide": {
       "ft": -0.6,
@@ -8968,7 +9038,7 @@
      "start": "2026-10-27T06:41:00-07:00",
      "end": "2026-10-27T09:41:00-07:00",
      "kind": "dawn",
-     "score": 4.5,
+     "score": 4.6,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -8990,8 +9060,8 @@
       "s": 5.3,
       "dir": 248
      },
-     "wind_kn": 1.3,
-     "cloud": 4,
+     "wind_kn": 2.9,
+     "cloud": 6,
      "dry_h": 72,
      "tide": {
       "ft": 4.0,
@@ -9003,7 +9073,7 @@
      "start": "2026-10-27T16:07:00-07:00",
      "end": "2026-10-27T18:07:00-07:00",
      "kind": "dusk",
-     "score": 6.0,
+     "score": 5.0,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -9017,7 +9087,7 @@
       "flat": false,
       "glass": true,
       "dry": true,
-      "sun": true,
+      "sun": false,
       "warm": true
      },
      "swell": {
@@ -9025,8 +9095,8 @@
       "s": 12.0,
       "dir": 196
      },
-     "wind_kn": 6.3,
-     "cloud": 25,
+     "wind_kn": 6.1,
+     "cloud": 100,
      "dry_h": 72,
      "tide": {
       "ft": -0.3,
@@ -9060,7 +9130,7 @@
       "s": 12.3,
       "dir": 195
      },
-     "wind_kn": 1.3,
+     "wind_kn": 1.5,
      "cloud": 100,
      "dry_h": 72,
      "tide": {
@@ -9073,7 +9143,7 @@
      "start": "2026-10-28T16:06:00-07:00",
      "end": "2026-10-28T18:06:00-07:00",
      "kind": "dusk",
-     "score": 5.5,
+     "score": 4.9,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -9085,7 +9155,7 @@
      "hazard": null,
      "axes": {
       "flat": false,
-      "glass": true,
+      "glass": false,
       "dry": true,
       "sun": false,
       "warm": true
@@ -9095,8 +9165,8 @@
       "s": 12.5,
       "dir": 195
      },
-     "wind_kn": 6.5,
-     "cloud": 86,
+     "wind_kn": 8.9,
+     "cloud": 98,
      "dry_h": 72,
      "tide": {
       "ft": 0.6,
@@ -9130,7 +9200,7 @@
       "s": 12.2,
       "dir": 198
      },
-     "wind_kn": 0.9,
+     "wind_kn": 1.3,
      "cloud": 100,
      "dry_h": 72,
      "tide": {
@@ -9143,7 +9213,7 @@
      "start": "2026-10-29T16:05:00-07:00",
      "end": "2026-10-29T18:05:00-07:00",
      "kind": "dusk",
-     "score": 5.0,
+     "score": 4.3,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -9165,8 +9235,8 @@
       "s": 12.3,
       "dir": 196
      },
-     "wind_kn": 8.1,
-     "cloud": 96,
+     "wind_kn": 9.6,
+     "cloud": 100,
      "dry_h": 72,
      "tide": {
       "ft": 1.9,
@@ -9178,7 +9248,42 @@
      "start": "2026-10-30T06:43:00-07:00",
      "end": "2026-10-30T09:43:00-07:00",
      "kind": "dawn",
-     "score": 6.2,
+     "score": 5.2,
+     "conf": "medium",
+     "limit": "swell",
+     "entries": [
+      "County Line Reef (Yerba Buena)",
+      "La Jenelle (Port Hueneme)"
+     ],
+     "gate": false,
+     "aligned": false,
+     "hazard": null,
+     "axes": {
+      "flat": false,
+      "glass": true,
+      "dry": true,
+      "sun": false,
+      "warm": true
+     },
+     "swell": {
+      "ft": 2.5,
+      "s": 12.3,
+      "dir": 196
+     },
+     "wind_kn": 1.5,
+     "cloud": 96,
+     "dry_h": 72,
+     "tide": {
+      "ft": 3.1,
+      "trend": "rising"
+     }
+    },
+    {
+     "label": "Fri dusk",
+     "start": "2026-10-30T16:04:00-07:00",
+     "end": "2026-10-30T18:04:00-07:00",
+     "kind": "dusk",
+     "score": 4.8,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -9197,46 +9302,11 @@
      },
      "swell": {
       "ft": 2.6,
-      "s": 12.3,
-      "dir": 196
-     },
-     "wind_kn": 2.2,
-     "cloud": 26,
-     "dry_h": 72,
-     "tide": {
-      "ft": 3.1,
-      "trend": "rising"
-     }
-    },
-    {
-     "label": "Fri dusk",
-     "start": "2026-10-30T16:04:00-07:00",
-     "end": "2026-10-30T18:04:00-07:00",
-     "kind": "dusk",
-     "score": 4.0,
-     "conf": "medium",
-     "limit": "swell",
-     "entries": [
-      "County Line Reef (Yerba Buena)",
-      "La Jenelle (Port Hueneme)"
-     ],
-     "gate": false,
-     "aligned": false,
-     "hazard": null,
-     "axes": {
-      "flat": false,
-      "glass": false,
-      "dry": true,
-      "sun": false,
-      "warm": true
-     },
-     "swell": {
-      "ft": 2.6,
       "s": 12.2,
       "dir": 197
      },
-     "wind_kn": 8.6,
-     "cloud": 94,
+     "wind_kn": 6.3,
+     "cloud": 63,
      "dry_h": 72,
      "tide": {
       "ft": 3.2,
@@ -9248,7 +9318,7 @@
      "start": "2026-10-31T06:44:00-07:00",
      "end": "2026-10-31T09:44:00-07:00",
      "kind": "dawn",
-     "score": 4.8,
+     "score": 4.9,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -9270,8 +9340,8 @@
       "s": 10.9,
       "dir": 197
      },
-     "wind_kn": 1.7,
-     "cloud": 100,
+     "wind_kn": 2.4,
+     "cloud": 98,
      "dry_h": 72,
      "tide": {
       "ft": 3.3,
@@ -9283,7 +9353,7 @@
      "start": "2026-10-31T16:03:00-07:00",
      "end": "2026-10-31T18:03:00-07:00",
      "kind": "dusk",
-     "score": 3.9,
+     "score": 3.2,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -9305,8 +9375,8 @@
       "s": 12.4,
       "dir": 196
      },
-     "wind_kn": 7.7,
-     "cloud": 100,
+     "wind_kn": 9.9,
+     "cloud": 99,
      "dry_h": 72,
      "tide": {
       "ft": 4.3,
@@ -9318,7 +9388,7 @@
      "start": "2026-11-01T06:45:00-08:00",
      "end": "2026-11-01T09:45:00-08:00",
      "kind": "dawn",
-     "score": 1.0,
+     "score": 3.2,
      "conf": "medium",
      "limit": "rain",
      "entries": [
@@ -9330,7 +9400,7 @@
      "hazard": null,
      "axes": {
       "flat": false,
-      "glass": false,
+      "glass": true,
       "dry": false,
       "sun": false,
       "warm": true
@@ -9340,7 +9410,7 @@
       "s": 12.4,
       "dir": 195
      },
-     "wind_kn": 30.1,
+     "wind_kn": 2.9,
      "cloud": 100,
      "dry_h": 0,
      "tide": {
@@ -9527,12 +9597,12 @@
     }
    ],
    "buoy_now": {
-    "ft": 2.6,
+    "ft": 2.0,
     "s": 10.0,
-    "dir": 248,
-    "age_h": 0.7
+    "dir": 271,
+    "age_h": 1.3
    },
-   "anchor": 1.054,
+   "anchor": 1.05,
    "sst_trend": [
     {
      "d": "2026-10-21",
@@ -9570,8 +9640,8 @@
    "moon": {
     "name": "full",
     "pct": 100,
-    "age_d": 14.2,
-    "full_in_d": 1,
+    "age_d": 14.5,
+    "full_in_d": 0,
     "new_in_d": 15
    },
    "kd490": {
@@ -9614,16 +9684,48 @@
     "topic": "sydney-dive-75fdf41a",
     "text": "Subscribe to sydney-dive-75fdf41a in the ntfy app"
    },
-   "forecast_sms": "THE DIVE BELL - SYDNEY, the week ahead.\nBest: Wed dawn, 8.5 of 10 - excellent. In by 5:29am at Shelly Beach (Cabbage Tree Bay).\nMon 5.5 / Tue 6.8 / Wed 8.5 / Thu 8.4 / Fri 7.0 / Sat 6.0 / Sun 6.5\nNo ring in sight, but a morning worth having.",
+   "forecast_sms": "THE DIVE BELL - SYDNEY, the week ahead.\nBest: Fri dawn, 7.7 of 10 - good, held back by swell. In by 5:27am at Shelly Beach (Cabbage Tree Bay).\nMon 4.0 / Tue 4.0 / Wed 4.0 / Thu 6.8 / Fri 7.7 / Sat 6.0 / Sun 6.2\nNo ring in sight, but a morning worth having.",
    "last_ring": "2026-09-06",
    "sst_f": 69,
    "windows": [
     {
-     "label": "Mon dawn",
-     "start": "2026-10-26T05:31:00+11:00",
-     "end": "2026-10-26T08:31:00+11:00",
+     "label": "Mon dusk",
+     "start": "2026-10-26T17:17:00+11:00",
+     "end": "2026-10-26T19:17:00+11:00",
+     "kind": "dusk",
+     "score": 4.0,
+     "conf": "medium",
+     "limit": "rain",
+     "entries": [
+      "Shelly Beach (Cabbage Tree Bay)",
+      "Fairy Bower"
+     ],
+     "gate": false,
+     "aligned": false,
+     "hazard": null,
+     "axes": {
+      "flat": false,
+      "glass": false,
+      "dry": false,
+      "sun": true,
+      "warm": true
+     },
+     "swell": {
+      "ft": 5.5,
+      "s": 6.5,
+      "dir": 154
+     },
+     "wind_kn": 7.9,
+     "cloud": 7,
+     "dry_h": 1,
+     "tide": null
+    },
+    {
+     "label": "Tue dawn",
+     "start": "2026-10-27T05:30:00+11:00",
+     "end": "2026-10-27T08:30:00+11:00",
      "kind": "dawn",
-     "score": 3.5,
+     "score": 4.0,
      "conf": "medium",
      "limit": "rain",
      "entries": [
@@ -9641,77 +9743,13 @@
       "warm": true
      },
      "swell": {
-      "ft": 4.1,
-      "s": 7.1,
-      "dir": 66
-     },
-     "wind_kn": 6.2,
-     "cloud": 59,
-     "dry_h": 60,
-     "tide": null
-    },
-    {
-     "label": "Mon dusk",
-     "start": "2026-10-26T17:17:00+11:00",
-     "end": "2026-10-26T19:17:00+11:00",
-     "kind": "dusk",
-     "score": 5.5,
-     "conf": "medium",
-     "limit": "swell",
-     "entries": [
-      "Shelly Beach (Cabbage Tree Bay)",
-      "Fairy Bower"
-     ],
-     "gate": false,
-     "aligned": false,
-     "hazard": null,
-     "axes": {
-      "flat": false,
-      "glass": false,
-      "dry": true,
-      "sun": true,
-      "warm": true
-     },
-     "swell": {
-      "ft": 5.5,
-      "s": 6.5,
-      "dir": 154
-     },
-     "wind_kn": 8.3,
-     "cloud": 5,
-     "dry_h": 72,
-     "tide": null
-    },
-    {
-     "label": "Tue dawn",
-     "start": "2026-10-27T05:30:00+11:00",
-     "end": "2026-10-27T08:30:00+11:00",
-     "kind": "dawn",
-     "score": 6.8,
-     "conf": "medium",
-     "limit": "swell",
-     "entries": [
-      "Shelly Beach (Cabbage Tree Bay)",
-      "Fairy Bower"
-     ],
-     "gate": false,
-     "aligned": false,
-     "hazard": null,
-     "axes": {
-      "flat": false,
-      "glass": true,
-      "dry": true,
-      "sun": false,
-      "warm": true
-     },
-     "swell": {
       "ft": 4.6,
       "s": 6.5,
       "dir": 148
      },
-     "wind_kn": 2.2,
-     "cloud": 31,
-     "dry_h": 72,
+     "wind_kn": 2.8,
+     "cloud": 34,
+     "dry_h": 13,
      "tide": null
     },
     {
@@ -9719,9 +9757,9 @@
      "start": "2026-10-27T17:18:00+11:00",
      "end": "2026-10-27T19:18:00+11:00",
      "kind": "dusk",
-     "score": 5.9,
+     "score": 4.0,
      "conf": "medium",
-     "limit": "swell",
+     "limit": "rain",
      "entries": [
       "Shelly Beach (Cabbage Tree Bay)",
       "Fairy Bower"
@@ -9732,8 +9770,8 @@
      "axes": {
       "flat": false,
       "glass": false,
-      "dry": true,
-      "sun": true,
+      "dry": false,
+      "sun": false,
       "warm": true
      },
      "swell": {
@@ -9741,9 +9779,9 @@
       "s": 6.6,
       "dir": 150
      },
-     "wind_kn": 11.0,
-     "cloud": 14,
-     "dry_h": 72,
+     "wind_kn": 10.6,
+     "cloud": 43,
+     "dry_h": 25,
      "tide": null
     },
     {
@@ -9751,9 +9789,9 @@
      "start": "2026-10-28T05:29:00+11:00",
      "end": "2026-10-28T08:29:00+11:00",
      "kind": "dawn",
-     "score": 8.5,
+     "score": 4.0,
      "conf": "medium",
-     "limit": "all clear",
+     "limit": "rain",
      "entries": [
       "Shelly Beach (Cabbage Tree Bay)",
       "Fairy Bower"
@@ -9764,8 +9802,8 @@
      "axes": {
       "flat": true,
       "glass": true,
-      "dry": true,
-      "sun": false,
+      "dry": false,
+      "sun": true,
       "warm": true
      },
      "swell": {
@@ -9773,9 +9811,9 @@
       "s": 6.0,
       "dir": 154
      },
-     "wind_kn": 2.6,
-     "cloud": 40,
-     "dry_h": 72,
+     "wind_kn": 3.0,
+     "cloud": 4,
+     "dry_h": 37,
      "tide": null
     },
     {
@@ -9783,9 +9821,9 @@
      "start": "2026-10-28T17:19:00+11:00",
      "end": "2026-10-28T19:19:00+11:00",
      "kind": "dusk",
-     "score": 8.5,
+     "score": 4.0,
      "conf": "medium",
-     "limit": "all clear",
+     "limit": "rain",
      "entries": [
       "Shelly Beach (Cabbage Tree Bay)",
       "Fairy Bower"
@@ -9795,8 +9833,8 @@
      "hazard": null,
      "axes": {
       "flat": true,
-      "glass": false,
-      "dry": true,
+      "glass": true,
+      "dry": false,
       "sun": true,
       "warm": true
      },
@@ -9805,9 +9843,9 @@
       "s": 5.8,
       "dir": 157
      },
-     "wind_kn": 7.2,
-     "cloud": 11,
-     "dry_h": 72,
+     "wind_kn": 6.9,
+     "cloud": 9,
+     "dry_h": 49,
      "tide": null
     },
     {
@@ -9815,9 +9853,9 @@
      "start": "2026-10-29T05:28:00+11:00",
      "end": "2026-10-29T08:28:00+11:00",
      "kind": "dawn",
-     "score": 8.4,
+     "score": 4.0,
      "conf": "medium",
-     "limit": "swell",
+     "limit": "rain",
      "entries": [
       "Shelly Beach (Cabbage Tree Bay)",
       "Fairy Bower"
@@ -9828,7 +9866,7 @@
      "axes": {
       "flat": false,
       "glass": true,
-      "dry": true,
+      "dry": false,
       "sun": true,
       "warm": true
      },
@@ -9837,9 +9875,9 @@
       "s": 7.8,
       "dir": 156
      },
-     "wind_kn": 2.6,
+     "wind_kn": 3.1,
      "cloud": 0,
-     "dry_h": 72,
+     "dry_h": 61,
      "tide": null
     },
     {
@@ -9847,7 +9885,7 @@
      "start": "2026-10-29T17:19:00+11:00",
      "end": "2026-10-29T19:19:00+11:00",
      "kind": "dusk",
-     "score": 6.9,
+     "score": 6.8,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -9869,8 +9907,8 @@
       "s": 7.9,
       "dir": 157
      },
-     "wind_kn": 8.2,
-     "cloud": 3,
+     "wind_kn": 8.5,
+     "cloud": 4,
      "dry_h": 72,
      "tide": null
     },
@@ -9879,7 +9917,7 @@
      "start": "2026-10-30T05:27:00+11:00",
      "end": "2026-10-30T08:27:00+11:00",
      "kind": "dawn",
-     "score": 7.0,
+     "score": 7.7,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -9893,7 +9931,7 @@
       "flat": false,
       "glass": true,
       "dry": true,
-      "sun": false,
+      "sun": true,
       "warm": true
      },
      "swell": {
@@ -9901,8 +9939,8 @@
       "s": 9.1,
       "dir": 158
      },
-     "wind_kn": 2.6,
-     "cloud": 76,
+     "wind_kn": 2.7,
+     "cloud": 13,
      "dry_h": 72,
      "tide": null
     },
@@ -9911,7 +9949,7 @@
      "start": "2026-10-30T17:20:00+11:00",
      "end": "2026-10-30T19:20:00+11:00",
      "kind": "dusk",
-     "score": 4.2,
+     "score": 3.9,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -9933,8 +9971,8 @@
       "s": 9.7,
       "dir": 164
      },
-     "wind_kn": 10.6,
-     "cloud": 44,
+     "wind_kn": 10.7,
+     "cloud": 73,
      "dry_h": 72,
      "tide": null
     },
@@ -9965,8 +10003,8 @@
       "s": 6.4,
       "dir": 61
      },
-     "wind_kn": 1.0,
-     "cloud": 100,
+     "wind_kn": 4.7,
+     "cloud": 83,
      "dry_h": 72,
      "tide": null
     },
@@ -9975,7 +10013,7 @@
      "start": "2026-10-31T17:21:00+11:00",
      "end": "2026-10-31T19:21:00+11:00",
      "kind": "dusk",
-     "score": 5.2,
+     "score": 4.5,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -9997,8 +10035,8 @@
       "s": 5.7,
       "dir": 67
      },
-     "wind_kn": 9.6,
-     "cloud": 55,
+     "wind_kn": 8.9,
+     "cloud": 100,
      "dry_h": 72,
      "tide": null
     },
@@ -10007,7 +10045,7 @@
      "start": "2026-11-01T05:25:00+11:00",
      "end": "2026-11-01T08:25:00+11:00",
      "kind": "dawn",
-     "score": 5.9,
+     "score": 5.5,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -10029,8 +10067,8 @@
       "s": 4.7,
       "dir": 62
      },
-     "wind_kn": 5.4,
-     "cloud": 46,
+     "wind_kn": 6.8,
+     "cloud": 55,
      "dry_h": 72,
      "tide": null
     },
@@ -10039,7 +10077,7 @@
      "start": "2026-11-01T17:22:00+11:00",
      "end": "2026-11-01T19:22:00+11:00",
      "kind": "dusk",
-     "score": 6.5,
+     "score": 6.2,
      "conf": "medium",
      "limit": "swell",
      "entries": [
@@ -10051,7 +10089,7 @@
      "hazard": null,
      "axes": {
       "flat": false,
-      "glass": false,
+      "glass": true,
       "dry": true,
       "sun": false,
       "warm": true
@@ -10061,18 +10099,50 @@
       "s": 4.5,
       "dir": 63
      },
-     "wind_kn": 9.0,
-     "cloud": 43,
+     "wind_kn": 6.7,
+     "cloud": 87,
+     "dry_h": 72,
+     "tide": null
+    },
+    {
+     "label": "Mon dawn",
+     "start": "2026-11-02T05:24:00+11:00",
+     "end": "2026-11-02T08:24:00+11:00",
+     "kind": "dawn",
+     "score": 6.9,
+     "conf": "medium",
+     "limit": "swell",
+     "entries": [
+      "Shelly Beach (Cabbage Tree Bay)",
+      "Fairy Bower"
+     ],
+     "gate": false,
+     "aligned": false,
+     "hazard": null,
+     "axes": {
+      "flat": false,
+      "glass": true,
+      "dry": true,
+      "sun": false,
+      "warm": true
+     },
+     "swell": {
+      "ft": 2.5,
+      "s": 4.8,
+      "dir": 62
+     },
+     "wind_kn": 1.5,
+     "cloud": 84,
      "dry_h": 72,
      "tide": null
     }
    ],
    "tides": [],
    "buoy_now": {
-    "ft": 6.4,
-    "s": 9.8,
-    "dir": 84,
-    "age_h": 3.1
+    "ft": 7.0,
+    "s": 10.8,
+    "dir": 76,
+    "age_h": 3.2
    },
    "anchor": null,
    "sst_trend": [
@@ -10112,8 +10182,8 @@
    "moon": {
     "name": "full",
     "pct": 100,
-    "age_d": 14.2,
-    "full_in_d": 1,
+    "age_d": 14.5,
+    "full_in_d": 0,
     "new_in_d": 15
    },
    "kd490": {
@@ -10156,45 +10226,10 @@
     "number": "833-858-2355",
     "text": "Text MAUI to 833-858-2355"
    },
-   "forecast_sms": "THE DIVE BELL - MAUI, the week ahead.\nBest: Mon dusk, 8.1 of 10 - good, held back by stirred-up water. In by 3:54pm at Kahekili (Airport Beach).\nSun 4.0 / Mon 8.1 / Tue 7.5 / Wed 4.0 / Thu 4.0 / Fri 4.0 / Sat 4.0\nNo ring in sight, but a morning worth having.",
+   "forecast_sms": "THE DIVE BELL - MAUI, the week ahead.\nBest: Tue dawn, 8.5 of 10 - excellent. In by 5:56am at Kahekili (Airport Beach).\nSun 4.0 / Mon 7.7 / Tue 8.5 / Wed 4.0 / Thu 4.0 / Fri 4.0 / Sat 4.0\nNo ring in sight, but a morning worth having.",
    "last_ring": "2026-10-22",
    "sst_f": 80,
    "windows": [
-    {
-     "label": "Sun dawn",
-     "start": "2026-10-25T05:56:00-10:00",
-     "end": "2026-10-25T08:56:00-10:00",
-     "kind": "dawn",
-     "score": 4.0,
-     "conf": "medium",
-     "limit": "rain",
-     "entries": [
-      "Kahekili (Airport Beach)",
-      "Black Rock (Pu'u Keka'a)"
-     ],
-     "gate": false,
-     "aligned": false,
-     "hazard": null,
-     "axes": {
-      "flat": false,
-      "glass": true,
-      "dry": false,
-      "sun": false,
-      "warm": true
-     },
-     "swell": {
-      "ft": 2.3,
-      "s": 10.5,
-      "dir": 184
-     },
-     "wind_kn": 4.6,
-     "cloud": 50,
-     "dry_h": 42,
-     "tide": {
-      "ft": 1.2,
-      "trend": "falling"
-     }
-    },
     {
      "label": "Sun dusk",
      "start": "2026-10-25T15:54:00-10:00",
@@ -10222,8 +10257,8 @@
       "s": 10.0,
       "dir": 184
      },
-     "wind_kn": 5.0,
-     "cloud": 96,
+     "wind_kn": 5.3,
+     "cloud": 88,
      "dry_h": 52,
      "tide": {
       "ft": 1.1,
@@ -10249,7 +10284,7 @@
       "flat": false,
       "glass": true,
       "dry": false,
-      "sun": true,
+      "sun": false,
       "warm": true
      },
      "swell": {
@@ -10257,8 +10292,8 @@
       "s": 10.5,
       "dir": 185
      },
-     "wind_kn": 2.6,
-     "cloud": 20,
+     "wind_kn": 2.9,
+     "cloud": 28,
      "dry_h": 66,
      "tide": {
       "ft": 1.7,
@@ -10270,9 +10305,9 @@
      "start": "2026-10-26T15:54:00-10:00",
      "end": "2026-10-26T17:54:00-10:00",
      "kind": "dusk",
-     "score": 8.1,
+     "score": 7.7,
      "conf": "medium",
-     "limit": "stirred up",
+     "limit": "grey",
      "entries": [
       "Kahekili (Airport Beach)",
       "Black Rock (Pu'u Keka'a)"
@@ -10292,8 +10327,8 @@
       "s": 10.9,
       "dir": 184
      },
-     "wind_kn": 2.0,
-     "cloud": 75,
+     "wind_kn": 2.6,
+     "cloud": 96,
      "dry_h": 72,
      "tide": {
       "ft": 1.2,
@@ -10305,9 +10340,9 @@
      "start": "2026-10-27T05:56:00-10:00",
      "end": "2026-10-27T08:56:00-10:00",
      "kind": "dawn",
-     "score": 7.5,
+     "score": 8.5,
      "conf": "medium",
-     "limit": "grey",
+     "limit": "all clear",
      "entries": [
       "Kahekili (Airport Beach)",
       "Black Rock (Pu'u Keka'a)"
@@ -10327,8 +10362,8 @@
       "s": 10.7,
       "dir": 184
      },
-     "wind_kn": 3.3,
-     "cloud": 99,
+     "wind_kn": 2.0,
+     "cloud": 33,
      "dry_h": 72,
      "tide": {
       "ft": 2.1,
@@ -10362,7 +10397,7 @@
       "s": 10.2,
       "dir": 185
      },
-     "wind_kn": 1.6,
+     "wind_kn": 1.1,
      "cloud": 100,
      "dry_h": 0,
      "tide": {
@@ -10397,7 +10432,7 @@
       "s": 10.7,
       "dir": 180
      },
-     "wind_kn": 5.9,
+     "wind_kn": 6.3,
      "cloud": 100,
      "dry_h": 0,
      "tide": {
@@ -10422,7 +10457,7 @@
      "hazard": null,
      "axes": {
       "flat": false,
-      "glass": true,
+      "glass": false,
       "dry": false,
       "sun": false,
       "warm": true
@@ -10432,9 +10467,9 @@
       "s": 10.5,
       "dir": 184
      },
-     "wind_kn": 1.8,
+     "wind_kn": 8.2,
      "cloud": 100,
-     "dry_h": 1,
+     "dry_h": 0,
      "tide": {
       "ft": 1.3,
       "trend": "falling"
@@ -10467,8 +10502,8 @@
       "s": 10.4,
       "dir": 182
      },
-     "wind_kn": 0.8,
-     "cloud": 98,
+     "wind_kn": 4.0,
+     "cloud": 90,
      "dry_h": 1,
      "tide": {
       "ft": 2.6,
@@ -10502,9 +10537,9 @@
       "s": 10.7,
       "dir": 183
      },
-     "wind_kn": 1.8,
+     "wind_kn": 2.4,
      "cloud": 100,
-     "dry_h": 4,
+     "dry_h": 0,
      "tide": {
       "ft": 1.2,
       "trend": "falling"
@@ -10537,9 +10572,9 @@
       "s": 10.7,
       "dir": 182
      },
-     "wind_kn": 0.9,
-     "cloud": 98,
-     "dry_h": 18,
+     "wind_kn": 3.1,
+     "cloud": 99,
+     "dry_h": 1,
      "tide": {
       "ft": 2.5,
       "trend": "rising"
@@ -10572,9 +10607,9 @@
       "s": 10.5,
       "dir": 182
      },
-     "wind_kn": 3.9,
+     "wind_kn": 3.5,
      "cloud": 100,
-     "dry_h": 0,
+     "dry_h": 2,
      "tide": {
       "ft": 1.0,
       "trend": "falling"
@@ -10607,9 +10642,9 @@
       "s": 10.4,
       "dir": 180
      },
-     "wind_kn": 1.1,
-     "cloud": 97,
-     "dry_h": 1,
+     "wind_kn": 2.0,
+     "cloud": 38,
+     "dry_h": 16,
      "tide": {
       "ft": 2.2,
       "trend": "rising"
@@ -10642,12 +10677,47 @@
       "s": 10.3,
       "dir": 180
      },
-     "wind_kn": 2.1,
-     "cloud": 100,
-     "dry_h": 1,
+     "wind_kn": 1.7,
+     "cloud": 95,
+     "dry_h": 26,
      "tide": {
       "ft": 1.3,
       "trend": "falling"
+     }
+    },
+    {
+     "label": "Sun dawn",
+     "start": "2026-11-01T05:59:00-10:00",
+     "end": "2026-11-01T08:59:00-10:00",
+     "kind": "dawn",
+     "score": 4.0,
+     "conf": "medium",
+     "limit": "rain",
+     "entries": [
+      "Kahekili (Airport Beach)",
+      "Black Rock (Pu'u Keka'a)"
+     ],
+     "gate": false,
+     "aligned": false,
+     "hazard": null,
+     "axes": {
+      "flat": false,
+      "glass": true,
+      "dry": false,
+      "sun": false,
+      "warm": true
+     },
+     "swell": {
+      "ft": 2.3,
+      "s": 9.7,
+      "dir": 179
+     },
+     "wind_kn": 3.6,
+     "cloud": 94,
+     "dry_h": 40,
+     "tide": {
+      "ft": 1.9,
+      "trend": "rising"
      }
     }
    ],
@@ -10812,7 +10882,7 @@
     "ft": 7.2,
     "s": 14.0,
     "dir": 323,
-    "age_h": 284.1
+    "age_h": 290.2
    },
    "anchor": null,
    "sst_trend": [
@@ -10852,8 +10922,8 @@
    "moon": {
     "name": "full",
     "pct": 100,
-    "age_d": 14.2,
-    "full_in_d": 1,
+    "age_d": 14.5,
+    "full_in_d": 0,
     "new_in_d": 15
    },
    "kd490": {
