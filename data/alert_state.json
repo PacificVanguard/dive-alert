@@ -1,53 +1,23 @@
 {
  "streaks": {
   "D": {
-   "score": 9.3,
+   "score": 7.6,
    "entries": [
     "La Jolla Cove",
     "La Jolla Shores (Canyon)"
    ],
-   "window_key": "20261025T0631-dawn",
+   "window_key": "20261028T0633-dawn",
    "since": "2026-10-22T14:00:00-07:00",
-   "gate": true
+   "gate": false
   },
   "E": {
-   "score": 8.1,
+   "score": 7.0,
    "entries": [
     "McAbee Beach",
     "Breakwater (San Carlos)"
    ],
-   "window_key": "20261026T0655-dawn",
+   "window_key": "20261027T0656-dawn",
    "since": "2026-10-22T18:00:00-07:00",
-   "gate": false
-  },
-  "G": {
-   "score": 8.5,
-   "entries": [
-    "Terranea (Old Marineland)",
-    "Christmas Tree Cove"
-   ],
-   "window_key": "20261026T0637-dawn",
-   "since": "2026-10-24T07:00:00-07:00",
-   "gate": false
-  },
-  "H": {
-   "score": 8.2,
-   "entries": [
-    "Whalers Cove",
-    "Bluefish Cove"
-   ],
-   "window_key": "20261026T0655-dawn",
-   "since": "2026-10-24T07:00:00-07:00",
-   "gate": false
-  },
-  "L": {
-   "score": 7.8,
-   "entries": [
-    "Bari Reef",
-    "1000 Steps"
-   ],
-   "window_key": "20261026T1609-dusk",
-   "since": "2026-10-24T14:00:00-07:00",
    "gate": false
   },
   "I": {
@@ -71,12 +41,12 @@
    "gate": false
   },
   "A": {
-   "score": 7.3,
+   "score": 7.6,
    "entries": [
-    "Fisherman's Cove",
-    "Shaw's Cove"
+    "Shaw's Cove",
+    "Divers Cove"
    ],
-   "window_key": "20261026T0634-dawn",
+   "window_key": "20261027T1603-dusk",
    "since": "2026-10-25T17:00:00-07:00",
    "gate": false
   },
@@ -91,7 +61,7 @@
    "gate": false
   }
  },
- "last_tip_id": "sh2",
+ "last_tip_id": "dv1",
  "src_fail": {
   "marine": 0,
   "weather": 0,
@@ -108,8 +78,8 @@
   "A:ndbc_offshore": 0,
   "A:tides": 0,
   "A:sst": 0,
-  "A:chla": 1,
-  "A:kd490": 1,
+  "A:chla": 0,
+  "A:kd490": 0,
   "A:ndbc_spec": 0,
   "C:marine": 0,
   "C:weather": 0,
@@ -117,8 +87,8 @@
   "C:ndbc_offshore": 0,
   "C:tides": 0,
   "C:sst": 0,
-  "C:chla": 1,
-  "C:kd490": 1,
+  "C:chla": 0,
+  "C:kd490": 0,
   "C:ndbc_spec": 0,
   "D:marine": 0,
   "D:weather": 0,
@@ -126,7 +96,7 @@
   "D:ndbc_offshore": 0,
   "D:tides": 0,
   "D:sst": 0,
-  "D:chla": 1,
+  "D:chla": 0,
   "D:kd490": 0,
   "D:ndbc_spec": 0,
   "E:marine": 0,
@@ -135,7 +105,7 @@
   "E:ndbc_offshore": 0,
   "E:tides": 0,
   "E:sst": 0,
-  "E:chla": 1,
+  "E:chla": 0,
   "E:kd490": 0,
   "E:ndbc_spec": 0,
   "F:marine": 0,
@@ -144,7 +114,7 @@
   "F:ndbc_offshore": 0,
   "F:tides": 0,
   "F:sst": 0,
-  "F:chla": 1,
+  "F:chla": 0,
   "F:kd490": 0,
   "F:ndbc_spec": 0,
   "G:marine": 0,
@@ -153,7 +123,7 @@
   "G:ndbc_offshore": 0,
   "G:tides": 0,
   "G:sst": 0,
-  "G:chla": 1,
+  "G:chla": 0,
   "G:kd490": 0,
   "G:ndbc_spec": 0,
   "H:marine": 0,
@@ -162,7 +132,7 @@
   "H:ndbc_offshore": 0,
   "H:tides": 0,
   "H:sst": 0,
-  "H:chla": 1,
+  "H:chla": 0,
   "H:kd490": 0,
   "H:ndbc_spec": 0,
   "I:marine": 0,
@@ -171,7 +141,7 @@
   "I:ndbc_offshore": 0,
   "I:tides": 0,
   "I:sst": 0,
-  "I:chla": 1,
+  "I:chla": 0,
   "I:kd490": 0,
   "I:ndbc_spec": 0,
   "J:marine": 0,
@@ -180,7 +150,7 @@
   "J:ndbc_offshore": 0,
   "J:tides": 0,
   "J:sst": 0,
-  "J:chla": 1,
+  "J:chla": 0,
   "J:kd490": 0,
   "J:ndbc_spec": 0,
   "K:marine": 0,
@@ -189,25 +159,25 @@
   "K:ndbc_offshore": 0,
   "K:tides": 0,
   "K:sst": 0,
-  "K:chla": 1,
+  "K:chla": 0,
   "K:kd490": 0,
   "K:ndbc_spec": 0,
   "L:marine": 0,
   "L:weather": 0,
-  "L:ndbc_primary": 168,
-  "L:ndbc_offshore": 168,
-  "L:tides": 168,
+  "L:ndbc_primary": 169,
+  "L:ndbc_offshore": 169,
+  "L:tides": 169,
   "L:sst": 0,
-  "L:chla": 1,
+  "L:chla": 0,
   "L:kd490": 0,
-  "L:ndbc_spec": 168,
+  "L:ndbc_spec": 169,
   "M:marine": 0,
   "M:weather": 0,
   "M:ndbc_primary": 0,
   "M:ndbc_offshore": 0,
   "M:tides": 0,
   "M:sst": 0,
-  "M:chla": 1,
+  "M:chla": 0,
   "M:kd490": 0,
   "M:ndbc_spec": 0,
   "N:marine": 0,
@@ -216,25 +186,25 @@
   "N:ndbc_offshore": 0,
   "N:tides": 0,
   "N:sst": 0,
-  "N:chla": 1,
+  "N:chla": 0,
   "N:kd490": 0,
   "N:ndbc_spec": 0,
   "O:marine": 0,
   "O:weather": 0,
   "O:ndbc_primary": 0,
-  "O:ndbc_offshore": 168,
-  "O:tides": 168,
+  "O:ndbc_offshore": 169,
+  "O:tides": 169,
   "O:sst": 0,
-  "O:chla": 1,
+  "O:chla": 0,
   "O:kd490": 0,
-  "O:ndbc_spec": 168,
+  "O:ndbc_spec": 169,
   "P:marine": 0,
   "P:weather": 0,
   "P:ndbc_primary": 0,
   "P:ndbc_offshore": 0,
   "P:tides": 0,
   "P:sst": 0,
-  "P:chla": 1,
+  "P:chla": 0,
   "P:kd490": 0,
   "P:ndbc_spec": 0,
   "A:marine_alt": 0,
@@ -271,7 +241,7 @@
  },
  "record": {
   "A": {
-   "promises": 20,
+   "promises": 21,
    "rings": 1
   },
   "C": {
@@ -331,7 +301,7 @@
    "rings": 2
   }
  },
- "hook_idx": 226,
+ "hook_idx": 227,
  "axis_blind": {
   "flat": 0,
   "glass": 0,
@@ -463,15 +433,18 @@
  "gate_streak": {
   "A": {},
   "C": {},
-  "D": {
-   "20261026T0631-dawn": 5
+  "D": {},
+  "E": {
+   "20261101T0701-dawn": 1,
+   "20261101T1610-dusk": 1,
+   "20261102T0702-dawn": 1
   },
-  "E": {},
   "F": {},
-  "G": {
-   "20261026T0637-dawn": 1
+  "G": {},
+  "H": {
+   "20261101T0701-dawn": 1,
+   "20261102T0702-dawn": 1
   },
-  "H": {},
   "I": {},
   "J": {},
   "K": {},
@@ -483,24 +456,6 @@
  },
  "social_posted": {},
  "social_queue": [
-  {
-   "key": "ring:E:20261026T0655-dawn",
-   "kind": "ring",
-   "text": "THE BELL IS RINGING - MONTEREY. Mon Oct 26 at dawn: flat, glassy, dry, sunny, 65F water. In by 6:55am at McAbee Beach. thedivebell.com/monterey/",
-   "card": {
-    "kind": "ring",
-    "eyebrow": "THE DIVE BELL \u00b7 BELL NO. 4",
-    "lines": [
-     "Monterey \u00b7 Mon Oct 26 at dawn",
-     "flat \u00b7 glassy \u00b7 dry \u00b7 sunny \u00b7 65F water",
-     "In by 6:55am at McAbee Beach"
-    ],
-    "foot": "thedivebell.com/monterey/  \u00b7  text MONTEREY to 833-858-2355"
-   },
-   "alt": "The Dive Bell: Monterey is ringing for Mon Oct 26 at dawn, 65F water, in by 6:55am at McAbee Beach.",
-   "created": "2026-10-24T14:44:59.885772+00:00",
-   "done": []
-  },
   {
    "key": "ring:G:20261026T0637-dawn",
    "kind": "ring",
