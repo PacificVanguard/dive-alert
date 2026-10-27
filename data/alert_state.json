@@ -10,16 +10,6 @@
    "since": "2026-10-22T14:00:00-07:00",
    "gate": false
   },
-  "E": {
-   "score": 7.0,
-   "entries": [
-    "McAbee Beach",
-    "Breakwater (San Carlos)"
-   ],
-   "window_key": "20261027T0656-dawn",
-   "since": "2026-10-22T18:00:00-07:00",
-   "gate": false
-  },
   "I": {
    "score": 7.3,
    "entries": [
@@ -59,9 +49,29 @@
    "window_key": "20261026T0636-dawn",
    "since": "2026-10-25T17:00:00-07:00",
    "gate": false
+  },
+  "C": {
+   "score": 7.0,
+   "entries": [
+    "Dana Point Harbor breakwall (outside)",
+    "Salt Creek"
+   ],
+   "window_key": "20261027T1603-dusk",
+   "since": "2026-10-26T18:00:00-07:00",
+   "gate": false
+  },
+  "L": {
+   "score": 8.9,
+   "entries": [
+    "Bari Reef",
+    "1000 Steps"
+   ],
+   "window_key": "20261028T1608-dusk",
+   "since": "2026-10-26T18:00:00-07:00",
+   "gate": false
   }
  },
- "last_tip_id": "dv1",
+ "last_tip_id": "db1",
  "src_fail": {
   "marine": 0,
   "weather": 0,
@@ -164,13 +174,13 @@
   "K:ndbc_spec": 0,
   "L:marine": 0,
   "L:weather": 0,
-  "L:ndbc_primary": 169,
-  "L:ndbc_offshore": 169,
-  "L:tides": 169,
+  "L:ndbc_primary": 170,
+  "L:ndbc_offshore": 170,
+  "L:tides": 170,
   "L:sst": 0,
   "L:chla": 0,
   "L:kd490": 0,
-  "L:ndbc_spec": 169,
+  "L:ndbc_spec": 170,
   "M:marine": 0,
   "M:weather": 0,
   "M:ndbc_primary": 0,
@@ -192,12 +202,12 @@
   "O:marine": 0,
   "O:weather": 0,
   "O:ndbc_primary": 0,
-  "O:ndbc_offshore": 169,
-  "O:tides": 169,
+  "O:ndbc_offshore": 170,
+  "O:tides": 170,
   "O:sst": 0,
   "O:chla": 0,
   "O:kd490": 0,
-  "O:ndbc_spec": 169,
+  "O:ndbc_spec": 170,
   "P:marine": 0,
   "P:weather": 0,
   "P:ndbc_primary": 0,
@@ -245,7 +255,7 @@
    "rings": 1
   },
   "C": {
-   "promises": 18,
+   "promises": 19,
    "rings": 7
   },
   "D": {
@@ -281,7 +291,7 @@
    "rings": 0
   },
   "L": {
-   "promises": 21,
+   "promises": 22,
    "rings": 0
   },
   "M": {
@@ -301,7 +311,7 @@
    "rings": 2
   }
  },
- "hook_idx": 227,
+ "hook_idx": 229,
  "axis_blind": {
   "flat": 0,
   "glass": 0,
@@ -433,19 +443,22 @@
  "gate_streak": {
   "A": {},
   "C": {},
-  "D": {},
+  "D": {
+   "20261102T0637-dawn": 1
+  },
   "E": {
-   "20261101T0701-dawn": 1,
-   "20261101T1610-dusk": 1,
-   "20261102T0702-dawn": 1
+   "20261101T0701-dawn": 2,
+   "20261102T0702-dawn": 2
   },
   "F": {},
   "G": {},
   "H": {
-   "20261101T0701-dawn": 1,
-   "20261102T0702-dawn": 1
+   "20261101T0701-dawn": 2,
+   "20261102T0702-dawn": 2
   },
-  "I": {},
+  "I": {
+   "20261102T1605-dusk": 1
+  },
   "J": {},
   "K": {},
   "L": {},
@@ -455,24 +468,5 @@
   "P": {}
  },
  "social_posted": {},
- "social_queue": [
-  {
-   "key": "ring:G:20261026T0637-dawn",
-   "kind": "ring",
-   "text": "THE BELL IS RINGING - PALOS VERDES. Mon Oct 26 at dawn: flat, glassy, dry, sunny, 73F water. In by 6:37am at Terranea (Old Marineland). thedivebell.com/palos-verdes/",
-   "card": {
-    "kind": "ring",
-    "eyebrow": "THE DIVE BELL \u00b7 BELL NO. 6",
-    "lines": [
-     "Palos Verdes \u00b7 Mon Oct 26 at dawn",
-     "flat \u00b7 glassy \u00b7 dry \u00b7 sunny \u00b7 73F water",
-     "In by 6:37am at Terranea (Old Marineland)"
-    ],
-    "foot": "thedivebell.com/palos-verdes/  \u00b7  text PALOS to 833-858-2355"
-   },
-   "alt": "The Dive Bell: Palos Verdes is ringing for Mon Oct 26 at dawn, 73F water, in by 6:37am at Terranea (Old Marineland).",
-   "created": "2026-10-25T00:45:38.610889+00:00",
-   "done": []
-  }
- ]
+ "social_queue": []
 }
