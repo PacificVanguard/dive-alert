@@ -10,56 +10,6 @@
    "since": "2026-10-22T14:00:00-07:00",
    "gate": false
   },
-  "I": {
-   "score": 7.3,
-   "entries": [
-    "Tajiguas Reef",
-    "Refugio State Beach"
-   ],
-   "window_key": "20261027T0646-dawn",
-   "since": "2026-10-24T17:00:00-07:00",
-   "gate": false
-  },
-  "P": {
-   "score": 8.1,
-   "entries": [
-    "Kahekili (Airport Beach)",
-    "Black Rock (Pu'u Keka'a)"
-   ],
-   "window_key": "20261026T1554-dusk",
-   "since": "2026-10-25T07:00:00-07:00",
-   "gate": false
-  },
-  "A": {
-   "score": 7.6,
-   "entries": [
-    "Shaw's Cove",
-    "Divers Cove"
-   ],
-   "window_key": "20261027T1603-dusk",
-   "since": "2026-10-25T17:00:00-07:00",
-   "gate": false
-  },
-  "F": {
-   "score": 7.2,
-   "entries": [
-    "Casino Point Dive Park",
-    "Lover's Cove"
-   ],
-   "window_key": "20261026T0636-dawn",
-   "since": "2026-10-25T17:00:00-07:00",
-   "gate": false
-  },
-  "C": {
-   "score": 7.0,
-   "entries": [
-    "Dana Point Harbor breakwall (outside)",
-    "Salt Creek"
-   ],
-   "window_key": "20261027T1603-dusk",
-   "since": "2026-10-26T18:00:00-07:00",
-   "gate": false
-  },
   "L": {
    "score": 8.9,
    "entries": [
@@ -68,6 +18,16 @@
    ],
    "window_key": "20261028T1608-dusk",
    "since": "2026-10-26T18:00:00-07:00",
+   "gate": false
+  },
+  "G": {
+   "score": 7.4,
+   "entries": [
+    "Terranea (Old Marineland)",
+    "Christmas Tree Cove"
+   ],
+   "window_key": "20261029T0640-dawn",
+   "since": "2026-10-27T09:00:00-07:00",
    "gate": false
   }
  },
@@ -174,13 +134,13 @@
   "K:ndbc_spec": 0,
   "L:marine": 0,
   "L:weather": 0,
-  "L:ndbc_primary": 170,
-  "L:ndbc_offshore": 170,
-  "L:tides": 170,
+  "L:ndbc_primary": 171,
+  "L:ndbc_offshore": 171,
+  "L:tides": 171,
   "L:sst": 0,
   "L:chla": 0,
   "L:kd490": 0,
-  "L:ndbc_spec": 170,
+  "L:ndbc_spec": 171,
   "M:marine": 0,
   "M:weather": 0,
   "M:ndbc_primary": 0,
@@ -202,12 +162,12 @@
   "O:marine": 0,
   "O:weather": 0,
   "O:ndbc_primary": 0,
-  "O:ndbc_offshore": 170,
-  "O:tides": 170,
+  "O:ndbc_offshore": 171,
+  "O:tides": 171,
   "O:sst": 0,
   "O:chla": 0,
   "O:kd490": 0,
-  "O:ndbc_spec": 170,
+  "O:ndbc_spec": 171,
   "P:marine": 0,
   "P:weather": 0,
   "P:ndbc_primary": 0,
@@ -271,7 +231,7 @@
    "rings": 1
   },
   "G": {
-   "promises": 21,
+   "promises": 22,
    "rings": 1
   },
   "H": {
@@ -311,7 +271,7 @@
    "rings": 2
   }
  },
- "hook_idx": 229,
+ "hook_idx": 230,
  "axis_blind": {
   "flat": 0,
   "glass": 0,
@@ -443,22 +403,16 @@
  "gate_streak": {
   "A": {},
   "C": {},
-  "D": {
-   "20261102T0637-dawn": 1
-  },
+  "D": {},
   "E": {
-   "20261101T0701-dawn": 2,
-   "20261102T0702-dawn": 2
+   "20261101T1610-dusk": 1
   },
   "F": {},
   "G": {},
   "H": {
-   "20261101T0701-dawn": 2,
-   "20261102T0702-dawn": 2
+   "20261101T1610-dusk": 1
   },
-  "I": {
-   "20261102T1605-dusk": 1
-  },
+  "I": {},
   "J": {},
   "K": {},
   "L": {},
