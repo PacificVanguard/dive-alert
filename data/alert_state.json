@@ -10,16 +10,6 @@
    "since": "2026-10-22T14:00:00-07:00",
    "gate": false
   },
-  "E": {
-   "score": 9.0,
-   "entries": [
-    "McAbee Beach",
-    "Breakwater (San Carlos)"
-   ],
-   "window_key": "20261030T0659-dawn",
-   "since": "2026-10-27T15:00:00-07:00",
-   "gate": false
-  },
   "F": {
    "score": 7.0,
    "entries": [
@@ -144,13 +134,13 @@
   "K:ndbc_spec": 0,
   "L:marine": 0,
   "L:weather": 0,
-  "L:ndbc_primary": 178,
-  "L:ndbc_offshore": 178,
-  "L:tides": 178,
+  "L:ndbc_primary": 179,
+  "L:ndbc_offshore": 179,
+  "L:tides": 179,
   "L:sst": 0,
   "L:chla": 0,
   "L:kd490": 0,
-  "L:ndbc_spec": 178,
+  "L:ndbc_spec": 179,
   "M:marine": 0,
   "M:weather": 0,
   "M:ndbc_primary": 0,
@@ -172,12 +162,12 @@
   "O:marine": 0,
   "O:weather": 0,
   "O:ndbc_primary": 0,
-  "O:ndbc_offshore": 178,
-  "O:tides": 178,
+  "O:ndbc_offshore": 179,
+  "O:tides": 179,
   "O:sst": 0,
   "O:chla": 0,
   "O:kd490": 0,
-  "O:ndbc_spec": 178,
+  "O:ndbc_spec": 179,
   "P:marine": 0,
   "P:weather": 0,
   "P:ndbc_primary": 0,
@@ -222,63 +212,123 @@
  "record": {
   "A": {
    "promises": 22,
-   "rings": 1
+   "rings": 0,
+   "held": 0,
+   "broke": 0,
+   "taken_back": 1,
+   "unverified": 0
   },
   "C": {
    "promises": 19,
-   "rings": 7
+   "rings": 0,
+   "held": 0,
+   "broke": 0,
+   "taken_back": 0,
+   "unverified": 0
   },
   "D": {
    "promises": 28,
-   "rings": 6
+   "rings": 8,
+   "held": 7,
+   "broke": 1,
+   "taken_back": 0,
+   "unverified": 0
   },
   "E": {
    "promises": 35,
-   "rings": 6
+   "rings": 4,
+   "held": 2,
+   "broke": 2,
+   "taken_back": 0,
+   "unverified": 0
   },
   "F": {
    "promises": 16,
-   "rings": 1
+   "rings": 0,
+   "held": 0,
+   "broke": 0,
+   "taken_back": 0,
+   "unverified": 0
   },
   "G": {
    "promises": 24,
-   "rings": 1
+   "rings": 1,
+   "held": 1,
+   "broke": 0,
+   "taken_back": 0,
+   "unverified": 0
   },
   "H": {
    "promises": 21,
-   "rings": 11
+   "rings": 1,
+   "held": 0,
+   "broke": 0,
+   "taken_back": 0,
+   "unverified": 1
   },
   "I": {
    "promises": 17,
-   "rings": 1
+   "rings": 0,
+   "held": 0,
+   "broke": 0,
+   "taken_back": 0,
+   "unverified": 0
   },
   "J": {
    "promises": 21,
-   "rings": 5
+   "rings": 1,
+   "held": 0,
+   "broke": 1,
+   "taken_back": 0,
+   "unverified": 0
   },
   "K": {
    "promises": 4,
-   "rings": 0
+   "rings": 0,
+   "held": 0,
+   "broke": 0,
+   "taken_back": 0,
+   "unverified": 0
   },
   "L": {
    "promises": 22,
-   "rings": 0
+   "rings": 0,
+   "held": 0,
+   "broke": 0,
+   "taken_back": 0,
+   "unverified": 0
   },
   "M": {
    "promises": 10,
-   "rings": 1
+   "rings": 0,
+   "held": 0,
+   "broke": 0,
+   "taken_back": 0,
+   "unverified": 0
   },
   "N": {
    "promises": 15,
-   "rings": 1
+   "rings": 0,
+   "held": 0,
+   "broke": 0,
+   "taken_back": 0,
+   "unverified": 0
   },
   "O": {
    "promises": 11,
-   "rings": 4
+   "rings": 0,
+   "held": 0,
+   "broke": 0,
+   "taken_back": 0,
+   "unverified": 0
   },
   "P": {
    "promises": 15,
-   "rings": 2
+   "rings": 1,
+   "held": 1,
+   "broke": 0,
+   "taken_back": 0,
+   "unverified": 0
   }
  },
  "hook_idx": 238,
@@ -297,7 +347,9 @@
   "L": "2026-09-04",
   "J": "2026-10-22",
   "H": "2026-10-17",
-  "P": "2026-10-22"
+  "P": "2026-10-22",
+  "D": "2026-10-26",
+  "G": "2026-10-18"
  },
  "sms_rung": {
   "O": "20260906T0537-dawn",
@@ -427,7 +479,7 @@
   "C": {},
   "D": {},
   "E": {
-   "20261104T1607-dusk": 1
+   "20261104T1607-dusk": 2
   },
   "F": {},
   "G": {},
@@ -435,18 +487,18 @@
   "I": {},
   "J": {},
   "K": {
-   "20261104T0555-dawn": 1,
-   "20261105T0556-dawn": 1
+   "20261104T0555-dawn": 2,
+   "20261105T0556-dawn": 2
   },
   "L": {
-   "20261105T0556-dawn": 2,
-   "20261105T1606-dusk": 2
+   "20261105T0556-dawn": 3,
+   "20261105T1606-dusk": 3
   },
   "M": {},
   "N": {},
   "O": {},
   "P": {
-   "20261105T1548-dusk": 1
+   "20261105T1548-dusk": 2
   }
  },
  "social_posted": {},
@@ -471,6 +523,1108 @@
    "alt": "The Dive Bell, the week ahead across 15 bells. Monterey Mon dawn 9.5, Point Lobos Mon dawn 9.0, Kona Wed dawn 8.8",
    "created": "2026-10-28T17:25:35.048891+00:00",
    "done": []
+  },
+  {
+   "key": "record:D:20261004T0615-dawn",
+   "kind": "record",
+   "text": "La Jolla rang for Sun dawn and the ocean kept the appointment: buoy 1.6 ft @ 10.0 s, wind 4.6 kn, dry, cloud 0%. The record: 8 rings, 7 held, 1 broke. thedivebell.com/record/",
+   "card": {
+    "kind": "record",
+    "head": "THE BELL KEPT ITS WORD",
+    "eyebrow": "THE DIVE BELL \u00b7 THE RECORD",
+    "lines": [
+     "La Jolla \u00b7 Sun dawn \u00b7 held",
+     "buoy 1.6 ft @ 10.0 s, wind 4.6 kn, dry, cloud 0%",
+     "The record: 8 rings, 7 held, 1 broke"
+    ],
+    "foot": "thedivebell.com/record/"
+   },
+   "alt": "La Jolla rang for Sun dawn and the ocean kept the appointment: buoy 1.6 ft @ 10.0 s, wind 4.6 kn, dry, cloud 0%. The record: 8 rings, 7 held, 1 broke. thedivebell.com/record/",
+   "created": "2026-10-30T04:02:48.789288+00:00",
+   "done": []
+  },
+  {
+   "key": "record:D:20261005T0616-dawn",
+   "kind": "record",
+   "text": "La Jolla rang for Mon dawn and the ocean kept the appointment: buoy 1.3 ft @ 14.0 s, wind 2.8 kn, dry, cloud 0%. The record: 8 rings, 7 held, 1 broke. thedivebell.com/record/",
+   "card": {
+    "kind": "record",
+    "head": "THE BELL KEPT ITS WORD",
+    "eyebrow": "THE DIVE BELL \u00b7 THE RECORD",
+    "lines": [
+     "La Jolla \u00b7 Mon dawn \u00b7 held",
+     "buoy 1.3 ft @ 14.0 s, wind 2.8 kn, dry, cloud 0%",
+     "The record: 8 rings, 7 held, 1 broke"
+    ],
+    "foot": "thedivebell.com/record/"
+   },
+   "alt": "La Jolla rang for Mon dawn and the ocean kept the appointment: buoy 1.3 ft @ 14.0 s, wind 2.8 kn, dry, cloud 0%. The record: 8 rings, 7 held, 1 broke. thedivebell.com/record/",
+   "created": "2026-10-30T04:02:48.789454+00:00",
+   "done": []
+  },
+  {
+   "key": "record:D:20261006T0616-dawn",
+   "kind": "record",
+   "text": "La Jolla rang for Tue dawn and the ocean kept the appointment: buoy 2.0 ft @ 5.0 s, wind 2.7 kn, dry, cloud 4%. The record: 8 rings, 7 held, 1 broke. thedivebell.com/record/",
+   "card": {
+    "kind": "record",
+    "head": "THE BELL KEPT ITS WORD",
+    "eyebrow": "THE DIVE BELL \u00b7 THE RECORD",
+    "lines": [
+     "La Jolla \u00b7 Tue dawn \u00b7 held",
+     "buoy 2.0 ft @ 5.0 s, wind 2.7 kn, dry, cloud 4%",
+     "The record: 8 rings, 7 held, 1 broke"
+    ],
+    "foot": "thedivebell.com/record/"
+   },
+   "alt": "La Jolla rang for Tue dawn and the ocean kept the appointment: buoy 2.0 ft @ 5.0 s, wind 2.7 kn, dry, cloud 4%. The record: 8 rings, 7 held, 1 broke. thedivebell.com/record/",
+   "created": "2026-10-30T04:02:48.789491+00:00",
+   "done": []
+  },
+  {
+   "key": "record:D:20261016T0624-dawn",
+   "kind": "record",
+   "text": "La Jolla rang for Fri dawn and the ocean kept the appointment: buoy 1.3 ft @ 14.0 s, wind 4.1 kn, dry, cloud 0%. The record: 8 rings, 7 held, 1 broke. thedivebell.com/record/",
+   "card": {
+    "kind": "record",
+    "head": "THE BELL KEPT ITS WORD",
+    "eyebrow": "THE DIVE BELL \u00b7 THE RECORD",
+    "lines": [
+     "La Jolla \u00b7 Fri dawn \u00b7 held",
+     "buoy 1.3 ft @ 14.0 s, wind 4.1 kn, dry, cloud 0%",
+     "The record: 8 rings, 7 held, 1 broke"
+    ],
+    "foot": "thedivebell.com/record/"
+   },
+   "alt": "La Jolla rang for Fri dawn and the ocean kept the appointment: buoy 1.3 ft @ 14.0 s, wind 4.1 kn, dry, cloud 0%. The record: 8 rings, 7 held, 1 broke. thedivebell.com/record/",
+   "created": "2026-10-30T04:02:48.789519+00:00",
+   "done": []
+  },
+  {
+   "key": "record:D:20261018T0625-dawn",
+   "kind": "record",
+   "text": "La Jolla rang for Sun dawn and the ocean kept the appointment: buoy 1.6 ft @ 17.0 s, wind 4.3 kn, rain 0.01 in/72h, cloud 0%. The record: 8 rings, 7 held, 1 broke. thedivebell.com/record/",
+   "card": {
+    "kind": "record",
+    "head": "THE BELL KEPT ITS WORD",
+    "eyebrow": "THE DIVE BELL \u00b7 THE RECORD",
+    "lines": [
+     "La Jolla \u00b7 Sun dawn \u00b7 held",
+     "buoy 1.6 ft @ 17.0 s, wind 4.3 kn, rain 0.01 in/72h, cloud 0%",
+     "The record: 8 rings, 7 held, 1 broke"
+    ],
+    "foot": "thedivebell.com/record/"
+   },
+   "alt": "La Jolla rang for Sun dawn and the ocean kept the appointment: buoy 1.6 ft @ 17.0 s, wind 4.3 kn, rain 0.01 in/72h, cloud 0%. The record: 8 rings, 7 held, 1 broke. thedivebell.com/record/",
+   "created": "2026-10-30T04:02:48.789548+00:00",
+   "done": []
+  },
+  {
+   "key": "record:D:20261021T0627-dawn",
+   "kind": "record",
+   "text": "La Jolla rang for Wed dawn and the ocean kept the appointment: buoy 1.6 ft @ 14.0 s, wind 3.8 kn, dry, cloud 2%. The record: 8 rings, 7 held, 1 broke. thedivebell.com/record/",
+   "card": {
+    "kind": "record",
+    "head": "THE BELL KEPT ITS WORD",
+    "eyebrow": "THE DIVE BELL \u00b7 THE RECORD",
+    "lines": [
+     "La Jolla \u00b7 Wed dawn \u00b7 held",
+     "buoy 1.6 ft @ 14.0 s, wind 3.8 kn, dry, cloud 2%",
+     "The record: 8 rings, 7 held, 1 broke"
+    ],
+    "foot": "thedivebell.com/record/"
+   },
+   "alt": "La Jolla rang for Wed dawn and the ocean kept the appointment: buoy 1.6 ft @ 14.0 s, wind 3.8 kn, dry, cloud 2%. The record: 8 rings, 7 held, 1 broke. thedivebell.com/record/",
+   "created": "2026-10-30T04:02:48.789572+00:00",
+   "done": []
+  },
+  {
+   "key": "record:D:20261025T0631-dawn",
+   "kind": "record",
+   "text": "La Jolla rang for Sun dawn and the morning broke its word: buoy 1.6 ft @ 9.0 s, wind 2.1 kn, rain 0.34 in/72h, cloud 0%. The bell says so. The record: 8 rings, 7 held, 1 broke. thedivebell.com/record/",
+   "card": {
+    "kind": "record",
+    "head": "THE BELL WAS WRONG",
+    "eyebrow": "THE DIVE BELL \u00b7 THE RECORD",
+    "lines": [
+     "La Jolla \u00b7 Sun dawn \u00b7 broke: dry",
+     "buoy 1.6 ft @ 9.0 s, wind 2.1 kn, rain 0.34 in/72h, cloud 0%",
+     "The record: 8 rings, 7 held, 1 broke"
+    ],
+    "foot": "thedivebell.com/record/"
+   },
+   "alt": "La Jolla rang for Sun dawn and the morning broke its word: buoy 1.6 ft @ 9.0 s, wind 2.1 kn, rain 0.34 in/72h, cloud 0%. The bell says so. The record: 8 rings, 7 held, 1 broke. thedivebell.com/record/",
+   "created": "2026-10-30T04:02:48.789599+00:00",
+   "done": []
+  },
+  {
+   "key": "record:D:20261026T0631-dawn",
+   "kind": "record",
+   "text": "La Jolla rang for Mon dawn and the ocean kept the appointment: buoy 1.6 ft @ 5.0 s, wind 2.3 kn, dry, cloud 1%. The record: 8 rings, 7 held, 1 broke. thedivebell.com/record/",
+   "card": {
+    "kind": "record",
+    "head": "THE BELL KEPT ITS WORD",
+    "eyebrow": "THE DIVE BELL \u00b7 THE RECORD",
+    "lines": [
+     "La Jolla \u00b7 Mon dawn \u00b7 held",
+     "buoy 1.6 ft @ 5.0 s, wind 2.3 kn, dry, cloud 1%",
+     "The record: 8 rings, 7 held, 1 broke"
+    ],
+    "foot": "thedivebell.com/record/"
+   },
+   "alt": "La Jolla rang for Mon dawn and the ocean kept the appointment: buoy 1.6 ft @ 5.0 s, wind 2.3 kn, dry, cloud 1%. The record: 8 rings, 7 held, 1 broke. thedivebell.com/record/",
+   "created": "2026-10-30T04:02:48.789623+00:00",
+   "done": []
+  },
+  {
+   "key": "record:E:20261014T0644-dawn",
+   "kind": "record",
+   "text": "Monterey rang for Wed dawn and the ocean kept the appointment: buoy 4.3 ft @ 13.0 s, wind 3.1 kn, rain 0.02 in/72h, cloud 0%. The record: 4 rings, 2 held, 2 broke. thedivebell.com/record/",
+   "card": {
+    "kind": "record",
+    "head": "THE BELL KEPT ITS WORD",
+    "eyebrow": "THE DIVE BELL \u00b7 THE RECORD",
+    "lines": [
+     "Monterey \u00b7 Wed dawn \u00b7 held",
+     "buoy 4.3 ft @ 13.0 s, wind 3.1 kn, rain 0.02 in/72h, cloud 0%",
+     "The record: 4 rings, 2 held, 2 broke"
+    ],
+    "foot": "thedivebell.com/record/"
+   },
+   "alt": "Monterey rang for Wed dawn and the ocean kept the appointment: buoy 4.3 ft @ 13.0 s, wind 3.1 kn, rain 0.02 in/72h, cloud 0%. The record: 4 rings, 2 held, 2 broke. thedivebell.com/record/",
+   "created": "2026-10-30T04:03:00.671305+00:00",
+   "done": []
+  },
+  {
+   "key": "record:E:20261015T0645-dawn",
+   "kind": "record",
+   "text": "Monterey rang for Thu dawn and the morning broke its word: buoy 3.6 ft @ 14.0 s, wind 8.0 kn, dry, cloud 0%. The bell says so. The record: 4 rings, 2 held, 2 broke. thedivebell.com/record/",
+   "card": {
+    "kind": "record",
+    "head": "THE BELL WAS WRONG",
+    "eyebrow": "THE DIVE BELL \u00b7 THE RECORD",
+    "lines": [
+     "Monterey \u00b7 Thu dawn \u00b7 broke: glass",
+     "buoy 3.6 ft @ 14.0 s, wind 8.0 kn, dry, cloud 0%",
+     "The record: 4 rings, 2 held, 2 broke"
+    ],
+    "foot": "thedivebell.com/record/"
+   },
+   "alt": "Monterey rang for Thu dawn and the morning broke its word: buoy 3.6 ft @ 14.0 s, wind 8.0 kn, dry, cloud 0%. The bell says so. The record: 4 rings, 2 held, 2 broke. thedivebell.com/record/",
+   "created": "2026-10-30T04:03:00.671355+00:00",
+   "done": []
+  },
+  {
+   "key": "record:E:20261016T0646-dawn",
+   "kind": "record",
+   "text": "Monterey rang for Fri dawn and the morning broke its word: buoy 3.3 ft @ 13.0 s, wind 8.7 kn, dry, cloud 0%. The bell says so. The record: 4 rings, 2 held, 2 broke. thedivebell.com/record/",
+   "card": {
+    "kind": "record",
+    "head": "THE BELL WAS WRONG",
+    "eyebrow": "THE DIVE BELL \u00b7 THE RECORD",
+    "lines": [
+     "Monterey \u00b7 Fri dawn \u00b7 broke: glass",
+     "buoy 3.3 ft @ 13.0 s, wind 8.7 kn, dry, cloud 0%",
+     "The record: 4 rings, 2 held, 2 broke"
+    ],
+    "foot": "thedivebell.com/record/"
+   },
+   "alt": "Monterey rang for Fri dawn and the morning broke its word: buoy 3.3 ft @ 13.0 s, wind 8.7 kn, dry, cloud 0%. The bell says so. The record: 4 rings, 2 held, 2 broke. thedivebell.com/record/",
+   "created": "2026-10-30T04:03:00.671381+00:00",
+   "done": []
+  },
+  {
+   "key": "record:E:20261016T1629-dusk",
+   "kind": "record",
+   "text": "Monterey rang for Fri dusk and the ocean kept the appointment: buoy 3.3 ft @ 13.0 s, wind 3.4 kn, dry, cloud 0%. The record: 4 rings, 2 held, 2 broke. thedivebell.com/record/",
+   "card": {
+    "kind": "record",
+    "head": "THE BELL KEPT ITS WORD",
+    "eyebrow": "THE DIVE BELL \u00b7 THE RECORD",
+    "lines": [
+     "Monterey \u00b7 Fri dusk \u00b7 held",
+     "buoy 3.3 ft @ 13.0 s, wind 3.4 kn, dry, cloud 0%",
+     "The record: 4 rings, 2 held, 2 broke"
+    ],
+    "foot": "thedivebell.com/record/"
+   },
+   "alt": "Monterey rang for Fri dusk and the ocean kept the appointment: buoy 3.3 ft @ 13.0 s, wind 3.4 kn, dry, cloud 0%. The record: 4 rings, 2 held, 2 broke. thedivebell.com/record/",
+   "created": "2026-10-30T04:03:00.671404+00:00",
+   "done": []
+  },
+  {
+   "key": "record:G:20261018T0630-dawn",
+   "kind": "record",
+   "text": "Palos Verdes rang for Sun dawn and the ocean kept the appointment: buoy 3.3 ft @ 17.0 s, wind 3.9 kn, dry, cloud 0%. The record: 1 rings, 1 held. thedivebell.com/record/",
+   "card": {
+    "kind": "record",
+    "head": "THE BELL KEPT ITS WORD",
+    "eyebrow": "THE DIVE BELL \u00b7 THE RECORD",
+    "lines": [
+     "Palos Verdes \u00b7 Sun dawn \u00b7 held",
+     "buoy 3.3 ft @ 17.0 s, wind 3.9 kn, dry, cloud 0%",
+     "The record: 1 rings, 1 held"
+    ],
+    "foot": "thedivebell.com/record/"
+   },
+   "alt": "Palos Verdes rang for Sun dawn and the ocean kept the appointment: buoy 3.3 ft @ 17.0 s, wind 3.9 kn, dry, cloud 0%. The record: 1 rings, 1 held. thedivebell.com/record/",
+   "created": "2026-10-30T04:03:43.535714+00:00",
+   "done": []
+  },
+  {
+   "key": "record:J:20261022T0601-dawn",
+   "kind": "record",
+   "text": "Oahu North Shore rang for Thu dawn and the morning broke its word: buoy 3.6 ft @ 8.0 s, wind 5.8 kn, rain 0.32 in/72h, cloud 5%. The bell says so. The record: 1 rings, 0 held, 1 broke. thedivebell.com/record/",
+   "card": {
+    "kind": "record",
+    "head": "THE BELL WAS WRONG",
+    "eyebrow": "THE DIVE BELL \u00b7 THE RECORD",
+    "lines": [
+     "Oahu North Shore \u00b7 Thu dawn \u00b7 broke: dry",
+     "buoy 3.6 ft @ 8.0 s, wind 5.8 kn, rain 0.32 in/72h, cloud 5%",
+     "The record: 1 rings, 0 held, 1 broke"
+    ],
+    "foot": "thedivebell.com/record/"
+   },
+   "alt": "Oahu North Shore rang for Thu dawn and the morning broke its word: buoy 3.6 ft @ 8.0 s, wind 5.8 kn, rain 0.32 in/72h, cloud 5%. The bell says so. The record: 1 rings, 0 held, 1 broke. thedivebell.com/record/",
+   "created": "2026-10-30T04:05:02.264638+00:00",
+   "done": []
+  },
+  {
+   "key": "record:P:20261022T0554-dawn",
+   "kind": "record",
+   "text": "Maui rang for Thu dawn and the ocean kept the appointment: wind 3.3 kn, rain 0.11 in/72h, cloud 17%. The record: 1 rings, 1 held. thedivebell.com/record/",
+   "card": {
+    "kind": "record",
+    "head": "THE BELL KEPT ITS WORD",
+    "eyebrow": "THE DIVE BELL \u00b7 THE RECORD",
+    "lines": [
+     "Maui \u00b7 Thu dawn \u00b7 held",
+     "wind 3.3 kn, rain 0.11 in/72h, cloud 17%",
+     "The record: 1 rings, 1 held"
+    ],
+    "foot": "thedivebell.com/record/"
+   },
+   "alt": "Maui rang for Thu dawn and the ocean kept the appointment: wind 3.3 kn, rain 0.11 in/72h, cloud 17%. The record: 1 rings, 1 held. thedivebell.com/record/",
+   "created": "2026-10-30T04:07:55.913161+00:00",
+   "done": []
+  }
+ ],
+ "ring_ledger": {
+  "A": [
+   {
+    "wkey": "20260916T0605-dawn",
+    "date": "2026-09-16",
+    "kind": "dawn",
+    "start": "2026-09-16T06:05:00-07:00",
+    "end": "2026-09-16T09:05:00-07:00",
+    "score": 7.3,
+    "cove": "Fisherman's Cove",
+    "promised_at": "2026-09-15T17:00:00-07:00",
+    "status": "taken back",
+    "texted": 2,
+    "seeded": true,
+    "taken_back": {
+     "why": "the last reading had gone quiet"
+    },
+    "forecast": {
+     "swell_ft": 1.9,
+     "per_s": 14.2,
+     "wind_kn": 4.4,
+     "cloud_pct": 100,
+     "sst_f": 74
+    },
+    "morning": {
+     "buoy_ft": 2.6,
+     "buoy_s": 18.0,
+     "buoy_n": 6,
+     "weather_source": "archive",
+     "wind_kn": 4.2,
+     "cloud_pct": 47,
+     "rain_in": 0.0,
+     "rain_win_in": 0.0,
+     "rain_span_h": 74,
+     "lights": {
+      "glass": true,
+      "dry": true,
+      "sun": false
+     },
+     "verdict": "taken back",
+     "failed": [
+      "sun"
+     ],
+     "verified_at": "2026-10-29T21:00:00-07:00"
+    }
+   }
+  ],
+  "D": [
+   {
+    "wkey": "20261004T0615-dawn",
+    "date": "2026-10-04",
+    "kind": "dawn",
+    "start": "2026-10-04T06:15:00-07:00",
+    "end": "2026-10-04T09:15:00-07:00",
+    "score": 8.4,
+    "cove": "La Jolla Cove",
+    "promised_at": "2026-10-03T19:00:00-07:00",
+    "status": "rung",
+    "texted": 0,
+    "seeded": true,
+    "taken_back": null,
+    "forecast": {
+     "swell_ft": 1.8,
+     "per_s": 11.8,
+     "wind_kn": 2.7,
+     "cloud_pct": 0,
+     "sst_f": 73
+    },
+    "morning": {
+     "buoy_ft": 1.6,
+     "buoy_s": 10.0,
+     "buoy_n": 6,
+     "weather_source": "archive",
+     "wind_kn": 4.6,
+     "cloud_pct": 0,
+     "rain_in": 0.0,
+     "rain_win_in": 0.0,
+     "rain_span_h": 74,
+     "lights": {
+      "glass": true,
+      "dry": true,
+      "sun": true
+     },
+     "verdict": "held",
+     "failed": [],
+     "verified_at": "2026-10-29T21:00:00-07:00"
+    }
+   },
+   {
+    "wkey": "20261005T0616-dawn",
+    "date": "2026-10-05",
+    "kind": "dawn",
+    "start": "2026-10-05T06:16:00-07:00",
+    "end": "2026-10-05T09:16:00-07:00",
+    "score": 8.6,
+    "cove": "La Jolla Cove",
+    "promised_at": "2026-10-04T18:00:00-07:00",
+    "status": "rung",
+    "texted": 0,
+    "seeded": true,
+    "taken_back": null,
+    "forecast": {
+     "swell_ft": 1.6,
+     "per_s": 11.5,
+     "wind_kn": 4.1,
+     "cloud_pct": 1,
+     "sst_f": 73
+    },
+    "morning": {
+     "buoy_ft": 1.3,
+     "buoy_s": 14.0,
+     "buoy_n": 6,
+     "weather_source": "archive",
+     "wind_kn": 2.8,
+     "cloud_pct": 0,
+     "rain_in": 0.0,
+     "rain_win_in": 0.0,
+     "rain_span_h": 74,
+     "lights": {
+      "glass": true,
+      "dry": true,
+      "sun": true
+     },
+     "verdict": "held",
+     "failed": [],
+     "verified_at": "2026-10-29T21:00:00-07:00"
+    }
+   },
+   {
+    "wkey": "20261006T0616-dawn",
+    "date": "2026-10-06",
+    "kind": "dawn",
+    "start": "2026-10-06T06:16:00-07:00",
+    "end": "2026-10-06T09:16:00-07:00",
+    "score": 8.7,
+    "cove": "La Jolla Cove",
+    "promised_at": "2026-10-05T19:00:00-07:00",
+    "status": "rung",
+    "texted": 0,
+    "seeded": true,
+    "taken_back": null,
+    "forecast": {
+     "swell_ft": 1.6,
+     "per_s": 10.7,
+     "wind_kn": 1.7,
+     "cloud_pct": 0,
+     "sst_f": 74
+    },
+    "morning": {
+     "buoy_ft": 2.0,
+     "buoy_s": 5.0,
+     "buoy_n": 6,
+     "weather_source": "archive",
+     "wind_kn": 2.7,
+     "cloud_pct": 4,
+     "rain_in": 0.0,
+     "rain_win_in": 0.0,
+     "rain_span_h": 74,
+     "lights": {
+      "glass": true,
+      "dry": true,
+      "sun": true
+     },
+     "verdict": "held",
+     "failed": [],
+     "verified_at": "2026-10-29T21:00:00-07:00"
+    }
+   },
+   {
+    "wkey": "20261016T0624-dawn",
+    "date": "2026-10-16",
+    "kind": "dawn",
+    "start": "2026-10-16T06:24:00-07:00",
+    "end": "2026-10-16T09:24:00-07:00",
+    "score": 8.7,
+    "cove": "La Jolla Cove",
+    "promised_at": "2026-10-15T17:00:00-07:00",
+    "status": "rung",
+    "texted": 0,
+    "seeded": true,
+    "taken_back": null,
+    "forecast": {
+     "swell_ft": 1.5,
+     "per_s": 12.4,
+     "wind_kn": 2.7,
+     "cloud_pct": 0,
+     "sst_f": 72
+    },
+    "morning": {
+     "buoy_ft": 1.3,
+     "buoy_s": 14.0,
+     "buoy_n": 6,
+     "weather_source": "archive",
+     "wind_kn": 4.1,
+     "cloud_pct": 0,
+     "rain_in": 0.0,
+     "rain_win_in": 0.0,
+     "rain_span_h": 74,
+     "lights": {
+      "glass": true,
+      "dry": true,
+      "sun": true
+     },
+     "verdict": "held",
+     "failed": [],
+     "verified_at": "2026-10-29T21:00:00-07:00"
+    }
+   },
+   {
+    "wkey": "20261018T0625-dawn",
+    "date": "2026-10-18",
+    "kind": "dawn",
+    "start": "2026-10-18T06:25:00-07:00",
+    "end": "2026-10-18T09:25:00-07:00",
+    "score": 9.3,
+    "cove": "La Jolla Cove",
+    "promised_at": "2026-10-17T17:00:00-07:00",
+    "status": "rung",
+    "texted": 0,
+    "seeded": true,
+    "taken_back": null,
+    "forecast": {
+     "swell_ft": 1.5,
+     "per_s": 13.4,
+     "wind_kn": 2.9,
+     "cloud_pct": 0,
+     "sst_f": 72
+    },
+    "morning": {
+     "buoy_ft": 1.6,
+     "buoy_s": 17.0,
+     "buoy_n": 6,
+     "weather_source": "archive",
+     "wind_kn": 4.3,
+     "cloud_pct": 0,
+     "rain_in": 0.01,
+     "rain_win_in": 0.0,
+     "rain_span_h": 74,
+     "lights": {
+      "glass": true,
+      "dry": true,
+      "sun": true
+     },
+     "verdict": "held",
+     "failed": [],
+     "verified_at": "2026-10-29T21:00:00-07:00"
+    }
+   },
+   {
+    "wkey": "20261021T0627-dawn",
+    "date": "2026-10-21",
+    "kind": "dawn",
+    "start": "2026-10-21T06:27:00-07:00",
+    "end": "2026-10-21T09:27:00-07:00",
+    "score": 9.1,
+    "cove": "La Jolla Cove",
+    "promised_at": "2026-10-20T18:00:00-07:00",
+    "status": "rung",
+    "texted": 0,
+    "seeded": true,
+    "taken_back": null,
+    "forecast": {
+     "swell_ft": 1.4,
+     "per_s": 11.8,
+     "wind_kn": 3.9,
+     "cloud_pct": 3,
+     "sst_f": 73
+    },
+    "morning": {
+     "buoy_ft": 1.6,
+     "buoy_s": 14.0,
+     "buoy_n": 6,
+     "weather_source": "archive",
+     "wind_kn": 3.8,
+     "cloud_pct": 2,
+     "rain_in": 0.0,
+     "rain_win_in": 0.0,
+     "rain_span_h": 74,
+     "lights": {
+      "glass": true,
+      "dry": true,
+      "sun": true
+     },
+     "verdict": "held",
+     "failed": [],
+     "verified_at": "2026-10-29T21:00:00-07:00"
+    }
+   },
+   {
+    "wkey": "20261025T0631-dawn",
+    "date": "2026-10-25",
+    "kind": "dawn",
+    "start": "2026-10-25T06:31:00-07:00",
+    "end": "2026-10-25T09:31:00-07:00",
+    "score": 8.3,
+    "cove": "La Jolla Cove",
+    "promised_at": "2026-10-24T17:00:00-07:00",
+    "status": "rung",
+    "texted": 0,
+    "seeded": true,
+    "taken_back": null,
+    "forecast": {
+     "swell_ft": 1.6,
+     "per_s": 12.2,
+     "wind_kn": 1.9,
+     "cloud_pct": 1,
+     "sst_f": 74
+    },
+    "morning": {
+     "buoy_ft": 1.6,
+     "buoy_s": 9.0,
+     "buoy_n": 6,
+     "weather_source": "archive",
+     "wind_kn": 2.1,
+     "cloud_pct": 0,
+     "rain_in": 0.34,
+     "rain_win_in": 0.0,
+     "rain_span_h": 74,
+     "lights": {
+      "glass": true,
+      "dry": false,
+      "sun": true
+     },
+     "verdict": "broke",
+     "failed": [
+      "dry"
+     ],
+     "verified_at": "2026-10-29T21:00:00-07:00"
+    }
+   },
+   {
+    "wkey": "20261026T0631-dawn",
+    "date": "2026-10-26",
+    "kind": "dawn",
+    "start": "2026-10-26T06:31:00-07:00",
+    "end": "2026-10-26T09:31:00-07:00",
+    "score": 8.4,
+    "cove": "La Jolla Cove",
+    "promised_at": "2026-10-25T17:00:00-07:00",
+    "status": "rung",
+    "texted": 0,
+    "seeded": true,
+    "taken_back": null,
+    "forecast": {
+     "swell_ft": 1.2,
+     "per_s": 10.4,
+     "wind_kn": 1.8,
+     "cloud_pct": 0,
+     "sst_f": 73
+    },
+    "morning": {
+     "buoy_ft": 1.6,
+     "buoy_s": 5.0,
+     "buoy_n": 6,
+     "weather_source": "feed",
+     "wind_kn": 2.3,
+     "cloud_pct": 1,
+     "rain_in": 0.0,
+     "rain_win_in": 0.0,
+     "rain_span_h": 33,
+     "lights": {
+      "glass": true,
+      "dry": true,
+      "sun": true
+     },
+     "verdict": "held",
+     "failed": [],
+     "verified_at": "2026-10-29T21:00:00-07:00"
+    }
+   }
+  ],
+  "E": [
+   {
+    "wkey": "20261014T0644-dawn",
+    "date": "2026-10-14",
+    "kind": "dawn",
+    "start": "2026-10-14T06:44:00-07:00",
+    "end": "2026-10-14T09:44:00-07:00",
+    "score": 8.4,
+    "cove": "McAbee Beach",
+    "promised_at": "2026-10-13T18:00:00-07:00",
+    "status": "rung",
+    "texted": 0,
+    "seeded": true,
+    "taken_back": null,
+    "forecast": {
+     "swell_ft": 1.4,
+     "per_s": 11.4,
+     "wind_kn": 3.2,
+     "cloud_pct": 0,
+     "sst_f": 66
+    },
+    "morning": {
+     "buoy_ft": 4.3,
+     "buoy_s": 13.0,
+     "buoy_n": 6,
+     "weather_source": "archive",
+     "wind_kn": 3.1,
+     "cloud_pct": 0,
+     "rain_in": 0.02,
+     "rain_win_in": 0.0,
+     "rain_span_h": 74,
+     "lights": {
+      "glass": true,
+      "dry": true,
+      "sun": true
+     },
+     "verdict": "held",
+     "failed": [],
+     "verified_at": "2026-10-29T21:00:00-07:00"
+    }
+   },
+   {
+    "wkey": "20261015T0645-dawn",
+    "date": "2026-10-15",
+    "kind": "dawn",
+    "start": "2026-10-15T06:45:00-07:00",
+    "end": "2026-10-15T09:45:00-07:00",
+    "score": 8.7,
+    "cove": "McAbee Beach",
+    "promised_at": "2026-10-14T18:00:00-07:00",
+    "status": "rung",
+    "texted": 0,
+    "seeded": true,
+    "taken_back": null,
+    "forecast": {
+     "swell_ft": 1.3,
+     "per_s": 11.1,
+     "wind_kn": 5.2,
+     "cloud_pct": 0,
+     "sst_f": 63
+    },
+    "morning": {
+     "buoy_ft": 3.6,
+     "buoy_s": 14.0,
+     "buoy_n": 6,
+     "weather_source": "archive",
+     "wind_kn": 8.0,
+     "cloud_pct": 0,
+     "rain_in": 0.0,
+     "rain_win_in": 0.0,
+     "rain_span_h": 74,
+     "lights": {
+      "glass": false,
+      "dry": true,
+      "sun": true
+     },
+     "verdict": "broke",
+     "failed": [
+      "glass"
+     ],
+     "verified_at": "2026-10-29T21:00:00-07:00"
+    }
+   },
+   {
+    "wkey": "20261016T0646-dawn",
+    "date": "2026-10-16",
+    "kind": "dawn",
+    "start": "2026-10-16T06:46:00-07:00",
+    "end": "2026-10-16T09:46:00-07:00",
+    "score": 8.8,
+    "cove": "McAbee Beach",
+    "promised_at": "2026-10-15T17:00:00-07:00",
+    "status": "rung",
+    "texted": 0,
+    "seeded": true,
+    "taken_back": null,
+    "forecast": {
+     "swell_ft": 1.5,
+     "per_s": 8.5,
+     "wind_kn": 3.0,
+     "cloud_pct": 0,
+     "sst_f": 67
+    },
+    "morning": {
+     "buoy_ft": 3.3,
+     "buoy_s": 13.0,
+     "buoy_n": 6,
+     "weather_source": "archive",
+     "wind_kn": 8.7,
+     "cloud_pct": 0,
+     "rain_in": 0.0,
+     "rain_win_in": 0.0,
+     "rain_span_h": 74,
+     "lights": {
+      "glass": false,
+      "dry": true,
+      "sun": true
+     },
+     "verdict": "broke",
+     "failed": [
+      "glass"
+     ],
+     "verified_at": "2026-10-29T21:00:00-07:00"
+    }
+   },
+   {
+    "wkey": "20261016T1629-dusk",
+    "date": "2026-10-16",
+    "kind": "dusk",
+    "start": "2026-10-16T16:29:00-07:00",
+    "end": "2026-10-16T18:29:00-07:00",
+    "score": 8.8,
+    "cove": "McAbee Beach",
+    "promised_at": "2026-10-16T14:00:00-07:00",
+    "status": "rung",
+    "texted": 0,
+    "seeded": true,
+    "taken_back": null,
+    "forecast": {
+     "swell_ft": 1.4,
+     "per_s": 8.6,
+     "wind_kn": 6.0,
+     "cloud_pct": 1,
+     "sst_f": 65
+    },
+    "morning": {
+     "buoy_ft": 3.3,
+     "buoy_s": 13.0,
+     "buoy_n": 4,
+     "weather_source": "archive",
+     "wind_kn": 3.4,
+     "cloud_pct": 0,
+     "rain_in": 0.0,
+     "rain_win_in": 0.0,
+     "rain_span_h": 73,
+     "lights": {
+      "glass": true,
+      "dry": true,
+      "sun": true
+     },
+     "verdict": "held",
+     "failed": [],
+     "verified_at": "2026-10-29T21:00:00-07:00"
+    }
+   }
+  ],
+  "H": [
+   {
+    "wkey": "20261017T1628-dusk",
+    "date": "2026-10-17",
+    "kind": "dusk",
+    "start": "2026-10-17T16:28:00-07:00",
+    "end": "2026-10-17T18:28:00-07:00",
+    "score": 8.2,
+    "cove": "Whalers Cove",
+    "promised_at": "2026-10-17T07:00:00-07:00",
+    "status": "rung",
+    "texted": 0,
+    "seeded": true,
+    "taken_back": null,
+    "forecast": {
+     "swell_ft": 1.8,
+     "per_s": 10.4,
+     "wind_kn": 5.6,
+     "cloud_pct": 0,
+     "sst_f": 65
+    },
+    "morning": {
+     "buoy_ft": 6.9,
+     "buoy_s": 13.0,
+     "buoy_n": 3,
+     "lights": {},
+     "verdict": "unverified",
+     "failed": [],
+     "verified_at": "2026-10-29T21:00:00-07:00"
+    }
+   }
+  ],
+  "G": [
+   {
+    "wkey": "20261018T0630-dawn",
+    "date": "2026-10-18",
+    "kind": "dawn",
+    "start": "2026-10-18T06:30:00-07:00",
+    "end": "2026-10-18T09:30:00-07:00",
+    "score": 8.7,
+    "cove": "Terranea (Old Marineland)",
+    "promised_at": "2026-10-17T07:00:00-07:00",
+    "status": "rung",
+    "texted": 0,
+    "seeded": true,
+    "taken_back": null,
+    "forecast": {
+     "swell_ft": 1.7,
+     "per_s": 13.7,
+     "wind_kn": 2.5,
+     "cloud_pct": 0,
+     "sst_f": 72
+    },
+    "morning": {
+     "buoy_ft": 3.3,
+     "buoy_s": 17.0,
+     "buoy_n": 6,
+     "weather_source": "archive",
+     "wind_kn": 3.9,
+     "cloud_pct": 0,
+     "rain_in": 0.0,
+     "rain_win_in": 0.0,
+     "rain_span_h": 74,
+     "lights": {
+      "glass": true,
+      "dry": true,
+      "sun": true
+     },
+     "verdict": "held",
+     "failed": [],
+     "verified_at": "2026-10-29T21:00:00-07:00"
+    }
+   }
+  ],
+  "P": [
+   {
+    "wkey": "20261022T0554-dawn",
+    "date": "2026-10-22",
+    "kind": "dawn",
+    "start": "2026-10-22T05:54:00-10:00",
+    "end": "2026-10-22T08:54:00-10:00",
+    "score": 8.7,
+    "cove": "Kahekili (Airport Beach)",
+    "promised_at": "2026-10-22T08:00:00-07:00",
+    "status": "rung",
+    "texted": 0,
+    "seeded": true,
+    "taken_back": null,
+    "forecast": {
+     "swell_ft": 2.1,
+     "per_s": 7.4,
+     "wind_kn": 1.3,
+     "cloud_pct": 2,
+     "sst_f": 81
+    },
+    "morning": {
+     "weather_source": "archive",
+     "wind_kn": 3.3,
+     "cloud_pct": 17,
+     "rain_in": 0.11,
+     "rain_win_in": 0.0,
+     "rain_span_h": 74,
+     "lights": {
+      "glass": true,
+      "dry": true,
+      "sun": true
+     },
+     "verdict": "held",
+     "failed": [],
+     "verified_at": "2026-10-29T21:00:00-07:00"
+    }
+   }
+  ],
+  "J": [
+   {
+    "wkey": "20261022T0601-dawn",
+    "date": "2026-10-22",
+    "kind": "dawn",
+    "start": "2026-10-22T06:01:00-10:00",
+    "end": "2026-10-22T09:01:00-10:00",
+    "score": 8.6,
+    "cove": "Three Tables",
+    "promised_at": "2026-10-22T08:00:00-07:00",
+    "status": "rung",
+    "texted": 0,
+    "seeded": true,
+    "taken_back": null,
+    "forecast": {
+     "swell_ft": 1.4,
+     "per_s": 5.7,
+     "wind_kn": 5.1,
+     "cloud_pct": 6,
+     "sst_f": 80
+    },
+    "morning": {
+     "buoy_ft": 3.6,
+     "buoy_s": 8.0,
+     "buoy_n": 6,
+     "weather_source": "archive",
+     "wind_kn": 5.8,
+     "cloud_pct": 5,
+     "rain_in": 0.32,
+     "rain_win_in": 0.0,
+     "rain_span_h": 74,
+     "lights": {
+      "glass": true,
+      "dry": false,
+      "sun": true
+     },
+     "verdict": "broke",
+     "failed": [
+      "dry"
+     ],
+     "verified_at": "2026-10-29T21:00:00-07:00"
+    }
+   }
+  ]
+ },
+ "feed": [
+  {
+   "key": "record:D:20261004T0615-dawn",
+   "kind": "record",
+   "title": "The record",
+   "text": "La Jolla rang for Sun dawn and the ocean kept the appointment: buoy 1.6 ft @ 10.0 s, wind 4.6 kn, dry, cloud 0%. The record: 8 rings, 7 held, 1 broke. thedivebell.com/record/",
+   "date": "2026-10-30T04:02:48.789288+00:00",
+   "link": "https://thedivebell.com/record/"
+  },
+  {
+   "key": "record:D:20261005T0616-dawn",
+   "kind": "record",
+   "title": "The record",
+   "text": "La Jolla rang for Mon dawn and the ocean kept the appointment: buoy 1.3 ft @ 14.0 s, wind 2.8 kn, dry, cloud 0%. The record: 8 rings, 7 held, 1 broke. thedivebell.com/record/",
+   "date": "2026-10-30T04:02:48.789454+00:00",
+   "link": "https://thedivebell.com/record/"
+  },
+  {
+   "key": "record:D:20261006T0616-dawn",
+   "kind": "record",
+   "title": "The record",
+   "text": "La Jolla rang for Tue dawn and the ocean kept the appointment: buoy 2.0 ft @ 5.0 s, wind 2.7 kn, dry, cloud 4%. The record: 8 rings, 7 held, 1 broke. thedivebell.com/record/",
+   "date": "2026-10-30T04:02:48.789491+00:00",
+   "link": "https://thedivebell.com/record/"
+  },
+  {
+   "key": "record:D:20261016T0624-dawn",
+   "kind": "record",
+   "title": "The record",
+   "text": "La Jolla rang for Fri dawn and the ocean kept the appointment: buoy 1.3 ft @ 14.0 s, wind 4.1 kn, dry, cloud 0%. The record: 8 rings, 7 held, 1 broke. thedivebell.com/record/",
+   "date": "2026-10-30T04:02:48.789519+00:00",
+   "link": "https://thedivebell.com/record/"
+  },
+  {
+   "key": "record:D:20261018T0625-dawn",
+   "kind": "record",
+   "title": "The record",
+   "text": "La Jolla rang for Sun dawn and the ocean kept the appointment: buoy 1.6 ft @ 17.0 s, wind 4.3 kn, rain 0.01 in/72h, cloud 0%. The record: 8 rings, 7 held, 1 broke. thedivebell.com/record/",
+   "date": "2026-10-30T04:02:48.789548+00:00",
+   "link": "https://thedivebell.com/record/"
+  },
+  {
+   "key": "record:D:20261021T0627-dawn",
+   "kind": "record",
+   "title": "The record",
+   "text": "La Jolla rang for Wed dawn and the ocean kept the appointment: buoy 1.6 ft @ 14.0 s, wind 3.8 kn, dry, cloud 2%. The record: 8 rings, 7 held, 1 broke. thedivebell.com/record/",
+   "date": "2026-10-30T04:02:48.789572+00:00",
+   "link": "https://thedivebell.com/record/"
+  },
+  {
+   "key": "record:D:20261025T0631-dawn",
+   "kind": "record",
+   "title": "The record",
+   "text": "La Jolla rang for Sun dawn and the morning broke its word: buoy 1.6 ft @ 9.0 s, wind 2.1 kn, rain 0.34 in/72h, cloud 0%. The bell says so. The record: 8 rings, 7 held, 1 broke. thedivebell.com/record/",
+   "date": "2026-10-30T04:02:48.789599+00:00",
+   "link": "https://thedivebell.com/record/"
+  },
+  {
+   "key": "record:D:20261026T0631-dawn",
+   "kind": "record",
+   "title": "The record",
+   "text": "La Jolla rang for Mon dawn and the ocean kept the appointment: buoy 1.6 ft @ 5.0 s, wind 2.3 kn, dry, cloud 1%. The record: 8 rings, 7 held, 1 broke. thedivebell.com/record/",
+   "date": "2026-10-30T04:02:48.789623+00:00",
+   "link": "https://thedivebell.com/record/"
+  },
+  {
+   "key": "record:E:20261014T0644-dawn",
+   "kind": "record",
+   "title": "The record",
+   "text": "Monterey rang for Wed dawn and the ocean kept the appointment: buoy 4.3 ft @ 13.0 s, wind 3.1 kn, rain 0.02 in/72h, cloud 0%. The record: 4 rings, 2 held, 2 broke. thedivebell.com/record/",
+   "date": "2026-10-30T04:03:00.671305+00:00",
+   "link": "https://thedivebell.com/record/"
+  },
+  {
+   "key": "record:E:20261015T0645-dawn",
+   "kind": "record",
+   "title": "The record",
+   "text": "Monterey rang for Thu dawn and the morning broke its word: buoy 3.6 ft @ 14.0 s, wind 8.0 kn, dry, cloud 0%. The bell says so. The record: 4 rings, 2 held, 2 broke. thedivebell.com/record/",
+   "date": "2026-10-30T04:03:00.671355+00:00",
+   "link": "https://thedivebell.com/record/"
+  },
+  {
+   "key": "record:E:20261016T0646-dawn",
+   "kind": "record",
+   "title": "The record",
+   "text": "Monterey rang for Fri dawn and the morning broke its word: buoy 3.3 ft @ 13.0 s, wind 8.7 kn, dry, cloud 0%. The bell says so. The record: 4 rings, 2 held, 2 broke. thedivebell.com/record/",
+   "date": "2026-10-30T04:03:00.671381+00:00",
+   "link": "https://thedivebell.com/record/"
+  },
+  {
+   "key": "record:E:20261016T1629-dusk",
+   "kind": "record",
+   "title": "The record",
+   "text": "Monterey rang for Fri dusk and the ocean kept the appointment: buoy 3.3 ft @ 13.0 s, wind 3.4 kn, dry, cloud 0%. The record: 4 rings, 2 held, 2 broke. thedivebell.com/record/",
+   "date": "2026-10-30T04:03:00.671404+00:00",
+   "link": "https://thedivebell.com/record/"
+  },
+  {
+   "key": "record:G:20261018T0630-dawn",
+   "kind": "record",
+   "title": "The record",
+   "text": "Palos Verdes rang for Sun dawn and the ocean kept the appointment: buoy 3.3 ft @ 17.0 s, wind 3.9 kn, dry, cloud 0%. The record: 1 rings, 1 held. thedivebell.com/record/",
+   "date": "2026-10-30T04:03:43.535714+00:00",
+   "link": "https://thedivebell.com/record/"
+  },
+  {
+   "key": "record:J:20261022T0601-dawn",
+   "kind": "record",
+   "title": "The record",
+   "text": "Oahu North Shore rang for Thu dawn and the morning broke its word: buoy 3.6 ft @ 8.0 s, wind 5.8 kn, rain 0.32 in/72h, cloud 5%. The bell says so. The record: 1 rings, 0 held, 1 broke. thedivebell.com/record/",
+   "date": "2026-10-30T04:05:02.264638+00:00",
+   "link": "https://thedivebell.com/record/"
+  },
+  {
+   "key": "record:P:20261022T0554-dawn",
+   "kind": "record",
+   "title": "The record",
+   "text": "Maui rang for Thu dawn and the ocean kept the appointment: wind 3.3 kn, rain 0.11 in/72h, cloud 17%. The record: 1 rings, 1 held. thedivebell.com/record/",
+   "date": "2026-10-30T04:07:55.913161+00:00",
+   "link": "https://thedivebell.com/record/"
   }
  ]
 }
