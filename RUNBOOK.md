@@ -204,9 +204,11 @@ deploy hash change with it) and whether to tell the two subscribers.
   guard's midday slot runs `python dive_alert.py owed` and does the full
   read when no scoring run has landed since 2am Pacific (`morning_owed`).
 - The forecast text says when it was read ("the week ahead as of Thu
-  1pm"), and the ear refuses an on-demand FORECAST when the board is more
-  than 36h old or the bell is marked stale (`STALE_HOURS` in incoming.js;
-  re-run `wire-sms` after any edit there).
+  1pm"), and the ear refuses an on-demand FORECAST when the bell's own
+  plate is more than 36h old (`read_at` on each plate, kept by
+  `merge_board` when a bell fails, so a carried plate on a fresh board still
+  shows its true age; `STALE_HOURS` in incoming.js; re-run `wire-sms` after
+  any edit there). "Stale" alone never refuses: the dated text speaks for itself.
 
 ## The record (2026-10-29) — every ring, and the morning after
 

@@ -167,11 +167,15 @@ async function zoneFor(name) {
 const STALE_HOURS = 36;
 async function forecastMessage(name) {
   const z = await zoneFor(name);
-  const ageH = boardUpdated ? (Date.now() - new Date(boardUpdated).getTime()) / 36e5 : null;
-  if (z && (z.stale || (ageH !== null && ageH > STALE_HOURS))) {
+  // the plate's own read time: a bell that failed its last pass carries an
+  // older plate on a fresh board, and "stale" alone says nothing about how
+  // old - the dated forecast speaks for itself until it passes STALE_HOURS
+  const readAt = (z && z.read_at) || boardUpdated;
+  const ageH = readAt ? (Date.now() - new Date(readAt).getTime()) / 36e5 : null;
+  if (z && ageH !== null && ageH > STALE_HOURS) {
     return "THE DIVE BELL - " + name.toUpperCase() + ". The bell has not read this water for " +
-      (ageH !== null ? Math.round(ageH) + " hours" : "a while") +
-      ", so there is no forecast to trust right now. The board will say when it is back: thedivebell.com";
+      Math.round(ageH) + " hours, so there is no forecast to trust right now. " +
+      "The board will say when it is back: thedivebell.com";
   }
   if (z && z.forecast_sms) return z.forecast_sms;
   if (z && z.windows && z.windows.length) {

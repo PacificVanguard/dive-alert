@@ -3700,7 +3700,8 @@ def board_entry(zk, zc, scored, state, rec, ztopic, sst, fetches=None, t_now=Non
                  if zc.get("sms", True) else
                  {"app": "ntfy", "topic": ztopic,
                   "text": "Subscribe to %s in the ntfy app" % ztopic}),
-        "forecast_sms": sms_digest_text(zc, scored, footer=False),
+        "forecast_sms": sms_digest_text(zc, scored, footer=False, t_now=t_now),
+        "read_at": t_now.isoformat(),   # survives merge_board, so a carried (stale) plate keeps its true age
         "last_ring": state.get("last_ring", {}).get(zk),
         "sst_f": round(sst * 9 / 5 + 32) if sst is not None else None,
         "windows": [plate(s) for s in scored],
@@ -7886,6 +7887,8 @@ def cmd_test(args):
     check("(ow) a last read from yesterday evening, or none at all, means the morning is owed",
           morning_owed({"last_scored": datetime(2026, 10, 28, 19, 10, tzinfo=PT).isoformat()}, noon)
           and morning_owed({}, noon) and morning_owed({"last_scored": "garbage"}, noon))
+    check("(ow) every plate says when it was read",
+          board_entry("A", zc, sc_y, st_y, {"promises": 0, "rings": 0}, "t", 20.0, fx_y, t_y)["read_at"] == t_y.isoformat())
     check("(ow) a read at 1:59am does not count as this morning; one at 2:01am does",
           morning_owed({"last_scored": datetime(2026, 10, 29, 1, 59, tzinfo=PT).isoformat()}, noon)
           and not morning_owed({"last_scored": datetime(2026, 10, 29, 2, 1, tzinfo=PT).isoformat()}, noon))
