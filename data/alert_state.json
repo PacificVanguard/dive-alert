@@ -63,7 +63,7 @@
   "E:weather": 0,
   "E:ndbc_primary": 0,
   "E:ndbc_offshore": 0,
-  "E:tides": 1,
+  "E:tides": 0,
   "E:sst": 0,
   "E:chla": 0,
   "E:kd490": 0,
@@ -124,13 +124,13 @@
   "K:ndbc_spec": 0,
   "L:marine": 0,
   "L:weather": 0,
-  "L:ndbc_primary": 182,
-  "L:ndbc_offshore": 182,
-  "L:tides": 182,
+  "L:ndbc_primary": 183,
+  "L:ndbc_offshore": 183,
+  "L:tides": 183,
   "L:sst": 0,
   "L:chla": 0,
   "L:kd490": 0,
-  "L:ndbc_spec": 182,
+  "L:ndbc_spec": 183,
   "M:marine": 0,
   "M:weather": 0,
   "M:ndbc_primary": 0,
@@ -152,12 +152,12 @@
   "O:marine": 0,
   "O:weather": 0,
   "O:ndbc_primary": 0,
-  "O:ndbc_offshore": 182,
-  "O:tides": 182,
+  "O:ndbc_offshore": 183,
+  "O:tides": 183,
   "O:sst": 0,
   "O:chla": 0,
   "O:kd490": 0,
-  "O:ndbc_spec": 182,
+  "O:ndbc_spec": 183,
   "P:marine": 0,
   "P:weather": 0,
   "P:ndbc_primary": 0,
@@ -452,16 +452,14 @@
   "A": {},
   "C": {},
   "D": {
-   "20261104T0639-dawn": 1
+   "20261104T0639-dawn": 2
   },
   "E": {
-   "20261103T0703-dawn": 1,
-   "20261104T0704-dawn": 1
+   "20261103T0703-dawn": 2,
+   "20261104T0704-dawn": 2
   },
   "F": {},
-  "G": {
-   "20261103T0644-dawn": 1
-  },
+  "G": {},
   "H": {},
   "I": {},
   "J": {},
@@ -474,27 +472,6 @@
  },
  "social_posted": {},
  "social_queue": [
-  {
-   "key": "week:2026-W44",
-   "kind": "week",
-   "text": "The week ahead, 15 bells. Best: Monterey Mon dawn 9.5, Point Lobos Mon dawn 9.0, Kona Wed dawn 8.8. No bell is ringing. Quietest: Laguna Beach, 78 days. thedivebell.com/",
-   "card": {
-    "kind": "week",
-    "eyebrow": "THE DIVE BELL \u00b7 15 BELLS \u00b7 OCT 28",
-    "lines": [
-     "Monterey \u00b7 Mon dawn \u00b7 9.5",
-     "Point Lobos \u00b7 Mon dawn \u00b7 9.0",
-     "Kona \u00b7 Wed dawn \u00b7 8.8",
-     "Santa Barbara \u00b7 Tue dawn \u00b7 8.2",
-     "Bonaire \u00b7 Wed dusk \u00b7 8.1",
-     "Palos Verdes \u00b7 Thu dusk \u00b7 7.9"
-    ],
-    "foot": "thedivebell.com/  \u00b7  no bell is ringing this week"
-   },
-   "alt": "The Dive Bell, the week ahead across 15 bells. Monterey Mon dawn 9.5, Point Lobos Mon dawn 9.0, Kona Wed dawn 8.8",
-   "created": "2026-10-28T17:25:35.048891+00:00",
-   "done": []
-  },
   {
    "key": "record:D:20261004T0615-dawn",
    "kind": "record",
@@ -1685,5 +1662,6 @@
    "date": "2026-10-30T16:44:18.504821+00:00",
    "link": "https://thedivebell.com/palos-verdes/"
   }
- ]
+ ],
+ "last_scored": "2026-10-30T10:00:00-07:00"
 }
