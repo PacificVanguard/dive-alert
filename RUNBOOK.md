@@ -157,6 +157,45 @@ ImageMagick; with neither, the post goes as words. Threads is always words
 Mark the accounts as automated in their settings — X requires it, and it
 is true. `python dive_alert.py post --dry-run` shows what would leave.
 
+## The record (2026-10-29) — every ring, and the morning after
+
+The moat. A ring enters `state["ring_ledger"]` the moment it is made
+(`ledger_promise`: score, cove, the forecast, and `buoy_expect_ft` — what
+the bell's buoy should read if the forecast is right, in this bell's own
+scale). Every run until the window, `ledger_watch` re-reads the physical
+gate: collapsed = taken back. After the window, `ledger_verify` lets the
+instruments testify (`observe_window`: the buoy's median height in the
+window from NDBC's 45 days of rows; wind, rain and sky from the feed's past
+hours or `archive_weather`) and judges HELD / BROKE (naming the light) /
+UNVERIFIED. The rules are the gate's own: wind ≤ glass line, the 0.2 in
+rain rule, cloud ≤ sun line, buoy ≤ expectation × 1.25 + 0.3. Without a
+buoy expectation the flat light is simply not read — never guessed; that is
+why Monterey's seeded October rings cannot be judged on the buoy (46236 is
+offshore; McAbee sits in the lee). `ledger_seed` entered the pre-ledger
+rings from the score log once ("stood at its last reading"), and the old
+dawn-blind counter is gone: `rec.rings/held/broke/taken_back` and
+`last_ring` now come from the ledger. Published at `/record/`,
+`data/record.json`, each bell's ledger, the feed, and (when wired) a public
+"kept its word / was wrong" post. The first real reading: La Jolla 6 of 8
+held; two broke on rain. Nobody edits it.
+
+## The feed and the search engines (2026-10-29)
+
+Everything the bell says in public is also an item in `feed.xml` (RSS,
+`write_feed`, from `state["feed"]`), so anyone — or any RSS-to-social
+bridge — can carry it without keys. After every data commit the workflow
+POSTs the sitemap's URLs to IndexNow (`indexnow.txt` holds the public
+key); Bing, DuckDuckGo and the assistants that search through them learn
+of every rewrite within minutes. Google ignores IndexNow and reads the
+sitemap; the Search Console submission is still the keeper's one manual act.
+
+## Ops texts are one line, and only when a human might act (2026-10-29)
+
+`quiet_notices` groups dead sources by host and texts (`notify_ops(...,
+text=...)`) only for load-bearing ones — the buoy, tides, the swell model,
+the weather feed. CoastWatch dark at every bell is one app notice reading
+"No action; the bells score on", never a text. 150 characters, no link.
+
 ## The Wednesday reading rides whichever cron lands (don't "fix" this)
 
 GitHub fires crons hours late — 3-4h has been normal. The guard classifies

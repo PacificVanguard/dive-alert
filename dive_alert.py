@@ -3318,12 +3318,45 @@ def sms_keeper(text, dry_run=False):
         return False
 
 
-def notify_ops(payload, dry_run):
+def notify_ops(payload, dry_run, text=True, sms_text=None):
     """Plumbing news goes to the keeper channel, never to divers — and to
-    the keeper's phone, because the keeper reads texts, not the app."""
+    the keeper's phone when a human might act on it (text=False keeps it in
+    the app). The text is one short line: a truncated link in a 300-char
+    screed is not a message (2026-10-29)."""
     ok = notify(payload, dry_run, topic=ops_topic())
-    sms_keeper("%s: %s" % (payload.get("title", ""), payload.get("message", "")), dry_run)
+    if text:
+        sms_keeper((sms_text or "%s: %s" % (payload.get("title", ""), payload.get("message", "")))[:150], dry_run)
     return ok
+
+
+SOURCE_HOST = {"sst": "CoastWatch", "kd490": "CoastWatch", "chla": "CoastWatch",
+               "marine": "the swell model", "marine_alt": "the second voice", "weather": "the weather feed",
+               "ndbc_primary": "the buoy", "ndbc_offshore": "the offshore buoy",
+               "ndbc_spec": "the buoy's spectra", "tides": "NOAA tides", "nws": "NWS alerts"}
+SOURCE_EFFECT = {"sst": "warm axis on Open-Meteo", "kd490": "clarity witness dark", "chla": "plankton witness dark",
+                 "marine": "NO SWELL MODEL", "marine_alt": "no second voice", "weather": "NO WIND, RAIN OR LIGHT",
+                 "ndbc_primary": "no buoy anchor or agreement", "ndbc_offshore": "no offshore trend",
+                 "ndbc_spec": "no chop split", "tides": "no cove timing", "nws": "no hazard veto"}
+LOAD_BEARING = ("marine", "weather", "ndbc_primary", "tides")
+
+
+def quiet_notices(quiet, n_bells):
+    """quiet: {source: [bell names]} -> [(message, worth_a_text)], one per
+    host. CoastWatch dark at every bell is one line, not fifteen names."""
+    by_host = {}
+    for src_name, bells in quiet.items():
+        by_host.setdefault(SOURCE_HOST.get(src_name, src_name), {})[src_name] = bells
+    out = []
+    for host, srcs in by_host.items():
+        bells = sorted({b for bs in srcs.values() for b in bs})
+        where = ("all %d bells" % n_bells if len(bells) >= n_bells else
+                 ", ".join(bells[:3]) + (" +%d more" % (len(bells) - 3) if len(bells) > 3 else ""))
+        bearing = any(s in LOAD_BEARING for s in srcs)
+        msg = "%s dark ~3 days (%s) at %s: %s. %s" % (
+            host, ", ".join(sorted(srcs)), where, "; ".join(SOURCE_EFFECT.get(s, s) for s in sorted(srcs)),
+            "Scores stand; worth a look if it lasts a week." if bearing else "No action; the bells score on.")
+        out.append((msg, bearing))
+    return out
 
 
 def ping_health(ok=True, msg=""):
@@ -3623,6 +3656,8 @@ th,td{text-align:left;padding:6px 8px;border-bottom:1px solid rgba(169,194,214,.
 th{color:var(--dim);font-weight:normal;letter-spacing:.06em;text-transform:uppercase;font-size:.68rem}
 td.n{color:var(--gold)}
 tr.ring td{color:var(--glow)}
+tr.held td:nth-last-child(2){color:var(--gold)}
+tr.broke td:nth-last-child(2){color:#e8a0a0}
 ul{list-style:none}
 li{padding:8px 0;border-bottom:1px solid rgba(169,194,214,.12);color:var(--ink)}
 li b{color:var(--sand);font-weight:normal}
@@ -3658,11 +3693,14 @@ def bell_slug(bz):
 
 
 def ring_ledger(zk, state):
-    """Every ring this bell has texted, oldest first, with the word that came
-    back. A diary, not a score: a percentage appears only at five rings
-    (pre-mortem 2026-10-06 — a record at n=3 is noise, and one FINS would
-    have published as 0 for 1). Numbers never leave the state."""
+    """Every ring this bell has made, oldest first, with the word that came
+    back. The ring ledger first; a texted window the ledger does not know
+    (state older than the ledger) enters as rung, then taken back. A diary,
+    not a score: a percentage appears only at five rings. Numbers never
+    leave the state."""
     rings = {}
+    for e in state.get("ring_ledger", {}).get(zk, []):
+        rings[e["date"]] = dict(e, verdicts={}, cove=e.get("cove") or log_cove(zk, e["wkey"]))
     for key in state.get("sms_rung_nums", {}):
         z, _, wkey = key.partition(":")
         if z != zk:
@@ -3672,7 +3710,12 @@ def ring_ledger(zk, state):
             day = datetime.strptime(stamp, "%Y%m%dT%H%M").date().isoformat()
         except ValueError:
             continue
-        rings[day] = {"date": day, "kind": kind or "dawn", "verdicts": {}, "cove": log_cove(zk, wkey)}
+        if day in rings:
+            continue
+        start = datetime.strptime(stamp, "%Y%m%dT%H%M").replace(tzinfo=PT)
+        rings[day] = {"wkey": wkey, "date": day, "kind": kind or "dawn", "verdicts": {}, "cove": log_cove(zk, wkey),
+                      "start": start.isoformat(), "end": (start + timedelta(hours=3)).isoformat(),
+                      "status": "taken back", "taken_back": {"why": "the last reading had gone quiet"}, "score": None}
     if rings and os.path.exists(DIVE_LOG):
         with open(DIVE_LOG) as f:
             for r in csv.DictReader(f):
@@ -3889,6 +3932,398 @@ def sst_spark_svg(trend, today_iso):
     return "".join(out)
 
 
+# =====================================================================
+# the record — every ring, and the morning after
+# =====================================================================
+# A ring enters the ledger the moment it is made: the promise, dated, with
+# what was promised. Every run until the window, the bell re-reads it — a
+# gate that collapses marks the entry taken back. Once the window has
+# passed, the instruments testify: the buoy during the window, the wind,
+# the rain, the sky — and the entry is judged held, broke, or unverified.
+# Nobody edits it. (2026-10-29: the old counter only saw dusk rings — a run
+# rarely lands between midnight and first light — so La Jolla's four dawn
+# rings in October were never recorded anywhere a diver could read.)
+
+LEDGER_MAX = 60
+LEDGER_VERIFY_TRIES = 12
+_r1 = lambda v: None if v is None else round(v, 1)
+_r0 = lambda v: None if v is None else int(round(v))
+
+
+def buoy_expectation_ft(zc, fetches, w):
+    """What the bell's buoy should read during the window if the forecast is
+    right: the model's significant height over the window hours, times this
+    bell's own model scale. The only fair yardstick for 'flat' - a cove in
+    the lee of a point is not judged by an offshore buoy's raw height
+    (Monterey's four October rings, 2026-10-29)."""
+    ma = (fetches or {}).get("marine")
+    if ma is None or not ma.ok:
+        return None
+    wh = ma.data.get("wave_height") or {}
+    end = w.get("end") or w["start"] + timedelta(hours=CONFIG["windows"].get(w.get("kind", "dawn") + "_hours", 3.0))
+    vals = [wh[t] for t in wh if w["start"] <= t <= end and wh[t] is not None]
+    if not vals:
+        return None
+    return round(sum(vals) / len(vals) * model_height_scale(zc) * 3.281, 1)
+
+
+def ledger_promise(state, zk, zc, payload, sst_c, t_now, texted=0, fetches=None):
+    w = payload["w"]
+    L = state.setdefault("ring_ledger", {}).setdefault(zk, [])
+    if any(e["wkey"] == w["key"] for e in L):
+        return False
+    f = payload.get("feats") or {}
+    p = f.get("dmg_parts") or {}
+    kind = w.get("kind", "dawn")
+    end = w.get("end") or w["start"] + timedelta(hours=CONFIG["windows"].get(kind + "_hours", 3.0))
+    L.append({"wkey": w["key"], "date": w["start"].date().isoformat(), "kind": kind,
+              "start": w["start"].isoformat(), "end": end.isoformat(),
+              "score": payload["score"], "cove": (payload.get("entries") or [None])[0],
+              "promised_at": t_now.isoformat(), "status": "rung", "texted": texted,
+              "forecast": {"swell_ft": _r1(p.get("hgt_ft")), "per_s": _r1(p.get("per_s")),
+                           "wind_kn": _r1(f.get("wind_window_eff_kn", f.get("wind_window_max_kn"))),
+                           "cloud_pct": _r0(f.get("cloud_pct")),
+                           "buoy_expect_ft": buoy_expectation_ft(zc, fetches, w),
+                           "sst_f": _r0(sst_c * 9 / 5 + 32) if sst_c is not None else None}})
+    del L[:-LEDGER_MAX]
+    return True
+
+
+def ledger_seed(state, t_now=None):
+    """Once: the rings made before the ledger existed. From the score log, a
+    window whose LAST logged reading still said RING and whose morning has
+    come stood as a ring; a window the bell texted (sms_rung_nums) but whose
+    last reading had gone quiet was rung, then taken back."""
+    if "ring_ledger" in state:
+        return 0
+    state["ring_ledger"] = {}
+    t_now = t_now or now_pt()
+    last = {}
+    if os.path.exists(LOG_PATH):
+        with open(LOG_PATH) as f:
+            for r in csv.DictReader(f):
+                last[(r["zone"], r["window_key"])] = r
+    texted = {tuple(k.split(":", 1)): len(v) for k, v in state.get("sms_rung_nums", {}).items()}
+    n = 0
+    for (zk, wkey), r in sorted(last.items(), key=lambda kv: kv[1].get("window_start", "")):
+        if zk not in CONFIG["zones"] or not r.get("window_start"):
+            continue
+        stood, was_texted = r.get("rang") == "RING", (zk, wkey) in texted
+        if not stood and not was_texted:
+            continue
+        start = datetime.fromisoformat(r["window_start"])
+        if start > t_now:
+            continue
+        kind = r.get("window_kind") or "dawn"
+        fl = lambda k: (float(r[k]) if r.get(k) not in (None, "") else None)
+        state["ring_ledger"].setdefault(zk, []).append({
+            "wkey": wkey, "date": start.date().isoformat(), "kind": kind, "start": start.isoformat(),
+            "end": (start + timedelta(hours=CONFIG["windows"].get(kind + "_hours", 3.0))).isoformat(),
+            "score": fl("score"), "cove": (r.get("best_entries") or "").split(" / ")[0] or None,
+            "promised_at": r.get("run_ts"), "status": "rung" if stood else "taken back",
+            "texted": texted.get((zk, wkey), 0), "seeded": True,
+            "taken_back": None if stood else {"why": "the last reading had gone quiet"},
+            "forecast": {"swell_ft": fl("swell_hgt_ft"), "per_s": fl("swell_per_s"),
+                         "wind_kn": fl("wind_window_eff_kn"), "cloud_pct": _r0(fl("cloud_pct")),
+                         "sst_f": _r0(fl("sst_c") * 9 / 5 + 32) if fl("sst_c") is not None else None}})
+        n += 1
+    return n
+
+
+def ledger_watch(state, zk, scored, t_now):
+    """Before the window: re-read each standing promise against this run's
+    physical gate. Collapsed, it is taken back; returned, it stands again.
+    After the window the entry is frozen and the instruments take over."""
+    by_key = {s["w"]["key"]: s for s in scored}
+    for e in state.get("ring_ledger", {}).get(zk, []):
+        if e.get("morning") or datetime.fromisoformat(e["start"]) <= t_now:
+            continue
+        s = by_key.get(e["wkey"])
+        if s is None:
+            continue
+        if s.get("gate_raw", s.get("gate")):
+            e["status"], e["taken_back"] = "rung", None
+        else:
+            e["status"] = "taken back"
+            e["taken_back"] = {"at": t_now.isoformat(), "why": s.get("limit")}
+
+
+def archive_weather(zc, start, end):
+    """Open-Meteo's archive, for a window the live feed no longer remembers.
+    Keyed like the feed. None on any failure — a record is never invented."""
+    try:
+        tz = zone_tz(zc)
+        q = urllib.parse.urlencode({
+            "latitude": zc["lat"], "longitude": zc["lon"],
+            "start_date": start.astimezone(tz).date().isoformat(),
+            "end_date": end.astimezone(tz).date().isoformat(),
+            "hourly": "wind_speed_10m,precipitation,cloud_cover",
+            "wind_speed_unit": "kn", "precipitation_unit": "inch",
+            "timezone": zc.get("tz", "America/Los_Angeles")})
+        d = json.loads(http_get(CONFIG["sources"]["weather_archive"] + "?" + q, timeout=30))
+        h = d["hourly"]
+        return {k: hourly_map(h["time"], h[k], tz) for k in h if k != "time"}
+    except Exception as e:
+        print("archive (%s): %s" % (zc.get("name"), str(e)[:80]), file=sys.stderr)
+        return None
+
+
+def observe_window(zc, fetches, start, end):
+    """What the instruments saw during a window: the buoy's median height
+    and period (NDBC keeps 45 days), and the wind, rain and sky from the
+    weather feed's past hours — or from the archive when the feed no longer
+    reaches back. None when nothing can be read yet."""
+    obs = {}
+    mp = fetches.get("ndbc_primary")
+    if mp is not None and mp.ok:
+        rows = [r for r in (mp.data or {}).get("rows", [])
+                if r.get("wvht_m") is not None and start <= r["t"] <= end]
+        if rows:
+            hs = sorted(r["wvht_m"] for r in rows)
+            ps = sorted(r["dpd_s"] for r in rows if r.get("dpd_s") is not None)
+            obs.update(buoy_ft=round(hs[len(hs) // 2] * 3.281, 1),
+                       buoy_s=round(ps[len(ps) // 2], 1) if ps else None, buoy_n=len(rows))
+    wx = fetches.get("weather")
+    series = None
+    if wx is not None and wx.ok:
+        keys = list((wx.data or {}).get("wind_speed_10m", {}).keys())
+        if keys and min(keys) <= start - timedelta(hours=24) and max(keys) >= end:
+            series, obs["weather_source"] = wx.data, "feed"
+    if series is None:
+        series = archive_weather(zc, start - timedelta(hours=72), end)
+        if series:
+            obs["weather_source"] = "archive"
+    if series:
+        ws = series.get("wind_speed_10m", {})
+        win = [t for t in ws if start <= t <= end and ws[t] is not None]
+        if win:
+            obs["wind_kn"] = round(max(ws[t] for t in win), 1)
+            cl = [series.get("cloud_cover", {}).get(t) for t in win]
+            cl = [c for c in cl if c is not None]
+            if cl:
+                obs["cloud_pct"] = int(round(sum(cl) / len(cl)))
+            pr = series.get("precipitation", {})
+            prior = [t for t in pr if start - timedelta(hours=72) <= t <= end and pr[t] is not None]
+            if prior:
+                obs["rain_in"] = round(sum(pr[t] for t in prior), 2)
+                obs["rain_win_in"] = round(sum(pr[t] for t in prior if t >= start), 2)
+                obs["rain_span_h"] = int(round((max(prior) - min(prior)).total_seconds() / 3600))
+    if obs.get("buoy_ft") is None and obs.get("wind_kn") is None:
+        return None
+    return obs
+
+
+def ledger_verify(state, zk, zc, fetches, t_now):
+    """After the window, the instruments testify. Held means every light the
+    record can read stayed on: wind under the glass line, no rain, a clear
+    sky, and the buoy no bigger than the promise. Returns the entries judged
+    this run."""
+    judged = []
+    g = dict(CONFIG["perfect_gate"], **zc.get("perfect_gate_overrides", {}))
+    for e in state.get("ring_ledger", {}).get(zk, []):
+        if e.get("morning"):
+            continue
+        start, end = datetime.fromisoformat(e["start"]), datetime.fromisoformat(e["end"])
+        if end > t_now - timedelta(hours=1):
+            continue
+        obs = observe_window(zc, fetches, start, end)
+        if obs is None:
+            e["verify_tries"] = e.get("verify_tries", 0) + 1
+            if e["verify_tries"] >= LEDGER_VERIFY_TRIES:
+                e["morning"] = {"verdict": "unverified", "note": "no record could be read",
+                                "verified_at": t_now.isoformat()}
+                judged.append(e)
+            continue
+        lights = {}
+        if obs.get("wind_kn") is not None:
+            lights["glass"] = obs["wind_kn"] <= g["max_wind_kn"]
+        if obs.get("rain_in") is not None:   # the gate's own rule: 0.2 in over the lookback is rain; 0.1 in on the dive is rain
+            lights["dry"] = (obs["rain_in"] < CONFIG["features"]["rain_threshold_in"]
+                             and obs.get("rain_win_in", 0) < 0.1)
+        if obs.get("cloud_pct") is not None:
+            lights["sun"] = obs["cloud_pct"] <= g["max_cloud_pct"]
+        fc = e.get("forecast") or {}
+        if obs.get("buoy_ft") is not None and fc.get("buoy_expect_ft"):
+            lights["flat"] = obs["buoy_ft"] <= fc["buoy_expect_ft"] * 1.25 + 0.3
+        if e.get("status") == "taken back":
+            verdict = "taken back"
+        elif len(lights) < 2:
+            verdict = "unverified"
+        elif all(lights.values()):
+            verdict = "held"
+        else:
+            verdict = "broke"
+        e["morning"] = dict(obs, lights=lights, verdict=verdict,
+                            failed=[k for k, v in lights.items() if v is False],
+                            verified_at=t_now.isoformat())
+        judged.append(e)
+    return judged
+
+
+def ledger_record(entries, t_now):
+    """The tally a bell can stand behind: rings whose morning has come, how
+    many held, broke, were taken back, or could not be read."""
+    past = [e for e in entries or [] if datetime.fromisoformat(e["end"]) <= t_now]
+    rings = [e for e in past if e.get("status") != "taken back"]
+    v = lambda e: (e.get("morning") or {}).get("verdict")
+    held, broke = sum(1 for e in rings if v(e) == "held"), sum(1 for e in rings if v(e) == "broke")
+    return {"rings": len(rings), "held": held, "broke": broke,
+            "taken_back": sum(1 for e in past if e.get("status") == "taken back"),
+            "unverified": len(rings) - held - broke,
+            "last_ring": max((e["date"] for e in rings), default=None)}
+
+
+def morning_words(e):
+    m = e.get("morning") or {}
+    if not m:
+        return ("taken back before the morning" if e.get("status") == "taken back"
+                else "not yet - the instruments testify after the window")
+    bits = []
+    if m.get("buoy_ft") is not None:
+        bits.append("buoy %.1f ft%s" % (m["buoy_ft"], (" @ %s s" % m["buoy_s"]) if m.get("buoy_s") else ""))
+    if m.get("wind_kn") is not None:
+        bits.append("wind %s kn" % m["wind_kn"])
+    if m.get("rain_in") is not None:
+        bits.append("rain %.2f in/72h" % m["rain_in"] if m["rain_in"] >= 0.01 else "dry")
+    if m.get("cloud_pct") is not None:
+        bits.append("cloud %s%%" % m["cloud_pct"])
+    return ", ".join(bits) or "no record could be read"
+
+
+def verdict_words(e):
+    v = (e.get("morning") or {}).get("verdict") or ("taken back" if e.get("status") == "taken back" else "pending")
+    if v == "broke":
+        return "broke - %s" % ", ".join(e["morning"].get("failed") or [])
+    return v
+
+
+def promise_words(e):
+    fc = e.get("forecast") or {}
+    bits = ["%.1f" % e["score"]] if e.get("score") is not None else []
+    if fc.get("swell_ft") is not None:
+        bits.append("%s ft%s" % (fc["swell_ft"], (" @ %s s" % fc["per_s"]) if fc.get("per_s") else ""))
+    if fc.get("wind_kn") is not None:
+        bits.append("%s kn" % fc["wind_kn"])
+    if fc.get("buoy_expect_ft") is not None:
+        bits.append("buoy ~%s ft" % fc["buoy_expect_ft"])
+    if fc.get("sst_f") is not None:
+        bits.append("%dF" % fc["sst_f"])
+    return " · ".join(bits)
+
+
+def record_line(rec):
+    if not rec or not rec.get("rings") and not rec.get("taken_back"):
+        return "No rings yet."
+    s = "%d ring%s" % (rec["rings"], "" if rec["rings"] == 1 else "s")
+    parts = []
+    if rec["held"]:
+        parts.append("%d held" % rec["held"])
+    if rec["broke"]:
+        parts.append("%d broke" % rec["broke"])
+    if rec["unverified"]:
+        parts.append("%d awaiting the instruments" % rec["unverified"])
+    if rec["taken_back"]:
+        parts.append("%d taken back before the morning" % rec["taken_back"])
+    if parts:
+        s += " - " + ", ".join(parts)
+    if rec["rings"] >= 5 and (rec["held"] + rec["broke"]):
+        s += " (%d%% held)" % round(100.0 * rec["held"] / (rec["held"] + rec["broke"]))
+    return s + "."
+
+
+def ledger_table_html(entries, esc, with_bell=False):
+    rows = []
+    for e in entries:
+        back = ", ".join("%d %s" % (n, k) for k, n in sorted((e.get("verdicts") or {}).items())) or "no word back yet"
+        cells = ([esc(e.get("bell_name", ""))] if with_bell else []) + [
+            esc(_long_date(e["date"])), esc(e.get("kind", "")), esc(e.get("cove") or "-"),
+            esc(promise_words(e)), esc(morning_words(e)), esc(verdict_words(e)), esc(back)]
+        cls = {"held": " class='held'", "broke": " class='broke'"}.get((e.get("morning") or {}).get("verdict"), "")
+        rows.append("<tr%s>%s</tr>" % (cls, "".join("<td>%s</td>" % c for c in cells)))
+    head = (["Bell"] if with_bell else []) + ["Rang", "Window", "Cove", "Promised", "The morning", "Verdict", "Divers reported"]
+    return ("<div class='scroll'><table><thead><tr>%s</tr></thead><tbody>%s</tbody></table></div>"
+            % ("".join("<th>%s</th>" % h for h in head), "".join(rows)))
+
+
+def record_page(state, t_now):
+    """Every ring the fleet has made, newest first, and what the ocean did
+    the morning after. The page nobody else publishes."""
+    from html import escape as _escape
+    esc = lambda s: _escape(str(s))
+    rows, tally = [], {"rings": 0, "held": 0, "broke": 0, "taken_back": 0, "unverified": 0}
+    for zk, zc in CONFIG["zones"].items():
+        if not zc.get("enabled"):
+            continue
+        ents = ring_ledger(zk, state)
+        rec = ledger_record(ents, t_now)
+        for k in tally:
+            tally[k] += rec[k]
+        for e in ents:
+            rows.append(dict(e, bell_name=zc["bell"]["name"]))
+    rows.sort(key=lambda e: e["date"], reverse=True)
+    body = ledger_table_html(rows, esc, with_bell=True) if rows else "<p>No bell has rung yet.</p>"
+    return ("<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'>\n"
+            "<meta name='viewport' content='width=device-width, initial-scale=1'>\n"
+            "<title>The record - every ring, and the morning after | The Dive Bell</title>\n"
+            "<link rel='canonical' href='%s/record/'>\n"
+            "<meta name='description' content='Every ring The Dive Bell has made, and what the ocean did the morning after: "
+            "the buoy, the wind, the rain and the sky testify. %s'>\n"
+            "<link rel='alternate' type='application/rss+xml' title='The Dive Bell' href='/feed.xml'>\n"
+            "<meta name='theme-color' content='#071d36'><style>%s</style></head><body><main>\n"
+            "<div class='eyebrow'>The Dive Bell · the record</div>\n<h1>Every ring, and the morning after</h1>\n"
+            "<p class='lead'>%s</p>\n"
+            "<p>A ring enters this ledger the moment it is made, with what was promised. Once the window has "
+            "passed, the instruments testify - the buoy during the window, the wind, the rain, the sky - and the "
+            "entry is judged held or broke. A promise the bell withdrew before the morning is marked taken back. "
+            "Nobody edits this page.</p>\n%s\n"
+            "<footer>Rewritten every run by The Dive Bell · updated %s · <a href='/'>the board</a> · "
+            "<a href='/data/record.json'>data</a> · <a href='/feed.xml'>feed</a></footer>\n</main></body></html>\n"
+            % (SITE_URL, esc(record_line(tally)), BELL_PAGE_CSS, esc(record_line(tally)), body,
+               esc(t_now.strftime("%a %b %-d, %-I:%M%p %Z").replace("AM", "am").replace("PM", "pm"))))
+
+
+def write_record(state, t_now):
+    os.makedirs(os.path.join(ROOT, "record"), exist_ok=True)
+    with open(os.path.join(ROOT, "record", "index.html"), "w") as f:
+        f.write(record_page(state, t_now))
+    pub = {}
+    for zk, zc in CONFIG["zones"].items():
+        if zc.get("enabled"):
+            ents = ring_ledger(zk, state)
+            pub[zk] = {"bell": zc["bell"]["name"], "record": ledger_record(ents, t_now),
+                       "rings": [{k: v for k, v in e.items() if k not in ("texted",)} for e in ents]}
+    with open(os.path.join(DATA, "record.json"), "w") as f:
+        json.dump({"updated": t_now.isoformat(), "bells": pub}, f, indent=1, default=str)
+
+
+# ───────────────────────── the feed ───────────────────────────────────────────
+
+FEED_TITLES = {"ring": "The bell is ringing", "takeback": "The bell takes back its word",
+               "week": "The week ahead", "hazard": "The bell will not ring", "record": "The record"}
+
+
+def write_feed(state):
+    """RSS of everything the bell says in public - rings, take-backs, the
+    week, a vetoed 7, the record. No account needed to follow it, and any
+    RSS-to-social bridge can carry it where the bell has no keys."""
+    from xml.sax.saxutils import escape as x
+    items = []
+    for it in sorted(state.get("feed", []), key=lambda i: i["date"], reverse=True)[:50]:
+        dt = datetime.fromisoformat(it["date"]).astimezone(timezone.utc)
+        items.append("<item><title>%s</title><link>%s</link><guid isPermaLink=\"false\">%s</guid>"
+                     "<pubDate>%s</pubDate><description>%s</description></item>"
+                     % (x(it["title"]), x(it["link"]), x(it["key"]),
+                        dt.strftime("%a, %d %b %Y %H:%M:%S GMT"), x(it["text"])))
+    xml = ("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<rss version=\"2.0\"><channel>"
+           "<title>The Dive Bell</title><link>%s/</link>"
+           "<description>Rings, take-backs, the week ahead and the record, from a bell that texts divers "
+           "only when the water is perfect.</description><language>en-us</language>%s</channel></rss>\n"
+           % (SITE_URL, "".join(items)))
+    with open(os.path.join(ROOT, "feed.xml"), "w") as f:
+        f.write(xml)
+    return xml
+
+
 def _long_date(iso):
     d = datetime.strptime(iso, "%Y-%m-%d")
     return d.strftime("%B %-d, %Y")
@@ -4079,19 +4514,17 @@ def bell_page(zk, bz, zc, state, t_now):
                   "there the rare morning this water is perfect, and the week's forecast arrives "
                   "every Wednesday.</p></div>" % esc(bz.get("topic") or ""))
 
+    rec_l = ledger_record(ledger, t_now)
     if ledger:
-        lrows = []
-        for r in ledger:
-            back = ", ".join("%d %s" % (n, k) for k, n in sorted(r["verdicts"].items())) or "no word back yet"
-            lrows.append("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>" % (
-                esc(_long_date(r["date"])), esc(r["kind"]), esc(r.get("cove") or "-"), esc(back)))
-        ledger_h = ("<table><thead><tr><th>Rang</th><th>Window</th><th>Cove</th><th>Divers reported</th></tr></thead>"
-                    "<tbody>%s</tbody></table>" % "".join(lrows))
-        if len(ledger) < 5:
-            ledger_h += "<p>A diary until five rings; a score after.</p>"
+        ledger_h = "<p><b>%s</b></p>%s" % (esc(record_line(rec_l)), ledger_table_html(sorted(ledger, key=lambda e: e["date"], reverse=True), esc))
+        if rec_l["rings"] < 5:
+            ledger_h += "<p class='small'>A diary until five rings; a score after. <a href='/record/'>Every bell's record &rarr;</a></p>"
+        else:
+            ledger_h += "<p class='small'><a href='/record/'>Every bell's record &rarr;</a></p>"
     else:
-        ledger_h = ("<p>This bell has not yet rung by text. When it does, every ring is entered "
-                    "here with what divers reported back - a diary until five rings, a score after.</p>")
+        ledger_h = ("<p>This bell has not yet rung. When it does, the ring enters here the moment it is made, "
+                    "and the morning after, the buoy, the wind, the rain and the sky testify to whether it held. "
+                    "<a href='/record/'>Every bell's record &rarr;</a></p>")
 
     season = bz.get("season_note")
     casting = bz.get("casting") or {}
@@ -4122,6 +4555,7 @@ def bell_page(zk, bz, zc, state, t_now):
             "<meta name='twitter:card' content='summary'>\n"
             "<meta name='theme-color' content='#071d36'>\n"
             "<link rel='manifest' href='/manifest.webmanifest'>\n"
+            "<link rel='alternate' type='application/rss+xml' title='The Dive Bell' href='/feed.xml'>\n"
             "<script type='application/ld+json'>%(ld)s</script>\n"
             "<style>%(css)s</style></head><body><main>\n"
             "<div class='eyebrow'>The Dive Bell · Bell No. %(no)s · %(region)s</div>\n"
@@ -4136,7 +4570,7 @@ def bell_page(zk, bz, zc, state, t_now):
             "%(join)s\n"
             "<h2>The ledger</h2>\n%(ledger)s\n"
             "<footer>Read three times a day by The Dive Bell · updated %(updated)s · "
-            "<a href='/#%(slug)s'>the board</a> · <a href='/data/zones.json'>data</a> · "
+            "<a href='/#%(slug)s'>the board</a> · <a href='/record/'>the record</a> · <a href='/data/zones.json'>data</a> · "
             "<a href='/sms/'>texting terms</a><br>The ocean has the last word: this is a "
             "reading, not a lifeguard.</footer>\n"
             "</main></body></html>\n") % {
@@ -4156,7 +4590,7 @@ def sitemap_xml(slugs, t_now):
     return ("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
             "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n%s\n</urlset>\n"
             % "\n".join([url("/", "daily")] + [url("/%s/" % s, "daily") for s in sorted(slugs)]
-                        + [url("/sms/", "monthly")]))
+                        + [url("/record/", "daily"), url("/sms/", "monthly")]))
 
 
 def write_bell_pages(board, state, t_now):
@@ -4192,9 +4626,16 @@ def social_enqueue(state, key, kind, text, card=None, alt=None):
     q = state.setdefault("social_queue", [])
     if key in posted or any(i["key"] == key for i in q):
         return False
+    now_iso = datetime.now(timezone.utc).isoformat()
     q.append({"key": key, "kind": kind, "text": text[:SOCIAL_TEXT_MAX], "card": card,
-              "alt": (alt or text)[:400], "created": datetime.now(timezone.utc).isoformat(),
-              "done": []})
+              "alt": (alt or text)[:400], "created": now_iso, "done": []})
+    # everything said in public is also an item in the feed, keys or no keys
+    link = re.search(r"%s/[^\s]*" % re.escape(SITE_HOST), text)
+    feed = state.setdefault("feed", [])
+    feed.append({"key": key, "kind": kind, "title": FEED_TITLES.get(kind, "The Dive Bell"),
+                 "text": text, "date": now_iso,
+                 "link": ("https://" + link.group(0)) if link else SITE_URL + "/"})
+    del feed[:-100]
     return True
 
 
@@ -4281,12 +4722,34 @@ def social_enqueue_week(state, board, t_now):
                           "The Dive Bell, the week ahead across %d bells. %s" % (len(rows), top3))
 
 
+def social_enqueue_record(state, zk, zc, e, rec):
+    """The morning after, in public: the bell says whether it was right."""
+    m = e.get("morning") or {}
+    if m.get("verdict") not in ("held", "broke"):
+        return False
+    name = zc["bell"]["name"]
+    when = "%s %s" % (datetime.fromisoformat(e["start"]).strftime("%a"), e.get("kind", "dawn"))
+    tally = "%d rings, %d held" % (rec["rings"], rec["held"]) + (", %d broke" % rec["broke"] if rec["broke"] else "")
+    if m["verdict"] == "held":
+        text = ("%s rang for %s and the ocean kept the appointment: %s. The record: %s. %s/record/"
+                % (name, when, morning_words(e), tally, SITE_HOST))
+        head, line = "THE BELL KEPT ITS WORD", "%s · %s · held" % (name, when)
+    else:
+        text = ("%s rang for %s and the morning broke its word: %s. The bell says so. The record: %s. %s/record/"
+                % (name, when, morning_words(e), tally, SITE_HOST))
+        head, line = "THE BELL WAS WRONG", "%s · %s · broke: %s" % (name, when, ", ".join(m.get("failed") or []))
+    card = {"kind": "record", "head": head, "eyebrow": "THE DIVE BELL · THE RECORD",
+            "lines": [line, morning_words(e), "The record: " + tally], "foot": SITE_HOST + "/record/"}
+    return social_enqueue(state, "record:%s:%s" % (zk, e["wkey"]), "record", text, card)
+
+
 def card_svg(card):
     """One visual grammar for every post: navy water, the bell, one headline,
     a few lines, the way in. 1200x630, the size every network unfurls."""
     from xml.sax.saxutils import escape as x
-    head = {"ring": "THE BELL IS RINGING", "takeback": "THE BELL TAKES BACK ITS WORD",
-            "week": "THE WEEK AHEAD", "hazard": "THE BELL WILL NOT RING"}.get(card.get("kind"), "THE DIVE BELL")
+    head = card.get("head") or {"ring": "THE BELL IS RINGING", "takeback": "THE BELL TAKES BACK ITS WORD",
+                                "week": "THE WEEK AHEAD", "hazard": "THE BELL WILL NOT RING",
+                                "record": "THE RECORD"}.get(card.get("kind"), "THE DIVE BELL")
     serif, mono = "Georgia, 'DejaVu Serif', serif", "Menlo, 'DejaVu Sans Mono', monospace"
     svg = ['<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">',
            '<rect width="1200" height="630" fill="#071d36"/>',
@@ -4502,6 +4965,9 @@ def cmd_run(args):
                  "".join(own) or "none yet"))
     zone_errors = {}   # one bell's failure must not silence the other fourteen
     weekly_any = False
+    seeded = ledger_seed(state, t_now)
+    if seeded:
+        print("the record: %d rings entered from the score log" % seeded)
     quiet = {}   # instrument -> bells it went quiet at, said once per run (2026-10-08: two texts for one dead server)
     for zk, zc in CONFIG["zones"].items():
         try:
@@ -4633,6 +5099,9 @@ def cmd_run(args):
                     if payload.get("gate"):
                         sms_ring(zk, zc, payload, state, args.dry_run, sst_c=sst)
                         social_enqueue_ring(state, zk, zc, payload, sst)   # said in public, once
+                        ledger_promise(state, zk, zc, payload, sst, t_now,   # and entered in the record
+                                       texted=len(state.get("sms_rung_nums", {}).get(
+                                           "%s:%s" % (zk, payload["w"]["key"]), [])), fetches=fetches)
                     if delivered:
                         rec["promises"] += 1   # a promise nobody heard is not a promise
                     for r in rows:
@@ -4645,18 +5114,19 @@ def cmd_run(args):
             # the first quiet-legal run of the week (see sms_digest)
             sms_digest(zk, zc, scored, state, args.dry_run, weekly=weekly)
             append_log(LOG_PATH, LOG_COLS, rows, args.dry_run)
-            # the bell remembers: a ring is recorded only when its DAY HAS COME —
-            # a qualifying forecast is a promise, not history (audit repair
-            # 2026-09-14: nine bells were publishing future dates as past rings)
-            today_loc = t_now.astimezone(zone_tz(zc)).date().isoformat()
-            gate_days_seen = [s["w"]["start"].date().isoformat() for s in scored
-                              if s.get("gate")
-                              and s["w"]["start"].date().isoformat() <= today_loc]
-            if gate_days_seen:
-                prev = state.setdefault("last_ring", {}).get(zk)
-                if max(gate_days_seen) != prev:
-                    rec["rings"] += 1
-                state["last_ring"][zk] = max(gate_days_seen)
+            # the record: standing promises re-read, passed windows judged by
+            # the instruments, and the tally the bell can stand behind. A ring
+            # counts only when its morning has come (audit repair 2026-09-14).
+            ledger_watch(state, zk, scored, t_now)
+            if not args.offline:
+                for judged in ledger_verify(state, zk, zc, fetches, t_now):
+                    social_enqueue_record(state, zk, zc, judged,
+                                          ledger_record(state["ring_ledger"].get(zk, []), t_now))
+            lr = ledger_record(state.get("ring_ledger", {}).get(zk, []), t_now)
+            rec.update(rings=lr["rings"], held=lr["held"], broke=lr["broke"],
+                       taken_back=lr["taken_back"], unverified=lr["unverified"])
+            if lr["last_ring"]:
+                state.setdefault("last_ring", {})[zk] = lr["last_ring"]
             board[zk] = board_entry(zk, zc, scored, state, rec, ztopic, sst, fetches, t_now)
 
         except Exception as e:
@@ -4667,12 +5137,11 @@ def cmd_run(args):
             zone_errors[zk] = str(e)[:120]
             print("ZONE %s FAILED: %s" % (zk, e), file=sys.stderr)
             traceback.print_exc()
-    for dead, bells in quiet.items():
+    n_bells = sum(1 for z in CONFIG["zones"].values() if z.get("enabled"))
+    for msg, bearing in quiet_notices(quiet, n_bells):
         notify_ops({"title": "An instrument went quiet 🔧",
-                    "message": "%s has failed %d straight runs (~3 days) at %s. The bells score on "
-                               "without it, at lower confidence. github.com/PacificVanguard/dive-alert/actions"
-                               % (dead, SENTINEL_RUNS, ", ".join(bells)),
-                    "priority": 4}, args.dry_run)
+                    "message": msg + " github.com/PacificVanguard/dive-alert/actions", "priority": 4},
+                   args.dry_run, text=bearing, sms_text=msg)
     if zone_errors:
         notify_ops({"title": "Bells failed this run 🔧",
                     "message": "%d of %d: %s" % (len(zone_errors), len(CONFIG["zones"]),
@@ -4685,6 +5154,8 @@ def cmd_run(args):
     # body now carries the reading itself (see bell_page). Plus sitemap.xml.
     if not args.dry_run and board:
         write_bell_pages(board, state, t_now)
+        write_record(state, t_now)
+        write_feed(state)
         os.makedirs(DATA, exist_ok=True)
         # a bell that failed this run keeps its last plate, marked stale —
         # one dead fetch must not blank a bell off the public board
@@ -6777,10 +7248,10 @@ def cmd_test(args):
     pg_o = bell_page("O", bz_o, CONFIG["zones"]["O"], {}, t_y)
     check("(yy) an app-only bell joins through ntfy, not a text",
           bz_o["join"].get("app") == "ntfy" and "Through the free ntfy app" in pg_o
-          and "Text <code>" not in pg_o and "has not yet rung by text" in pg_o)
+          and "Text <code>" not in pg_o and "has not yet rung" in pg_o)
     sm = sitemap_xml(["laguna-beach", "sydney"], t_y)
     check("(yy) the sitemap lists the board, every bell, and the terms",
-          sm.count("<url>") == 4 and "/laguna-beach/</loc>" in sm and "/sms/</loc>" in sm)
+          sm.count("<url>") == 5 and "/laguna-beach/</loc>" in sm and "/record/</loc>" in sm and "/sms/</loc>" in sm)
 
     # (zz) the public voice: rings, take-backs, the week and a vetoed 7 are
     # queued as debts, once each, within X's limit, with a card that is valid
@@ -7078,6 +7549,111 @@ def cmd_test(args):
           back_ak[0].get("anchor", "") == "" and back_ak[0]["score"] == "1.0"
           and back_ak[1]["anchor"] == "" and back_ak[2]["anchor"] == "1.6" and back_ak[2]["zone"] == "P",
           str(back_ak))
+
+    # (rc) the record: a ring enters the ledger when made, is taken back when
+    # its gate collapses, and is judged by the instruments after the window;
+    # the tally, the words, the page, the feed; and one ops line per host
+    st_r = {"ring_ledger": {}}
+    pr = dict(sc_y[0], entries=["Shaw's Cove"])   # a fixture-scored window: feats, parts, start and end
+    t_r = pr["w"]["start"] - timedelta(hours=20)
+    check("(rc) a ring enters the ledger once, as a promise",
+          ledger_promise(st_r, "A", zc, pr, 20.0, t_r, texted=2) and not ledger_promise(st_r, "A", zc, pr, 20.0, t_r)
+          and st_r["ring_ledger"]["A"][0]["status"] == "rung" and st_r["ring_ledger"]["A"][0]["texted"] == 2
+          and st_r["ring_ledger"]["A"][0]["forecast"]["swell_ft"] is not None)
+    gone = dict(pr, gate=False, gate_raw=False, limit="swell")
+    ledger_watch(st_r, "A", [gone], t_r + timedelta(hours=6))
+    check("(rc) a collapsed gate takes the promise back; a returned one stands it again",
+          st_r["ring_ledger"]["A"][0]["status"] == "taken back" and st_r["ring_ledger"]["A"][0]["taken_back"]["why"] == "swell"
+          and (ledger_watch(st_r, "A", [dict(pr, gate_raw=True)], t_r + timedelta(hours=7)) or True)
+          and st_r["ring_ledger"]["A"][0]["status"] == "rung")
+    ws, we = pr["w"]["start"], pr["w"]["end"]
+    hrs = [ws - timedelta(hours=h) for h in range(72, 0, -1)] + [ws + timedelta(hours=h) for h in range(0, 4)]
+    mkwx = lambda wind, rain, cloud: Fetch("weather", True, {
+        "wind_speed_10m": {t: (wind if ws <= t <= we else 2.0) for t in hrs},
+        "precipitation": {t: rain for t in hrs}, "cloud_cover": {t: cloud for t in hrs}})
+    buoy = Fetch("ndbc_primary", True, {"rows": [{"t": (ws + timedelta(minutes=30 * i)).astimezone(timezone.utc),
+                                                   "wvht_m": 0.35, "dpd_s": 14.0, "mwd_deg": 200} for i in range(6)]})
+    st_r["ring_ledger"]["A"][0]["forecast"]["buoy_expect_ft"] = 1.4
+    j = ledger_verify(st_r, "A", zc, {"weather": mkwx(3.0, 0.0, 10), "ndbc_primary": buoy}, we + timedelta(hours=3))
+    e_r = st_r["ring_ledger"]["A"][0]
+    check("(rc) a calm, dry, clear morning with a small buoy is judged held, from the feed",
+          len(j) == 1 and e_r["morning"]["verdict"] == "held" and e_r["morning"]["weather_source"] == "feed"
+          and e_r["morning"]["buoy_ft"] == 1.1 and e_r["morning"]["lights"] == {"glass": True, "dry": True, "sun": True, "flat": True},
+          str(e_r["morning"]))
+    st_r2 = {"ring_ledger": {"A": [dict(st_r["ring_ledger"]["A"][0], morning=None)]}}
+    st_r2["ring_ledger"]["A"][0].pop("morning")
+    ledger_verify(st_r2, "A", zc, {"weather": mkwx(12.0, 0.0, 10), "ndbc_primary": buoy}, we + timedelta(hours=3))
+    check("(rc) wind over the glass line breaks the promise, and the record names the light",
+          st_r2["ring_ledger"]["A"][0]["morning"]["verdict"] == "broke"
+          and st_r2["ring_ledger"]["A"][0]["morning"]["failed"] == ["glass"]
+          and verdict_words(st_r2["ring_ledger"]["A"][0]) == "broke - glass")
+    saved_arch = g7["archive_weather"]
+    g7["archive_weather"] = lambda zc_, s_, e_: None
+    try:
+        st_r3 = {"ring_ledger": {"A": [dict(st_r["ring_ledger"]["A"][0])]}}
+        st_r3["ring_ledger"]["A"][0].pop("morning")
+        ledger_verify(st_r3, "A", zc, {}, we + timedelta(hours=3))
+        check("(rc) with nothing to read, the entry waits and counts its tries - never invents",
+              "morning" not in st_r3["ring_ledger"]["A"][0] and st_r3["ring_ledger"]["A"][0]["verify_tries"] == 1)
+    finally:
+        g7["archive_weather"] = saved_arch
+    check("(rc) the window is not judged before it has passed",
+          ledger_verify({"ring_ledger": {"A": [dict(pr_e) for pr_e in st_r3["ring_ledger"]["A"]]}}, "A", zc,
+                        {"weather": mkwx(3.0, 0.0, 10)}, ws - timedelta(hours=2)) == [])
+    tally = ledger_record([e_r, st_r2["ring_ledger"]["A"][0], dict(e_r, status="taken back", date="2026-08-01")], we + timedelta(days=1))
+    check("(rc) the tally: rings whose morning came, held, broke, taken back",
+          tally == {"rings": 2, "held": 1, "broke": 1, "taken_back": 1, "unverified": 0, "last_ring": e_r["date"]}
+          and record_line(tally) == "2 rings - 1 held, 1 broke, 1 taken back before the morning."
+          and "(100% held)" in record_line({"rings": 5, "held": 5, "broke": 0, "taken_back": 0, "unverified": 0}),
+          "%s | %s" % (tally, record_line(tally)))
+    check("(rc) the morning and the promise in words",
+          morning_words(e_r) == "buoy 1.1 ft @ 14.0 s, wind 3.0 kn, dry, cloud 10%" and promise_words(e_r).startswith("%.1f" % e_r["score"])
+          and "buoy ~1.4 ft" in promise_words(e_r))
+    st_r4 = {"ring_ledger": {"A": [dict(st_r["ring_ledger"]["A"][0])]}}
+    st_r4["ring_ledger"]["A"][0].pop("morning")
+    ledger_verify(st_r4, "A", zc, {"weather": mkwx(3.0, 0.002, 10), "ndbc_primary": buoy}, we + timedelta(hours=3))
+    check("(rc) a trace of drizzle is not rain - the gate's own 0.2 in rule judges dry",
+          st_r4["ring_ledger"]["A"][0]["morning"]["verdict"] == "held"
+          and st_r4["ring_ledger"]["A"][0]["morning"]["rain_in"] >= 0.1, str(st_r4["ring_ledger"]["A"][0]["morning"]))
+    check("(rc) without a buoy expectation the flat light is not read, never guessed",
+          "flat" not in ledger_verify({"ring_ledger": {"A": [dict(e_r, morning=None, forecast=dict(e_r["forecast"], buoy_expect_ft=None))]}}
+                                      if False else {"ring_ledger": {"A": [{k: v for k, v in dict(e_r, forecast=dict(e_r["forecast"], buoy_expect_ft=None)).items() if k != "morning"}]}},
+                                      "A", zc, {"weather": mkwx(3.0, 0.0, 10), "ndbc_primary": buoy}, we + timedelta(hours=3))[0]["morning"]["lights"])
+    check("(rc) the buoy expectation is the model's height over the window, in this bell's scale",
+          buoy_expectation_ft(zc, {"marine": Fetch("marine", True, {"wave_height": {ws: 0.5, ws + timedelta(hours=1): 0.5}})}, pr["w"])
+          == round(0.5 * model_height_scale(zc) * 3.281, 1) and buoy_expectation_ft(zc, {}, pr["w"]) is None)
+    st_seed = {"sms_rung_nums": {"A:20260916T0605-dawn": ["x"]}}
+    n_seed = ledger_seed(st_seed, datetime(2026, 10, 29, 12, 0, tzinfo=PT))
+    seeded_a = [e for e in st_seed["ring_ledger"].get("A", []) if e["wkey"] == "20260916T0605-dawn"]
+    check("(rc) the seed reads the log once, keeps only mornings that have come, and remembers a texted ring taken back",
+          n_seed >= 0 and all(datetime.fromisoformat(e["start"]) <= datetime(2026, 10, 29, 12, 0, tzinfo=PT)
+                              for L in st_seed["ring_ledger"].values() for e in L)
+          and ledger_seed(st_seed) == 0
+          and (not seeded_a or (seeded_a[0]["status"] in ("rung", "taken back") and seeded_a[0]["texted"] == 1)),
+          "seeded %d" % n_seed)
+    pg_r = bell_page("A", bz_y, zc, st_r, we + timedelta(hours=3))
+    check("(rc) the bell page carries the record line and the morning",
+          "1 ring - 1 held." in pg_r and "buoy 1.1 ft @ 14.0 s" in pg_r and "Every bell's record" in pg_r)
+    rp = record_page(dict(st_r, sms_rung_nums={}), we + timedelta(hours=3))
+    check("(rc) the record page lists every bell's rings, newest first, with the verdict",
+          "Every ring, and the morning after" in rp and "Laguna Beach" in rp and ">held<" in rp and "1 ring - 1 held." in rp)
+    st_f = {}
+    social_enqueue_record(st_f, "A", zc, e_r, tally)
+    social_enqueue_ring(st_f, "A", zc, pr, 20.0)
+    xml_f = write_feed(st_f)
+    import xml.dom.minidom as _md
+    try:
+        dom = _md.parseString(xml_f)
+        n_items = len(dom.getElementsByTagName("item"))
+    except Exception:
+        n_items = -1
+    check("(rc) every public word is an RSS item, and the feed is well-formed",
+          n_items == 2 and "kept the appointment" in xml_f and "thedivebell.com/record/" in xml_f
+          and st_f["feed"][0]["title"] == "The record", "items=%d" % n_items)
+    qn = quiet_notices({"sst": ["Laguna Beach", "Maui"], "kd490": ["Laguna Beach", "Maui"], "ndbc_primary": ["Monterey"]}, 2)
+    check("(rc) one ops line per host; CoastWatch is no action and no text, the buoy is worth a text",
+          len(qn) == 2 and any(m.startswith("CoastWatch dark ~3 days (kd490, sst) at all 2 bells") and not t for m, t in qn)
+          and any(m.startswith("the buoy dark") and t for m, t in qn) and all(len(m) <= 150 for m, t in qn), str(qn))
 
     # fixture suite: degraded + disagreement
     print("fixture tests:")

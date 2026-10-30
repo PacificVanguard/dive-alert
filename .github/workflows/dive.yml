@@ -155,6 +155,20 @@ jobs:
           echo "could not land the data commit after 3 attempts"
           exit 1
 
+      # Search engines that speak IndexNow (Bing, DuckDuckGo, Yandex, and the
+      # assistants that search through them) learn of every rewritten page
+      # within minutes instead of whenever they next crawl. Google does not
+      # listen to IndexNow; it follows the sitemap. Free, keyless, one POST.
+      - name: Tell the search engines (IndexNow)
+        if: steps.guard.outputs.go != 'no' && steps.guard.outputs.go != 'ingest'
+        continue-on-error: true
+        run: |
+          KEY=$(tr -d '[:space:]' < indexnow.txt)
+          URLS=$(grep -o '<loc>[^<]*</loc>' sitemap.xml | sed 's/<[^>]*>//g; s/.*/"&"/' | paste -sd, -)
+          curl -s -o /dev/null -w "indexnow: %{http_code}\n" -H "Content-Type: application/json; charset=utf-8" \
+            -d "{\"host\":\"thedivebell.com\",\"key\":\"$KEY\",\"keyLocation\":\"https://thedivebell.com/indexnow.txt\",\"urlList\":[$URLS]}" \
+            https://api.indexnow.org/indexnow
+
       # The keeper reads texts, not GitHub's email. On any failure, say so
       # by SMS with the run link. Silent when KEEPER_PHONE is unset.
       - name: Text the keeper on failure
