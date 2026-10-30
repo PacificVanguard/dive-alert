@@ -3700,7 +3700,7 @@ def ring_ledger(zk, state):
     leave the state."""
     rings = {}
     for e in state.get("ring_ledger", {}).get(zk, []):
-        rings[e["date"]] = dict(e, verdicts={}, cove=e.get("cove") or log_cove(zk, e["wkey"]))
+        rings[e["wkey"]] = dict(e, verdicts={}, cove=e.get("cove") or log_cove(zk, e["wkey"]))
     for key in state.get("sms_rung_nums", {}):
         z, _, wkey = key.partition(":")
         if z != zk:
@@ -3710,20 +3710,24 @@ def ring_ledger(zk, state):
             day = datetime.strptime(stamp, "%Y%m%dT%H%M").date().isoformat()
         except ValueError:
             continue
-        if day in rings:
+        if wkey in rings:
             continue
         start = datetime.strptime(stamp, "%Y%m%dT%H%M").replace(tzinfo=PT)
-        rings[day] = {"wkey": wkey, "date": day, "kind": kind or "dawn", "verdicts": {}, "cove": log_cove(zk, wkey),
+        rings[wkey] = {"wkey": wkey, "date": day, "kind": kind or "dawn", "verdicts": {}, "cove": log_cove(zk, wkey),
                       "start": start.isoformat(), "end": (start + timedelta(hours=3)).isoformat(),
                       "status": "taken back", "taken_back": {"why": "the last reading had gone quiet"}, "score": None}
     if rings and os.path.exists(DIVE_LOG):
+        by_day = {}
+        for e in rings.values():
+            by_day.setdefault(e["date"], []).append(e)
         with open(DIVE_LOG) as f:
             for r in csv.DictReader(f):
-                ring = rings.get((r.get("ts") or "")[:10]) if r.get("zone") == zk else None
-                if ring:
+                if r.get("zone") != zk:
+                    continue
+                for ring in by_day.get((r.get("ts") or "")[:10], []):
                     c = VERDICT_WORDS.get((r.get("category") or "").lower(), (r.get("category") or "?").upper())
                     ring["verdicts"][c] = ring["verdicts"].get(c, 0) + 1
-    return [rings[d] for d in sorted(rings)]
+    return sorted(rings.values(), key=lambda e: e.get("start") or e["date"])
 
 
 GATE_AXES = ("flat", "glass", "dry", "sun", "warm")
@@ -4725,7 +4729,7 @@ def social_enqueue_week(state, board, t_now):
 def social_enqueue_record(state, zk, zc, e, rec):
     """The morning after, in public: the bell says whether it was right."""
     m = e.get("morning") or {}
-    if m.get("verdict") not in ("held", "broke"):
+    if m.get("verdict") not in ("held", "broke") or e.get("seeded"):
         return False
     name = zc["bell"]["name"]
     when = "%s %s" % (datetime.fromisoformat(e["start"]).strftime("%a"), e.get("kind", "dawn"))
@@ -7625,6 +7629,9 @@ def cmd_test(args):
     st_seed = {"sms_rung_nums": {"A:20260916T0605-dawn": ["x"]}}
     n_seed = ledger_seed(st_seed, datetime(2026, 10, 29, 12, 0, tzinfo=PT))
     seeded_a = [e for e in st_seed["ring_ledger"].get("A", []) if e["wkey"] == "20260916T0605-dawn"]
+    two = {"ring_ledger": {"A": [dict(e_r), dict(e_r, wkey=e_r["wkey"] + "x", kind="dusk")]}}
+    check("(rc) a dawn and a dusk on one day are two rings, and a seeded morning is history, not a post",
+          len(ring_ledger("A", two)) == 2 and not social_enqueue_record({}, "A", zc, dict(e_r, seeded=True), tally))
     check("(rc) the seed reads the log once, keeps only mornings that have come, and remembers a texted ring taken back",
           n_seed >= 0 and all(datetime.fromisoformat(e["start"]) <= datetime(2026, 10, 29, 12, 0, tzinfo=PT)
                               for L in st_seed["ring_ledger"].values() for e in L)
