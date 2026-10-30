@@ -651,10 +651,10 @@
    "bell": "Point Lobos",
    "record": {
     "rings": 1,
-    "held": 0,
+    "held": 1,
     "broke": 0,
     "taken_back": 0,
-    "unverified": 1,
+    "unverified": 0,
     "last_ring": "2026-10-17"
    },
    "rings": [
@@ -681,8 +681,18 @@
       "buoy_ft": 6.9,
       "buoy_s": 13.0,
       "buoy_n": 3,
-      "lights": {},
-      "verdict": "unverified",
+      "weather_source": "archive",
+      "wind_kn": 5.3,
+      "cloud_pct": 0,
+      "rain_in": 0.0,
+      "rain_win_in": 0.0,
+      "rain_span_h": 73,
+      "lights": {
+       "glass": true,
+       "dry": true,
+       "sun": true
+      },
+      "verdict": "held",
       "failed": [],
       "verified_at": "2026-10-29T21:00:00-07:00"
      },

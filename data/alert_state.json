@@ -1,15 +1,5 @@
 {
  "streaks": {
-  "D": {
-   "score": 7.6,
-   "entries": [
-    "La Jolla Cove",
-    "La Jolla Shores (Canyon)"
-   ],
-   "window_key": "20261028T0633-dawn",
-   "since": "2026-10-22T14:00:00-07:00",
-   "gate": false
-  },
   "F": {
    "score": 7.0,
    "entries": [
@@ -28,6 +18,16 @@
    ],
    "window_key": "20261031T0700-dawn",
    "since": "2026-10-29T15:00:00-07:00",
+   "gate": false
+  },
+  "E": {
+   "score": 8.8,
+   "entries": [
+    "McAbee Beach",
+    "Breakwater (San Carlos)"
+   ],
+   "window_key": "20261031T1611-dusk",
+   "since": "2026-10-29T21:00:00-07:00",
    "gate": false
   }
  },
@@ -134,13 +134,13 @@
   "K:ndbc_spec": 0,
   "L:marine": 0,
   "L:weather": 0,
-  "L:ndbc_primary": 180,
-  "L:ndbc_offshore": 180,
-  "L:tides": 180,
+  "L:ndbc_primary": 181,
+  "L:ndbc_offshore": 181,
+  "L:tides": 181,
   "L:sst": 0,
   "L:chla": 0,
   "L:kd490": 0,
-  "L:ndbc_spec": 180,
+  "L:ndbc_spec": 181,
   "M:marine": 0,
   "M:weather": 0,
   "M:ndbc_primary": 0,
@@ -162,12 +162,12 @@
   "O:marine": 0,
   "O:weather": 0,
   "O:ndbc_primary": 0,
-  "O:ndbc_offshore": 180,
-  "O:tides": 180,
+  "O:ndbc_offshore": 181,
+  "O:tides": 181,
   "O:sst": 0,
   "O:chla": 0,
   "O:kd490": 0,
-  "O:ndbc_spec": 180,
+  "O:ndbc_spec": 181,
   "P:marine": 0,
   "P:weather": 0,
   "P:ndbc_primary": 0,
@@ -235,7 +235,7 @@
    "unverified": 0
   },
   "E": {
-   "promises": 35,
+   "promises": 36,
    "rings": 4,
    "held": 2,
    "broke": 2,
@@ -261,10 +261,10 @@
   "H": {
    "promises": 21,
    "rings": 1,
-   "held": 0,
+   "held": 1,
    "broke": 0,
    "taken_back": 0,
-   "unverified": 1
+   "unverified": 0
   },
   "I": {
    "promises": 17,
@@ -331,7 +331,7 @@
    "unverified": 0
   }
  },
- "hook_idx": 238,
+ "hook_idx": 239,
  "axis_blind": {
   "flat": 0,
   "glass": 0,
@@ -383,8 +383,8 @@
  },
  "sms_rung_nums": {
   "A:20260916T0605-dawn": [
-   "+18054335692",
-   "+14046683867"
+   "a759eafee1810304",
+   "2851fe611844520f"
   ]
  },
  "sms_ring_due": {},
@@ -479,7 +479,7 @@
   "C": {},
   "D": {},
   "E": {
-   "20261104T1607-dusk": 3
+   "20261104T1607-dusk": 4
   },
   "F": {},
   "G": {},
@@ -487,18 +487,18 @@
   "I": {},
   "J": {},
   "K": {
-   "20261104T0555-dawn": 3,
-   "20261105T0556-dawn": 3
+   "20261104T0555-dawn": 4,
+   "20261105T0556-dawn": 4
   },
   "L": {
-   "20261105T0556-dawn": 4,
-   "20261105T1606-dusk": 4
+   "20261105T0556-dawn": 5,
+   "20261105T1606-dusk": 5
   },
   "M": {},
   "N": {},
   "O": {},
   "P": {
-   "20261105T1548-dusk": 3
+   "20261105T1548-dusk": 4
   }
  },
  "social_posted": {},
@@ -1372,8 +1372,18 @@
      "buoy_ft": 6.9,
      "buoy_s": 13.0,
      "buoy_n": 3,
-     "lights": {},
-     "verdict": "unverified",
+     "weather_source": "archive",
+     "wind_kn": 5.3,
+     "cloud_pct": 0,
+     "rain_in": 0.0,
+     "rain_win_in": 0.0,
+     "rain_span_h": 73,
+     "lights": {
+      "glass": true,
+      "dry": true,
+      "sun": true
+     },
+     "verdict": "held",
      "failed": [],
      "verified_at": "2026-10-29T21:00:00-07:00"
     }
