@@ -408,9 +408,9 @@
   "E": {
    "bell": "Monterey",
    "record": {
-    "rings": 3,
+    "rings": 4,
     "held": 2,
-    "broke": 1,
+    "broke": 2,
     "taken_back": 0,
     "unverified": 0,
     "last_ring": "2026-10-16"
@@ -481,6 +481,48 @@
       "buoy_n": 6,
       "weather_source": "archive",
       "wind_kn": 8.0,
+      "cloud_pct": 0,
+      "rain_in": 0.0,
+      "rain_win_in": 0.0,
+      "rain_span_h": 74,
+      "lights": {
+       "glass": false,
+       "dry": true,
+       "sun": true
+      },
+      "verdict": "broke",
+      "failed": [
+       "glass"
+      ],
+      "verified_at": "2026-10-29T21:00:00-07:00"
+     },
+     "verdicts": {}
+    },
+    {
+     "wkey": "20261016T0646-dawn",
+     "date": "2026-10-16",
+     "kind": "dawn",
+     "start": "2026-10-16T06:46:00-07:00",
+     "end": "2026-10-16T09:46:00-07:00",
+     "score": 8.8,
+     "cove": "McAbee Beach",
+     "promised_at": "2026-10-15T17:00:00-07:00",
+     "status": "rung",
+     "seeded": true,
+     "taken_back": null,
+     "forecast": {
+      "swell_ft": 1.5,
+      "per_s": 8.5,
+      "wind_kn": 3.0,
+      "cloud_pct": 0,
+      "sst_f": 67
+     },
+     "morning": {
+      "buoy_ft": 3.3,
+      "buoy_s": 13.0,
+      "buoy_n": 6,
+      "weather_source": "archive",
+      "wind_kn": 8.7,
       "cloud_pct": 0,
       "rain_in": 0.0,
       "rain_win_in": 0.0,
