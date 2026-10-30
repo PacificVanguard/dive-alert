@@ -200,6 +200,13 @@ deploy hash change with it) and whether to tell the two subscribers.
   serves a board more than 8h old (a Pages build was cancelled 2026-10-12
   and nothing noticed).
 - `_sms_history` pages at Twilio's maximum (1000) to exhaustion.
+- A missed morning is owed: `cmd_run` stamps `state["last_scored"]`; the
+  guard's midday slot runs `python dive_alert.py owed` and does the full
+  read when no scoring run has landed since 2am Pacific (`morning_owed`).
+- The forecast text says when it was read ("the week ahead as of Thu
+  1pm"), and the ear refuses an on-demand FORECAST when the board is more
+  than 36h old or the bell is marked stale (`STALE_HOURS` in incoming.js;
+  re-run `wire-sms` after any edit there).
 
 ## The record (2026-10-29) — every ring, and the morning after
 

@@ -143,10 +143,12 @@ async function logVerdict(verdict, water, w, status, sid) {
 }
 
 // The bell's own board — the same file the site reads.
+let boardUpdated = null;   // the board's own timestamp, read with every lookup
 async function zoneFor(name) {
   try {
     const r = await fetch("https://thedivebell.com/data/zones.json?t=" + Date.now());
     const d = await r.json();
+    boardUpdated = d.updated || null;
     return Object.values(d.zones).find(
       (x) => x.name === name || (x.bell && x.bell.name === name)
     ) || null;
@@ -159,8 +161,18 @@ async function zoneFor(name) {
 // forecast_sms — the Wednesday text and this on-demand reply are the same
 // words, so they cannot drift apart. The fallback only covers a board
 // published before that field existed.
+// A forecast older than a day and a half is not a forecast. The engine has
+// never been silent that long, but if it ever is, the ear must say so rather
+// than read yesterday's week as today's (2026-10-30).
+const STALE_HOURS = 36;
 async function forecastMessage(name) {
   const z = await zoneFor(name);
+  const ageH = boardUpdated ? (Date.now() - new Date(boardUpdated).getTime()) / 36e5 : null;
+  if (z && (z.stale || (ageH !== null && ageH > STALE_HOURS))) {
+    return "THE DIVE BELL - " + name.toUpperCase() + ". The bell has not read this water for " +
+      (ageH !== null ? Math.round(ageH) + " hours" : "a while") +
+      ", so there is no forecast to trust right now. The board will say when it is back: thedivebell.com";
+  }
   if (z && z.forecast_sms) return z.forecast_sms;
   if (z && z.windows && z.windows.length) {
     const best = z.windows.reduce((a, b) => (b.score > a.score ? b : a));

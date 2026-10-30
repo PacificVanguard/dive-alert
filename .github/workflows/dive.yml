@@ -71,7 +71,14 @@ jobs:
             # hour of lateness would have dropped the evening read too
             echo "go=yes" >> "$GITHUB_OUTPUT"      # the afternoon/evening read
           elif [ "$H" -ge 10 ] && [ "$H" -le 13 ]; then
-            echo "go=ingest" >> "$GITHUB_OUTPUT"   # midday: fold in button presses
+            # midday: fold in button presses - unless the crons never delivered
+            # this morning's read (2026-10-29: three of eleven days), in which
+            # case the morning is owed and is paid here, with the full run
+            if python dive_alert.py owed; then
+              echo "go=yes" >> "$GITHUB_OUTPUT"
+            else
+              echo "go=ingest" >> "$GITHUB_OUTPUT"
+            fi
           else
             echo "go=no" >> "$GITHUB_OUTPUT"
             echo "Skipping: local hour $H outside every window."

@@ -3065,7 +3065,7 @@ def score_word(score):
             else "rough")
 
 
-def sms_digest_text(zone_cfg, scored, footer=True):
+def sms_digest_text(zone_cfg, scored, footer=True, t_now=None):
     """The week ahead, sized for a phone and led by the answer: the best day
     in words, each day out of ten, then what the bell makes of it. The cove
     named is THIS bell's best entry for THAT window (best_entries), and is
@@ -3118,8 +3118,9 @@ def sms_digest_text(zone_cfg, scored, footer=True):
         close = "No ring in sight, but a morning worth having."
     else:
         close = "A quiet week."
-    text = "THE DIVE BELL - %s, the week ahead.\n%s\n%s\n%s" % (
-        zone_cfg["bell"]["name"].upper(), line, strip, close)
+    stamp = (t_now or datetime.now(timezone.utc)).astimezone(zone_tz(zone_cfg)).strftime("%a %-I%p").replace("AM", "am").replace("PM", "pm")
+    text = "THE DIVE BELL - %s, the week ahead as of %s.\n%s\n%s\n%s" % (
+        zone_cfg["bell"]["name"].upper(), stamp, line, strip, close)
     if footer:
         text += " Text BELL ONLY to stop these."
     return text
@@ -3591,6 +3592,23 @@ def score_zone(zone_key, zone_cfg, fetches, t_now, horizon_h=72, skill_corr=None
                        "conf_notes": notes, "entries": entries, "tide_fyi": tide_fyi,
                        "band": band, "gate": gate_ok, "hazard": hazard, "axes": axes})
     return scored
+
+
+def morning_owed(state, t_now):
+    """True when no scoring run has landed since 2am Pacific today: the
+    midday slot then scores instead of only ingesting. Measured 2026-10-29:
+    three of eleven days had no morning read at all (crons up to 7h late).
+    The flicker rule is untouched - this is one more honest reading, not
+    a second ring path."""
+    pt = t_now.astimezone(ZoneInfo("America/Los_Angeles"))
+    last = state.get("last_scored")
+    if not last:
+        return True
+    try:
+        last_pt = datetime.fromisoformat(last).astimezone(ZoneInfo("America/Los_Angeles"))
+    except ValueError:
+        return True
+    return last_pt < pt.replace(hour=2, minute=0, second=0, microsecond=0)
 
 
 def weekly_owed(zk, state, t_now):
@@ -5297,6 +5315,7 @@ def cmd_run(args):
                                "github.com/PacificVanguard/dive-alert/actions" % axis,
                     "priority": 5}, args.dry_run)
 
+    state["last_scored"] = t_now.isoformat()   # the midday slot reads this to know if the morning was missed
     save_state(state, args.dry_run)
     if not any_swell_ok:
         ping_health(ok=False, msg="all swell sources failed")
@@ -7271,6 +7290,8 @@ def cmd_test(args):
                       for zk, z in CONFIG["zones"].items() if z.get("enabled"))
         check("(vv) the longest forecast text fits two segments", longest <= SMS_SEGMENT_MAX,
               "longest=%d" % longest)
+        stamped = sms_digest_text(zc, ring_week, t_now=datetime(2026, 10, 29, 13, 5, tzinfo=PT))
+        check("(vv) the forecast says when it was read", "the week ahead as of Thu 1pm." in stamped, stamped[:70])
         del rung_texts[:]
         sms_ring("A", zc, ring_week[1], {}, False)
         check("(vv) with no temperature it says warm, never a made-up number",
@@ -7857,6 +7878,18 @@ def cmd_test(args):
     pub = open(os.path.join(ROOT, "index.html")).read() + open(os.path.join(ROOT, "sms", "index.html")).read()
     check("(pi) no page promises a fixed number of rings a year - each bell's record speaks", "dozen" not in pub.lower())
 
+    # (ow) a missed morning is owed: the midday slot scores when no run has
+    # landed since 2am Pacific today, and only then
+    noon = datetime(2026, 10, 29, 11, 30, tzinfo=PT)
+    check("(ow) a morning read that landed means nothing is owed",
+          not morning_owed({"last_scored": datetime(2026, 10, 29, 3, 40, tzinfo=PT).isoformat()}, noon))
+    check("(ow) a last read from yesterday evening, or none at all, means the morning is owed",
+          morning_owed({"last_scored": datetime(2026, 10, 28, 19, 10, tzinfo=PT).isoformat()}, noon)
+          and morning_owed({}, noon) and morning_owed({"last_scored": "garbage"}, noon))
+    check("(ow) a read at 1:59am does not count as this morning; one at 2:01am does",
+          morning_owed({"last_scored": datetime(2026, 10, 29, 1, 59, tzinfo=PT).isoformat()}, noon)
+          and not morning_owed({"last_scored": datetime(2026, 10, 29, 2, 1, tzinfo=PT).isoformat()}, noon))
+
     # fixture suite: degraded + disagreement
     print("fixture tests:")
     for name in ("degraded", "disagreement"):
@@ -7924,6 +7957,7 @@ def main():
     p_skill.add_argument("--notify", action="store_true")
     sub.add_parser("ingest")
     sub.add_parser("share")
+    sub.add_parser("owed", help="exit 0 when today's morning read never landed (the guard scores instead of ingesting)")
     p_post = sub.add_parser("post", help="pay the public-voice queue to every wired account")
     p_post.add_argument("--dry-run", action="store_true")
     p_sc = sub.add_parser("smscheck")
@@ -7967,6 +8001,10 @@ def main():
         cmd_skill(args)
     elif args.cmd == "post":
         cmd_post(args)
+    elif args.cmd == "owed":
+        owed = morning_owed(load_state(), now_pt())
+        print("morning read: %s" % ("OWED - no scoring run since 2am Pacific today" if owed else "landed"))
+        sys.exit(0 if owed else 1)
     elif args.cmd == "cast":
         cmd_cast(args)
     elif args.cmd == "setup":
