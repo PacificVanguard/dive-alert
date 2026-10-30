@@ -13,7 +13,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Dive Bell">
-<meta name="description" content="Three hundred and fifty mornings a year, the bell keeps its silence. A dozen mornings, the ocean says yes — and it rings. Cast for the coves of Laguna Beach. One of one.">
+<meta name="description" content="Most mornings the bell keeps its silence. On the rare morning its water is perfect, it rings — and the morning after, the buoy says whether it was right. Fifteen bells. One text.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 4 C 8 4 5 12 5 20 L 5 25 L 27 25 L 27 20 C 27 12 24 4 16 4 Z' fill='%230a2a4a' stroke='%237fd4ff' stroke-width='1.6'/%3E%3Ccircle cx='16' cy='29' r='2.2' fill='%23ffd98a'/%3E%3C/svg%3E">
 <style>
   :root {
@@ -614,7 +614,7 @@
       const gd = st.days.map(d => st.best[d]).find(w => w.gate);
       document.getElementById("state").textContent = "The bell is ringing.";
       document.getElementById("statesub").textContent =
-        "A dozen mornings a year, the ocean says yes. This is one of them.";
+        "The ocean says yes rarely. This is one of those mornings.";
       document.getElementById("statelive").textContent =
         gd.label + " — everything just lined up. " + gd.entries.join(" or ") + ". Go.";
       if (!matchMedia("(prefers-reduced-motion: reduce)").matches)
@@ -622,8 +622,7 @@
     } else {
       document.getElementById("state").textContent = "The bell is quiet.";
       document.getElementById("statesub").textContent =
-        "Three hundred and fifty mornings a year, the bell keeps its silence. " +
-        "This is one of them.";
+        "Most mornings, the bell keeps its silence. This is one of them.";
       document.getElementById("statelive").textContent = st.top
         ? "Best window ahead: " + st.top.label + ", " + st.top.score.toFixed(1) +
           " of 10." + (z.sst_f ? " Water " + z.sst_f + "°." : "") + "  " + silenceLine(z)
@@ -633,9 +632,11 @@
       z.tier === "provisional" ? "block" : "none";
     const kl = document.getElementById("keeperline");
     const rec = z.record || {};
-    const recTxt = (rec.rings || rec.promises)
-      ? "The record: " + (rec.rings || 0) + " rings · " + (rec.promises || 0) +
-        " promises · awaiting verdicts.  " : "";
+    const recTxt = rec.rings
+      ? "The record: " + rec.rings + (rec.rings === 1 ? " ring" : " rings") +
+        (rec.held ? " · " + rec.held + " held" : "") + (rec.broke ? " · " + rec.broke + " broke" : "") +
+        (rec.unverified ? " · " + rec.unverified + " awaiting the instruments" : "") +
+        ". <a href='/record/' style='color:inherit'>The morning after →</a>  " : "";
     // a kept bell wears its keeper's name; an unkept one keeps its silence —
     // recruiting happens in conversations, not carved into the bell
     kl.innerHTML = recTxt + (z.keeper ? "Kept by " + z.keeper + "." : "");
@@ -742,7 +743,7 @@
     if (on) {
       document.getElementById("state").textContent = "The bell is ringing.";
       document.getElementById("statesub").textContent =
-        "A dozen mornings a year, the ocean says yes. This is one of them.";
+        "The ocean says yes rarely. This is one of those mornings.";
       document.getElementById("statelive").textContent =
         "A preview — today " + z.bell.name + " is quiet. On a real ring morning, " +
         "this page turns gold on its own and names the cove and the hour.";

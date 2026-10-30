@@ -2788,8 +2788,8 @@ def _sms_history():
         return []
     sid, tok, frm = env
     rows = []
-    page = "Messages.json?" + urllib.parse.urlencode({"To": frm, "PageSize": 400})
-    for _ in range(20):   # paginate, bounded
+    page = "Messages.json?" + urllib.parse.urlencode({"To": frm, "PageSize": 1000})
+    for _ in range(50):   # paginate, bounded (Twilio's page maximum; 50 pages = 50,000 texts)
         d = _twilio_req(page, sid, tok)
         for m in d.get("messages", []):
             num = m.get("from")
@@ -2916,22 +2916,24 @@ def sms_ring(zone_key, zone_cfg, payload, state, dry_run, sst_c=None):
         bell_word(zone_key), BELL_NUMBER)
     sid, tok, frm = env
     done = state.setdefault("sms_rung_nums", {}).setdefault(
-        "%s:%s" % (zone_key, wkey), [])
+        "%s:%s" % (zone_key, wkey), [])   # tags, never numbers (see num_tag)
     for num in subs:
-        if num in done:
+        tag = num_tag(num)
+        if tag in done:
             continue
         try:
             if not dry_run:
                 _twilio_req("Messages.json", sid, tok,
                             {"To": num, "From": frm, "Body": body})
-            done.append(num)
+            done.append(tag)
         except Exception as e:
-            print("sms to %s… failed: %s" % (num[:6], str(e)[:60]), file=sys.stderr)
-    if all(n in done for n in subs):
+            print("sms to #%s failed: %s" % (tag[:6], str(e)[:60]), file=sys.stderr)
+    if all(num_tag(n) in done for n in subs):
         sent[zone_key] = wkey
         state.setdefault("sms_ring_due", {}).pop(zone_key, None)
     else:
         state.setdefault("sms_ring_due", {})[zone_key] = wkey
+    checkpoint_state(state, dry_run)
     print("sms ring (%s): %d/%d delivered%s" % (zone_key, len(done), len(subs),
                                                 " [dry]" if dry_run else ""))
 
@@ -3030,7 +3032,7 @@ def check_retraction(zk, zc, scored, state, t_now, dry_run):
                                 {"To": num, "From": frm, "Body": sbody})
                 sent_n += 1
             except Exception as e:
-                print("sms retraction to %s… failed: %s" % (num[:6], str(e)[:60]),
+                print("sms retraction to #%s failed: %s" % (num_tag(num)[:6], str(e)[:60]),
                       file=sys.stderr)
         if subs:
             print("sms retraction (%s): %d/%d sent%s" % (zk, sent_n, len(subs),
@@ -3145,25 +3147,36 @@ def sms_digest(zone_key, zone_cfg, scored, state, dry_run, weekly=False):
         print("sms digest (%s): subscriber lookup failed, still owed: %s"
               % (zone_key, str(e)[:60]), file=sys.stderr)
         return   # the debt stands
-    due.pop(zone_key, None)
-    sent[zone_key] = week
-    if not subs:
+    body = sms_digest_text(zone_cfg, scored) if subs else None
+    if not subs or not body:
+        due.pop(zone_key, None)   # nothing to send is a debt paid
+        sent[zone_key] = week
         return
-    body = sms_digest_text(zone_cfg, scored)
-    if not body:
-        return
+    # paid only when Twilio accepted it for everyone: the week used to be
+    # marked sent BEFORE the loop, so one 5xx mid-list silently cost that
+    # bell's divers their reading and the dedupe refused the retry (2026-10-29)
+    done = state.setdefault("sms_digest_nums", {}).setdefault(
+        "%s:%s" % (zone_key, week), [])   # tags, never numbers
     sid, tok, frm = _twilio_env()
-    ok = 0
     for num in sorted(subs):
+        tag = num_tag(num)
+        if tag in done:
+            continue
         try:
             if not dry_run:
                 _twilio_req("Messages.json", sid, tok,
                             {"To": num, "From": frm, "Body": body})
-            ok += 1
+            done.append(tag)
         except Exception as e:
-            print("sms digest to %s… failed: %s" % (num[:6], str(e)[:60]), file=sys.stderr)
-    print("sms digest (%s): %d/%d sent%s" % (zone_key, ok, len(subs),
-                                             " [dry]" if dry_run else ""))
+            print("sms digest to #%s failed: %s" % (tag[:6], str(e)[:60]), file=sys.stderr)
+    paid = all(num_tag(n) in done for n in subs)
+    if paid:
+        due.pop(zone_key, None)
+        sent[zone_key] = week
+    checkpoint_state(state, dry_run)
+    print("sms digest (%s): %d/%d sent%s%s" % (zone_key, len(done), len(subs),
+                                               " [dry]" if dry_run else "",
+                                               "" if paid else " - still owed"))
 
 
 def cmd_smscheck(args):
@@ -3398,19 +3411,78 @@ LOG_COLS = ["run_ts", "zone", "window_key", "window_start", "window_kind", "lead
             "perfect_gate", "rang", "best_entries", "alerted", "flags"]
 
 
+_E164 = re.compile(r"\+[1-9]\d{9,14}")
+_LIVE_STATE = None   # the one state object cmd_run owns; mid-run checkpoints save only that one
+
+
+def num_tag(num):
+    """A subscriber number never enters the state file or a log - only an
+    HMAC tag of it (16 hex), keyed by the Twilio auth token, which is never
+    public. 2026-10-29: two numbers had sat in data/alert_state.json - a
+    tracked, committed, served file - since 2026-09-14, put there by the
+    ring's own delivery ledger. Invariant 6 was broken by the engine's memory."""
+    env = _twilio_env()
+    key = (env[1] if env else None) or "dive-bell-local-only"
+    return hmac.new(key.encode(), str(num).encode(), hashlib.sha256).hexdigest()[:16]
+
+
+def scrub_state(state):
+    """Any E.164 string anywhere in the state becomes its tag (inside the
+    delivery ledgers) or '[redacted]' (anywhere else). Runs on every load and
+    every save: the belt after the braces. Returns how many it found."""
+    found = 0
+
+    def walk(x, in_ledger):
+        nonlocal found
+        if isinstance(x, dict):
+            return {k: walk(v, in_ledger or k in ("sms_rung_nums", "sms_digest_nums")) for k, v in x.items()}
+        if isinstance(x, list):
+            return [walk(v, in_ledger) for v in x]
+        if isinstance(x, str) and _E164.fullmatch(x):
+            found += 1
+            return num_tag(x) if in_ledger else "[redacted]"
+        if isinstance(x, str) and _E164.search(x):
+            found += 1
+            return _E164.sub("[redacted]", x)
+        return x
+    clean = walk(state, False)
+    state.clear()
+    state.update(clean)
+    return found
+
+
 def load_state():
+    state = {}
     if os.path.exists(STATE_PATH):
         with open(STATE_PATH) as f:
-            return json.load(f)
-    return {}
+            state = json.load(f)
+    n = scrub_state(state)
+    if n:
+        print("state: %d number(s) scrubbed on load" % n, file=sys.stderr)
+    return state
 
 
 def save_state(state, dry_run):
     if dry_run:
         return
+    if scrub_state(state):
+        print("state: numbers scrubbed on save - find the writer", file=sys.stderr)
+    for k in ("sms_rung_nums", "sms_digest_nums"):   # delivery ledgers keep only recent windows
+        d = state.get(k)
+        if isinstance(d, dict) and len(d) > 12:
+            for old in sorted(d)[:-12]:
+                d.pop(old, None)
     os.makedirs(DATA, exist_ok=True)
     with open(STATE_PATH, "w") as f:
         json.dump(state, f, indent=1, default=str)
+
+
+def checkpoint_state(state, dry_run):
+    """A text sent is a text remembered, even if this run dies next: save the
+    live state right after any send. Drills pass their own state objects and
+    are never written to disk."""
+    if state is _LIVE_STATE:
+        save_state(state, dry_run)
 
 
 def append_log(path, cols, rows, dry_run):
@@ -4045,11 +4117,19 @@ def ledger_watch(state, zk, scored, t_now):
         s = by_key.get(e["wkey"])
         if s is None:
             continue
-        if s.get("gate_raw", s.get("gate")):
+        # a ring is a promise about the WATER: it stands while the five
+        # physical lights stay on, whatever the score's arithmetic does at the
+        # last reading (the skill correction is not applied under 6h lead,
+        # which alone used to turn a standing promise into "taken back")
+        axes = s.get("axes") or {}
+        standing = (all(axes.get(a) for a in GATE_AXES) if axes
+                    else s.get("gate_raw", s.get("gate")))
+        if standing:
             e["status"], e["taken_back"] = "rung", None
         else:
             e["status"] = "taken back"
-            e["taken_back"] = {"at": t_now.isoformat(), "why": s.get("limit")}
+            e["taken_back"] = {"at": t_now.isoformat(),
+                               "why": s.get("limit") or ", ".join(a for a in GATE_AXES if axes.get(a) is False)}
 
 
 def archive_weather(zc, start, end):
@@ -4125,6 +4205,9 @@ def ledger_verify(state, zk, zc, fetches, t_now):
     judged = []
     g = dict(CONFIG["perfect_gate"], **zc.get("perfect_gate_overrides", {}))
     for e in state.get("ring_ledger", {}).get(zk, []):
+        m = e.get("morning") or {}
+        if m.get("verdict") == "unverified" and e.get("verify_tries", 0) < LEDGER_VERIFY_TRIES:
+            e.pop("morning", None)   # judged too early on a buoy alone (2026-10-29); the weather record may have landed
         if e.get("morning"):
             continue
         start, end = datetime.fromisoformat(e["start"]), datetime.fromisoformat(e["end"])
@@ -4152,6 +4235,10 @@ def ledger_verify(state, zk, zc, fetches, t_now):
         if e.get("status") == "taken back":
             verdict = "taken back"
         elif len(lights) < 2:
+            # a buoy alone is not a morning: wait for the weather record
+            e["verify_tries"] = e.get("verify_tries", 0) + 1
+            if e["verify_tries"] < LEDGER_VERIFY_TRIES:
+                continue
             verdict = "unverified"
         elif all(lights.values()):
             verdict = "held"
@@ -4195,10 +4282,20 @@ def morning_words(e):
 
 
 def verdict_words(e):
-    v = (e.get("morning") or {}).get("verdict") or ("taken back" if e.get("status") == "taken back" else "pending")
-    if v == "broke":
-        return "broke - %s" % ", ".join(e["morning"].get("failed") or [])
-    return v
+    """held/broke name the lights that testified, and the ones nobody could
+    read - the page must never imply a buoy verdict that was never applied."""
+    m = e.get("morning") or {}
+    v = m.get("verdict") or ("taken back" if e.get("status") == "taken back" else "pending")
+    lights = m.get("lights") or {}
+    read = [a for a in ("flat", "glass", "dry", "sun") if a in lights]
+    unread = [a for a in ("flat", "glass", "dry", "sun") if a not in lights]
+    if v == "held":
+        s = "held on %s" % ", ".join(read) if read else "held"
+    elif v == "broke":
+        s = "broke - %s" % ", ".join(m.get("failed") or [])
+    else:
+        return v
+    return s + (" (%s not read)" % ", ".join(unread) if unread else "")
 
 
 def promise_words(e):
@@ -4241,7 +4338,8 @@ def ledger_table_html(entries, esc, with_bell=False):
         back = ", ".join("%d %s" % (n, k) for k, n in sorted((e.get("verdicts") or {}).items())) or "no word back yet"
         cells = ([esc(e.get("bell_name", ""))] if with_bell else []) + [
             esc(_long_date(e["date"])), esc(e.get("kind", "")), esc(e.get("cove") or "-"),
-            esc(promise_words(e)), esc(morning_words(e)), esc(verdict_words(e)), esc(back)]
+            esc(promise_words(e)) + (" · from the log" if e.get("seeded") else ""),
+            esc(morning_words(e)), esc(verdict_words(e)), esc(back)]
         cls = {"held": " class='held'", "broke": " class='broke'"}.get((e.get("morning") or {}).get("verdict"), "")
         rows.append("<tr%s>%s</tr>" % (cls, "".join("<td>%s</td>" % c for c in cells)))
     head = (["Bell"] if with_bell else []) + ["Rang", "Window", "Cove", "Promised", "The morning", "Verdict", "Divers reported"]
@@ -4279,7 +4377,12 @@ def record_page(state, t_now):
             "<p>A ring enters this ledger the moment it is made, with what was promised. Once the window has "
             "passed, the instruments testify - the buoy during the window, the wind, the rain, the sky - and the "
             "entry is judged held or broke. A promise the bell withdrew before the morning is marked taken back. "
-            "Nobody edits this page.</p>\n%s\n"
+            "Nobody edits this page.</p>\n"
+            "<p class='small'>The rules are the gate's own: wind at or under 7 knots (glass); under 0.2 in of rain in the "
+            "72 hours before and under 0.1 in during the window (dry); cloud at or under the bell's sun line (sun); the "
+            "buoy no bigger than 1.25 times what the forecast said it would read, plus 0.3 ft (flat). A light nobody "
+            "could read is named as not read, never guessed. Rings marked 'from the log' were made before this ledger "
+            "existed and carry no buoy expectation, so their flat light is never read.</p>\n%s\n"
             "<footer>Rewritten every run by The Dive Bell · updated %s · <a href='/'>the board</a> · "
             "<a href='/data/record.json'>data</a> · <a href='/feed.xml'>feed</a></footer>\n</main></body></html>\n"
             % (SITE_URL, esc(record_line(tally)), BELL_PAGE_CSS, esc(record_line(tally)), body,
@@ -4346,6 +4449,8 @@ def bell_page(zk, bz, zc, state, t_now):
     wins = bz.get("windows") or []
     ringing = [w for w in wins if w.get("gate")]
     top = max(wins, key=lambda w: w["score"], default=None)
+    ledger = ring_ledger(zk, state)
+    rec_l = ledger_record(ledger, t_now)
     fc = (bz.get("forecast_sms") or "").split("\n")
     best_line = fc[1] if len(fc) > 1 else "The bell keeps its silence."
     verdict = fc[3] if len(fc) > 3 else ""
@@ -4358,14 +4463,13 @@ def bell_page(zk, bz, zc, state, t_now):
     # the unfurl, unchanged in spirit: a pasted link carries today's truth
     if ringing:
         og_state = "THE BELL IS RINGING - %s" % ringing[0]["label"]
-        og_desc = ("Everything just lined up. %s. A dozen mornings a year, the "
-                   "ocean says yes - this is one of them.") % " / ".join(ringing[0]["entries"])
+        og_desc = ("Everything just lined up. %s. The record: %s") % (
+                   " / ".join(ringing[0]["entries"]), record_line(rec_l).lower())
     elif top:
         og_state = "The %s bell is quiet" % name
-        og_desc = ("Best window ahead: %s, %.1f of 10%s. It rings a dozen-some "
-                   "mornings a year; today is not one of them.") % (
+        og_desc = ("Best window ahead: %s, %.1f of 10%s. The record: %s") % (
                    top["label"], top["score"],
-                   " (%s)" % top["limit"] if top.get("limit") else "")
+                   " (%s)" % top["limit"] if top.get("limit") else "", record_line(rec_l).lower())
     else:
         og_state, og_desc = "The %s bell is quiet" % name, "The bell keeps its silence."
 
@@ -4474,7 +4578,6 @@ def bell_page(zk, bz, zc, state, t_now):
     tide_h += spark_h
 
     named = {e for w in wins for e in (w.get("entries") or [])}
-    ledger = ring_ledger(zk, state)
     last_by_cove = {}
     for r in ledger:
         if r.get("cove"):
@@ -4518,7 +4621,6 @@ def bell_page(zk, bz, zc, state, t_now):
                   "there the rare morning this water is perfect, and the week's forecast arrives "
                   "every Wednesday.</p></div>" % esc(bz.get("topic") or ""))
 
-    rec_l = ledger_record(ledger, t_now)
     if ledger:
         ledger_h = "<p><b>%s</b></p>%s" % (esc(record_line(rec_l)), ledger_table_html(sorted(ledger, key=lambda e: e["date"], reverse=True), esc))
         if rec_l["rings"] < 5:
@@ -4956,8 +5058,10 @@ def cmd_post(args):
 
 
 def cmd_run(args):
+    global _LIVE_STATE
     t_now = now_pt()
     state = load_state()
+    _LIVE_STATE = state
     all_scored, any_swell_ok = [], False
     board = {}
     blind_map = {}
@@ -5157,9 +5261,16 @@ def cmd_run(args):
     # OpenGraph tags still carry the live state for the unfurl - and whose
     # body now carries the reading itself (see bell_page). Plus sitemap.xml.
     if not args.dry_run and board:
-        write_bell_pages(board, state, t_now)
-        write_record(state, t_now)
-        write_feed(state)
+        try:
+            write_bell_pages(board, state, t_now)
+            write_record(state, t_now)
+            write_feed(state)
+        except Exception as e:   # a page is not worth the state: log, tell ops, keep going to save_state
+            print("pages: %s" % e, file=sys.stderr)
+            traceback.print_exc()
+            notify_ops({"title": "The site may be stale 🔧",
+                        "message": "page writing failed: %s" % str(e)[:120], "priority": 4},
+                       args.dry_run, text=False)
         os.makedirs(DATA, exist_ok=True)
         # a bell that failed this run keeps its last plate, marked stale —
         # one dead fetch must not blank a bell off the public board
@@ -7564,11 +7675,12 @@ def cmd_test(args):
           ledger_promise(st_r, "A", zc, pr, 20.0, t_r, texted=2) and not ledger_promise(st_r, "A", zc, pr, 20.0, t_r)
           and st_r["ring_ledger"]["A"][0]["status"] == "rung" and st_r["ring_ledger"]["A"][0]["texted"] == 2
           and st_r["ring_ledger"]["A"][0]["forecast"]["swell_ft"] is not None)
-    gone = dict(pr, gate=False, gate_raw=False, limit="swell")
+    on_axes = {a: True for a in GATE_AXES}
+    gone = dict(pr, gate=False, gate_raw=False, limit="swell", axes=dict(on_axes, flat=False))
     ledger_watch(st_r, "A", [gone], t_r + timedelta(hours=6))
-    check("(rc) a collapsed gate takes the promise back; a returned one stands it again",
+    check("(rc) a dead light takes the promise back; five lights on stand it again",
           st_r["ring_ledger"]["A"][0]["status"] == "taken back" and st_r["ring_ledger"]["A"][0]["taken_back"]["why"] == "swell"
-          and (ledger_watch(st_r, "A", [dict(pr, gate_raw=True)], t_r + timedelta(hours=7)) or True)
+          and (ledger_watch(st_r, "A", [dict(pr, gate_raw=True, axes=on_axes)], t_r + timedelta(hours=7)) or True)
           and st_r["ring_ledger"]["A"][0]["status"] == "rung")
     ws, we = pr["w"]["start"], pr["w"]["end"]
     hrs = [ws - timedelta(hours=h) for h in range(72, 0, -1)] + [ws + timedelta(hours=h) for h in range(0, 4)]
@@ -7643,7 +7755,7 @@ def cmd_test(args):
           "1 ring - 1 held." in pg_r and "buoy 1.1 ft @ 14.0 s" in pg_r and "Every bell's record" in pg_r)
     rp = record_page(dict(st_r, sms_rung_nums={}), we + timedelta(hours=3))
     check("(rc) the record page lists every bell's rings, newest first, with the verdict",
-          "Every ring, and the morning after" in rp and "Laguna Beach" in rp and ">held<" in rp and "1 ring - 1 held." in rp)
+          "Every ring, and the morning after" in rp and "Laguna Beach" in rp and ">held on " in rp and "1 ring - 1 held." in rp)
     st_f = {}
     social_enqueue_record(st_f, "A", zc, e_r, tally)
     social_enqueue_ring(st_f, "A", zc, pr, 20.0)
@@ -7661,6 +7773,89 @@ def cmd_test(args):
     check("(rc) one ops line per host; CoastWatch is no action and no text, the buoy is worth a text",
           len(qn) == 2 and any(m.startswith("CoastWatch dark ~3 days (kd490, sst) at all 2 bells") and not t for m, t in qn)
           and any(m.startswith("the buoy dark") and t for m, t in qn) and all(len(m) <= 150 for m, t in qn), str(qn))
+
+    # (pi) privacy and the paid-only-when-accepted reading: no number ever
+    # reaches the state file or a log; a ring and a reading are deduped by
+    # tag; a reading is owed until Twilio accepted it for everyone; a verdict
+    # names its witnesses; a promise stands on the water, not the arithmetic
+    fake = "+15550001111"
+    st_p = {"sms_rung_nums": {"A:20260916T0605-dawn": [fake, "deadbeefdeadbeef"]}, "note": "call " + fake + " now",
+            "nested": [{"x": fake}]}
+    n_p = scrub_state(st_p)
+    flat_p = json.dumps(st_p)
+    check("(pi) scrub finds every number: tags in the ledgers, redaction elsewhere, nothing left",
+          n_p == 3 and not _E164.search(flat_p) and st_p["sms_rung_nums"]["A:20260916T0605-dawn"][0] == num_tag(fake)
+          and st_p["sms_rung_nums"]["A:20260916T0605-dawn"][1] == "deadbeefdeadbeef"
+          and st_p["note"] == "call [redacted] now" and st_p["nested"][0]["x"] == "[redacted]", flat_p[:120])
+    check("(pi) a tag is 16 hex and stable", re.fullmatch(r"[0-9a-f]{16}", num_tag(fake)) and num_tag(fake) == num_tag(fake)
+          and num_tag(fake) != num_tag("+15550002222"))
+    saved_p = {n: g7[n] for n in ("sms_subscribers", "_twilio_req", "_twilio_env", "sms_digest_optins", "sms_quiet_ok")}
+    sent_p = []
+    g7["sms_subscribers"] = lambda: {"A": [fake, "+15550002222"]}
+    g7["_twilio_env"] = lambda: ("sid", "tok", "+18338582355")
+    g7["_twilio_req"] = lambda path, sid, tok, data=None: sent_p.append(data["To"]) or {}
+    g7["sms_digest_optins"] = lambda: {fake, "+15550002222"}
+    g7["sms_quiet_ok"] = lambda zc_, when=None: True
+    try:
+        st_q = {}
+        sms_ring("A", zc, dict(sc_y[0], entries=["Shaw's Cove"]), st_q, False, sst_c=20.0)
+        sms_ring("A", zc, dict(sc_y[0], entries=["Shaw's Cove"]), st_q, False, sst_c=20.0)
+        check("(pi) a ring texts each number once and remembers only tags",
+              len(sent_p) == 2 and not _E164.search(json.dumps(st_q["sms_rung_nums"]))
+              and all(len(t) == 16 for v in st_q["sms_rung_nums"].values() for t in v), json.dumps(st_q["sms_rung_nums"]))
+        del sent_p[:]
+        calls = {"n": 0}
+
+        def flaky(path, sid, tok, data=None):
+            calls["n"] += 1
+            if calls["n"] == 2:
+                raise OSError("502 from Twilio")
+            sent_p.append(data["To"])
+            return {}
+        g7["_twilio_req"] = flaky
+        st_d = {}
+        sms_digest("A", zc, ring_week, st_d, dry_run=False, weekly=True)
+        wk = list(st_d["sms_digest_due"].values())
+        check("(pi) a reading with one failed send stays owed - not marked paid",
+              len(sent_p) == 1 and wk and "A" not in st_d.get("sms_digest_sent", {})
+              and st_d["sms_digest_due"].get("A") == wk[0], str(st_d.get("sms_digest_due")))
+        sms_digest("A", zc, ring_week, st_d, dry_run=False, weekly=False)
+        check("(pi) the next run pays only the number still owed, then marks the week paid",
+              len(sent_p) == 2 and st_d["sms_digest_sent"].get("A") == wk[0] and "A" not in st_d["sms_digest_due"]
+              and not _E164.search(json.dumps(st_d)), str(sent_p == sorted(set(sent_p))))
+        sms_digest("A", zc, ring_week, st_d, dry_run=False, weekly=False)
+        check("(pi) a paid week is not paid twice", len(sent_p) == 2)
+    finally:
+        for n_, fn in saved_p.items():
+            g7[n_] = fn
+    check("(pi) a drill's state is never written to disk by a checkpoint",
+          (checkpoint_state({"x": 1}, False) or True) and (not os.path.exists(STATE_PATH)
+          or "\"x\": 1" not in open(STATE_PATH).read()))
+    held_e = {"status": "rung", "morning": {"verdict": "held", "lights": {"glass": True, "dry": True, "sun": True}, "failed": []}}
+    broke_e = {"status": "rung", "morning": {"verdict": "broke", "lights": {"glass": False, "dry": True, "sun": True, "flat": True}, "failed": ["glass"]}}
+    check("(pi) a verdict names the lights that testified and the ones nobody read",
+          verdict_words(held_e) == "held on glass, dry, sun (flat not read)" and verdict_words(broke_e) == "broke - glass")
+    st_w = {"ring_ledger": {"A": [{"wkey": sc_y[0]["w"]["key"], "start": sc_y[0]["w"]["start"].isoformat(),
+                                   "end": sc_y[0]["w"]["end"].isoformat(), "date": "x", "status": "rung"}]}}
+    on = {a: True for a in GATE_AXES}
+    ledger_watch(st_w, "A", [dict(sc_y[0], gate_raw=False, axes=on, limit="score")], sc_y[0]["w"]["start"] - timedelta(hours=3))
+    stood = st_w["ring_ledger"]["A"][0]["status"]
+    ledger_watch(st_w, "A", [dict(sc_y[0], gate_raw=False, axes=dict(on, glass=False), limit=None)], sc_y[0]["w"]["start"] - timedelta(hours=2))
+    check("(pi) a promise stands while the water holds, whatever the arithmetic; a dead light takes it back",
+          stood == "rung" and st_w["ring_ledger"]["A"][0]["status"] == "taken back"
+          and st_w["ring_ledger"]["A"][0]["taken_back"]["why"] == "glass")
+    st_u = {"ring_ledger": {"A": [{"wkey": "k", "start": (t_y - timedelta(days=2)).isoformat(), "end": (t_y - timedelta(days=2) + timedelta(hours=3)).isoformat(),
+                                   "date": "x", "status": "rung", "verify_tries": 1, "morning": {"verdict": "unverified", "lights": {}}}]}}
+    saved_arch2 = g7["archive_weather"]
+    g7["archive_weather"] = lambda zc_, s_, e_: None
+    try:
+        ledger_verify(st_u, "A", zc, {}, t_y)
+        check("(pi) an early 'unverified' is re-opened and waits instead of freezing",
+              "morning" not in st_u["ring_ledger"]["A"][0] and st_u["ring_ledger"]["A"][0]["verify_tries"] == 2)
+    finally:
+        g7["archive_weather"] = saved_arch2
+    pub = open(os.path.join(ROOT, "index.html")).read() + open(os.path.join(ROOT, "sms", "index.html")).read()
+    check("(pi) no page promises a fixed number of rings a year - each bell's record speaks", "dozen" not in pub.lower())
 
     # fixture suite: degraded + disagreement
     print("fixture tests:")

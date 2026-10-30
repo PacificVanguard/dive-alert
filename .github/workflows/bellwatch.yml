@@ -77,6 +77,21 @@ jobs:
       # fails the workflow LOUDLY, and GitHub's own failure email (a channel
       # that doesn't ride ntfy) becomes the messenger. Deliberate crossing
       # of channels: each watchdog's failure mode is covered by the other.
+      # Runs can be green while the site serves yesterday: a Pages build was
+      # cancelled on 2026-10-12 and nothing noticed. The live board's own
+      # timestamp is the only honest witness.
+      - name: The site must show what the repo knows
+        run: |
+          AGE=$(curl -s --max-time 25 https://thedivebell.com/data/latest.json | python3 -c "
+          import json, sys, datetime
+          d = json.load(sys.stdin)
+          print(int((datetime.datetime.now(datetime.timezone.utc) - datetime.datetime.fromisoformat(d['updated'])).total_seconds() // 3600))" 2>/dev/null || echo 999)
+          echo "live board age: ${AGE}h"
+          if [ "$AGE" -gt 8 ]; then
+            echo "::error::thedivebell.com serves a board ${AGE}h old - Pages deploy is stuck. Try: gh api -X POST repos/PacificVanguard/dive-alert/pages/builds"
+            exit 1
+          fi
+
       - name: The alarm channel itself must answer
         run: curl -sf -m 20 -o /dev/null https://ntfy.sh/v1/health
 

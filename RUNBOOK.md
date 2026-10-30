@@ -157,6 +157,50 @@ ImageMagick; with neither, the post goes as words. Threads is always words
 Mark the accounts as automated in their settings — X requires it, and it
 is true. `python dive_alert.py post --dry-run` shows what would leave.
 
+## The number that got into the state file (2026-10-29) — never again
+
+From 2026-09-14 to 2026-10-29 the ring's delivery ledger
+(`state["sms_rung_nums"]`) stored subscriber numbers, and `data/alert_state.json`
+is tracked, committed and served. Two numbers sat in a public repo for six
+weeks. A multi-agent red team found it; the keeper's own drills had not,
+because none of them looked at what `save_state` wrote. Now: `num_tag`
+(HMAC-SHA256 under the Twilio auth token, 16 hex) is all the ledgers ever
+hold; `scrub_state` runs on every load and every save and replaces any
+E.164 string anywhere in the state (tag inside the ledgers, `[redacted]`
+elsewhere); failure logs print `#` + six hex, never six digits of a number;
+drill (pi) writes a fake number through the whole path and greps the
+serialized state. Still the keeper's decision: whether to rewrite the 189
+commits of public history that carry the file (forks and every Pages
+deploy hash change with it) and whether to tell the two subscribers.
+
+## Found the same day, fixed the same day
+
+- The Wednesday reading was marked PAID before the send loop; one 5xx
+  mid-list silently cost a bell's divers their week and the per-week dedupe
+  refused the retry. Now `sms_digest_nums` holds per-number tags and the
+  week is paid only when Twilio accepted it for everyone; the rest stay owed.
+- State reached disk only at the end of the run. `checkpoint_state` saves
+  the live state right after any ring or reading is sent; the commit step
+  is `if: always()`; page writes are wrapped so a page can never cost the
+  state.
+- `ledger_watch` judged a standing promise by the gate's arithmetic: the
+  skill correction is not applied under 6h lead, so a ring that stood on it
+  read as "taken back" at the final reading. A promise is about the WATER:
+  it stands while the five physical lights stay on.
+- A buoy-only morning (fewer than two lights) was frozen "unverified" on the
+  first look; now it waits and is re-read until the weather record lands.
+- `verdict_words` names the lights that testified and the ones nobody read
+  ("held on glass, dry, sun (flat not read)"); the record page states the
+  four rules and marks rings entered from the log.
+- Every "a dozen mornings a year" on the site is gone; each bell's own
+  record line speaks (La Jolla rang eight times in October).
+- Crons moved off :00/:30 (GitHub's most crowded slots; the morning cron ran
+  a median 262 min late) and the morning window opens at 2am local.
+- bellwatch now reads the LIVE board's timestamp and alarms when the site
+  serves a board more than 8h old (a Pages build was cancelled 2026-10-12
+  and nothing noticed).
+- `_sms_history` pages at Twilio's maximum (1000) to exhaustion.
+
 ## The record (2026-10-29) — every ring, and the morning after
 
 The moat. A ring enters `state["ring_ledger"]` the moment it is made

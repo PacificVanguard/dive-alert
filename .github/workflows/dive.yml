@@ -7,14 +7,18 @@ on:
     # Bellwatch caught the resulting two-day silence. Now: one cron per slot,
     # a WIDE local-hour window per slot, and windows sized so PST/PDT drift
     # and multi-hour lateness both land inside them.
-    - cron: "30 11 * * *"  # morning: 4:30am PDT / 3:30am PST -> window 3-5
-    - cron: "0 23 * * *"   # evening: 4pm PDT / 3pm PST -> window 14-19.
+    # Off the top and bottom of the hour on purpose: GitHub's own docs name
+    # :00 and :30 as the most crowded slots. Measured 2026-10-29 over 150
+    # runs: the 11:30 cron fired a median 262 min late and three of eleven
+    # days had no scoring run in the morning window at all.
+    - cron: "17 10 * * *"  # morning: 3:17am PDT / 2:17am PST -> window 2-9
+    - cron: "47 22 * * *"  # evening: 3:47pm PDT / 2:47pm PST -> window 14-22.
                            # Deliberately early: at 6pm the next dawn sat at
                            # ~12.2h lead, a 20-min-late cron lost the morning
                            # alert entirely. From 4pm, dawn is ~14h out and
                            # hours of lateness still clear the 12h floor.
-    - cron: "30 18 * * *"  # ingest: 11:30am PDT / 10:30am PST -> window 10-13
-    - cron: "0 16 * * 3"   # weekly: Wed 9am PDT / 8am PST -> window 6-10.
+    - cron: "13 18 * * *"  # ingest: 11:13am PDT / 10:13am PST -> window 10-13
+    - cron: "23 15 * * 3"  # weekly: Wed 8:23am PDT / 7:23am PST -> window 6-10.
                            # At/after 8am local so the SMS digest clears TCPA
                            # quiet hours for Pacific bells on the spot; Hawaii
                            # bells stay due until the 4pm read (~1pm HST).
@@ -56,7 +60,7 @@ jobs:
             fi
           elif [ "$DOW" = "3" ] && [ "$H" -ge 6 ] && [ "$H" -le 10 ]; then
             echo "go=weekly" >> "$GITHUB_OUTPUT"   # Wednesday: the week-ahead ritual
-          elif [ "$H" -ge 3 ] && [ "$H" -le 9 ]; then
+          elif [ "$H" -ge 2 ] && [ "$H" -le 9 ]; then
             # 3-9, not 3-5: GitHub now fires the 4:30am cron 3-4h late, and
             # 8-9am fell in a gap between windows — the morning read was
             # silently skipped every day (found 2026-10-05). Wednesdays 6-10
@@ -134,7 +138,9 @@ jobs:
       - name: Commit data back
         # [skip ci] both avoids loops and keeps the repo active so GitHub's
         # 60-day scheduled-workflow auto-disable never triggers.
-        if: steps.guard.outputs.go != 'no'
+        # always(): a run that texted and then died must still commit the
+        # state that remembers the text, or the rerun texts again.
+        if: always() && steps.guard.outputs.go != 'no'
         run: |
           git config user.name "dive-alert bot"
           git config user.email "actions@users.noreply.github.com"
