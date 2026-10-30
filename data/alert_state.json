@@ -1,15 +1,5 @@
 {
  "streaks": {
-  "F": {
-   "score": 7.0,
-   "entries": [
-    "Casino Point Dive Park",
-    "Lover's Cove"
-   ],
-   "window_key": "20261028T0638-dawn",
-   "since": "2026-10-27T18:00:00-07:00",
-   "gate": false
-  },
   "H": {
    "score": 8.0,
    "entries": [
@@ -20,14 +10,14 @@
    "since": "2026-10-29T15:00:00-07:00",
    "gate": false
   },
-  "E": {
-   "score": 8.8,
+  "D": {
+   "score": 7.4,
    "entries": [
-    "McAbee Beach",
-    "Breakwater (San Carlos)"
+    "La Jolla Cove",
+    "La Jolla Shores (Canyon)"
    ],
-   "window_key": "20261031T1611-dusk",
-   "since": "2026-10-29T21:00:00-07:00",
+   "window_key": "20261031T0636-dawn",
+   "since": "2026-10-30T09:00:00-07:00",
    "gate": false
   }
  },
@@ -73,7 +63,7 @@
   "E:weather": 0,
   "E:ndbc_primary": 0,
   "E:ndbc_offshore": 0,
-  "E:tides": 0,
+  "E:tides": 1,
   "E:sst": 0,
   "E:chla": 0,
   "E:kd490": 0,
@@ -134,13 +124,13 @@
   "K:ndbc_spec": 0,
   "L:marine": 0,
   "L:weather": 0,
-  "L:ndbc_primary": 181,
-  "L:ndbc_offshore": 181,
-  "L:tides": 181,
+  "L:ndbc_primary": 182,
+  "L:ndbc_offshore": 182,
+  "L:tides": 182,
   "L:sst": 0,
   "L:chla": 0,
   "L:kd490": 0,
-  "L:ndbc_spec": 181,
+  "L:ndbc_spec": 182,
   "M:marine": 0,
   "M:weather": 0,
   "M:ndbc_primary": 0,
@@ -162,12 +152,12 @@
   "O:marine": 0,
   "O:weather": 0,
   "O:ndbc_primary": 0,
-  "O:ndbc_offshore": 181,
-  "O:tides": 181,
+  "O:ndbc_offshore": 182,
+  "O:tides": 182,
   "O:sst": 0,
   "O:chla": 0,
   "O:kd490": 0,
-  "O:ndbc_spec": 181,
+  "O:ndbc_spec": 182,
   "P:marine": 0,
   "P:weather": 0,
   "P:ndbc_primary": 0,
@@ -227,7 +217,7 @@
    "unverified": 0
   },
   "D": {
-   "promises": 28,
+   "promises": 29,
    "rings": 8,
    "held": 7,
    "broke": 1,
@@ -331,7 +321,7 @@
    "unverified": 0
   }
  },
- "hook_idx": 239,
+ "hook_idx": 240,
  "axis_blind": {
   "flat": 0,
   "glass": 0,
@@ -388,7 +378,8 @@
   ]
  },
  "sms_ring_due": {},
- "ntfy_digest_due": {
+ "ntfy_digest_due": {},
+ "ntfy_digest_sent": {
   "A": "2026-W44",
   "C": "2026-W44",
   "D": "2026-W44",
@@ -399,20 +390,7 @@
   "I": "2026-W44",
   "L": "2026-W44",
   "M": "2026-W44",
-  "N": "2026-W44"
- },
- "ntfy_digest_sent": {
-  "A": "2026-W43",
-  "C": "2026-W43",
-  "D": "2026-W43",
-  "E": "2026-W43",
-  "F": "2026-W43",
-  "G": "2026-W43",
-  "H": "2026-W43",
-  "I": "2026-W43",
-  "L": "2026-W43",
-  "M": "2026-W43",
-  "N": "2026-W43",
+  "N": "2026-W44",
   "J": "2026-W44",
   "K": "2026-W44",
   "P": "2026-W44",
@@ -428,28 +406,24 @@
   },
   "D": {
    "days": [
-    "2026-10-16",
-    "2026-10-17"
+    "2026-11-04"
    ],
-   "week": "2026-W42",
+   "week": "2026-W44",
    "retracted": true
   },
   "E": {
    "days": [
-    "2026-10-14",
-    "2026-10-15",
-    "2026-10-16",
-    "2026-10-17"
+    "2026-11-03",
+    "2026-11-04"
    ],
-   "week": "2026-W42",
+   "week": "2026-W44",
    "retracted": true
   },
   "G": {
    "days": [
-    "2026-10-16",
-    "2026-10-17"
+    "2026-11-03"
    ],
-   "week": "2026-W42",
+   "week": "2026-W44",
    "retracted": true
   },
   "H": {
@@ -477,29 +451,26 @@
  "gate_streak": {
   "A": {},
   "C": {},
-  "D": {},
+  "D": {
+   "20261104T0639-dawn": 1
+  },
   "E": {
-   "20261104T1607-dusk": 4
+   "20261103T0703-dawn": 1,
+   "20261104T0704-dawn": 1
   },
   "F": {},
-  "G": {},
+  "G": {
+   "20261103T0644-dawn": 1
+  },
   "H": {},
   "I": {},
   "J": {},
-  "K": {
-   "20261104T0555-dawn": 4,
-   "20261105T0556-dawn": 4
-  },
-  "L": {
-   "20261105T0556-dawn": 5,
-   "20261105T1606-dusk": 5
-  },
+  "K": {},
+  "L": {},
   "M": {},
   "N": {},
   "O": {},
-  "P": {
-   "20261105T1548-dusk": 4
-  }
+  "P": {}
  },
  "social_posted": {},
  "social_queue": [
@@ -807,6 +778,60 @@
    },
    "alt": "Maui rang for Thu dawn and the ocean kept the appointment: wind 3.3 kn, rain 0.11 in/72h, cloud 17%. The record: 1 rings, 1 held. thedivebell.com/record/",
    "created": "2026-10-30T04:07:55.913161+00:00",
+   "done": []
+  },
+  {
+   "key": "takeback:D:2026-11-04",
+   "kind": "takeback",
+   "text": "The bell takes back its word at La Jolla: Wednesday's perfect morning didn't hold - all clear filled in. The bell only rings when it's sure. thedivebell.com/la-jolla/",
+   "card": {
+    "kind": "takeback",
+    "eyebrow": "THE DIVE BELL \u00b7 LA JOLLA",
+    "lines": [
+     "Wednesday's perfect morning didn't hold.",
+     "A filled in where the promise stood.ll clear",
+     "The bell only rings when it's sure."
+    ],
+    "foot": "thedivebell.com/la-jolla/"
+   },
+   "alt": "The bell takes back its word at La Jolla: Wednesday's perfect morning didn't hold - all clear filled in. The bell only rings when it's sure. thedivebell.com/la-jolla/",
+   "created": "2026-10-30T16:43:44.722155+00:00",
+   "done": []
+  },
+  {
+   "key": "takeback:E:2026-11-03",
+   "kind": "takeback",
+   "text": "The bell takes back its word at Monterey: Tuesday's perfect morning didn't hold - all clear filled in. The bell only rings when it's sure. thedivebell.com/monterey/",
+   "card": {
+    "kind": "takeback",
+    "eyebrow": "THE DIVE BELL \u00b7 MONTEREY",
+    "lines": [
+     "Tuesday's perfect morning didn't hold.",
+     "A filled in where the promise stood.ll clear",
+     "The bell only rings when it's sure."
+    ],
+    "foot": "thedivebell.com/monterey/"
+   },
+   "alt": "The bell takes back its word at Monterey: Tuesday's perfect morning didn't hold - all clear filled in. The bell only rings when it's sure. thedivebell.com/monterey/",
+   "created": "2026-10-30T16:43:59.067303+00:00",
+   "done": []
+  },
+  {
+   "key": "takeback:G:2026-11-03",
+   "kind": "takeback",
+   "text": "The bell takes back its word at Palos Verdes: Tuesday's perfect morning didn't hold - all clear filled in. The bell only rings when it's sure. thedivebell.com/palos-verdes/",
+   "card": {
+    "kind": "takeback",
+    "eyebrow": "THE DIVE BELL \u00b7 PALOS VERDES",
+    "lines": [
+     "Tuesday's perfect morning didn't hold.",
+     "A filled in where the promise stood.ll clear",
+     "The bell only rings when it's sure."
+    ],
+    "foot": "thedivebell.com/palos-verdes/"
+   },
+   "alt": "The bell takes back its word at Palos Verdes: Tuesday's perfect morning didn't hold - all clear filled in. The bell only rings when it's sure. thedivebell.com/palos-verdes/",
+   "created": "2026-10-30T16:44:18.504821+00:00",
    "done": []
   }
  ],
@@ -1635,6 +1660,30 @@
    "text": "Maui rang for Thu dawn and the ocean kept the appointment: wind 3.3 kn, rain 0.11 in/72h, cloud 17%. The record: 1 rings, 1 held. thedivebell.com/record/",
    "date": "2026-10-30T04:07:55.913161+00:00",
    "link": "https://thedivebell.com/record/"
+  },
+  {
+   "key": "takeback:D:2026-11-04",
+   "kind": "takeback",
+   "title": "The bell takes back its word",
+   "text": "The bell takes back its word at La Jolla: Wednesday's perfect morning didn't hold - all clear filled in. The bell only rings when it's sure. thedivebell.com/la-jolla/",
+   "date": "2026-10-30T16:43:44.722155+00:00",
+   "link": "https://thedivebell.com/la-jolla/"
+  },
+  {
+   "key": "takeback:E:2026-11-03",
+   "kind": "takeback",
+   "title": "The bell takes back its word",
+   "text": "The bell takes back its word at Monterey: Tuesday's perfect morning didn't hold - all clear filled in. The bell only rings when it's sure. thedivebell.com/monterey/",
+   "date": "2026-10-30T16:43:59.067303+00:00",
+   "link": "https://thedivebell.com/monterey/"
+  },
+  {
+   "key": "takeback:G:2026-11-03",
+   "kind": "takeback",
+   "title": "The bell takes back its word",
+   "text": "The bell takes back its word at Palos Verdes: Tuesday's perfect morning didn't hold - all clear filled in. The bell only rings when it's sure. thedivebell.com/palos-verdes/",
+   "date": "2026-10-30T16:44:18.504821+00:00",
+   "link": "https://thedivebell.com/palos-verdes/"
   }
  ]
 }
