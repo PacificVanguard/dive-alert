@@ -1,43 +1,8 @@
 {
- "updated": "2026-10-30T18:00:00-07:00",
+ "updated": "2026-10-31T08:00:00-07:00",
  "zone": "A",
  "sst_f": 74,
  "windows": [
-  {
-   "label": "Sat dawn",
-   "start": "2026-10-31T06:39:00-07:00",
-   "end": "2026-10-31T09:39:00-07:00",
-   "kind": "dawn",
-   "score": 3.0,
-   "conf": "medium",
-   "limit": "rain",
-   "entries": [
-    "Fisherman's Cove",
-    "Shaw's Cove"
-   ],
-   "gate": false,
-   "aligned": false,
-   "hazard": null,
-   "axes": {
-    "flat": false,
-    "glass": true,
-    "dry": false,
-    "sun": false,
-    "warm": true
-   },
-   "swell": {
-    "ft": 2.2,
-    "s": 11.0,
-    "dir": 194
-   },
-   "wind_kn": 3.4,
-   "cloud": 100,
-   "dry_h": 4,
-   "tide": {
-    "ft": 3.2,
-    "trend": "falling"
-   }
-  },
   {
    "label": "Sat dusk",
    "start": "2026-10-31T15:59:00-07:00",
@@ -62,11 +27,11 @@
    },
    "swell": {
     "ft": 2.7,
-    "s": 12.9,
-    "dir": 193
+    "s": 12.8,
+    "dir": 194
    },
-   "wind_kn": 2.8,
-   "cloud": 99,
+   "wind_kn": 5.8,
+   "cloud": 100,
    "dry_h": 13,
    "tide": {
     "ft": 4.1,
@@ -90,7 +55,7 @@
    "hazard": null,
    "axes": {
     "flat": false,
-    "glass": true,
+    "glass": false,
     "dry": false,
     "sun": false,
     "warm": true
@@ -100,9 +65,9 @@
     "s": 12.9,
     "dir": 193
    },
-   "wind_kn": 1.8,
+   "wind_kn": 7.3,
    "cloud": 100,
-   "dry_h": 28,
+   "dry_h": 0,
    "tide": {
     "ft": 3.4,
     "trend": "falling"
@@ -113,7 +78,7 @@
    "start": "2026-11-01T15:58:00-08:00",
    "end": "2026-11-01T17:58:00-08:00",
    "kind": "dusk",
-   "score": 4.0,
+   "score": 1.0,
    "conf": "medium",
    "limit": "rain",
    "entries": [
@@ -132,12 +97,12 @@
    },
    "swell": {
     "ft": 3.0,
-    "s": 13.0,
+    "s": 13.2,
     "dir": 191
    },
-   "wind_kn": 9.7,
-   "cloud": 1,
-   "dry_h": 37,
+   "wind_kn": 17.7,
+   "cloud": 3,
+   "dry_h": 1,
    "tide": {
     "ft": 4.2,
     "trend": "falling"
@@ -166,13 +131,13 @@
     "warm": true
    },
    "swell": {
-    "ft": 2.8,
-    "s": 12.5,
-    "dir": 193
+    "ft": 3.1,
+    "s": 11.7,
+    "dir": 192
    },
-   "wind_kn": 1.2,
+   "wind_kn": 1.6,
    "cloud": 0,
-   "dry_h": 52,
+   "dry_h": 1,
    "tide": {
     "ft": 3.8,
     "trend": "falling"
@@ -197,17 +162,17 @@
     "flat": false,
     "glass": true,
     "dry": false,
-    "sun": false,
+    "sun": true,
     "warm": true
    },
    "swell": {
-    "ft": 2.6,
-    "s": 12.3,
+    "ft": 3.0,
+    "s": 11.2,
     "dir": 192
    },
-   "wind_kn": 5.6,
-   "cloud": 30,
-   "dry_h": 61,
+   "wind_kn": 5.2,
+   "cloud": 2,
+   "dry_h": 9,
    "tide": {
     "ft": 4.7,
     "trend": "falling"
@@ -218,9 +183,9 @@
    "start": "2026-11-03T06:41:00-08:00",
    "end": "2026-11-03T09:41:00-08:00",
    "kind": "dawn",
-   "score": 6.4,
+   "score": 4.0,
    "conf": "medium",
-   "limit": "swell",
+   "limit": "rain",
    "entries": [
     "Fisherman's Cove",
     "Shaw's Cove"
@@ -231,18 +196,18 @@
    "axes": {
     "flat": false,
     "glass": true,
-    "dry": true,
+    "dry": false,
     "sun": true,
     "warm": true
    },
    "swell": {
-    "ft": 2.6,
+    "ft": 2.7,
     "s": 11.3,
     "dir": 193
    },
-   "wind_kn": 0.9,
-   "cloud": 0,
-   "dry_h": 72,
+   "wind_kn": 0.7,
+   "cloud": 3,
+   "dry_h": 24,
    "tide": {
     "ft": 4.4,
     "trend": "falling"
@@ -253,6 +218,111 @@
    "start": "2026-11-03T15:57:00-08:00",
    "end": "2026-11-03T17:57:00-08:00",
    "kind": "dusk",
+   "score": 4.0,
+   "conf": "medium",
+   "limit": "rain",
+   "entries": [
+    "Fisherman's Cove",
+    "Shaw's Cove"
+   ],
+   "gate": false,
+   "aligned": false,
+   "hazard": null,
+   "axes": {
+    "flat": false,
+    "glass": false,
+    "dry": false,
+    "sun": true,
+    "warm": true
+   },
+   "swell": {
+    "ft": 2.4,
+    "s": 11.3,
+    "dir": 192
+   },
+   "wind_kn": 7.1,
+   "cloud": 2,
+   "dry_h": 33,
+   "tide": {
+    "ft": 4.5,
+    "trend": "rising"
+   }
+  },
+  {
+   "label": "Wed dawn",
+   "start": "2026-11-04T06:42:00-08:00",
+   "end": "2026-11-04T09:42:00-08:00",
+   "kind": "dawn",
+   "score": 4.0,
+   "conf": "medium",
+   "limit": "rain",
+   "entries": [
+    "Fisherman's Cove",
+    "Shaw's Cove"
+   ],
+   "gate": false,
+   "aligned": false,
+   "hazard": null,
+   "axes": {
+    "flat": false,
+    "glass": true,
+    "dry": false,
+    "sun": false,
+    "warm": true
+   },
+   "swell": {
+    "ft": 2.1,
+    "s": 11.2,
+    "dir": 195
+   },
+   "wind_kn": 1.2,
+   "cloud": 52,
+   "dry_h": 48,
+   "tide": {
+    "ft": 5.0,
+    "trend": "falling"
+   }
+  },
+  {
+   "label": "Wed dusk",
+   "start": "2026-11-04T15:56:00-08:00",
+   "end": "2026-11-04T17:56:00-08:00",
+   "kind": "dusk",
+   "score": 4.0,
+   "conf": "medium",
+   "limit": "rain",
+   "entries": [
+    "Fisherman's Cove",
+    "Shaw's Cove"
+   ],
+   "gate": false,
+   "aligned": false,
+   "hazard": null,
+   "axes": {
+    "flat": false,
+    "glass": true,
+    "dry": false,
+    "sun": false,
+    "warm": true
+   },
+   "swell": {
+    "ft": 2.1,
+    "s": 6.5,
+    "dir": 236
+   },
+   "wind_kn": 6.1,
+   "cloud": 100,
+   "dry_h": 57,
+   "tide": {
+    "ft": 3.7,
+    "trend": "rising"
+   }
+  },
+  {
+   "label": "Thu dawn",
+   "start": "2026-11-05T06:43:00-08:00",
+   "end": "2026-11-05T09:43:00-08:00",
+   "kind": "dawn",
    "score": 6.2,
    "conf": "medium",
    "limit": "swell",
@@ -267,121 +337,16 @@
     "flat": false,
     "glass": true,
     "dry": true,
-    "sun": true,
-    "warm": true
-   },
-   "swell": {
-    "ft": 2.4,
-    "s": 11.3,
-    "dir": 192
-   },
-   "wind_kn": 6.1,
-   "cloud": 0,
-   "dry_h": 72,
-   "tide": {
-    "ft": 4.5,
-    "trend": "rising"
-   }
-  },
-  {
-   "label": "Wed dawn",
-   "start": "2026-11-04T06:42:00-08:00",
-   "end": "2026-11-04T09:42:00-08:00",
-   "kind": "dawn",
-   "score": 5.2,
-   "conf": "medium",
-   "limit": "swell",
-   "entries": [
-    "Fisherman's Cove",
-    "Shaw's Cove"
-   ],
-   "gate": false,
-   "aligned": false,
-   "hazard": null,
-   "axes": {
-    "flat": false,
-    "glass": true,
-    "dry": true,
     "sun": false,
     "warm": true
    },
    "swell": {
-    "ft": 2.6,
-    "s": 4.8,
-    "dir": 270
+    "ft": 2.4,
+    "s": 5.5,
+    "dir": 274
    },
    "wind_kn": 1.4,
-   "cloud": 70,
-   "dry_h": 72,
-   "tide": {
-    "ft": 5.0,
-    "trend": "falling"
-   }
-  },
-  {
-   "label": "Wed dusk",
-   "start": "2026-11-04T15:56:00-08:00",
-   "end": "2026-11-04T17:56:00-08:00",
-   "kind": "dusk",
-   "score": 7.2,
-   "conf": "medium",
-   "limit": "stirred up",
-   "entries": [
-    "Fisherman's Cove",
-    "Shaw's Cove"
-   ],
-   "gate": false,
-   "aligned": false,
-   "hazard": null,
-   "axes": {
-    "flat": false,
-    "glass": true,
-    "dry": true,
-    "sun": false,
-    "warm": true
-   },
-   "swell": {
-    "ft": 1.6,
-    "s": 9.8,
-    "dir": 279
-   },
-   "wind_kn": 5.6,
-   "cloud": 83,
-   "dry_h": 72,
-   "tide": {
-    "ft": 3.7,
-    "trend": "rising"
-   }
-  },
-  {
-   "label": "Thu dawn",
-   "start": "2026-11-05T06:43:00-08:00",
-   "end": "2026-11-05T09:43:00-08:00",
-   "kind": "dawn",
-   "score": 6.7,
-   "conf": "medium",
-   "limit": "swell",
-   "entries": [
-    "Fisherman's Cove",
-    "Shaw's Cove"
-   ],
-   "gate": false,
-   "aligned": false,
-   "hazard": null,
-   "axes": {
-    "flat": false,
-    "glass": true,
-    "dry": true,
-    "sun": true,
-    "warm": true
-   },
-   "swell": {
-    "ft": 2.4,
-    "s": 8.0,
-    "dir": 277
-   },
-   "wind_kn": 4.8,
-   "cloud": 2,
+   "cloud": 38,
    "dry_h": 72,
    "tide": {
     "ft": 5.5,
@@ -393,7 +358,7 @@
    "start": "2026-11-05T15:55:00-08:00",
    "end": "2026-11-05T17:55:00-08:00",
    "kind": "dusk",
-   "score": 6.2,
+   "score": 6.4,
    "conf": "medium",
    "limit": "swell",
    "entries": [
@@ -411,11 +376,11 @@
     "warm": true
    },
    "swell": {
-    "ft": 2.1,
-    "s": 7.7,
-    "dir": 277
+    "ft": 2.0,
+    "s": 5.8,
+    "dir": 273
    },
-   "wind_kn": 9.0,
+   "wind_kn": 8.3,
    "cloud": 24,
    "dry_h": 72,
    "tide": {
@@ -428,7 +393,7 @@
    "start": "2026-11-06T06:44:00-08:00",
    "end": "2026-11-06T09:44:00-08:00",
    "kind": "dawn",
-   "score": 8.0,
+   "score": 5.9,
    "conf": "medium",
    "limit": "swell",
    "entries": [
@@ -446,12 +411,12 @@
     "warm": true
    },
    "swell": {
-    "ft": 1.6,
-    "s": 7.7,
-    "dir": 280
+    "ft": 2.7,
+    "s": 6.7,
+    "dir": 277
    },
-   "wind_kn": 1.3,
-   "cloud": 7,
+   "wind_kn": 1.2,
+   "cloud": 0,
    "dry_h": 72,
    "tide": {
     "ft": 5.9,
@@ -463,9 +428,9 @@
    "start": "2026-11-06T15:54:00-08:00",
    "end": "2026-11-06T17:54:00-08:00",
    "kind": "dusk",
-   "score": 8.2,
+   "score": 6.5,
    "conf": "medium",
-   "limit": "stirred up",
+   "limit": "swell",
    "entries": [
     "Fisherman's Cove",
     "Shaw's Cove"
@@ -474,22 +439,57 @@
    "aligned": false,
    "hazard": null,
    "axes": {
-    "flat": true,
+    "flat": false,
     "glass": true,
     "dry": true,
     "sun": true,
     "warm": true
    },
    "swell": {
-    "ft": 1.5,
-    "s": 11.7,
-    "dir": 211
+    "ft": 2.3,
+    "s": 6.8,
+    "dir": 277
    },
-   "wind_kn": 6.4,
+   "wind_kn": 6.0,
    "cloud": 0,
    "dry_h": 72,
    "tide": {
     "ft": 1.5,
+    "trend": "rising"
+   }
+  },
+  {
+   "label": "Sat dawn",
+   "start": "2026-11-07T06:45:00-08:00",
+   "end": "2026-11-07T09:45:00-08:00",
+   "kind": "dawn",
+   "score": 7.9,
+   "conf": "medium",
+   "limit": "swell",
+   "entries": [
+    "Fisherman's Cove",
+    "Shaw's Cove"
+   ],
+   "gate": false,
+   "aligned": false,
+   "hazard": null,
+   "axes": {
+    "flat": false,
+    "glass": true,
+    "dry": true,
+    "sun": true,
+    "warm": true
+   },
+   "swell": {
+    "ft": 1.8,
+    "s": 7.4,
+    "dir": 280
+   },
+   "wind_kn": 1.0,
+   "cloud": 1,
+   "dry_h": 72,
+   "tide": {
+    "ft": 6.0,
     "trend": "rising"
    }
   }
