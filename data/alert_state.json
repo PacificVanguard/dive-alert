@@ -1,15 +1,5 @@
 {
  "streaks": {
-  "H": {
-   "score": 8.0,
-   "entries": [
-    "Whalers Cove",
-    "Bluefish Cove"
-   ],
-   "window_key": "20261031T0700-dawn",
-   "since": "2026-10-29T15:00:00-07:00",
-   "gate": false
-  },
   "O": {
    "score": 8.1,
    "entries": [
@@ -124,13 +114,13 @@
   "K:ndbc_spec": 0,
   "L:marine": 0,
   "L:weather": 0,
-  "L:ndbc_primary": 187,
-  "L:ndbc_offshore": 187,
-  "L:tides": 187,
+  "L:ndbc_primary": 188,
+  "L:ndbc_offshore": 188,
+  "L:tides": 188,
   "L:sst": 0,
   "L:chla": 0,
   "L:kd490": 0,
-  "L:ndbc_spec": 187,
+  "L:ndbc_spec": 188,
   "M:marine": 0,
   "M:weather": 0,
   "M:ndbc_primary": 0,
@@ -152,12 +142,12 @@
   "O:marine": 0,
   "O:weather": 0,
   "O:ndbc_primary": 0,
-  "O:ndbc_offshore": 187,
-  "O:tides": 187,
+  "O:ndbc_offshore": 188,
+  "O:tides": 188,
   "O:sst": 0,
   "O:chla": 0,
   "O:kd490": 0,
-  "O:ndbc_spec": 187,
+  "O:ndbc_spec": 188,
   "P:marine": 0,
   "P:weather": 0,
   "P:ndbc_primary": 0,
@@ -451,24 +441,25 @@
  "gate_streak": {
   "A": {},
   "C": {
-   "20261107T0645-dawn": 2
+   "20261107T0645-dawn": 3
   },
-  "D": {},
+  "D": {
+   "20261107T0642-dawn": 1,
+   "20261107T1552-dusk": 1
+  },
   "E": {},
   "F": {},
   "G": {},
   "H": {},
   "I": {},
   "J": {},
-  "K": {
-   "20261105T1547-dusk": 1
-  },
-  "L": {
-   "20261107T0557-dawn": 1
-  },
+  "K": {},
+  "L": {},
   "M": {},
   "N": {
-   "20261107T0651-dawn": 2
+   "20261107T0651-dawn": 3,
+   "20261106T0650-dawn": 1,
+   "20261106T1558-dusk": 1
   },
   "O": {},
   "P": {}
@@ -1666,5 +1657,5 @@
    "link": "https://thedivebell.com/palos-verdes/"
   }
  ],
- "last_scored": "2026-10-31T14:00:00-07:00"
+ "last_scored": "2026-10-31T18:00:00-07:00"
 }
