@@ -4934,7 +4934,7 @@ FEED_TITLES = {"ring": "The bell is ringing", "takeback": "The bell takes back i
                "week": "The week ahead", "hazard": "The bell will not ring", "record": "The record"}
 
 
-def write_feed(state):
+def write_feed(state, path=None):
     """RSS of everything the bell says in public - rings, take-backs, the
     week, a vetoed 7, the record. No account needed to follow it, and any
     RSS-to-social bridge can carry it where the bell has no keys."""
@@ -4951,7 +4951,7 @@ def write_feed(state):
            "<description>Rings, take-backs, the week ahead and the record, from a bell that texts divers "
            "only when the water is perfect.</description><language>en-us</language>%s</channel></rss>\n"
            % (SITE_URL, "".join(items)))
-    with open(os.path.join(ROOT, "feed.xml"), "w") as f:
+    with open(path or os.path.join(ROOT, "feed.xml"), "w") as f:
         f.write(xml)
     return xml
 
@@ -8330,7 +8330,9 @@ def cmd_test(args):
     st_f = {}
     social_enqueue_record(st_f, "A", zc, e_r, tally)
     social_enqueue_ring(st_f, "A", zc, pr, 20.0)
-    xml_f = write_feed(st_f)
+    import tempfile
+    with tempfile.TemporaryDirectory() as tdf:   # a drill never writes the live feed (it did once, 2026-11-03)
+        xml_f = write_feed(st_f, os.path.join(tdf, "feed.xml"))
     import xml.dom.minidom as _md
     try:
         dom = _md.parseString(xml_f)
