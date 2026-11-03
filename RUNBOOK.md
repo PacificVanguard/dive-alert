@@ -249,6 +249,40 @@ text=...)`) only for load-bearing ones — the buoy, tides, the swell model,
 the weather feed. CoastWatch dark at every bell is one app notice reading
 "No action; the bells score on", never a text. 150 characters, no link.
 
+## The witnesses (2026-11-03) — the coast measured, not modeled
+
+Instruments at the coast itself, each used only within reach of the water
+it speaks for, and named wherever it is quoted (`WITNESSES`, `STATIONS`):
+SCCOOS automated shore stations on the piers (Scripps, Newport, Santa
+Monica, Stearns Wharf — via CeNCOOS ERDDAP: water temperature, turbidity in
+NTU, chlorophyll); NOAA tide stations' own anemometers and thermometers
+(CO-OPS `wind`, `water_temperature`); NWS ASOS/RAWS observations (wind,
+cloud layers). Reach: shown as context within 40 km; judges the warm light
+within 20 km (`zone_sst` reads measured water first, then satellite, then
+model); testifies about glass within 12 km and sun within 30 km in the
+record (`observe_window`, each light labeled measured or modeled). The
+measured-minus-modeled wind (`wind_vs_model`, logged as `wind_bias_kn`) is
+SHADOW: shown, never applied, until the improvement loop proves it. Catalina's
+airport (a 1,600 ft ridge) and Hawaii's NOAA stations (the far side of each
+island) are deliberately not witnesses. Witnesses have their own breaker
+(`_witness_get`) so a flaky observations endpoint can never take down the
+NWS hazard veto, and a missing witness is never a "missing source". A run's
+clock is floored to the hour, so a reading from later in that hour is
+current (`_fresh` allows 90 minutes ahead).
+
+## The maps (2026-11-03)
+
+Each bell page draws its water (Leaflet from unpkg; USGS imagery for US
+bells, Esri imagery elsewhere, Esri ocean depth as a second layer): the
+coves, the instruments with their distances, and the week's best swell as
+an arrow. Cove pins (`SITE_PINS`) come from two public sources with no
+human input — USGS place names (GNIS) and OpenStreetMap — "verified" when
+they agree within 300 m, single-source when one names it as a natural
+feature, and NOT DRAWN otherwise; the page says which coves no source can
+place. The homepage carries the fleet on Esri's dark canvas, coloured by
+state, with region chips. Esri basemaps are used under their free,
+attributed, non-commercial terms — revisit if the bell ever takes money.
+
 ## The Wednesday reading rides whichever cron lands (don't "fix" this)
 
 GitHub fires crons hours late — 3-4h has been normal. The guard classifies

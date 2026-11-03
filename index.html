@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>The Dive Bell</title>
 <link rel="alternate" type="application/rss+xml" title="The Dive Bell" href="/feed.xml">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <!-- the bell hangs on the phone: manifest for Android, apple-* for iOS -->
 <meta name="theme-color" content="#0d3355">
 <link rel="manifest" href="/manifest.webmanifest">
@@ -188,6 +189,18 @@
 
   /* the bell board */
   .board { padding: 4vh 0 2vh; }
+  /* the fleet, on the water: each bell where it hangs, coloured by its state */
+  .fleet { padding: 2vh 0 4vh; }
+  .fleetmap { height: 420px; border-radius: 12px; overflow: hidden;
+              border: 1px solid rgba(100,128,155,.28); background: #071d36; }
+  .fleetchips { display: flex; gap: 8px; flex-wrap: wrap; margin: -6px 0 12px; }
+  .fleetchips button { font-family: ui-monospace, Menlo, monospace; font-size: .7rem;
+              letter-spacing: .1em; text-transform: uppercase; color: var(--dim);
+              background: transparent; border: 1px solid rgba(100,128,155,.35);
+              border-radius: 999px; padding: 5px 11px; cursor: pointer; }
+  .fleetchips button.on { color: var(--gold); border-color: rgba(255,217,138,.6); }
+  .fleetnote { color: var(--dim); font-size: .85rem; margin-top: 10px; font-style: italic; }
+  .leaflet-container { background: #071d36; font-family: ui-monospace, Menlo, monospace; }
   .btally { color: var(--dim); font-size: .88rem; margin: -14px 0 22px;
             font-style: italic; }
   .bregion { font-family: ui-monospace, Menlo, monospace; font-size: .68rem;
@@ -291,6 +304,13 @@
     <h2>The bells</h2>
     <div class="btally" id="btally"></div>
     <div id="boardrows"></div>
+  </div>
+
+  <div class="fleet" id="fleet" style="display:none">
+    <h2>The fleet, on the water</h2>
+    <div class="fleetchips" id="fleetchips"></div>
+    <div class="fleetmap" id="fleetmap" role="img" aria-label="Map of every bell"></div>
+    <p class="fleetnote">Gold rings. Blue is lining up. Grey keeps its silence. Tap a bell for its week.</p>
   </div>
 
   <div id="descend"></div>
@@ -416,6 +436,7 @@
 
 </main>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
   // marine snow, drifting up-current
   for (let i = 0; i < 24; i++) {
@@ -694,6 +715,47 @@
   const REGION_ORDER = ["Southern California", "Central Coast", "Hawaii",
                         "Caribbean", "Australia", "Elsewhere"];
 
+  // the fleet on the water - Leaflet, tiles from Esri's dark canvas; each
+  // bell where it hangs, gold when ringing, blue when every light is on
+  function buildFleetMap() {
+    const el = document.getElementById("fleetmap");
+    if (!window.L || !el || el._bellmap) return;
+    document.getElementById("fleet").style.display = "block";
+    const m = L.map(el, { scrollWheelZoom: false });
+    el._bellmap = m;
+    L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+      { maxNativeZoom: 16, maxZoom: 16, attribution: "Esri, HERE, Garmin, OpenStreetMap contributors" }).addTo(m);
+    const groups = {};
+    ORDER.forEach(k => {
+      const z = BELLS[k];
+      if (z.lat == null || z.lon == null) return;
+      const st = bellState(z);
+      const aligned = (z.windows || []).some(w => w.aligned);
+      const col = st.ringing ? "#ffd98a" : aligned ? "#7fd4ff" : "#8aa0b4";
+      const top = st.top;
+      L.circleMarker([z.lat, z.lon], { radius: st.ringing ? 9 : 7, color: col, weight: 2,
+          fillColor: col, fillOpacity: st.ringing ? 0.9 : 0.35 }).addTo(m)
+        .bindTooltip(z.bell.name + (top ? " · " + top.score.toFixed(1) : ""), { direction: "top" })
+        .bindPopup("<b>" + z.bell.name + "</b>" + (st.ringing ? " · ringing" : "") +
+          (top ? "<br>Best: " + top.label + ", " + top.score.toFixed(1) + " of 10" : "") +
+          "<br><a href='/" + slug(z.bell.name) + "/'>The bell's own page →</a>");
+      const r = (z.region === "Southern California" || z.region === "Central Coast") ? "California" : (z.region || "Elsewhere");
+      (groups[r] = groups[r] || []).push([z.lat, z.lon]);
+    });
+    const names = Object.keys(groups), chips = document.getElementById("fleetchips");
+    const go = (r, b) => {
+      m.fitBounds(groups[r], { padding: [34, 34], maxZoom: 10 });
+      [...chips.children].forEach(c => c.classList.toggle("on", c === b));
+    };
+    names.forEach(r => {
+      const b = document.createElement("button");
+      b.type = "button"; b.textContent = r;
+      b.addEventListener("click", () => go(r, b));
+      chips.appendChild(b);
+    });
+    if (names.length) go(names[0], chips.children[0]);
+  }
+
   function buildBoard() {
     const rows = document.getElementById("boardrows");
     rows.innerHTML = "";
@@ -774,6 +836,7 @@
     }
     buildBoard();
     render(d.updated);
+    try { buildFleetMap(); } catch (e) { /* a map is a bonus; the board stands without it */ }
     document.getElementById("ringdemo").addEventListener("click", (e) => {
       e.preventDefault();
       const z = BELLS[curKey()];

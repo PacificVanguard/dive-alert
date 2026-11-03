@@ -36,6 +36,12 @@ to leave. Bells outside the US (Sydney, Bonaire) ring through the ntfy app.
 - https://thedivebell.com/feed.xml — RSS of rings, take-backs, the week ahead,
   vetoes and the record
 
+Each bell page also carries what the coast itself measured — water
+temperature, turbidity and chlorophyll from the nearest SCCOOS pier station,
+wind from NOAA tide stations, the sky from airport ASOS — each named with its
+distance, and a map of the coves and instruments. In zones.json these are
+`water`, `shore`, `wind_now`, `wind_vs_model`, `lat`, `lon` per bell.
+
 ## Data (public, no key)
 
 - https://thedivebell.com/data/zones.json — every bell's current reading:

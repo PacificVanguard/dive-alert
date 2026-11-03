@@ -24,6 +24,7 @@ import base64
 import csv
 import hashlib
 import hmac
+import io
 import json
 import math
 import os
@@ -953,6 +954,9 @@ CONFIG = {
         # The forecaster's own word. A forecast that names a cove and a time
         # must not do so under a High Surf Advisory the model never saw.
         "nws_alerts": "https://api.weather.gov/alerts/active",
+        # SCCOOS automated shore stations, served by CeNCOOS: the water itself,
+        # measured at the piers every few minutes
+        "shore_erddap": "https://erddap.cencoos.org/erddap",
         "sst": "https://coastwatch.pfeg.noaa.gov/erddap/griddap/jplMURSST41.json",
         # Endpoint verified by identity 2026-08-10 but the server was slow;
         # fetch is best-effort with a short timeout and degrades gracefully.
@@ -1245,6 +1249,446 @@ def nws_hazard_for(fetches, w):
     return None
 
 
+# =====================================================================
+# the witnesses — instruments at the coast itself, not a model's opinion
+# =====================================================================
+# 2026-11-03: the record's "instruments testify" leaned on a model archive for
+# wind and sky, and the warm light on a flapping satellite. The coast has
+# better witnesses: SCCOOS automated shore stations on the piers measure the
+# water itself every few minutes (temperature, turbidity, chlorophyll); NOAA
+# tide stations carry anemometers and thermometers; airport ASOS stations
+# read the sky. Each is used only within reach of the water it speaks for,
+# named wherever it is quoted, and a far one is shown as context, never used
+# as a judge. No diver's report is needed for any of it.
+
+WITNESS_SHOW_KM = 40    # quoted on the page as context, with its distance
+WATER_GATE_KM = 20      # close enough to judge the warm light
+WIND_GATE_KM = 12       # close enough to testify about glass
+SKY_GATE_KM = 30        # close enough to testify about sun
+WITNESS_KEYS = ("shore", "met", "nws_wind", "nws_sky")
+
+STATIONS = {
+    "shore": {
+        "scripps-pier-automated-shore-sta-1": ("Scripps Pier", 32.867, -117.257),
+        "newport-pier-automated-shore-sta": ("Newport Pier", 33.6073, -117.9289),
+        "santa-monica-pier-automated-shor-1": ("Santa Monica Pier", 34.0086, -118.4986),
+        "stearns-wharf-automated-shore-st-1": ("Stearns Wharf", 34.4107, -119.6874),
+    },
+    "met": {
+        "9410230": ("Scripps Pier (NOAA)", 32.8669, -117.2571),
+        "9413450": ("Monterey Harbor (NOAA)", 36.6089, -121.8914),
+        "9410840": ("Santa Monica (NOAA)", 34.0083, -118.5000),
+        "9411340": ("Santa Barbara (NOAA)", 34.4046, -119.6925),
+    },
+    "nws": {
+        "KSNA": ("John Wayne Airport", 33.68, -117.87),
+        "KSAN": ("San Diego Airport", 32.73, -117.17),
+        "KMRY": ("Monterey Airport", 36.58, -121.85),
+        "KHHR": ("Hawthorne Airport", 33.92, -118.33),
+        "KSBA": ("Santa Barbara Airport", 34.43, -119.83),
+        "KNTD": ("Point Mugu", 34.11, -119.12),
+        "LCBC1": ("Leo Carrillo (RAWS)", 34.05, -118.94),
+    },
+    "tide": {
+        "9410580": ("Newport Bay entrance (NOAA)", 33.6033, -117.8830),
+        "9410230": ("Scripps Pier (NOAA)", 32.8669, -117.2571),
+        "9413450": ("Monterey Harbor (NOAA)", 36.6089, -121.8914),
+        "9410079": ("Avalon (NOAA)", 33.3450, -118.3250),
+        "9410660": ("Los Angeles (NOAA)", 33.7200, -118.2720),
+        "9411340": ("Santa Barbara (NOAA)", 34.4046, -119.6925),
+        "9410840": ("Santa Monica (NOAA)", 34.0083, -118.5000),
+        "9411189": ("Ventura (NOAA)", 34.2667, -119.2830),
+        "1612340": ("Honolulu (NOAA)", 21.3033, -157.8645),
+        "1617433": ("Kawaihae (NOAA)", 20.0366, -155.8294),
+        "1615680": ("Kahului (NOAA)", 20.8949, -156.4690),
+    },
+}
+# Catalina's airport sits on a 1,600 ft ridge, above or inside the marine
+# layer as it pleases: not a witness for the harbor's sky. Hawaii's NOAA
+# stations sit on the other side of each island from its bell.
+WITNESSES = {
+    "A": {"shore": "newport-pier-automated-shore-sta", "nws_sky": "KSNA"},
+    "C": {"shore": "newport-pier-automated-shore-sta", "nws_sky": "KSNA"},
+    "D": {"shore": "scripps-pier-automated-shore-sta-1", "met": "9410230", "nws_sky": "KSAN"},
+    "E": {"met": "9413450", "nws_wind": "KMRY", "nws_sky": "KMRY"},
+    "G": {"shore": "santa-monica-pier-automated-shor-1", "nws_sky": "KHHR"},
+    "H": {"met": "9413450", "nws_wind": "KMRY", "nws_sky": "KMRY"},
+    "I": {"shore": "stearns-wharf-automated-shore-st-1", "met": "9411340", "nws_sky": "KSBA"},
+    "M": {"shore": "santa-monica-pier-automated-shor-1", "met": "9410840"},
+    "N": {"nws_wind": "LCBC1", "nws_sky": "KNTD"},
+}
+
+# Where each entry site actually is - kept only when the USGS place-names
+# record (GNIS) and OpenStreetMap agree within 300 m ("verified"), or one of
+# them names it with a natural feature type ("usgs" / "osm"). A site no
+# public source can place is not drawn: a wrong pin on a dive entry is worse
+# than none. Built 2026-11-03 from both services, no human input.
+SITE_PINS = {
+    'A': {'Crescent Bay': (33.54559, -117.80228, 'verified'), 'Divers Cove': (33.54478, -117.79515, 'verified'), 'Picnic Beach (Heisler)': (33.54327, -117.79054, 'osm'), "Shaw's Cove": (33.54503, -117.79868, 'verified'), "Wood's Cove": (33.52637, -117.77025, 'verified')},
+    'D': {'La Jolla Cove': (32.85053, -117.27221, 'verified')},
+    'E': {'Breakwater (San Carlos)': (36.61008, -121.89569, 'osm'), 'McAbee Beach': (36.61587, -121.89957, 'osm')},
+    'F': {'Casino Point Dive Park': (33.3491, -118.32466, 'osm'), "Lover's Cove": (33.34324, -118.31933, 'verified')},
+    'G': {'Christmas Tree Cove': (33.76197, -118.41869, 'verified')},
+    'H': {'Bluefish Cove': (36.52171, -121.94319, 'verified'), 'Whalers Cove': (36.51996, -121.93858, 'verified')},
+    'J': {"Shark's Cove": (21.65085, -158.06279, 'verified'), 'Three Tables': (21.64584, -158.06383, 'verified')},
+    'K': {"Kahalu'u": (19.57929, -155.96667, 'osm'), 'Two Step (Honaunau)': (19.42284, -155.91146, 'osm')},
+    'L': {'1000 Steps': (12.2108, -68.32182, 'osm')},
+    'M': {'Leo Carrillo (Sequit Point)': (34.04376, -118.93815, 'verified')},
+    'N': {'County Line Reef (Yerba Buena)': (34.05127, -118.95918, 'osm')},
+    'O': {'Shelly Beach (Cabbage Tree Bay)': (-33.8005, 151.298, 'osm')},
+    'P': {"Black Rock (Pu'u Keka'a)": (20.92682, -156.69566, 'osm'), 'Kahekili (Airport Beach)': (20.93587, -156.69275, 'osm')},
+}
+
+for _zk, _w in WITNESSES.items():
+    if _zk in CONFIG["zones"]:
+        CONFIG["zones"][_zk].setdefault("witnesses", _w)
+for _zk, _pins in SITE_PINS.items():
+    for _s in CONFIG["zones"].get(_zk, {}).get("sites", []):
+        if _s["name"] in _pins:
+            _s.setdefault("pin", _pins[_s["name"]])
+
+
+def km_between(lat1, lon1, lat2, lon2):
+    p1, p2 = math.radians(lat1), math.radians(lat2)
+    a = (math.sin((p2 - p1) / 2) ** 2
+         + math.cos(p1) * math.cos(p2) * math.sin(math.radians(lon2 - lon1) / 2) ** 2)
+    return 2 * 6371.0 * math.asin(math.sqrt(a))
+
+
+def dest_point(lat, lon, bearing_deg, km):
+    b, p1, l1, d = math.radians(bearing_deg), math.radians(lat), math.radians(lon), km / 6371.0
+    p2 = math.asin(math.sin(p1) * math.cos(d) + math.cos(p1) * math.sin(d) * math.cos(b))
+    l2 = l1 + math.atan2(math.sin(b) * math.sin(d) * math.cos(p1), math.cos(d) - math.sin(p1) * math.sin(p2))
+    return [round(math.degrees(p2), 5), round(math.degrees(l2), 5)]
+
+
+_WITNESS_CACHE, _WITNESS_FAILS = {}, {}
+
+
+def _witness_get(src, key, url, timeout=25):
+    """Witnesses are a bonus, so they keep their own breaker: a flaky
+    observations endpoint must never declare api.weather.gov down for the
+    hazard veto. Shared URLs (Laguna and Dana read one pier) dial once."""
+    if src.offline:
+        return src.get(key, url, timeout=timeout)
+    if url in _WITNESS_CACHE:
+        return _WITNESS_CACHE[url]
+    host = urllib.parse.urlsplit(url).netloc
+    if _WITNESS_FAILS.get(host, 0) >= 2:
+        raise OSError("%s declared down for this run's witnesses" % host)
+    try:
+        body = http_get(url, timeout)
+    except Exception:
+        _WITNESS_FAILS[host] = _WITNESS_FAILS.get(host, 0) + 1
+        raise
+    _WITNESS_FAILS[host] = 0
+    _WITNESS_CACHE[url] = body
+    src.recorded[key] = body
+    return body
+
+
+def _num(v):
+    try:
+        x = float(v)
+    except (TypeError, ValueError):
+        return None
+    return None if x != x else x   # NaN is not a reading
+
+
+def fetch_shore(src, sid):
+    """A SCCOOS shore station's newest real reading of water temperature
+    (C), turbidity (NTU) and chlorophyll (ug/L) in the last 26 hours. The
+    sensors report on different clocks, so each value is the newest non-NaN
+    of its own column."""
+    try:
+        url = ("%s/tabledap/%s.csv?time,sea_water_temperature_ctd,sea_water_turbidity_eco,"
+               "mass_concentration_of_chlorophyll_in_sea_water_eco&time%%3E=now-26hours"
+               % (CONFIG["sources"]["shore_erddap"], sid))
+        rows = list(csv.reader(io.StringIO(_witness_get(src, "shore", url))))
+        if len(rows) < 3 or rows[0][:1] != ["time"]:
+            raise ValueError("not an ERDDAP table")
+        latest, ntu = {}, []
+        for r in rows[2:]:
+            if len(r) < 4:
+                continue
+            t = datetime.fromisoformat(r[0].replace("Z", "+00:00"))
+            for k, v in (("temp_c", r[1]), ("ntu", r[2]), ("chl", r[3])):
+                x = _num(v)
+                if x is not None and (k not in latest or t > latest[k][1]):
+                    latest[k] = (x, t)
+            if _num(r[2]) is not None:
+                ntu.append(_num(r[2]))
+        if not latest:
+            raise ValueError("no readings in 26h")
+        name, lat, lon = STATIONS["shore"][sid]
+        return Fetch("shore", True, {"id": sid, "name": name, "lat": lat, "lon": lon, "latest": latest,
+                                     "ntu_med_24h": sorted(ntu)[len(ntu) // 2] if ntu else None})
+    except Exception as e:
+        return Fetch("shore", False, error=str(e))
+
+
+def fetch_met(src, station):
+    """A NOAA tide station's own anemometer (72h of 2-minute means every 6
+    minutes, knots) and thermometer (latest water temperature, F). A station
+    without an anemometer answers with an error object - water alone is
+    still a witness."""
+    try:
+        def q(prod, hours):
+            return CONFIG["sources"]["tides"] + "?" + urllib.parse.urlencode({
+                "product": prod, "range": hours, "station": station, "units": "english",
+                "time_zone": "gmt", "format": "json", "application": "dive_alert"})
+        stamp = lambda s: datetime.strptime(s, "%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc)
+        w = json.loads(_witness_get(src, "met", q("wind", 72)))
+        wind = [(stamp(d["t"]), _num(d.get("s"))) for d in (w.get("data") or [])]
+        wind = [x for x in wind if x[1] is not None]
+        water = None
+        try:
+            wt = json.loads(_witness_get(src, "met_water", q("water_temperature", 6)))
+            pts = [(stamp(d["t"]), _num(d.get("v"))) for d in (wt.get("data") or [])]
+            pts = [x for x in pts if x[1] is not None]
+            if pts:
+                water = (pts[-1][1], pts[-1][0])
+        except Exception:
+            water = None
+        if not wind and water is None:
+            raise ValueError("the station measured nothing in 72h")
+        name, lat, lon = STATIONS["met"][station]
+        return Fetch("met", True, {"id": station, "name": name, "lat": lat, "lon": lon,
+                                   "wind": wind, "water_f": water})
+    except Exception as e:
+        return Fetch("met", False, error=str(e))
+
+
+SKY_PCT = {"SKC": 0, "CLR": 0, "FEW": 19, "SCT": 44, "BKN": 75, "OVC": 100, "VV": 100}
+
+
+def sky_pct(layers):
+    """ASOS cloud layers -> total cover, from the thickest layer (oktas to
+    percent, midpoints). No layers is unknown, never clear."""
+    vals = [SKY_PCT[a] for a in layers or [] if a in SKY_PCT]
+    return max(vals) if vals else None
+
+
+def fetch_nws_obs(src, station, key):
+    """An NWS station's last ~80 observations: wind (km/h -> knots) and the
+    sky's layers (ASOS only; a RAWS reports none). Null stays null."""
+    try:
+        d = json.loads(_witness_get(src, key, "https://api.weather.gov/stations/%s/observations?limit=80" % station, 30))
+        obs = []
+        for ft in d.get("features") or []:
+            pr = ft.get("properties") or {}
+            ws = (pr.get("windSpeed") or {}).get("value")
+            obs.append({"t": datetime.fromisoformat(pr["timestamp"]),
+                        "wind_kn": round(ws / 1.852, 1) if ws is not None else None,
+                        "sky": [c.get("amount") for c in (pr.get("cloudLayers") or []) if c.get("amount")]})
+        if not obs:
+            raise ValueError("no observations")
+        name, lat, lon = STATIONS["nws"][station]
+        return Fetch(key, True, {"id": station, "name": name, "lat": lat, "lon": lon,
+                                 "obs": sorted(obs, key=lambda o: o["t"])})
+    except Exception as e:
+        return Fetch(key, False, error=str(e))
+
+
+def _fresh(t, t_now, hours):
+    """A run's clock is floored to the hour (now_pt), so a reading taken this
+    hour lands up to 59 minutes AFTER it - that is current, not the future.
+    (First live render, 2026-11-03: every pier and anemometer read 'stale'.)"""
+    return t is not None and -1.5 * 3600 <= (t_now - t).total_seconds() <= hours * 3600
+
+
+def measured_water(fetches, t_now, max_km=WATER_GATE_KM):
+    """The water's temperature measured at the coast within reach: the
+    nearest reading no older than 6 hours, from a pier or a tide station."""
+    best = None
+    for k in ("shore", "met"):
+        f = fetches.get(k)
+        if f is None or not f.ok or f.data.get("km") is None or f.data["km"] > max_km:
+            continue
+        r = (f.data.get("latest") or {}).get("temp_c") if k == "shore" else f.data.get("water_f")
+        if not r or not _fresh(r[1], t_now, 6):
+            continue
+        c = r[0] if k == "shore" else (r[0] - 32) * 5 / 9
+        cand = {"c": round(c, 2), "f": round(c * 9 / 5 + 32, 1), "t": r[1],
+                "station": f.data["name"], "km": f.data["km"]}
+        if best is None or cand["km"] < best["km"]:
+            best = cand
+    return best
+
+
+def water_source(fetches, t_now):
+    if measured_water(fetches, t_now):
+        return "measured"
+    f = fetches.get("sst")
+    if f is not None and f.ok:
+        return "satellite"
+    return "model" if fetches.get("marine") is not None and fetches["marine"].ok else ""
+
+
+def wind_witness(fetches, max_km=WIND_GATE_KM):
+    """The nearest station within reach that measures wind: [(t_utc, kn)]."""
+    for k in ("met", "nws_wind"):
+        f = fetches.get(k)
+        if f is None or not f.ok or f.data.get("km") is None or f.data["km"] > max_km:
+            continue
+        series = (f.data.get("wind") if k == "met" else
+                  [(o["t"], o["wind_kn"]) for o in f.data.get("obs", []) if o.get("wind_kn") is not None])
+        if series:
+            return {"series": series, "station": f.data["name"], "km": f.data["km"]}
+    return None
+
+
+def sky_witness(fetches, max_km=SKY_GATE_KM):
+    f = fetches.get("nws_sky")
+    if f is None or not f.ok or f.data.get("km") is None or f.data["km"] > max_km:
+        return None
+    if not any(o["sky"] for o in f.data.get("obs", [])):
+        return None   # a station that never reports layers cannot see the sky
+    return {"obs": f.data["obs"], "station": f.data["name"], "km": f.data["km"]}
+
+
+def _hourly_medians(series, start, end):
+    """2-minute means every 6 minutes are gustier than a model's hourly
+    value; compare like with like - one median per hour."""
+    by = {}
+    for t, v in series:
+        if start <= t <= end and v is not None:
+            by.setdefault(floor_hour(t), []).append(v)
+    return {h: sorted(v)[len(v) // 2] for h, v in by.items()}
+
+
+def wind_vs_model(fetches, t_now, zc):
+    """Shadow, not applied: how the measured wind ran against the model over
+    the last 72 hours, as a median difference in knots - all hours, and the
+    dawn hours (4-10am local) the glass light lives in. The improvement loop
+    decides whether it earns a place in the score."""
+    ww = wind_witness(fetches)
+    wx = fetches.get("weather")
+    if not ww or wx is None or not wx.ok:
+        return None
+    model = wx.data.get("wind_speed_10m") or {}
+    tz = zone_tz(zc)
+    diffs, dawn = [], []
+    for h, kn in _hourly_medians(ww["series"], t_now - timedelta(hours=72), t_now).items():
+        m = model.get(h)
+        if m is None:
+            continue
+        diffs.append(kn - m)
+        if 4 <= h.astimezone(tz).hour <= 10:
+            dawn.append(kn - m)
+    if len(diffs) < 12:
+        return None
+    med = lambda xs: round(sorted(xs)[len(xs) // 2], 1)
+    return {"bias_kn": med(diffs), "dawn_bias_kn": med(dawn) if len(dawn) >= 4 else None,
+            "n": len(diffs), "station": ww["station"], "km": ww["km"]}
+
+
+def ntu_word(ntu):
+    return ("very low" if ntu < 0.5 else "low" if ntu < 1.5 else "moderate" if ntu < 3
+            else "high" if ntu < 6 else "very high")
+
+
+def instruments_map(zc):
+    """Every instrument this bell reads, with where it stands."""
+    out, seen = [], set()
+
+    def add(kind, name, lat, lon, what):
+        if name not in seen:
+            seen.add(name)
+            out.append({"kind": kind, "name": name, "lat": lat, "lon": lon, "what": what,
+                        "km": round(km_between(zc["lat"], zc["lon"], lat, lon), 1)})
+    b = zc.get("buoy_aodn") or zc.get("buoy")
+    if b and b in BUOY_POSITIONS:
+        add("buoy", ("Buoy %s" % b) if str(b).isdigit() else "Waverider (%s)" % b,
+            BUOY_POSITIONS[b][0], BUOY_POSITIONS[b][1], "the swell, measured")
+    ts = zc.get("tide_station")
+    if ts in STATIONS["tide"]:
+        n, la, lo = STATIONS["tide"][ts]
+        add("tide", n, la, lo, "the tide")
+    w = zc.get("witnesses") or {}
+    if w.get("shore") in STATIONS["shore"]:
+        n, la, lo = STATIONS["shore"][w["shore"]]
+        add("shore", n, la, lo, "water temperature, turbidity, chlorophyll")
+    if w.get("met") in STATIONS["met"]:
+        n, la, lo = STATIONS["met"][w["met"]]
+        add("met", n, la, lo, "wind and water temperature")
+    for k, what in (("nws_wind", "wind"), ("nws_sky", "the sky")):
+        if w.get(k) in STATIONS["nws"]:
+            n, la, lo = STATIONS["nws"][w[k]]
+            add("nws", n, la, lo, what)
+    return out
+
+
+def map_data(bz, zc, wins):
+    named = {e for w in wins for e in (w.get("entries") or [])}
+    top_w = max(wins, key=lambda w: w["score"], default=None)
+    best = ((top_w or {}).get("entries") or [None])[0]
+    src_text = {"verified": "Placed where USGS place names and OpenStreetMap agree",
+                "usgs": "Placed from USGS place names alone", "osm": "Placed from OpenStreetMap alone"}
+    coves = []
+    for s in zc.get("sites") or []:
+        p = s.get("pin")
+        if p:
+            coves.append({"name": s["name"], "lat": p[0], "lon": p[1], "src": p[2], "srcText": src_text.get(p[2], ""),
+                          "named": s["name"] in named, "best": s["name"] == best,
+                          "note": " · ".join(x for x in (s.get("entry"), s.get("note")) if x)})
+    top = max(wins, key=lambda w: w["score"], default=None)
+    sw = (top or {}).get("swell") or {}
+    swell = None
+    if sw.get("dir") is not None and sw.get("ft"):
+        a = dest_point(zc["lat"], zc["lon"], sw["dir"], 3.2)
+        b = dest_point(zc["lat"], zc["lon"], sw["dir"], 0.9)
+        swell = {"line": [a, b], "head": [dest_point(b[0], b[1], (sw["dir"] + 28) % 360, 0.45), b,
+                                          dest_point(b[0], b[1], (sw["dir"] - 28) % 360, 0.45)],
+                 "label": "%s: swell %s ft @ %s s from %s°" % (top["label"], sw["ft"], sw.get("s"), sw["dir"])}
+    return {"center": [zc["lat"], zc["lon"]], "us": nws_covered(zc), "coves": coves,
+            "instruments": instruments_map(zc), "swell": swell,
+            "unmapped": [s["name"] for s in zc.get("sites") or [] if not s.get("pin")]}
+
+
+BELL_MAP_JS = """(function () {
+  var D = __DATA__;
+  if (!window.L || !document.getElementById('bellmap')) return;
+  var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
+    return {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]; }); };
+  var m = L.map('bellmap', {scrollWheelZoom: false});
+  var sat = D.us
+    ? L.tileLayer('https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/tile/{z}/{y}/{x}',
+                  {maxNativeZoom: 16, maxZoom: 18, attribution: 'Imagery: USGS The National Map'})
+    : L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+                  {maxNativeZoom: 18, maxZoom: 18, attribution: 'Imagery: Esri, Maxar, Earthstar Geographics'});
+  var depth = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}',
+                  {maxNativeZoom: 13, maxZoom: 18, attribution: 'Esri, GEBCO, NOAA, National Geographic, Garmin, HERE'});
+  sat.addTo(m);
+  L.control.layers({'Satellite': sat, 'Ocean depth': depth}, null, {position: 'topright'}).addTo(m);
+  var pts = [D.center];
+  L.circleMarker(D.center, {radius: 3, color: '#e8dcc3', weight: 1, fillOpacity: 1}).addTo(m)
+    .bindTooltip("The bell's read point");
+  D.instruments.forEach(function (s) {
+    L.circleMarker([s.lat, s.lon], {radius: 5, color: '#7fd4ff', weight: 2, fillColor: '#071d36', fillOpacity: 1})
+      .addTo(m).bindTooltip(esc(s.name) + ' · ' + s.km + ' km')
+      .bindPopup('<b>' + esc(s.name) + '</b><br>' + esc(s.what) + '<br>' + s.km + ' km from the bell');
+    if (!D.coves.length && s.km <= 12) pts.push([s.lat, s.lon]);
+  });
+  if (D.swell) {
+    var st = {color: '#7fd4ff', weight: 3, opacity: 0.85};
+    L.polyline(D.swell.line, st).addTo(m).bindTooltip(esc(D.swell.label));
+    L.polyline(D.swell.head, st).addTo(m);
+    pts.push(D.swell.line[0]);
+  }
+  D.coves.forEach(function (c) {
+    var col = c.named ? '#ffd98a' : '#e8dcc3';
+    var mk = L.circleMarker([c.lat, c.lon], {radius: c.named ? 8 : 6, color: col, weight: 2, fillColor: col,
+                                              fillOpacity: c.src === 'verified' ? 0.85 : 0}).addTo(m);
+    mk.bindTooltip(esc(c.name), {permanent: !!c.best, direction: 'right', className: 'cove-tip'});
+    mk.bindPopup('<b>' + esc(c.name) + '</b>' + (c.named ? ' · named this week' : '') + '<br>' + esc(c.note) +
+                 '<br><i>' + esc(c.srcText) + '</i>');
+    pts.push([c.lat, c.lon]);
+  });
+  m.fitBounds(pts, {padding: [26, 26], maxZoom: 15});
+})();"""
+
+
 def parse_ndbc(text: str):
     """NDBC realtime2 .txt -> latest rows of (dt_utc, WVHT_m, DPD_s, MWD_deg)."""
     rows = []
@@ -1468,6 +1912,19 @@ def fetch_all(zone_cfg, offline=False, fixture_set="normal"):
     # SOURCE_WEIGHT; only US bells carry the key at all
     if nws_covered(zone_cfg):
         f["nws"] = fetch_nws_alerts(src, lat, lon)
+    wit = zone_cfg.get("witnesses") or {}
+    if wit.get("shore"):
+        f["shore"] = fetch_shore(src, wit["shore"])
+    if wit.get("met"):
+        f["met"] = fetch_met(src, wit["met"])
+    if wit.get("nws_wind"):
+        f["nws_wind"] = fetch_nws_obs(src, wit["nws_wind"], "nws_wind")
+    if wit.get("nws_sky"):
+        f["nws_sky"] = (f["nws_wind"] if wit["nws_sky"] == wit.get("nws_wind")
+                        else fetch_nws_obs(src, wit["nws_sky"], "nws_sky"))
+    for k in WITNESS_KEYS:
+        if k in f and f[k].ok:
+            f[k].data["km"] = round(km_between(lat, lon, f[k].data["lat"], f[k].data["lon"]), 1)
     if not f["marine"].ok and f["marine_alt"].ok:
         # the first voice is down; the second carries the read, marked so
         # confidence caps agreement and the message admits the substitution
@@ -1792,7 +2249,7 @@ def compute_features(w, fetches, zone_cfg, t_now, anchor=None):
         "anchor": anchor,   # the measurement itself: None stays None here, for the log
         "obs_frac": (obs_fraction(w["start"], fc["wind_lookback_h"], t_now)
                      + obs_fraction(w["start"], fc["swell_lookback_h"], t_now)) / 2.0,
-        "missing": [k for k, f in fetches.items() if not f.ok],
+        "missing": [k for k, f in fetches.items() if not f.ok and k not in WITNESS_KEYS],
     }
     return feats
 
@@ -3406,6 +3863,9 @@ LOG_COLS = ["run_ts", "zone", "window_key", "window_start", "window_kind", "lead
             # post-anchor, the raw model height was unrecoverable, and the only
             # record of the anchor was zones.json inside bot commits (2026-10-14)
             "obs_frac", "anchor", "cloud_pct", "sst_c", "chla_mg_m3", "kd490_m1",
+            # the witnesses (2026-11-03): which water the warm light read, and
+            # the measured-minus-modeled wind the loop is watching, unapplied
+            "sst_src", "wind_bias_kn",
             # perfect_gate stays the PHYSICAL answer (so gate_hold_rates keeps
             # grading the same quantity across the change); rang records what
             # the bell was actually willing to promise
@@ -3534,7 +3994,11 @@ def zone_sst(fetches, t_now):
     """SST with a fallback chain. NOAA CoastWatch has started 403-ing GitHub
     runner IPs, and the gate's WARM axis fails closed on unknown — without
     this fallback, no bell could ever ring from CI. Open-Meteo's marine SST
-    answers from anywhere."""
+    answers from anywhere. First of all: the water measured at the coast,
+    when a pier or tide station within reach read it in the last 6 hours."""
+    mw = measured_water(fetches, t_now)
+    if mw is not None:
+        return mw["c"]
     f = fetches.get("sst")
     if f is not None and f.ok:
         return f.data["c"]
@@ -3659,6 +4123,27 @@ def board_entry(zk, zc, scored, state, rec, ztopic, sst, fetches=None, t_now=Non
     ztz = zone_tz(zc)
     sst_trend = sst_trend_days(fetches.get("marine"), t_now, ztz)
 
+    ago_h = lambda t: max(0.0, round((t_now - t).total_seconds() / 3600, 1))
+    water = shore = wind_now = wvm = None
+    if fetches:
+        mw = measured_water(fetches, t_now, WITNESS_SHOW_KM)
+        if mw:
+            water = {"f": mw["f"], "station": mw["station"], "km": mw["km"], "age_h": ago_h(mw["t"]),
+                     "judges": mw["km"] <= WATER_GATE_KM}
+        sh = fetches.get("shore")
+        if sh is not None and sh.ok and sh.data.get("km") is not None and sh.data["km"] <= WITNESS_SHOW_KM:
+            L_ = sh.data["latest"]
+            shore = {"station": sh.data["name"], "km": sh.data["km"],
+                     "ntu": round(L_["ntu"][0], 2) if "ntu" in L_ and _fresh(L_["ntu"][1], t_now, 12) else None,
+                     "chl": round(L_["chl"][0], 2) if "chl" in L_ and _fresh(L_["chl"][1], t_now, 12) else None,
+                     "age_h": ago_h(max(v[1] for v in L_.values())),
+                     "ntu_med_24h": sh.data.get("ntu_med_24h")}
+        ww = wind_witness(fetches)
+        if ww and ww["series"] and _fresh(ww["series"][-1][0], t_now, 3):
+            wind_now = {"kn": ww["series"][-1][1], "station": ww["station"], "km": ww["km"],
+                        "age_h": ago_h(ww["series"][-1][0])}
+        wvm = wind_vs_model(fetches, t_now, zc)
+
     def plate(s):
         f, p = s["feats"], (s["feats"].get("dmg_parts") or {})
         tide = tide_at(tides, s["w"]["start"]) if tides else None
@@ -3709,6 +4194,9 @@ def board_entry(zk, zc, scored, state, rec, ztopic, sst, fetches=None, t_now=Non
         # the satellite's last clear look at the water (a witness, never a judge)
         "tides": [{"t": e["t"].isoformat(), "ft": e["ft"], "type": e["type"]} for e in tides][:40],
         "buoy_now": buoy_now,
+        "lat": zc.get("lat"), "lon": zc.get("lon"),
+        "water": water, "shore": shore, "wind_now": wind_now, "wind_vs_model": wvm,
+        "sst_src": water_source(fetches, t_now) if fetches else "",
         "anchor": buoy_anchor(fetches, t_now, zc) if fetches else None,   # the buoy's verdict on the model
         "sst_trend": sst_trend,
         "moon": moon_phase(t_now),
@@ -3776,6 +4264,9 @@ a{color:var(--glow)}
 .now .v{font-size:1.45rem;color:var(--sand);line-height:1.2;margin:4px 0}
 .now .s{font-size:.78rem;color:var(--dim)}
 svg{display:block;margin:10px 0}
+.map{height:380px;border-radius:6px;margin-top:10px;background:#0a2a4a}
+.leaflet-container{font-family:ui-monospace,Menlo,monospace}
+.cove-tip{background:#071d36;color:#ffd98a;border:1px solid rgba(255,217,138,.55);box-shadow:none;font-size:11px}
 """
 
 
@@ -4211,6 +4702,19 @@ def observe_window(zc, fetches, start, end):
                 obs["rain_in"] = round(sum(pr[t] for t in prior), 2)
                 obs["rain_win_in"] = round(sum(pr[t] for t in prior if t >= start), 2)
                 obs["rain_span_h"] = int(round((max(prior) - min(prior)).total_seconds() / 3600))
+    ww = wind_witness(fetches)
+    if ww:
+        hm = _hourly_medians(ww["series"], start, end)
+        if len(hm) >= max(1, int((end - start).total_seconds() // 3600) - 1):
+            obs["wind_kn"] = round(max(hm.values()), 1)
+            obs["wind_src"] = "%s, %.0f km" % (ww["station"], ww["km"])
+    sk = sky_witness(fetches)
+    if sk:
+        cov = [sky_pct(o["sky"]) for o in sk["obs"] if start <= o["t"] <= end]
+        cov = [c for c in cov if c is not None]
+        if cov:
+            obs["cloud_pct"] = int(round(sum(cov) / len(cov)))
+            obs["cloud_src"] = "%s, %.0f km" % (sk["station"], sk["km"])
     if obs.get("buoy_ft") is None and obs.get("wind_kn") is None:
         return None
     return obs
@@ -4292,11 +4796,11 @@ def morning_words(e):
     if m.get("buoy_ft") is not None:
         bits.append("buoy %.1f ft%s" % (m["buoy_ft"], (" @ %s s" % m["buoy_s"]) if m.get("buoy_s") else ""))
     if m.get("wind_kn") is not None:
-        bits.append("wind %s kn" % m["wind_kn"])
+        bits.append("wind %s kn%s" % (m["wind_kn"], (" measured at %s" % m["wind_src"]) if m.get("wind_src") else " (modeled)"))
     if m.get("rain_in") is not None:
         bits.append("rain %.2f in/72h" % m["rain_in"] if m["rain_in"] >= 0.01 else "dry")
     if m.get("cloud_pct") is not None:
-        bits.append("cloud %s%%" % m["cloud_pct"])
+        bits.append("cloud %s%%%s" % (m["cloud_pct"], (" measured at %s" % m["cloud_src"]) if m.get("cloud_src") else " (modeled)"))
     return ", ".join(bits) or "no record could be read"
 
 
@@ -4397,7 +4901,9 @@ def record_page(state, t_now):
             "passed, the instruments testify - the buoy during the window, the wind, the rain, the sky - and the "
             "entry is judged held or broke. A promise the bell withdrew before the morning is marked taken back. "
             "Nobody edits this page.</p>\n"
-            "<p class='small'>The rules are the gate's own: wind at or under 7 knots (glass); under 0.2 in of rain in the "
+            "<p class='small'>Wind and sky are read from the nearest station within reach where one stands (named in "
+            "each row) and from the weather model where none does; the swell is always the bell's own buoy. "
+            "The rules are the gate's own: wind at or under 7 knots (glass); under 0.2 in of rain in the "
             "72 hours before and under 0.1 in during the window (dry); cloud at or under the bell's sun line (sun); the "
             "buoy no bigger than 1.25 times what the forecast said it would read, plus 0.3 ft (flat). A light nobody "
             "could read is named as not read, never guessed. Rings marked 'from the log' were made before this ledger "
@@ -4550,8 +5056,33 @@ def bell_page(zk, bz, zc, state, t_now):
 
     # right now: the handful of numbers a diver checks before coffee
     cards = []
-    if bz.get("sst_f") is not None:
-        cards.append(("Water", "%dF" % bz["sst_f"], "the bell wants %dF or warmer" % bz.get("warm_f", 0)))
+    ago = lambda h: "this hour" if h < 0.25 else ("%d min ago" % round(h * 60)) if h < 1.5 else ("%d h ago" % round(h))
+    wat = bz.get("water")
+    if wat and wat.get("f") is not None:
+        cards.append(("Water, measured", "%dF" % round(wat["f"]),
+                      "%s, %s km away, %s · %s" % (wat["station"], wat["km"], ago(wat["age_h"]),
+                      ("the bell wants %dF or warmer" % bz.get("warm_f", 0)) if wat.get("judges")
+                      else "context only - too far to judge the warm light")))
+    elif bz.get("sst_f") is not None:
+        cards.append(("Water", "%dF" % bz["sst_f"], "%s · the bell wants %dF or warmer" % (
+            {"satellite": "by satellite", "model": "modeled"}.get(bz.get("sst_src"), "estimated"), bz.get("warm_f", 0))))
+    sh = bz.get("shore")
+    if sh and sh.get("ntu") is not None:
+        cards.append(("Turbidity, measured", "%.1f NTU · %s" % (sh["ntu"], ntu_word(sh["ntu"])),
+                      "particles in the water at %s, %s km away, %s%s · a measurement, not a visibility promise"
+                      % (sh["station"], sh["km"], ago(sh["age_h"]),
+                         (" · the day's median %.1f" % sh["ntu_med_24h"]) if sh.get("ntu_med_24h") is not None else "")))
+    wn = bz.get("wind_now")
+    if wn:
+        cards.append(("Wind, measured", "%.0f kn" % wn["kn"], "%s, %s km away, %s · the glass line is 7 kn"
+                      % (wn["station"], wn["km"], ago(wn["age_h"]))))
+    wv = bz.get("wind_vs_model")
+    if wv:
+        b = wv["dawn_bias_kn"] if wv.get("dawn_bias_kn") is not None else wv["bias_kn"]
+        cards.append(("Wind vs model", "%+.1f kn" % b,
+                      ("measured %s than modeled at %s, %d hours compared at %s · watched, not yet applied"
+                       % ("stronger" if b > 0 else "lighter", "dawn" if wv.get("dawn_bias_kn") is not None else "all hours",
+                          wv["n"], wv["station"])) if b else "measured and modeled wind agree this week"))
     bn = bz.get("buoy_now")
     if bn and bn.get("ft") is not None:
         age = "%d min ago" % round(bn["age_h"] * 60) if (bn.get("age_h") or 0) < 1.5 else "%.0f h ago" % bn["age_h"]
@@ -4575,6 +5106,9 @@ def bell_page(zk, bz, zc, state, t_now):
     ch = bz.get("chla")
     if ch is not None:
         cards.append(("Plankton", chla_word(ch), "chlorophyll %.1f mg/m\u00b3 by satellite \u00b7 green water is plankton" % ch))
+    if sh and sh.get("chl") is not None:
+        cards.append(("Plankton, measured", chla_word(sh["chl"]), "chlorophyll %.1f ug/L at %s · green water is plankton"
+                      % (sh["chl"], sh["station"])))
     an = bz.get("anchor")
     if an is not None:
         cards.append(("Buoy vs model", "%.2fx" % an,
@@ -4589,12 +5123,23 @@ def bell_page(zk, bz, zc, state, t_now):
     gauge_h = ("<h2>The water index</h2><p>%s - this bell's best window this week, scored on its own water.</p>%s"
                % (esc(top["label"]), index_gauge_svg(top["score"]))) if top else ""
     spark = sst_spark_svg(bz.get("sst_trend"), today.isoformat())
-    spark_h = ("<h2>Water temperature</h2><p>Four days measured, three days modeled (dotted), today marked.</p>%s"
+    spark_h = ("<h2>Water temperature</h2><p>The weather model's sea-surface temperature: four days past, three ahead (dotted), today marked. Where a pier or NOAA station measures the water, that reading is the card under Right now.</p>%s"
                % spark) if spark else ""
     tide_svg = tide_curve_svg(bz.get("tides"), wins, t_now, tz) if bz.get("tides") else ""
     tide_h = ("<h2>The tide</h2><p>Three days, from the same predictions the forecast reads. Shaded: the dawn and "
               "dusk windows.</p>%s" % tide_svg) if tide_svg else ""
     tide_h += spark_h
+    md = map_data(bz, zc, wins)
+    legend = ("Gold: the coves the bell names this week. Filled: placed where USGS place names and OpenStreetMap "
+              "agree; hollow: one source. Blue: the instruments this bell reads, with their distance. The arrow: "
+              "the week's best swell, arriving from its direction.")
+    if md["unmapped"]:
+        legend += " Not drawn, because no public source places them: %s." % ", ".join(md["unmapped"])
+    map_h = ("<h2>The water, mapped</h2><div id='bellmap' class='map' role='img' aria-label='Map of %s coves and "
+             "instruments'></div><p class='small'>%s</p>"
+             "<script src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'></script>"
+             "<script>%s</script>" % (esc(name, quote=True), esc(legend),
+                                      BELL_MAP_JS.replace("__DATA__", json.dumps(md).replace("</", "<\\/"))))
 
     named = {e for w in wins for e in (w.get("entries") or [])}
     last_by_cove = {}
@@ -4680,6 +5225,7 @@ def bell_page(zk, bz, zc, state, t_now):
             "<meta name='twitter:card' content='summary'>\n"
             "<meta name='theme-color' content='#071d36'>\n"
             "<link rel='manifest' href='/manifest.webmanifest'>\n"
+            "<link rel='stylesheet' href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'>\n"
             "<link rel='alternate' type='application/rss+xml' title='The Dive Bell' href='/feed.xml'>\n"
             "<script type='application/ld+json'>%(ld)s</script>\n"
             "<style>%(css)s</style></head><body><main>\n"
@@ -4689,7 +5235,7 @@ def bell_page(zk, bz, zc, state, t_now):
             "<p>%(verdict)s %(status)s</p>\n%(haz)s%(now)s%(gauge)s"
             "<h2>The week, scored</h2>\n<p>Each window is scored 1 to 10 for this water alone; "
             "7 is worth the drive. The bell rings only when every condition aligns and holds "
-            "across two readings.</p>\n%(week)s\n%(tide)s\n"
+            "across two readings.</p>\n%(week)s\n%(tide)s\n%(map)s\n"
             "<h2>The coves</h2>\n%(coves)s\n"
             "<h2>The instruments</h2>\n%(inst)s<p>%(about)s</p>\n"
             "%(join)s\n"
@@ -4703,7 +5249,7 @@ def bell_page(zk, bz, zc, state, t_now):
         "og": esc(og_state, quote=True), "ld": json.dumps(ld), "css": BELL_PAGE_CSS,
         "no": bz["bell"].get("no", "?"), "region": esc(bz.get("region") or ""),
         "lead": esc(lead), "verdict": esc(verdict), "status": esc(status), "haz": haz_p,
-        "week": week, "now": now_h, "gauge": gauge_h, "tide": tide_h, "coves": coves_h, "inst": inst_p, "about": " ".join(about),
+        "week": week, "now": now_h, "gauge": gauge_h, "tide": tide_h, "map": map_h, "coves": coves_h, "inst": inst_p, "about": " ".join(about),
         "join": join_h, "ledger": ledger_h, "slug": slug,
         "updated": esc(now_loc.strftime("%a %b %-d, %-I:%M%p %Z").replace("AM", "am").replace("PM", "pm"))}
 
@@ -5130,6 +5676,8 @@ def cmd_run(args):
             weekly_any = weekly_any or weekly
             social_enqueue_hazard(state, zk, zc, scored)   # a vetoed 7 is news, once
             sst = zone_sst(fetches, t_now)
+            sst_src = water_source(fetches, t_now)
+            wb = wind_vs_model(fetches, t_now, zc)
             if scored:
                 blind_map[zk] = gate_axis_blindness(scored[0]["feats"], sst)
             chla = fetches["chla"].data["mg_m3"] if fetches["chla"].ok else None
@@ -5160,6 +5708,7 @@ def cmd_run(args):
                     "anchor": s["feats"]["anchor"] if s["feats"].get("anchor") is not None else "",
                     "cloud_pct": round(s["feats"]["cloud_pct"]) if s["feats"].get("cloud_pct") is not None else "",
                     "sst_c": sst if sst is not None else "", "chla_mg_m3": chla if chla is not None else "",
+                    "sst_src": sst_src, "wind_bias_kn": wb["bias_kn"] if wb else "",
                     "kd490_m1": s["feats"].get("kd490") if s["feats"].get("kd490") is not None else "",
                     "perfect_gate": "PASS" if perfect_gate(s["feats"], s["score"], sst, zc)[0] else "",
                     "rang": "RING" if s.get("gate") else "",
@@ -7378,8 +7927,8 @@ def cmd_test(args):
           "Text <code>LAGUNA</code> to <code>%s</code>" % BELL_NUMBER in pg
           and "September 16, 2026" in pg and "no word back yet" in pg
           and "<link rel='canonical' href='https://thedivebell.com/laguna-beach/'>" in pg)
-    check("(yy) no redirect, no script but JSON-LD, no subscriber number",
-          "http-equiv" not in pg and pg.count("<script") == 1 and "ld+json" in pg
+    check("(yy) no redirect; scripts only JSON-LD and the map; no subscriber number",
+          "http-equiv" not in pg and pg.count("<script") == 3 and "ld+json" in pg and "unpkg.com/leaflet" in pg
           and "5550001111" not in pg and "+1555" not in pg)
     bz_o = board_entry("O", CONFIG["zones"]["O"], sc_y, {}, {"promises": 0, "rings": 0}, "topic-o", None)
     pg_o = bell_page("O", bz_o, CONFIG["zones"]["O"], {}, t_y)
@@ -7745,7 +8294,7 @@ def cmd_test(args):
           and "(100% held)" in record_line({"rings": 5, "held": 5, "broke": 0, "taken_back": 0, "unverified": 0}),
           "%s | %s" % (tally, record_line(tally)))
     check("(rc) the morning and the promise in words",
-          morning_words(e_r) == "buoy 1.1 ft @ 14.0 s, wind 3.0 kn, dry, cloud 10%" and promise_words(e_r).startswith("%.1f" % e_r["score"])
+          morning_words(e_r) == "buoy 1.1 ft @ 14.0 s, wind 3.0 kn (modeled), dry, cloud 10% (modeled)" and promise_words(e_r).startswith("%.1f" % e_r["score"])
           and "buoy ~1.4 ft" in promise_words(e_r))
     st_r4 = {"ring_ledger": {"A": [dict(st_r["ring_ledger"]["A"][0])]}}
     st_r4["ring_ledger"]["A"][0].pop("morning")
@@ -7892,6 +8441,105 @@ def cmd_test(args):
     check("(ow) a read at 1:59am does not count as this morning; one at 2:01am does",
           morning_owed({"last_scored": datetime(2026, 10, 29, 1, 59, tzinfo=PT).isoformat()}, noon)
           and not morning_owed({"last_scored": datetime(2026, 10, 29, 2, 1, tzinfo=PT).isoformat()}, noon))
+
+    # (wt) the witnesses: instruments at the coast, used only within reach,
+    # named wherever quoted; a far or stale one is context, never a judge
+    t_w = datetime(2026, 8, 11, 14, 0, tzinfo=PT)   # 21:00Z
+
+    class _WSrc:
+        offline = True
+
+        def __init__(self, bodies):
+            self.bodies = bodies
+
+        def get(self, key, url, timeout=25):
+            if key not in self.bodies:
+                raise FileNotFoundError(key)
+            return self.bodies[key]
+    csv_w = ("time,sea_water_temperature_ctd,sea_water_turbidity_eco,mass_concentration_of_chlorophyll_in_sea_water_eco\n"
+             "UTC,degree_C,NTU,ug L-1\n"
+             "2026-08-11T17:00:00Z,22.4,NaN,NaN\n2026-08-11T17:04:00Z,NaN,0.62,0.31\n"
+             "2026-08-11T20:00:00Z,22.6,NaN,NaN\n2026-08-11T20:04:00Z,NaN,0.58,NaN\n")
+    fs_w = fetch_shore(_WSrc({"shore": csv_w}), "scripps-pier-automated-shore-sta-1")
+    check("(wt) a pier's newest reading per sensor - NaN skipped, clocks apart",
+          fs_w.ok and fs_w.data["latest"]["temp_c"][0] == 22.6 and fs_w.data["latest"]["ntu"][0] == 0.58
+          and fs_w.data["latest"]["chl"][0] == 0.31 and fs_w.data["name"] == "Scripps Pier",
+          str(fs_w.data if fs_w.ok else fs_w.error))
+    check("(wt) garbage from a pier, or a pier we do not know, fails closed",
+          not fetch_shore(_WSrc({"shore": "<html>503</html>"}), "scripps-pier-automated-shore-sta-1").ok
+          and not fetch_shore(_WSrc({"shore": csv_w}), "no-such-pier").ok)
+    met_w = json.dumps({"data": [{"t": "2026-08-11 %02d:%02d" % (h, mm), "s": "4.0"}
+                                 for h in range(0, 21) for mm in (0, 30)]})
+    wat_w = json.dumps({"data": [{"t": "2026-08-11 20:30", "v": "71.6"}]})
+    fm_w = fetch_met(_WSrc({"met": met_w, "met_water": wat_w}), "9410230")
+    fm2_w = fetch_met(_WSrc({"met": json.dumps({"error": {"message": "No data was found."}}),
+                             "met_water": wat_w}), "9413450")
+    check("(wt) a NOAA station's wind and water; one with no anemometer still testifies to the water",
+          fm_w.ok and len(fm_w.data["wind"]) == 42 and fm_w.data["water_f"][0] == 71.6
+          and fm2_w.ok and fm2_w.data["wind"] == [] and fm2_w.data["water_f"][0] == 71.6)
+    nws_w = json.dumps({"features": [
+        {"properties": {"timestamp": "2026-08-11T%02d:53:00+00:00" % h,
+                        "windSpeed": {"value": 9.26 if h < 18 else None},
+                        "cloudLayers": [{"amount": "FEW"}] if h % 2 else [{"amount": "CLR"}]}}
+        for h in range(10, 21)]})
+    fn_w = fetch_nws_obs(_WSrc({"nws_sky": nws_w}), "KSAN", "nws_sky")
+    check("(wt) NWS: km/h to knots, a null stays null, the sky's layers kept",
+          fn_w.ok and fn_w.data["obs"][0]["wind_kn"] == 5.0 and fn_w.data["obs"][-1]["wind_kn"] is None
+          and sky_pct(["CLR"]) == 0 and sky_pct(["FEW", "BKN"]) == 75 and sky_pct([]) is None)
+    fs_w.data["km"], fm_w.data["km"], fn_w.data["km"] = 2.3, 1.9, 16.0
+    near_w = {"shore": fs_w}
+    far_w = {"shore": Fetch("shore", True, dict(fs_w.data, km=26.0))}
+    check("(wt) the warm light reads the pier when it is near and fresh",
+          zone_sst(near_w, t_w) == 22.6 and water_source(near_w, t_w) == "measured")
+    check("(wt) a reading taken later in the run's floored hour is current, not the future",
+          zone_sst(near_w, datetime(2026, 8, 11, 12, 30, tzinfo=PT)) == 22.6
+          and zone_sst(near_w, datetime(2026, 8, 11, 11, 0, tzinfo=PT)) is None)
+    check("(wt) a far pier, or a reading 7 hours old, never judges the warm light",
+          zone_sst(far_w, t_w) is None and zone_sst(near_w, t_w + timedelta(hours=7)) is None
+          and measured_water(far_w, t_w, WITNESS_SHOW_KM)["station"] == "Scripps Pier")
+    model_w = {floor_hour(datetime(2026, 8, 11, h, 0, tzinfo=timezone.utc)): 2.0 for h in range(0, 21)}
+    wx_w = Fetch("weather", True, {"wind_speed_10m": model_w})
+    wvm_w = wind_vs_model({"met": fm_w, "weather": wx_w}, datetime(2026, 8, 11, 21, 0, tzinfo=timezone.utc), zc)
+    check("(wt) measured minus modeled wind, one median per hour, dawn apart",
+          bool(wvm_w) and wvm_w["bias_kn"] == 2.0 and wvm_w["n"] == 21 and wvm_w["dawn_bias_kn"] == 2.0, str(wvm_w))
+    check("(wt) a wind station beyond 12 km never testifies",
+          wind_witness({"met": Fetch("met", True, dict(fm_w.data, km=14.0))}) is None)
+    saved_aw = g7["archive_weather"]
+    g7["archive_weather"] = lambda zc_, s_, e_: None
+    try:
+        ws_w = datetime(2026, 8, 11, 13, 0, tzinfo=timezone.utc)
+        ob_w = observe_window(zc, {"met": fm_w, "nws_sky": fn_w}, ws_w, ws_w + timedelta(hours=3))
+    finally:
+        g7["archive_weather"] = saved_aw
+    check("(wt) the morning after: wind and sky measured, each with its station",
+          ob_w and ob_w["wind_kn"] == 4.0 and ob_w["wind_src"].startswith("Scripps Pier (NOAA)")
+          and ob_w["cloud_pct"] == 13 and ob_w["cloud_src"].startswith("San Diego Airport")
+          and "measured at Scripps Pier (NOAA)" in morning_words({"morning": ob_w}), str(ob_w))
+    zd = CONFIG["zones"]["D"]
+    bz_w = board_entry("D", zd, sc_y, st_y, {"promises": 0, "rings": 0}, "t", 22.6,
+                       {"shore": fs_w, "met": fm_w, "weather": wx_w}, t_w)
+    pg_w = bell_page("D", bz_w, zd, st_y, t_w)
+    check("(wt) the page names every measurement's station, distance and age",
+          "Water, measured" in pg_w and "Scripps Pier, 2.3 km away" in pg_w and "Turbidity, measured" in pg_w
+          and "not a visibility promise" in pg_w and "Wind, measured" in pg_w and "Wind vs model" in pg_w
+          and ">None<" not in pg_w)
+    check("(wt) the map carries the verified cove, the instruments, and names what it cannot place",
+          "id='bellmap'" in pg_w and '"La Jolla Cove"' in pg_w and '"verified"' in pg_w
+          and "La Jolla Shores (Canyon)" in pg_w and "unpkg.com/leaflet@1.9.4/dist/leaflet.js" in pg_w
+          and "</script" not in pg_w.split("var D = ")[1].split(";")[0])
+    check("(wt) pins come from public sources; an unplaceable site gets none",
+          CONFIG["zones"]["A"]["sites"][0].get("pin", [0, 0, None])[2] == "verified"
+          and not any(s.get("pin") for s in CONFIG["zones"]["A"]["sites"] if s["name"] == "Fisherman's Cove"))
+    fx_wa, _ = fetch_all(zc, offline=True, fixture_set="normal")
+    check("(wt) Laguna reads Newport Pier and John Wayne's sky, at their true distances",
+          fx_wa["shore"].ok and 13 < fx_wa["shore"].data["km"] < 17
+          and fx_wa["nws_sky"].ok and 15 < fx_wa["nws_sky"].data["km"] < 19,
+          "shore=%s sky=%s" % (fx_wa["shore"].data.get("km") if fx_wa["shore"].ok else fx_wa["shore"].error,
+                               fx_wa["nws_sky"].data.get("km") if fx_wa["nws_sky"].ok else fx_wa["nws_sky"].error))
+    fx_wd, _ = fetch_all(zc, offline=True, fixture_set="degraded")
+    check("(wt) a missing witness is not a missing source",
+          not fx_wd["shore"].ok and not any(k in WITNESS_KEYS for k in
+                                            score_zone("A", zc, fx_wd, src_y.fixture_now() or t0)[0]["feats"]["missing"]))
 
     # fixture suite: degraded + disagreement
     print("fixture tests:")
