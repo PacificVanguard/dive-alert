@@ -1,15 +1,5 @@
 {
  "streaks": {
-  "D": {
-   "score": 7.2,
-   "entries": [
-    "La Jolla Cove",
-    "La Jolla Shores (Canyon)"
-   ],
-   "window_key": "20261105T0540-dawn",
-   "since": "2026-11-03T18:00:00-08:00",
-   "gate": false
-  },
   "K": {
    "score": 8.5,
    "entries": [
@@ -27,26 +17,6 @@
     "1000 Steps"
    ],
    "window_key": "20261106T1605-dusk",
-   "since": "2026-11-04T15:00:00-08:00",
-   "gate": false
-  },
-  "M": {
-   "score": 7.3,
-   "entries": [
-    "Leo Carrillo (Sequit Point)",
-    "Point Dume Cove"
-   ],
-   "window_key": "20261106T1457-dusk",
-   "since": "2026-11-04T15:00:00-08:00",
-   "gate": false
-  },
-  "P": {
-   "score": 7.0,
-   "entries": [
-    "Kahekili (Airport Beach)",
-    "Black Rock (Pu'u Keka'a)"
-   ],
-   "window_key": "20261105T1548-dusk",
    "since": "2026-11-04T15:00:00-08:00",
    "gate": false
   }
@@ -154,13 +124,13 @@
   "K:ndbc_spec": 0,
   "L:marine": 0,
   "L:weather": 0,
-  "L:ndbc_primary": 199,
-  "L:ndbc_offshore": 199,
-  "L:tides": 199,
+  "L:ndbc_primary": 200,
+  "L:ndbc_offshore": 200,
+  "L:tides": 200,
   "L:sst": 0,
   "L:chla": 0,
   "L:kd490": 0,
-  "L:ndbc_spec": 199,
+  "L:ndbc_spec": 200,
   "M:marine": 0,
   "M:weather": 0,
   "M:ndbc_primary": 0,
@@ -182,12 +152,12 @@
   "O:marine": 0,
   "O:weather": 0,
   "O:ndbc_primary": 0,
-  "O:ndbc_offshore": 199,
-  "O:tides": 199,
+  "O:ndbc_offshore": 200,
+  "O:tides": 200,
   "O:sst": 0,
   "O:chla": 0,
   "O:kd490": 0,
-  "O:ndbc_spec": 199,
+  "O:ndbc_spec": 200,
   "P:marine": 0,
   "P:weather": 0,
   "P:ndbc_primary": 0,
@@ -514,12 +484,10 @@
   "I": {},
   "J": {},
   "K": {
-   "20261105T1547-dusk": 2,
-   "20261111T0559-dawn": 1
+   "20261105T1547-dusk": 3,
+   "20261111T0559-dawn": 2
   },
-  "L": {
-   "20261109T0558-dawn": 1
-  },
+  "L": {},
   "M": {},
   "N": {},
   "O": {},
@@ -1465,7 +1433,7 @@
    "link": "https://thedivebell.com/kona/"
   }
  ],
- "last_scored": "2026-11-04T15:00:00-08:00",
+ "last_scored": "2026-11-04T18:00:00-08:00",
  "sms_digest_nums": {
   "A:2026-W45": [
    "2851fe611844520f",
