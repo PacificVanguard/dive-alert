@@ -9,6 +9,16 @@
    "window_key": "20261105T1547-dusk",
    "since": "2026-11-03T18:00:00-08:00",
    "gate": false
+  },
+  "L": {
+   "score": 9.9,
+   "entries": [
+    "Bari Reef",
+    "1000 Steps"
+   ],
+   "window_key": "20261107T1605-dusk",
+   "since": "2026-11-05T15:00:00-08:00",
+   "gate": false
   }
  },
  "last_tip_id": "db1",
@@ -108,54 +118,54 @@
   "K:ndbc_primary": 0,
   "K:ndbc_offshore": 0,
   "K:tides": 0,
-  "K:sst": 0,
+  "K:sst": 1,
   "K:chla": 0,
-  "K:kd490": 0,
+  "K:kd490": 1,
   "K:ndbc_spec": 0,
   "L:marine": 0,
   "L:weather": 0,
-  "L:ndbc_primary": 201,
-  "L:ndbc_offshore": 201,
-  "L:tides": 201,
-  "L:sst": 0,
+  "L:ndbc_primary": 202,
+  "L:ndbc_offshore": 202,
+  "L:tides": 202,
+  "L:sst": 1,
   "L:chla": 0,
-  "L:kd490": 0,
-  "L:ndbc_spec": 201,
+  "L:kd490": 1,
+  "L:ndbc_spec": 202,
   "M:marine": 0,
   "M:weather": 0,
   "M:ndbc_primary": 0,
   "M:ndbc_offshore": 0,
   "M:tides": 0,
-  "M:sst": 0,
+  "M:sst": 1,
   "M:chla": 0,
-  "M:kd490": 0,
+  "M:kd490": 1,
   "M:ndbc_spec": 0,
   "N:marine": 0,
   "N:weather": 0,
   "N:ndbc_primary": 0,
   "N:ndbc_offshore": 0,
   "N:tides": 0,
-  "N:sst": 0,
+  "N:sst": 1,
   "N:chla": 0,
-  "N:kd490": 0,
+  "N:kd490": 1,
   "N:ndbc_spec": 0,
   "O:marine": 0,
   "O:weather": 0,
   "O:ndbc_primary": 0,
-  "O:ndbc_offshore": 201,
-  "O:tides": 201,
-  "O:sst": 0,
+  "O:ndbc_offshore": 202,
+  "O:tides": 202,
+  "O:sst": 1,
   "O:chla": 0,
-  "O:kd490": 0,
-  "O:ndbc_spec": 201,
+  "O:kd490": 1,
+  "O:ndbc_spec": 202,
   "P:marine": 0,
   "P:weather": 0,
   "P:ndbc_primary": 0,
   "P:ndbc_offshore": 0,
   "P:tides": 0,
-  "P:sst": 0,
+  "P:sst": 1,
   "P:chla": 0,
-  "P:kd490": 0,
+  "P:kd490": 1,
   "P:ndbc_spec": 0,
   "A:marine_alt": 0,
   "C:marine_alt": 0,
@@ -293,7 +303,7 @@
    "unverified": 0
   },
   "L": {
-   "promises": 23,
+   "promises": 24,
    "rings": 0,
    "held": 0,
    "broke": 0,
@@ -333,7 +343,7 @@
    "unverified": 0
   }
  },
- "hook_idx": 253,
+ "hook_idx": 254,
  "axis_blind": {
   "flat": 0,
   "glass": 0,
@@ -474,10 +484,12 @@
   "I": {},
   "J": {},
   "K": {
-   "20261111T0559-dawn": 3,
-   "20261112T0600-dawn": 1
+   "20261111T1545-dusk": 1
   },
-  "L": {},
+  "L": {
+   "20261108T0557-dawn": 1,
+   "20261109T1605-dusk": 1
+  },
   "M": {},
   "N": {},
   "O": {},
@@ -1250,7 +1262,7 @@
      "sst_f": 81
     },
     "taken_back": {
-     "at": "2026-11-05T10:00:00-08:00",
+     "at": "2026-11-05T15:00:00-08:00",
      "why": "stirred up"
     }
    }
@@ -1426,7 +1438,7 @@
    "link": "https://thedivebell.com/kona/"
   }
  ],
- "last_scored": "2026-11-05T10:00:00-08:00",
+ "last_scored": "2026-11-05T15:00:00-08:00",
  "sms_digest_nums": {
   "A:2026-W45": [
    "2851fe611844520f",
