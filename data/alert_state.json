@@ -1,26 +1,5 @@
 {
- "streaks": {
-  "P": {
-   "score": 7.5,
-   "entries": [
-    "Kahekili (Airport Beach)",
-    "Black Rock (Pu'u Keka'a)"
-   ],
-   "window_key": "20261108T0603-dawn",
-   "since": "2026-11-06T09:00:00-08:00",
-   "gate": false
-  },
-  "K": {
-   "score": 7.1,
-   "entries": [
-    "Two Step (Honaunau)",
-    "Kahalu'u"
-   ],
-   "window_key": "20261107T0557-dawn",
-   "since": "2026-11-06T15:00:00-08:00",
-   "gate": false
-  }
- },
+ "streaks": {},
  "last_tip_id": "db1",
  "src_fail": {
   "marine": 0,
@@ -124,13 +103,13 @@
   "K:ndbc_spec": 0,
   "L:marine": 0,
   "L:weather": 0,
-  "L:ndbc_primary": 206,
-  "L:ndbc_offshore": 206,
-  "L:tides": 206,
+  "L:ndbc_primary": 207,
+  "L:ndbc_offshore": 207,
+  "L:tides": 207,
   "L:sst": 0,
   "L:chla": 0,
   "L:kd490": 0,
-  "L:ndbc_spec": 206,
+  "L:ndbc_spec": 207,
   "M:marine": 0,
   "M:weather": 0,
   "M:ndbc_primary": 0,
@@ -152,12 +131,12 @@
   "O:marine": 0,
   "O:weather": 0,
   "O:ndbc_primary": 0,
-  "O:ndbc_offshore": 206,
-  "O:tides": 206,
+  "O:ndbc_offshore": 207,
+  "O:tides": 207,
   "O:sst": 0,
   "O:chla": 0,
   "O:kd490": 0,
-  "O:ndbc_spec": 206,
+  "O:ndbc_spec": 207,
   "P:marine": 0,
   "P:weather": 0,
   "P:ndbc_primary": 0,
@@ -401,9 +380,7 @@
   ]
  },
  "sms_ring_due": {},
- "ntfy_digest_due": {
-  "L": "2026-W45"
- },
+ "ntfy_digest_due": {},
  "ntfy_digest_sent": {
   "A": "2026-W45",
   "C": "2026-W45",
@@ -413,7 +390,7 @@
   "G": "2026-W45",
   "H": "2026-W45",
   "I": "2026-W45",
-  "L": "2026-W44",
+  "L": "2026-W45",
   "M": "2026-W45",
   "N": "2026-W45",
   "J": "2026-W45",
@@ -487,7 +464,9 @@
   "L": {},
   "M": {},
   "N": {},
-  "O": {},
+  "O": {
+   "20261113T0515-dawn": 1
+  },
   "P": {}
  },
  "social_posted": {},
@@ -1416,7 +1395,7 @@
    "link": "https://thedivebell.com/kona/"
   }
  ],
- "last_scored": "2026-11-06T18:00:00-08:00",
+ "last_scored": "2026-11-07T08:00:00-08:00",
  "sms_digest_nums": {
   "A:2026-W45": [
    "2851fe611844520f",
