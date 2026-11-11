@@ -39,7 +39,7 @@
   "A:tides": 0,
   "A:sst": 0,
   "A:chla": 0,
-  "A:kd490": 0,
+  "A:kd490": 1,
   "A:ndbc_spec": 0,
   "C:marine": 0,
   "C:weather": 0,
@@ -124,13 +124,13 @@
   "K:ndbc_spec": 0,
   "L:marine": 0,
   "L:weather": 0,
-  "L:ndbc_primary": 217,
-  "L:ndbc_offshore": 217,
-  "L:tides": 217,
+  "L:ndbc_primary": 218,
+  "L:ndbc_offshore": 218,
+  "L:tides": 218,
   "L:sst": 0,
   "L:chla": 0,
   "L:kd490": 0,
-  "L:ndbc_spec": 217,
+  "L:ndbc_spec": 218,
   "M:marine": 0,
   "M:weather": 0,
   "M:ndbc_primary": 0,
@@ -152,12 +152,12 @@
   "O:marine": 0,
   "O:weather": 0,
   "O:ndbc_primary": 0,
-  "O:ndbc_offshore": 217,
-  "O:tides": 217,
+  "O:ndbc_offshore": 218,
+  "O:tides": 218,
   "O:sst": 0,
   "O:chla": 0,
   "O:kd490": 0,
-  "O:ndbc_spec": 217,
+  "O:ndbc_spec": 218,
   "P:marine": 0,
   "P:weather": 0,
   "P:ndbc_primary": 0,
@@ -378,20 +378,24 @@
   "P": "20261022T0554-dawn",
   "K": "20261105T1547-dusk"
  },
- "sms_digest_due": {},
+ "sms_digest_due": {
+  "J": "2026-W46",
+  "K": "2026-W46",
+  "P": "2026-W46"
+ },
  "sms_digest_sent": {
-  "A": "2026-W45",
-  "C": "2026-W45",
-  "D": "2026-W45",
-  "E": "2026-W45",
-  "F": "2026-W45",
-  "G": "2026-W45",
-  "H": "2026-W45",
-  "I": "2026-W45",
+  "A": "2026-W46",
+  "C": "2026-W46",
+  "D": "2026-W46",
+  "E": "2026-W46",
+  "F": "2026-W46",
+  "G": "2026-W46",
+  "H": "2026-W46",
+  "I": "2026-W46",
   "J": "2026-W45",
   "K": "2026-W45",
-  "M": "2026-W45",
-  "N": "2026-W45",
+  "M": "2026-W46",
+  "N": "2026-W46",
   "P": "2026-W45"
  },
  "sms_rung_nums": {
@@ -401,22 +405,25 @@
   ]
  },
  "sms_ring_due": {},
- "ntfy_digest_due": {},
+ "ntfy_digest_due": {
+  "L": "2026-W46",
+  "O": "2026-W46"
+ },
  "ntfy_digest_sent": {
-  "A": "2026-W45",
-  "C": "2026-W45",
-  "D": "2026-W45",
-  "E": "2026-W45",
-  "F": "2026-W45",
-  "G": "2026-W45",
-  "H": "2026-W45",
-  "I": "2026-W45",
+  "A": "2026-W46",
+  "C": "2026-W46",
+  "D": "2026-W46",
+  "E": "2026-W46",
+  "F": "2026-W46",
+  "G": "2026-W46",
+  "H": "2026-W46",
+  "I": "2026-W46",
   "L": "2026-W45",
-  "M": "2026-W45",
-  "N": "2026-W45",
-  "J": "2026-W45",
-  "K": "2026-W45",
-  "P": "2026-W45",
+  "M": "2026-W46",
+  "N": "2026-W46",
+  "J": "2026-W46",
+  "K": "2026-W46",
+  "P": "2026-W46",
   "O": "2026-W45"
  },
  "digest_promise": {
@@ -458,10 +465,10 @@
   },
   "K": {
    "days": [
-    "2026-10-21"
+    "2026-11-15",
+    "2026-11-16"
    ],
-   "week": "2026-W42",
-   "retracted": true
+   "week": "2026-W46"
   },
   "P": {
    "days": [
@@ -482,10 +489,11 @@
   "I": {},
   "J": {},
   "K": {
-   "20261116T0602-dawn": 6,
-   "20261114T1544-dusk": 4,
-   "20261116T1544-dusk": 3,
-   "20261115T1544-dusk": 2
+   "20261116T0602-dawn": 7,
+   "20261116T1544-dusk": 4,
+   "20261115T1544-dusk": 3,
+   "20261117T0602-dawn": 1,
+   "20261117T1544-dusk": 1
   },
   "L": {},
   "M": {},
@@ -494,7 +502,29 @@
   "P": {}
  },
  "social_posted": {},
- "social_queue": [],
+ "social_queue": [
+  {
+   "key": "week:2026-W46",
+   "kind": "week",
+   "text": "The week ahead, 15 bells. Best: Kona Mon dawn 9.2, Maui Sat dusk 8.1, Bonaire Tue dusk 8.0. Kona is ringing. Quietest: Laguna Beach, 92 days. thedivebell.com/",
+   "card": {
+    "kind": "week",
+    "eyebrow": "THE DIVE BELL \u00b7 15 BELLS \u00b7 NOV 11",
+    "lines": [
+     "Kona \u00b7 Mon dawn \u00b7 9.2  RINGING",
+     "Maui \u00b7 Sat dusk \u00b7 8.1",
+     "Bonaire \u00b7 Tue dusk \u00b7 8.0",
+     "Sydney \u00b7 Fri dawn \u00b7 8.0",
+     "Monterey \u00b7 Thu dawn \u00b7 6.4",
+     "Catalina \u00b7 Thu dusk \u00b7 5.8"
+    ],
+    "foot": "thedivebell.com/  \u00b7  Kona is ringing"
+   },
+   "alt": "The Dive Bell, the week ahead across 15 bells. Kona Mon dawn 9.2, Maui Sat dusk 8.1, Bonaire Tue dusk 8.0",
+   "created": "2026-11-11T17:59:23.551263+00:00",
+   "done": []
+  }
+ ],
  "ring_ledger": {
   "A": [
    {
@@ -1417,11 +1447,23 @@
    "text": "THE BELL IS RINGING - KONA. Thu Nov 5 at dusk: flat, glassy, dry, sunny, 81F water. In by 3:47pm at Two Step (Honaunau). thedivebell.com/kona/",
    "date": "2026-11-04T23:42:46.095662+00:00",
    "link": "https://thedivebell.com/kona/"
+  },
+  {
+   "key": "week:2026-W46",
+   "kind": "week",
+   "title": "The week ahead",
+   "text": "The week ahead, 15 bells. Best: Kona Mon dawn 9.2, Maui Sat dusk 8.1, Bonaire Tue dusk 8.0. Kona is ringing. Quietest: Laguna Beach, 92 days. thedivebell.com/",
+   "date": "2026-11-11T17:59:23.551263+00:00",
+   "link": "https://thedivebell.com/"
   }
  ],
- "last_scored": "2026-11-10T18:00:00-08:00",
+ "last_scored": "2026-11-11T09:00:00-08:00",
  "sms_digest_nums": {
   "A:2026-W45": [
+   "2851fe611844520f",
+   "a759eafee1810304"
+  ],
+  "A:2026-W46": [
    "2851fe611844520f",
    "a759eafee1810304"
   ]
