@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-11T18:00:00-08:00",
+ "updated": "2026-11-11T19:00:00-08:00",
  "sms_live": true,
  "zones": {
   "A": {
@@ -41,8 +41,8 @@
     "number": "833-858-2355",
     "text": "Text LAGUNA to 833-858-2355"
    },
-   "forecast_sms": "THE DIVE BELL - LAGUNA BEACH, the week ahead as of Wed 6pm.\nBest: Thu dawn, 4.8 of 10 - rough, held back by swell.\nThu 4.8 / Fri 3.7 / Sat 2.0 / Sun 1.3 / Mon 1.9 / Tue 1.0 / Wed 3.3\nA quiet week.",
-   "read_at": "2026-11-11T18:00:00-08:00",
+   "forecast_sms": "THE DIVE BELL - LAGUNA BEACH, the week ahead as of Wed 7pm.\nBest: Thu dawn, 4.8 of 10 - rough, held back by swell.\nThu 4.8 / Fri 3.7 / Sat 2.0 / Sun 1.3 / Mon 1.9 / Tue 1.0 / Wed 3.3\nA quiet week.",
+   "read_at": "2026-11-11T19:00:00-08:00",
    "last_ring": null,
    "sst_f": 75,
    "windows": [
@@ -791,13 +791,13 @@
    "buoy_now": {
     "ft": 3.3,
     "s": 13.0,
-    "dir": 263,
+    "dir": 259,
     "age_h": 0.5
    },
    "lat": 33.542,
    "lon": -117.785,
    "water": {
-    "f": 74.8,
+    "f": 74.7,
     "station": "Newport Pier",
     "km": 15.2,
     "age_h": 0.0,
@@ -806,7 +806,7 @@
    "shore": {
     "station": "Newport Pier",
     "km": 15.2,
-    "ntu": 0.38,
+    "ntu": 0.35,
     "chl": 0.86,
     "age_h": 0.0,
     "ntu_med_24h": 0.22
@@ -856,7 +856,10 @@
     "full_in_d": 13,
     "new_in_d": 27
    },
-   "kd490": null,
+   "kd490": {
+    "m1": 0.058,
+    "age_d": 10
+   },
    "chla": 0.33
   },
   "C": {
@@ -897,8 +900,8 @@
     "number": "833-858-2355",
     "text": "Text DANA to 833-858-2355"
    },
-   "forecast_sms": "THE DIVE BELL - DANA POINT, the week ahead as of Wed 6pm.\nBest: Thu dawn, 4.1 of 10 - rough, held back by swell.\nThu 4.1 / Fri 3.9 / Sat 2.0 / Sun 1.7 / Mon 2.1 / Tue 1.0 / Wed 3.7\nA quiet week.",
-   "read_at": "2026-11-11T18:00:00-08:00",
+   "forecast_sms": "THE DIVE BELL - DANA POINT, the week ahead as of Wed 7pm.\nBest: Thu dawn, 4.1 of 10 - rough, held back by swell.\nThu 4.1 / Fri 3.9 / Sat 2.0 / Sun 1.7 / Mon 2.1 / Tue 1.0 / Wed 3.7\nA quiet week.",
+   "read_at": "2026-11-11T19:00:00-08:00",
    "last_ring": null,
    "sst_f": 74,
    "windows": [
@@ -1647,13 +1650,13 @@
    "buoy_now": {
     "ft": 3.3,
     "s": 13.0,
-    "dir": 263,
+    "dir": 259,
     "age_h": 0.5
    },
    "lat": 33.46,
    "lon": -117.714,
    "water": {
-    "f": 74.8,
+    "f": 74.7,
     "station": "Newport Pier",
     "km": 25.8,
     "age_h": 0.0,
@@ -1662,14 +1665,14 @@
    "shore": {
     "station": "Newport Pier",
     "km": 25.8,
-    "ntu": 0.38,
+    "ntu": 0.35,
     "chl": 0.86,
     "age_h": 0.0,
     "ntu_med_24h": 0.22
    },
    "wind_now": null,
    "wind_vs_model": null,
-   "sst_src": "model",
+   "sst_src": "satellite",
    "anchor": 1.065,
    "sst_trend": [
     {
@@ -1712,7 +1715,10 @@
     "full_in_d": 13,
     "new_in_d": 27
    },
-   "kd490": null,
+   "kd490": {
+    "m1": 0.059,
+    "age_d": 10
+   },
    "chla": 0.3
   },
   "D": {
@@ -1753,8 +1759,8 @@
     "number": "833-858-2355",
     "text": "Text JOLLA to 833-858-2355"
    },
-   "forecast_sms": "THE DIVE BELL - LA JOLLA, the week ahead as of Wed 6pm.\nBest: Mon dawn, 7.1 of 10 - workable, held back by stirred-up water. In by 5:50am at La Jolla Cove.\nThu 5.8 / Fri 4.9 / Sat 1.0 / Sun 4.8 / Mon 7.1 / Tue 1.0 / Wed 3.5\nNo ring in sight, but a morning worth having.",
-   "read_at": "2026-11-11T18:00:00-08:00",
+   "forecast_sms": "THE DIVE BELL - LA JOLLA, the week ahead as of Wed 7pm.\nBest: Mon dawn, 7.1 of 10 - workable, held back by stirred-up water. In by 5:50am at La Jolla Cove.\nThu 5.8 / Fri 4.9 / Sat 1.0 / Sun 4.8 / Mon 7.1 / Tue 1.0 / Wed 3.5\nNo ring in sight, but a morning worth having.",
+   "read_at": "2026-11-11T19:00:00-08:00",
    "last_ring": "2026-10-26",
    "sst_f": 75,
    "windows": [
@@ -2503,7 +2509,7 @@
    "buoy_now": {
     "ft": 3.0,
     "s": 13.0,
-    "dir": 291,
+    "dir": 292,
     "age_h": 0.5
    },
    "lat": 32.85,
@@ -2512,25 +2518,25 @@
     "f": 75.4,
     "station": "Buoy 46254",
     "km": 2.1,
-    "age_h": 0.0,
+    "age_h": 0.1,
     "judges": true
    },
    "shore": {
     "station": "Scripps Pier",
     "km": 2.4,
-    "ntu": 1.29,
-    "chl": 0.6,
+    "ntu": 0.9,
+    "chl": 0.64,
     "age_h": 0.0,
     "ntu_med_24h": 0.72
    },
    "wind_now": {
-    "kn": 2.33,
+    "kn": 2.53,
     "station": "Scripps Pier (NOAA)",
     "km": 2.3,
     "age_h": 0.0
    },
    "wind_vs_model": {
-    "bias_kn": -0.7,
+    "bias_kn": -0.8,
     "dawn_bias_kn": -1.6,
     "n": 73,
     "station": "Scripps Pier (NOAA)",
@@ -2579,7 +2585,10 @@
     "full_in_d": 13,
     "new_in_d": 27
    },
-   "kd490": null,
+   "kd490": {
+    "m1": 0.074,
+    "age_d": 10
+   },
    "chla": 0.59
   },
   "E": {
@@ -2620,8 +2629,8 @@
     "number": "833-858-2355",
     "text": "Text MONTEREY to 833-858-2355"
    },
-   "forecast_sms": "THE DIVE BELL - MONTEREY, the week ahead as of Wed 6pm.\nBest: Thu dawn, 6.5 of 10 - workable, held back by stirred-up water. NWS has a beach hazards statement out for Thu - no cove named under a warning.\nThu 6.5 / Fri 5.3 / Sat 1.0 / Sun 1.7 / Mon 1.0 / Tue 1.9 / Wed 4.6\nA quiet week.",
-   "read_at": "2026-11-11T18:00:00-08:00",
+   "forecast_sms": "THE DIVE BELL - MONTEREY, the week ahead as of Wed 7pm.\nBest: Thu dawn, 6.5 of 10 - workable, held back by stirred-up water. NWS has a beach hazards statement out for Thu - no cove named under a warning.\nThu 6.5 / Fri 5.3 / Sat 1.0 / Sun 1.7 / Mon 1.0 / Tue 1.9 / Wed 4.6\nA quiet week.",
+   "read_at": "2026-11-11T19:00:00-08:00",
    "last_ring": "2026-10-16",
    "sst_f": 67,
    "windows": [
@@ -3380,8 +3389,8 @@
    "buoy_now": {
     "ft": 5.6,
     "s": 13.0,
-    "dir": 282,
-    "age_h": 0.4
+    "dir": 285,
+    "age_h": 0.5
    },
    "lat": 36.611,
    "lon": -121.898,
@@ -3394,15 +3403,15 @@
    },
    "shore": null,
    "wind_now": {
-    "kn": 3.0,
+    "kn": 4.0,
     "station": "Monterey Airport",
     "km": 5.5,
-    "age_h": 0.0
+    "age_h": 0.2
    },
    "wind_vs_model": {
     "bias_kn": 0.1,
     "dawn_bias_kn": 0.9,
-    "n": 17,
+    "n": 16,
     "station": "Monterey Airport",
     "km": 5.5
    },
@@ -3449,7 +3458,10 @@
     "full_in_d": 13,
     "new_in_d": 27
    },
-   "kd490": null,
+   "kd490": {
+    "m1": 0.078,
+    "age_d": 10
+   },
    "chla": 1.3
   },
   "F": {
@@ -3490,10 +3502,10 @@
     "number": "833-858-2355",
     "text": "Text CATALINA to 833-858-2355"
    },
-   "forecast_sms": "THE DIVE BELL - CATALINA, the week ahead as of Wed 6pm.\nBest: Thu dusk, 5.9 of 10 - marginal, held back by stirred-up water.\nThu 5.9 / Fri 4.6 / Sat 2.7 / Sun 4.2 / Mon 3.6 / Tue 2.1 / Wed 4.4\nA quiet week.",
-   "read_at": "2026-11-11T18:00:00-08:00",
+   "forecast_sms": "THE DIVE BELL - CATALINA, the week ahead as of Wed 7pm.\nBest: Thu dusk, 5.9 of 10 - marginal, held back by stirred-up water.\nThu 5.9 / Fri 4.6 / Sat 2.7 / Sun 4.2 / Mon 3.6 / Tue 2.1 / Wed 4.4\nA quiet week.",
+   "read_at": "2026-11-11T19:00:00-08:00",
    "last_ring": "2026-09-04",
-   "sst_f": 76,
+   "sst_f": 75,
    "windows": [
     {
      "label": "Thu dawn",
@@ -4229,8 +4241,8 @@
    ],
    "buoy_now": {
     "ft": 3.6,
-    "s": 13.0,
-    "dir": 253,
+    "s": 14.0,
+    "dir": 242,
     "age_h": 0.5
    },
    "lat": 33.345,
@@ -4239,7 +4251,7 @@
    "shore": null,
    "wind_now": null,
    "wind_vs_model": null,
-   "sst_src": "model",
+   "sst_src": "satellite",
    "anchor": 0.918,
    "sst_trend": [
     {
@@ -4282,7 +4294,10 @@
     "full_in_d": 13,
     "new_in_d": 27
    },
-   "kd490": null,
+   "kd490": {
+    "m1": 0.046,
+    "age_d": 10
+   },
    "chla": 0.25
   },
   "G": {
@@ -4323,10 +4338,10 @@
     "number": "833-858-2355",
     "text": "Text PALOS to 833-858-2355"
    },
-   "forecast_sms": "THE DIVE BELL - PALOS VERDES, the week ahead as of Wed 6pm.\nBest: Thu dawn, 5.6 of 10 - marginal, held back by swell. NWS has a beach hazards statement out for Thu - no cove named under a warning.\nThu 5.6 / Fri 3.8 / Sat 1.5 / Sun 1.6 / Mon 2.4 / Tue 2.2 / Wed 3.9\nA quiet week.",
-   "read_at": "2026-11-11T18:00:00-08:00",
+   "forecast_sms": "THE DIVE BELL - PALOS VERDES, the week ahead as of Wed 7pm.\nBest: Thu dawn, 5.6 of 10 - marginal, held back by swell. NWS has a beach hazards statement out for Thu - no cove named under a warning.\nThu 5.6 / Fri 3.8 / Sat 1.5 / Sun 1.6 / Mon 2.4 / Tue 2.2 / Wed 3.9\nA quiet week.",
+   "read_at": "2026-11-11T19:00:00-08:00",
    "last_ring": "2026-10-18",
-   "sst_f": 75,
+   "sst_f": 74,
    "windows": [
     {
      "label": "Thu dawn",
@@ -5062,30 +5077,30 @@
    ],
    "buoy_now": {
     "ft": 3.6,
-    "s": 13.0,
-    "dir": 253,
-    "age_h": 0.5
+    "s": 14.0,
+    "dir": 242,
+    "age_h": 0.6
    },
    "lat": 33.738,
    "lon": -118.396,
    "water": {
-    "f": 75.2,
+    "f": 75.0,
     "station": "Buoy 46221",
     "km": 25.5,
-    "age_h": 0.0,
+    "age_h": 0.1,
     "judges": false
    },
    "shore": {
     "station": "Santa Monica Pier",
     "km": 31.5,
-    "ntu": 0.92,
-    "chl": 0.57,
+    "ntu": 0.75,
+    "chl": 0.77,
     "age_h": 0.0,
-    "ntu_med_24h": 0.95
+    "ntu_med_24h": 0.92
    },
    "wind_now": null,
    "wind_vs_model": null,
-   "sst_src": "model",
+   "sst_src": "satellite",
    "anchor": 0.75,
    "sst_trend": [
     {
@@ -5128,7 +5143,10 @@
     "full_in_d": 13,
     "new_in_d": 27
    },
-   "kd490": null,
+   "kd490": {
+    "m1": 0.058,
+    "age_d": 10
+   },
    "chla": 0.39
   },
   "H": {
@@ -5169,8 +5187,8 @@
     "number": "833-858-2355",
     "text": "Text LOBOS to 833-858-2355"
    },
-   "forecast_sms": "THE DIVE BELL - POINT LOBOS, the week ahead as of Wed 6pm.\nBest: Thu dawn, 4.3 of 10 - rough, held back by swell.\nThu 4.3 / Fri 3.1 / Sat 1.0 / Sun 1.0 / Mon 1.0 / Tue 1.0 / Wed 2.1\nA quiet week.",
-   "read_at": "2026-11-11T18:00:00-08:00",
+   "forecast_sms": "THE DIVE BELL - POINT LOBOS, the week ahead as of Wed 7pm.\nBest: Thu dawn, 4.3 of 10 - rough, held back by swell.\nThu 4.3 / Fri 3.1 / Sat 1.0 / Sun 1.0 / Mon 1.0 / Tue 1.0 / Wed 2.1\nA quiet week.",
+   "read_at": "2026-11-11T19:00:00-08:00",
    "last_ring": "2026-10-17",
    "sst_f": 67,
    "windows": [
@@ -5930,7 +5948,7 @@
     "ft": 6.6,
     "s": 10.0,
     "dir": 315,
-    "age_h": 431.9
+    "age_h": 432.5
    },
    "lat": 36.522,
    "lon": -121.94,
@@ -5943,15 +5961,15 @@
    },
    "shore": null,
    "wind_now": {
-    "kn": 3.0,
+    "kn": 4.0,
     "station": "Monterey Airport",
     "km": 10.3,
-    "age_h": 0.0
+    "age_h": 0.2
    },
    "wind_vs_model": {
     "bias_kn": -1.7,
     "dawn_bias_kn": -1.7,
-    "n": 17,
+    "n": 16,
     "station": "Monterey Airport",
     "km": 10.3
    },
@@ -5998,7 +6016,10 @@
     "full_in_d": 13,
     "new_in_d": 27
    },
-   "kd490": null,
+   "kd490": {
+    "m1": 0.07,
+    "age_d": 10
+   },
    "chla": 1.0
   },
   "I": {
@@ -6039,10 +6060,10 @@
     "number": "833-858-2355",
     "text": "Text BARBARA to 833-858-2355"
    },
-   "forecast_sms": "THE DIVE BELL - SANTA BARBARA, the week ahead as of Wed 6pm.\nBest: Wed dawn, 3.7 of 10 - rough, held back by stirred-up water.\nThu 3.0 / Fri 1.5 / Sat 1.5 / Sun 1.5 / Mon 1.5 / Tue 1.5 / Wed 3.7\nA quiet week.",
-   "read_at": "2026-11-11T18:00:00-08:00",
+   "forecast_sms": "THE DIVE BELL - SANTA BARBARA, the week ahead as of Wed 7pm.\nBest: Wed dawn, 3.7 of 10 - rough, held back by stirred-up water.\nThu 3.0 / Fri 1.5 / Sat 1.5 / Sun 1.5 / Mon 1.5 / Tue 1.5 / Wed 3.7\nA quiet week.",
+   "read_at": "2026-11-11T19:00:00-08:00",
    "last_ring": "2026-09-07",
-   "sst_f": 72,
+   "sst_f": 73,
    "windows": [
     {
      "label": "Thu dawn",
@@ -6777,10 +6798,10 @@
     }
    ],
    "buoy_now": {
-    "ft": 9.8,
+    "ft": 8.9,
     "s": 13.0,
-    "dir": 296,
-    "age_h": 0.6
+    "dir": 293,
+    "age_h": 0.7
    },
    "lat": 34.462,
    "lon": -120.07,
@@ -6794,14 +6815,14 @@
    "shore": {
     "station": "Stearns Wharf",
     "km": 35.5,
-    "ntu": 4.71,
-    "chl": 0.73,
+    "ntu": 4.39,
+    "chl": 0.48,
     "age_h": 0.0,
     "ntu_med_24h": 5.42
    },
    "wind_now": null,
    "wind_vs_model": null,
-   "sst_src": "model",
+   "sst_src": "satellite",
    "anchor": null,
    "sst_trend": [
     {
@@ -6844,7 +6865,10 @@
     "full_in_d": 13,
     "new_in_d": 27
    },
-   "kd490": null,
+   "kd490": {
+    "m1": 0.07,
+    "age_d": 10
+   },
    "chla": 0.35
   },
   "J": {
@@ -6885,8 +6909,8 @@
     "number": "833-858-2355",
     "text": "Text OAHU to 833-858-2355"
    },
-   "forecast_sms": "THE DIVE BELL - OAHU NORTH SHORE, the week ahead as of Wed 4pm.\nBest: Sat dawn, 4.5 of 10 - rough, held back by swell.\nThu 1.0 / Fri 3.6 / Sat 4.5 / Sun 4.0 / Mon 4.0 / Tue 4.0 / Wed 4.0\nA quiet week.",
-   "read_at": "2026-11-11T18:00:00-08:00",
+   "forecast_sms": "THE DIVE BELL - OAHU NORTH SHORE, the week ahead as of Wed 5pm.\nBest: Sat dawn, 4.5 of 10 - rough, held back by swell.\nThu 1.0 / Fri 3.6 / Sat 4.5 / Sun 4.0 / Mon 4.0 / Tue 4.0 / Wed 4.0\nA quiet week.",
+   "read_at": "2026-11-11T19:00:00-08:00",
    "last_ring": "2026-10-22",
    "sst_f": 78,
    "windows": [
@@ -6937,7 +6961,7 @@
      "end": "2026-11-12T17:50:00-10:00",
      "kind": "dusk",
      "score": 1.0,
-     "conf": "medium",
+     "conf": "high",
      "limit": "wind",
      "entries": [
       "Three Tables",
@@ -7638,10 +7662,10 @@
     }
    ],
    "buoy_now": {
-    "ft": 8.9,
-    "s": 17.0,
-    "dir": 325,
-    "age_h": 0.5
+    "ft": 9.2,
+    "s": 15.0,
+    "dir": 332,
+    "age_h": 0.6
    },
    "lat": 21.655,
    "lon": -158.063,
@@ -7649,7 +7673,7 @@
     "f": 78.3,
     "station": "Buoy 51201",
     "km": 5.9,
-    "age_h": 0.0,
+    "age_h": 0.1,
     "judges": true
    },
    "shore": null,
@@ -7698,7 +7722,10 @@
     "full_in_d": 13,
     "new_in_d": 27
    },
-   "kd490": null,
+   "kd490": {
+    "m1": 0.051,
+    "age_d": 10
+   },
    "chla": 0.19
   },
   "K": {
@@ -7739,10 +7766,10 @@
     "number": "833-858-2355",
     "text": "Text KONA to 833-858-2355"
    },
-   "forecast_sms": "THE DIVE BELL - KONA, the week ahead as of Wed 4pm.\nBest: Tue dawn, 9.2 of 10 - excellent. In by 6:02am at Two Step (Honaunau).\nThu 7.7 / Fri 7.2 / Sat 7.8 / Sun 9.1 / Mon 9.1 / Tue 9.2 / Wed 9.1\nSun dawn looks perfect - if it holds, the bell will ring.",
-   "read_at": "2026-11-11T18:00:00-08:00",
+   "forecast_sms": "THE DIVE BELL - KONA, the week ahead as of Wed 5pm.\nBest: Tue dawn, 9.2 of 10 - excellent. In by 6:02am at Two Step (Honaunau).\nThu 7.7 / Fri 7.2 / Sat 7.8 / Sun 9.1 / Mon 9.1 / Tue 9.2 / Wed 9.1\nSun dawn looks perfect - if it holds, the bell will ring.",
+   "read_at": "2026-11-11T19:00:00-08:00",
    "last_ring": null,
-   "sst_f": 82,
+   "sst_f": 81,
    "windows": [
     {
      "label": "Thu dawn",
@@ -8290,7 +8317,7 @@
       "Kahalu'u"
      ],
      "gate": false,
-     "lining_up": false,
+     "lining_up": true,
      "aligned": true,
      "odds": {
       "p_glass": 1.0,
@@ -8492,10 +8519,10 @@
     }
    ],
    "buoy_now": {
-    "ft": 11.2,
+    "ft": 10.2,
     "s": 8.0,
-    "dir": 79,
-    "age_h": 0.6
+    "dir": 83,
+    "age_h": 0.7
    },
    "lat": 19.421,
    "lon": -155.913,
@@ -8503,7 +8530,7 @@
    "shore": null,
    "wind_now": null,
    "wind_vs_model": null,
-   "sst_src": "model",
+   "sst_src": "satellite",
    "anchor": null,
    "sst_trend": [
     {
@@ -8546,7 +8573,10 @@
     "full_in_d": 13,
     "new_in_d": 27
    },
-   "kd490": null,
+   "kd490": {
+    "m1": 0.031,
+    "age_d": 16
+   },
    "chla": 0.04
   },
   "L": {
@@ -8587,8 +8617,8 @@
     "topic": "bonaire-dive-c06b33ce",
     "text": "Subscribe to bonaire-dive-c06b33ce in the ntfy app"
    },
-   "forecast_sms": "THE DIVE BELL - BONAIRE, the week ahead as of Wed 10pm.\nBest: Tue dusk, 8.1 of 10 - good, held back by stirred-up water. In by 4:04pm at Bari Reef.\nThu 4.0 / Fri 4.0 / Sat 4.0 / Sun 4.9 / Mon 6.2 / Tue 8.1 / Wed 7.5\nNo ring in sight, but a morning worth having.",
-   "read_at": "2026-11-11T18:00:00-08:00",
+   "forecast_sms": "THE DIVE BELL - BONAIRE, the week ahead as of Wed 11pm.\nBest: Tue dusk, 8.1 of 10 - good, held back by stirred-up water. In by 4:04pm at Bari Reef.\nThu 4.0 / Fri 4.0 / Sat 4.0 / Sun 4.9 / Mon 6.2 / Tue 8.1 / Wed 7.5\nNo ring in sight, but a morning worth having.",
+   "read_at": "2026-11-11T19:00:00-08:00",
    "last_ring": "2026-09-04",
    "sst_f": 85,
    "windows": [
@@ -9133,7 +9163,7 @@
    "shore": null,
    "wind_now": null,
    "wind_vs_model": null,
-   "sst_src": "model",
+   "sst_src": "satellite",
    "anchor": null,
    "sst_trend": [
     {
@@ -9176,7 +9206,10 @@
     "full_in_d": 13,
     "new_in_d": 27
    },
-   "kd490": null,
+   "kd490": {
+    "m1": 0.039,
+    "age_d": 13
+   },
    "chla": 0.12
   },
   "M": {
@@ -9217,10 +9250,10 @@
     "number": "833-858-2355",
     "text": "Text MALIBU to 833-858-2355"
    },
-   "forecast_sms": "THE DIVE BELL - MALIBU, the week ahead as of Wed 6pm.\nBest: Thu dusk, 4.8 of 10 - rough, held back by swell.\nThu 4.8 / Fri 1.5 / Sat 1.0 / Sun 1.0 / Mon 4.6 / Tue 1.0 / Wed 4.0\nA quiet week.",
-   "read_at": "2026-11-11T18:00:00-08:00",
+   "forecast_sms": "THE DIVE BELL - MALIBU, the week ahead as of Wed 7pm.\nBest: Thu dusk, 4.8 of 10 - rough, held back by swell.\nThu 4.8 / Fri 1.5 / Sat 1.0 / Sun 1.0 / Mon 4.6 / Tue 1.0 / Wed 4.0\nA quiet week.",
+   "read_at": "2026-11-11T19:00:00-08:00",
    "last_ring": null,
-   "sst_f": 73,
+   "sst_f": 75,
    "windows": [
     {
      "label": "Thu dawn",
@@ -9966,30 +9999,30 @@
    ],
    "buoy_now": {
     "ft": 3.6,
-    "s": 13.0,
-    "dir": 253,
-    "age_h": 0.5
+    "s": 14.0,
+    "dir": 242,
+    "age_h": 0.6
    },
    "lat": 33.99,
    "lon": -118.805,
    "water": {
-    "f": 75.2,
+    "f": 75.0,
     "station": "Buoy 46221",
     "km": 21.8,
-    "age_h": 0.0,
+    "age_h": 0.1,
     "judges": false
    },
    "shore": {
     "station": "Santa Monica Pier",
     "km": 28.3,
-    "ntu": 0.92,
-    "chl": 0.57,
+    "ntu": 0.75,
+    "chl": 0.77,
     "age_h": 0.0,
-    "ntu_med_24h": 0.95
+    "ntu_med_24h": 0.92
    },
    "wind_now": null,
    "wind_vs_model": null,
-   "sst_src": "model",
+   "sst_src": "satellite",
    "anchor": 0.941,
    "sst_trend": [
     {
@@ -10032,7 +10065,10 @@
     "full_in_d": 13,
     "new_in_d": 27
    },
-   "kd490": null,
+   "kd490": {
+    "m1": 0.065,
+    "age_d": 10
+   },
    "chla": 0.32
   },
   "N": {
@@ -10073,10 +10109,10 @@
     "number": "833-858-2355",
     "text": "Text VENTURA to 833-858-2355"
    },
-   "forecast_sms": "THE DIVE BELL - VENTURA COUNTY, the week ahead as of Wed 6pm.\nBest: Wed dawn, 3.8 of 10 - rough, held back by stirred-up water.\nThu 2.7 / Fri 1.3 / Sat 1.9 / Sun 1.3 / Mon 1.3 / Tue 2.2 / Wed 3.8\nA quiet week.",
-   "read_at": "2026-11-11T18:00:00-08:00",
+   "forecast_sms": "THE DIVE BELL - VENTURA COUNTY, the week ahead as of Wed 7pm.\nBest: Wed dawn, 3.8 of 10 - rough, held back by stirred-up water.\nThu 2.7 / Fri 1.3 / Sat 1.9 / Sun 1.3 / Mon 1.3 / Tue 2.2 / Wed 3.8\nA quiet week.",
+   "read_at": "2026-11-11T19:00:00-08:00",
    "last_ring": null,
-   "sst_f": 73,
+   "sst_f": 74,
    "windows": [
     {
      "label": "Thu dawn",
@@ -10084,7 +10120,7 @@
      "end": "2026-11-12T08:55:00-08:00",
      "kind": "dawn",
      "score": 2.7,
-     "conf": "low",
+     "conf": "medium",
      "limit": "swell",
      "entries": [
       "County Line Reef (Yerba Buena)",
@@ -10125,7 +10161,7 @@
      "end": "2026-11-12T16:53:00-08:00",
      "kind": "dusk",
      "score": 1.3,
-     "conf": "low",
+     "conf": "medium",
      "limit": "swell",
      "entries": [
       "La Jenelle (Port Hueneme)",
@@ -10166,7 +10202,7 @@
      "end": "2026-11-13T08:56:00-08:00",
      "kind": "dawn",
      "score": 1.3,
-     "conf": "low",
+     "conf": "medium",
      "limit": "swell",
      "entries": [
       "County Line Reef (Yerba Buena)",
@@ -10207,7 +10243,7 @@
      "end": "2026-11-13T16:53:00-08:00",
      "kind": "dusk",
      "score": 1.3,
-     "conf": "low",
+     "conf": "medium",
      "limit": "swell",
      "entries": [
       "La Jenelle (Port Hueneme)",
@@ -10248,7 +10284,7 @@
      "end": "2026-11-14T08:57:00-08:00",
      "kind": "dawn",
      "score": 1.9,
-     "conf": "low",
+     "conf": "medium",
      "limit": "stirred up",
      "entries": [
       "County Line Reef (Yerba Buena)",
@@ -10289,7 +10325,7 @@
      "end": "2026-11-14T16:52:00-08:00",
      "kind": "dusk",
      "score": 1.3,
-     "conf": "low",
+     "conf": "medium",
      "limit": "swell",
      "entries": [
       "County Line Reef (Yerba Buena)",
@@ -10330,7 +10366,7 @@
      "end": "2026-11-15T08:58:00-08:00",
      "kind": "dawn",
      "score": 1.3,
-     "conf": "low",
+     "conf": "medium",
      "limit": "swell",
      "entries": [
       "County Line Reef (Yerba Buena)",
@@ -10371,7 +10407,7 @@
      "end": "2026-11-15T16:52:00-08:00",
      "kind": "dusk",
      "score": 1.3,
-     "conf": "low",
+     "conf": "medium",
      "limit": "swell",
      "entries": [
       "County Line Reef (Yerba Buena)",
@@ -10412,7 +10448,7 @@
      "end": "2026-11-16T08:59:00-08:00",
      "kind": "dawn",
      "score": 1.3,
-     "conf": "low",
+     "conf": "medium",
      "limit": "swell",
      "entries": [
       "County Line Reef (Yerba Buena)",
@@ -10453,7 +10489,7 @@
      "end": "2026-11-16T16:51:00-08:00",
      "kind": "dusk",
      "score": 1.3,
-     "conf": "low",
+     "conf": "medium",
      "limit": "swell",
      "entries": [
       "County Line Reef (Yerba Buena)",
@@ -10494,7 +10530,7 @@
      "end": "2026-11-17T09:00:00-08:00",
      "kind": "dawn",
      "score": 2.2,
-     "conf": "low",
+     "conf": "medium",
      "limit": "stirred up",
      "entries": [
       "County Line Reef (Yerba Buena)",
@@ -10535,7 +10571,7 @@
      "end": "2026-11-17T16:50:00-08:00",
      "kind": "dusk",
      "score": 1.3,
-     "conf": "low",
+     "conf": "medium",
      "limit": "swell",
      "entries": [
       "County Line Reef (Yerba Buena)",
@@ -10576,7 +10612,7 @@
      "end": "2026-11-18T09:01:00-08:00",
      "kind": "dawn",
      "score": 3.8,
-     "conf": "low",
+     "conf": "medium",
      "limit": "stirred up",
      "entries": [
       "County Line Reef (Yerba Buena)",
@@ -10617,7 +10653,7 @@
      "end": "2026-11-18T16:50:00-08:00",
      "kind": "dusk",
      "score": 1.6,
-     "conf": "low",
+     "conf": "medium",
      "limit": "stirred up",
      "entries": [
       "County Line Reef (Yerba Buena)",
@@ -10811,9 +10847,9 @@
     }
    ],
    "buoy_now": {
-    "ft": 7.2,
-    "s": 14.0,
-    "dir": 278,
+    "ft": 6.2,
+    "s": 13.0,
+    "dir": 273,
     "age_h": 0.7
    },
    "lat": 34.051,
@@ -10821,19 +10857,19 @@
    "water": null,
    "shore": null,
    "wind_now": {
-    "kn": 6.1,
+    "kn": 4.3,
     "station": "Leo Carrillo (RAWS)",
     "km": 2.2,
     "age_h": 1.1
    },
    "wind_vs_model": {
-    "bias_kn": 0.6,
+    "bias_kn": 0.1,
     "dawn_bias_kn": 1.0,
     "n": 61,
     "station": "Leo Carrillo (RAWS)",
     "km": 2.2
    },
-   "sst_src": "model",
+   "sst_src": "satellite",
    "anchor": 1.6,
    "sst_trend": [
     {
@@ -10876,7 +10912,10 @@
     "full_in_d": 13,
     "new_in_d": 27
    },
-   "kd490": null,
+   "kd490": {
+    "m1": 0.065,
+    "age_d": 10
+   },
    "chla": 0.3
   },
   "O": {
@@ -10917,10 +10956,10 @@
     "topic": "sydney-dive-75fdf41a",
     "text": "Subscribe to sydney-dive-75fdf41a in the ntfy app"
    },
-   "forecast_sms": "THE DIVE BELL - SYDNEY, the week ahead as of Thu 1pm.\nBest: Fri dawn, 7.6 of 10 - good, held back by grey skies. In by 5:15am at Shelly Beach (Cabbage Tree Bay).\nThu 7.4 / Fri 7.6 / Sat 4.0 / Sun 4.0 / Mon 4.0 / Tue 4.0 / Wed 4.0\nNo ring in sight, but a morning worth having.",
-   "read_at": "2026-11-11T18:00:00-08:00",
+   "forecast_sms": "THE DIVE BELL - SYDNEY, the week ahead as of Thu 2pm.\nBest: Fri dawn, 7.6 of 10 - good, held back by grey skies. In by 5:15am at Shelly Beach (Cabbage Tree Bay).\nThu 7.4 / Fri 7.6 / Sat 4.0 / Sun 4.0 / Mon 4.0 / Tue 4.0 / Wed 4.0\nNo ring in sight, but a morning worth having.",
+   "read_at": "2026-11-11T19:00:00-08:00",
    "last_ring": "2026-09-06",
-   "sst_f": 69,
+   "sst_f": 68,
    "windows": [
     {
      "label": "Thu dusk",
@@ -11118,7 +11157,7 @@
      "end": "2026-11-15T08:13:00+11:00",
      "kind": "dawn",
      "score": 4.0,
-     "conf": "low",
+     "conf": "medium",
      "limit": "rain",
      "entries": [
       "Shelly Beach (Cabbage Tree Bay)",
@@ -11156,7 +11195,7 @@
      "end": "2026-11-15T19:35:00+11:00",
      "kind": "dusk",
      "score": 4.0,
-     "conf": "low",
+     "conf": "medium",
      "limit": "rain",
      "entries": [
       "Shelly Beach (Cabbage Tree Bay)",
@@ -11194,7 +11233,7 @@
      "end": "2026-11-16T08:13:00+11:00",
      "kind": "dawn",
      "score": 4.0,
-     "conf": "low",
+     "conf": "medium",
      "limit": "rain",
      "entries": [
       "Shelly Beach (Cabbage Tree Bay)",
@@ -11232,7 +11271,7 @@
      "end": "2026-11-16T19:36:00+11:00",
      "kind": "dusk",
      "score": 4.0,
-     "conf": "low",
+     "conf": "medium",
      "limit": "rain",
      "entries": [
       "Shelly Beach (Cabbage Tree Bay)",
@@ -11270,7 +11309,7 @@
      "end": "2026-11-17T08:12:00+11:00",
      "kind": "dawn",
      "score": 4.0,
-     "conf": "low",
+     "conf": "medium",
      "limit": "rain",
      "entries": [
       "Shelly Beach (Cabbage Tree Bay)",
@@ -11308,7 +11347,7 @@
      "end": "2026-11-17T19:37:00+11:00",
      "kind": "dusk",
      "score": 3.6,
-     "conf": "low",
+     "conf": "medium",
      "limit": "rain",
      "entries": [
       "Shelly Beach (Cabbage Tree Bay)",
@@ -11346,7 +11385,7 @@
      "end": "2026-11-18T08:12:00+11:00",
      "kind": "dawn",
      "score": 4.0,
-     "conf": "low",
+     "conf": "medium",
      "limit": "rain",
      "entries": [
       "Shelly Beach (Cabbage Tree Bay)",
@@ -11384,7 +11423,7 @@
      "end": "2026-11-18T19:38:00+11:00",
      "kind": "dusk",
      "score": 4.0,
-     "conf": "low",
+     "conf": "medium",
      "limit": "rain",
      "entries": [
       "Shelly Beach (Cabbage Tree Bay)",
@@ -11422,7 +11461,7 @@
      "end": "2026-11-19T08:11:00+11:00",
      "kind": "dawn",
      "score": 4.0,
-     "conf": "low",
+     "conf": "medium",
      "limit": "rain",
      "entries": [
       "Shelly Beach (Cabbage Tree Bay)",
@@ -11460,7 +11499,7 @@
     "ft": 3.8,
     "s": 14.8,
     "dir": 156,
-    "age_h": 3.0
+    "age_h": 3.6
    },
    "lat": -33.8,
    "lon": 151.297,
@@ -11468,7 +11507,7 @@
    "shore": null,
    "wind_now": null,
    "wind_vs_model": null,
-   "sst_src": "model",
+   "sst_src": "satellite",
    "anchor": null,
    "sst_trend": [
     {
@@ -11511,7 +11550,10 @@
     "full_in_d": 13,
     "new_in_d": 27
    },
-   "kd490": null,
+   "kd490": {
+    "m1": 0.151,
+    "age_d": 13
+   },
    "chla": 1.99
   },
   "P": {
@@ -11552,10 +11594,10 @@
     "number": "833-858-2355",
     "text": "Text MAUI to 833-858-2355"
    },
-   "forecast_sms": "THE DIVE BELL - MAUI, the week ahead as of Wed 4pm.\nBest: Sat dawn, 8.4 of 10 - good, held back by stirred-up water. In by 6:06am at Kahekili (Airport Beach).\nThu 5.6 / Fri 6.1 / Sat 8.4 / Sun 7.2 / Mon 6.9 / Tue 4.0 / Wed 4.0\nNo ring in sight, but a morning worth having.",
-   "read_at": "2026-11-11T18:00:00-08:00",
+   "forecast_sms": "THE DIVE BELL - MAUI, the week ahead as of Wed 5pm.\nBest: Sat dawn, 8.4 of 10 - good, held back by stirred-up water. In by 6:06am at Kahekili (Airport Beach).\nThu 5.6 / Fri 6.1 / Sat 8.4 / Sun 7.2 / Mon 6.9 / Tue 4.0 / Wed 4.0\nNo ring in sight, but a morning worth having.",
+   "read_at": "2026-11-11T19:00:00-08:00",
    "last_ring": "2026-10-22",
-   "sst_f": 81,
+   "sst_f": 80,
    "windows": [
     {
      "label": "Thu dawn",
@@ -12268,7 +12310,7 @@
     "ft": 7.2,
     "s": 14.0,
     "dir": 323,
-    "age_h": 704.1
+    "age_h": 704.7
    },
    "lat": 20.938,
    "lon": -156.694,
@@ -12276,7 +12318,7 @@
    "shore": null,
    "wind_now": null,
    "wind_vs_model": null,
-   "sst_src": "model",
+   "sst_src": "satellite",
    "anchor": null,
    "sst_trend": [
     {
@@ -12319,7 +12361,10 @@
     "full_in_d": 13,
     "new_in_d": 27
    },
-   "kd490": null,
+   "kd490": {
+    "m1": 0.037,
+    "age_d": 10
+   },
    "chla": 0.14
   }
  }
