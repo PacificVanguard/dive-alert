@@ -1512,14 +1512,14 @@ def fetch_nws_obs(src, station, key):
 MOP_BASE = "https://thredds.cdip.ucsd.edu/thredds/dodsC/cdip/model/MOP_alongshore"
 MOP_FLAT_FT = 3.0   # a named cove this rough in its window cannot ring, whatever the zone says
 MOP_SITES = {
-    'A': {'_bell': 'OC266', 'Crescent Bay': 'OC284', 'Divers Cove': 'OC278', 'Picnic Beach (Heisler)': 'OC273', "Shaw's Cove": 'OC281', "Wood's Cove": 'OC246'},
+    'A': {'_bell': 'OC266', 'Crescent Bay': 'OC284', 'Divers Cove': 'OC278', "Fisherman's Cove": 'OC280', 'Picnic Beach (Heisler)': 'OC273', "Shaw's Cove": 'OC281', "Wood's Cove": 'OC246'},   # Fisherman's sits between Shaw's (OC281) and Divers (OC278)
     'C': {'_bell': 'OC150'},
     'D': {'_bell': 'D0482', 'La Jolla Cove': 'D0482'},
     'E': {'_bell': 'MO757', 'Breakwater (San Carlos)': 'MO758', 'McAbee Beach': 'MO753'},
-    'G': {'_bell': 'L0342', 'Christmas Tree Cove': 'L0388'},
+    'G': {'_bell': 'L0346', 'Christmas Tree Cove': 'L0388'},   # L0342 sat in Long Point's lee (faces 138); L0346 faces the bell's 220-245 window
     'H': {'_bell': 'MO616', 'Bluefish Cove': 'MO615', 'Whalers Cove': 'MO616'},
     'I': {'_bell': 'B0616'},
-    'M': {'_bell': 'L1039', 'Leo Carrillo (Sequit Point)': 'L1178'},
+    'M': {'_bell': 'L1039', 'Leo Carrillo (Sequit Point)': 'L1178', 'Point Dume Cove': 'L1034'},   # Dume Cove's own point
     'N': {'_bell': 'VE020', 'County Line Reef (Yerba Buena)': 'VE019'},
 }
 for _zk, _m in MOP_SITES.items():
@@ -1568,7 +1568,7 @@ def mop_window(pt, w):
             best = i
     if best is None:
         return None
-    return {"ft": round(pt["hs"][best] * 3.281, 1),
+    return {"m": pt["hs"][best], "ft": round(pt["hs"][best] * 3.281, 1),
             "s": round(pt["tp"][best], 1) if best < len(pt["tp"]) and 0 < pt["tp"][best] < 40 else None,
             "dir": int(round(pt["dp"][best])) if best < len(pt["dp"]) and 0 <= pt["dp"][best] <= 360 else None}
 
@@ -1582,7 +1582,7 @@ def cove_scores(zc, w, feats, zone_score, mop, tides, period_s):
     m = zc.get("mop") or {}
     pts = (mop.data.get("points") if mop is not None and mop.ok else None) or {}
     ref = mop_window(pts[m["_bell"]], w) if m.get("_bell") in pts else None
-    if not ref or ref["ft"] < 0.2 or feats.get("damage") is None:
+    if not ref or ref["m"] < 0.06 or feats.get("damage") is None:
         return None
     base_raw = score_window(feats)[0]
     h, _, _ = tide_state_at(tides, w["start"] + (w["end"] - w["start"]) / 2)
@@ -1592,7 +1592,7 @@ def cove_scores(zc, w, feats, zone_score, mop, tides, period_s):
         lab = m.get(s["name"])
         sw = mop_window(pts[lab], w) if lab in pts else None
         if sw:
-            dmg = feats["damage"] * max(0.2, min(5.0, (sw["ft"] / ref["ft"]) ** 2))
+            dmg = feats["damage"] * max(0.2, min(5.0, (sw["m"] / ref["m"]) ** 2))
             score = max(1.0, min(10.0, round(zone_score + score_window(dict(feats, damage=dmg))[0] - base_raw, 1)))
         else:
             dmg = feats["damage"]
@@ -1605,14 +1605,33 @@ def cove_scores(zc, w, feats, zone_score, mop, tides, period_s):
         rank = (score + s.get("shelter", 0) * (1.0 + min(dmg or 0, 10) / 5.0) + site_tide_fit(s, band)
                 - min(dmg or 0, 10) * surge_at_depth(s.get("depth_ft", 20), period_s) * 0.06)
         out.append({"name": s["name"], "score": score, "mapped": bool(sw), "rank": round(rank, 2),
-                    "ft": sw["ft"] if sw else None, "s": sw["s"] if sw else None, "dir": sw["dir"] if sw else None})
+                    "ft": sw["ft"] if sw else None, "s": sw["s"] if sw else None, "dir": sw["dir"] if sw else None,
+                    # what the nearshore veto reads: the cove's own point, or the bell's read point
+                    # for a cove with none (review 2026-11-12: an unmapped first cove skipped the veto)
+                    "veto_ft": sw["ft"] if sw else ref["ft"]})
     out.sort(key=lambda c: -c["rank"])
     return out
 
 
+_NOWCAST = {}
+
+
 def mop_nowcast_window(label, start, end):
     """The nowcast at a point - CDIP's model driven by MEASURED buoy spectra -
-    across a past window: the largest hourly Hs in feet, or None."""
+    across a past window: the largest hourly Hs in feet, or None. Cached per
+    run; after two failures the host is left alone for the rest of the run."""
+    key = (label, start.isoformat(), end.isoformat())
+    if key in _NOWCAST:
+        return _NOWCAST[key]
+    if _NOWCAST.get("_fails", 0) >= 2:
+        return None
+    _NOWCAST[key] = _mop_nowcast_window(label, start, end)
+    if _NOWCAST[key] is None:
+        _NOWCAST["_fails"] = _NOWCAST.get("_fails", 0) + 1
+    return _NOWCAST[key]
+
+
+def _mop_nowcast_window(label, start, end):
     try:
         n = int(re.search(r"waveTime\[waveTime = (\d+)\]", http_get("%s/%s_nowcast.nc.dds" % (MOP_BASE, label), 30)).group(1))
         lo = max(0, n - 240)
@@ -1656,6 +1675,8 @@ def ring_odds_table(rows=None):
             lead, sc = float(r.get("lead_h") or "nan"), float(r.get("score") or "nan")
         except ValueError:
             continue
+        if r.get("damage") in ("0", "0.0") and r.get("swell_hgt_ft") in ("0", "0.0"):
+            continue   # flat by absence (empty marine data, pre-2026-09-14): not a reading of the water
         if lead == lead and sc == sc and lead >= 0:
             by_w.setdefault((r.get("zone"), r.get("window_key")), []).append((lead, sc, r.get("perfect_gate") == "PASS"))
     counts = {}
@@ -3358,8 +3379,10 @@ def decide_alert(scored, t_now, state, zone_key="A"):
             streaks.setdefault(zone_key, legacy)
     eligible = [s for s in scored
                 if al["lead_min_h"] <= (s["w"]["start"] - t_now).total_seconds() / 3600.0 <= al["lead_max_h"]]
-    qualifying = [s for s in eligible if s["score"] >= al["threshold"]]
-    best = max(qualifying, key=lambda s: s["score"]) if qualifying else None
+    qualifying = [s for s in eligible if s["score"] >= al["threshold"] and not s.get("hazard")]
+    # a live gate outranks any higher score that a veto (models split, rough
+    # nearshore) holds back - else the ring waited behind it (review 2026-11-12)
+    best = max(qualifying, key=lambda s: (bool(s.get("gate")), s["score"])) if qualifying else None
     streak = streaks.get(zone_key)
 
     if best is None:
@@ -3866,6 +3889,26 @@ def ntfy_digest(zk, zc, scored, state, t_now, dry_run, weekly, sst=None):
         state.setdefault("digest_promise", {})[zk] = {"days": gds, "week": week}
 
 
+TAKEBACK_LIGHTS = {"flat": "the swell built", "glass": "the wind came up", "dry": "rain moved in",
+                   "sun": "cloud moved in", "warm": "the water cooled"}
+
+
+def takeback_reason(s):
+    """Why a promised morning stopped holding, as a clause a diver reads -
+    never a table label ('all clear filled in', 2026-11-12)."""
+    if s.get("hazard"):
+        return "an NWS %s is out" % s["hazard"].lower()
+    if s.get("rough"):
+        return "the nearshore swell rose"
+    if s.get("split"):
+        return "the models split on the wind"
+    off = [TAKEBACK_LIGHTS[a] for a in GATE_AXES if (s.get("axes") or {}).get(a) is False]
+    if off:
+        return " and ".join(off[:2])
+    lim = s.get("limit")
+    return ("%s took over" % limit_phrase(lim)) if lim and lim != "all clear" else "the forecast moved"
+
+
 def check_retraction(zk, zc, scored, state, t_now, dry_run):
     """When the weekly reading names a perfect day and the ocean later takes
     it back, the bell says so — once, plainly, on both channels. A promise
@@ -3885,15 +3928,21 @@ def check_retraction(zk, zc, scored, state, t_now, dry_run):
     vis = [d for d in live if d in by_day]
     if len(vis) < len(live):
         return   # part of the promise is still over the horizon — wait
+    pend = state.setdefault("retract_pending", {})
     if any(any(s.get("gate") for s in by_day[d]) for d in vis):
+        pend.pop(zk, None)
         return   # a promised day still stands sworn
+    # one run can be a flicker (a veto that clears by the next reading); only a
+    # SECOND consecutive loss withdraws the promise (review 2026-11-12)
+    pend[zk] = pend.get(zk, 0) + 1
+    if pend[zk] < 2:
+        return
     # the whole promise is visible and none of it holds: withdraw it
     day0 = datetime.fromisoformat(vis[0]).strftime("%A")
     db = max(by_day[vis[0]], key=lambda s: s["score"])
-    why = limit_phrase(db.get("limit")) if db.get("limit") else "the forecast moved"
-    body = ("%s's perfect morning washed out — %s filled in where the promise "
-            "stood. The bell only rings when every knowable thing holds, and it "
-            "no longer does." % (day0, why))
+    why = takeback_reason(db)
+    body = ("%s's perfect morning no longer holds: %s. The bell only rings when every "
+            "knowable thing holds." % (day0, why))
     best = max(scored, key=lambda s: s["score"]) if scored else None
     if best and best["score"] >= 6.5 and best["w"]["start"].date().isoformat() not in vis:
         body += " The week's next hope: %s at %.1f." % (best["w"]["label"], best["score"])
@@ -3911,8 +3960,7 @@ def check_retraction(zk, zc, scored, state, t_now, dry_run):
         sid, tok, frm = env
         sbody = ("THE DIVE BELL - %s. %s's perfect morning didn't hold - %s. "
                  "The bell only rings when it's sure. Reply STOP to end.") % (
-            zc["bell"]["name"].upper(), day0,
-            ("%s filled in" % why) if db.get("limit") else "the forecast moved")
+            zc["bell"]["name"].upper(), day0, why)
         for num in sorted(subs):
             try:
                 if not dry_run:
@@ -3929,6 +3977,7 @@ def check_retraction(zk, zc, scored, state, t_now, dry_run):
     # owed and the next run says it again
     if ok or sent_n:
         pr["retracted"] = True
+        pend.pop(zk, None)
         social_enqueue_takeback(state, zk, zc, vis[0], day0, why)
     else:
         print("retraction (%s): undelivered — will retry" % zk)
@@ -4002,7 +4051,8 @@ def _sms_digest_text(zone_cfg, scored, footer, t_now, tn):
                        for d in order)
     rung = next((by_day[d] for d in order if ring_live(by_day[d], tn)), None)
     forming = next((by_day[d] for d in order
-                    if (by_day[d].get("gate_raw") or by_day[d].get("gate")) and not ring_live(by_day[d], tn)), None)
+                    if (by_day[d].get("gate_raw") or by_day[d].get("gate")) and not ring_live(by_day[d], tn)
+                    and (by_day[d]["w"]["start"] - tn).total_seconds() / 3600.0 >= CONFIG["alerting"]["lead_min_h"]), None)
     if rung:
         close = "%s is perfect - the bell is ringing." % rung["w"]["label"]
     elif forming:
@@ -4019,7 +4069,7 @@ def _sms_digest_text(zone_cfg, scored, footer, t_now, tn):
     return text
 
 
-def sms_digest(zone_key, zone_cfg, scored, state, dry_run, weekly=False):
+def sms_digest(zone_key, zone_cfg, scored, state, dry_run, weekly=False, t_now=None):
     """The weekly reading by text, for those who asked (DIGEST opt-in).
     The Wednesday run can land inside quiet hours for the very bells it
     serves, so delivery is a DUE-QUEUE: the weekly run marks the week owed,
@@ -4041,7 +4091,7 @@ def sms_digest(zone_key, zone_cfg, scored, state, dry_run, weekly=False):
         print("sms digest (%s): subscriber lookup failed, still owed: %s"
               % (zone_key, str(e)[:60]), file=sys.stderr)
         return   # the debt stands
-    body = sms_digest_text(zone_cfg, scored) if subs else None
+    body = sms_digest_text(zone_cfg, scored, t_now=t_now) if subs else None
     if not subs or not body:
         due.pop(zone_key, None)   # nothing to send is a debt paid
         sent[zone_key] = week
@@ -4307,7 +4357,7 @@ LOG_COLS = ["run_ts", "zone", "window_key", "window_start", "window_kind", "lead
             "obs_frac", "anchor", "cloud_pct", "sst_c", "chla_mg_m3", "kd490_m1",
             # the witnesses (2026-11-03): which water the warm light read, and
             # the measured-minus-modeled wind the loop is watching, unapplied
-            "sst_src", "wind_bias_kn",
+            "sst_src", "wind_bias_kn", "wind_corr_kn",
             # the ensemble's agreement (2026-11-11): share of 51 ECMWF runs
             # keeping the window glassy, and dry
             "p_glass", "p_dry",
@@ -4470,7 +4520,9 @@ def score_zone(zone_key, zone_cfg, fetches, t_now, horizon_h=72, skill_corr=None
     for w in windows:
         feats = compute_features(w, fetches, zone_cfg, t_now, anchor)
         wcorr = wind_correction(zone_key) if (zone_cfg.get("witnesses") or {}) else None
+        feats_model = None
         if wcorr and wcorr.get("on"):   # earned by four weeks of measured wind, never assumed
+            feats_model = dict(feats)   # the model's own answer, for the log the skill loop grades
             for k in ("wind_window_max_kn", "wind_window_eff_kn"):
                 if feats.get(k) is not None:
                     feats[k] = max(0.0, feats[k] + wcorr["kn"])
@@ -4517,8 +4569,8 @@ def score_zone(zone_key, zone_cfg, fetches, t_now, horizon_h=72, skill_corr=None
             gate_ok = False
             flags = list(flags) + [split]
         # and the named cove's own nearshore swell must not be rough (CDIP)
-        rough = (("nearshore %.1f ft at %s (CDIP)" % (coves[0]["ft"], coves[0]["name"]))
-                 if coves and coves[0].get("ft") is not None and coves[0]["ft"] > MOP_FLAT_FT else None)
+        rough = (("nearshore %.1f ft at %s (CDIP)" % (coves[0]["veto_ft"], coves[0]["name"]))
+                 if coves and coves[0].get("veto_ft") is not None and coves[0]["veto_ft"] > MOP_FLAT_FT else None)
         if gate_ok and rough:
             gate_ok = False
             flags = list(flags) + [rough]
@@ -4533,7 +4585,9 @@ def score_zone(zone_key, zone_cfg, fetches, t_now, horizon_h=72, skill_corr=None
                        "conf": conf_word, "completeness": comp, "agreement": agree,
                        "conf_notes": notes, "entries": entries, "tide_fyi": tide_fyi,
                        "band": band, "gate": gate_ok, "hazard": hazard, "axes": axes,
-                       "odds": odds, "split": split, "coves": coves, "rough": rough, "chance": chance})
+                       "odds": odds, "split": split, "coves": coves, "rough": rough, "chance": chance,
+                       "feats_model": feats_model, "wind_corr_kn": (wcorr or {}).get("kn") if feats_model else None,
+                       "score_model": score_window(feats_model)[0] if feats_model else None})
     return scored
 
 
@@ -4623,8 +4677,15 @@ def board_entry(zk, zc, scored, state, rec, ztopic, sst, fetches=None, t_now=Non
                         "age_h": ago_h(ww["series"][-1][0])}
         wvm = wind_vs_model(fetches, t_now, zc)
 
+    rung_keys = {e["wkey"] for e in (state.get("ring_ledger", {}).get(zk) or []) if e.get("status") == "rung"}
+
+    def shown_ringing(s):
+        lead = (s["w"]["start"] - t_now).total_seconds() / 3600.0
+        return ring_live(s, t_now) and (lead >= CONFIG["alerting"]["lead_min_h"] or s["w"]["key"] in rung_keys)
+
     def plate(s):
         f, p = s["feats"], (s["feats"].get("dmg_parts") or {})
+        lead = (s["w"]["start"] - t_now).total_seconds() / 3600.0
         tide = tide_at(tides, s["w"]["start"]) if tides else None
         return {"label": s["w"]["label"],
                 "start": s["w"]["start"].isoformat(), "end": s["w"]["end"].isoformat(),
@@ -4634,13 +4695,15 @@ def board_entry(zk, zc, scored, state, rec, ztopic, sst, fetches=None, t_now=Non
                 "entries": s["entries"][:2],
                 # ringing only inside the 48 hours a ring can be texted; a
                 # confirmed gate further out is lining up, not a promise
-                "gate": ring_live(s, t_now),
+                "gate": shown_ringing(s),
                 "lining_up": bool(s.get("gate")) and not ring_live(s, t_now),
+                "veto": s.get("split") or s.get("rough"),
                 # every axis aligned this run, whether or not it has
                 # held long enough to be worth a promise
                 "aligned": bool(s.get("gate_raw", s.get("gate"))),
                 "odds": s.get("odds"),
-                "chance": s.get("chance"),
+                # no odds on a window already ringing, or too close to be texted
+                "chance": (s.get("chance") if not shown_ringing(s) and lead >= CONFIG["alerting"]["lead_min_h"] else None),
                 "coves": [{k: c[k] for k in ("name", "score", "mapped", "ft", "s")} for c in (s.get("coves") or [])],
                 "hazard": s.get("hazard"),
                 "axes": s.get("axes"),
@@ -5525,6 +5588,7 @@ def bell_page(zk, bz, zc, state, t_now):
         mark = ("RINGING" if w.get("gate") else
                 ("NWS: %s" % w["hazard"]) if w.get("hazard") else
                 "lining up - rings at 48 hours out if it holds" if w.get("lining_up") else
+                w["veto"] if w.get("veto") else
                 "every axis aligned" if w.get("aligned") else "")
         sw, td = w.get("swell") or {}, w.get("tide") or {}
         facts = []
@@ -5599,10 +5663,11 @@ def bell_page(zk, bz, zc, state, t_now):
                       "level of %.1f · a measurement, not a visibility promise" % (cl["ntu"], cl["station"], cl["clear"])))
     elif cl and cl.get("state") == "settling":
         eta = datetime.fromisoformat(cl["eta"]).astimezone(tz)
-        cards.append(("Clearing outlook", "settled by %s" % eta.strftime("%a %-I%p").replace("AM", "am").replace("PM", "pm"),
+        cards.append(("Clearing outlook", "usually ~%d h" % cl["hours"],
                       "%.1f NTU at %s now; in the past year, water this stirred there was back to its calm level in a "
-                      "median of %d hours (%d times), if no new swell or rain stirs it%s"
+                      "median of %d hours (%d times) - about %s at that pace, if no new swell or rain stirs it%s"
                       % (cl["ntu"], cl["station"], cl["hours"], cl["n"],
+                         eta.strftime("%a %-I%p").replace("AM", "am").replace("PM", "pm"),
                          (" · " + ", ".join(cl["stir"])) if cl.get("stir") else "")))
     wv = bz.get("wind_vs_model")
     if wv:
@@ -5862,10 +5927,10 @@ def social_enqueue_ring(state, zk, zc, payload, sst_c):
 
 def social_enqueue_takeback(state, zk, zc, day_iso, day_name, why):
     name = zc["bell"]["name"]
-    text = ("The bell takes back its word at %s: %s's perfect morning didn't hold - %s filled in. "
+    text = ("The bell takes back its word at %s: %s's perfect morning didn't hold - %s. "
             "The bell only rings when it's sure. %s/%s/" % (name, day_name, why, SITE_HOST, bell_slug({"bell": zc["bell"]})))
     card = {"kind": "takeback", "eyebrow": "THE DIVE BELL · %s" % name.upper(),
-            "lines": ["%s's perfect morning didn't hold." % day_name, "%s filled in where the promise stood." % why[:1].upper() + why[1:],
+            "lines": ["%s's perfect morning didn't hold." % day_name, why[:1].upper() + why[1:] + ".",
                       "The bell only rings when it's sure."],
             "foot": "%s/%s/" % (SITE_HOST, bell_slug({"bell": zc["bell"]}))}
     return social_enqueue(state, "takeback:%s:%s" % (zk, day_iso), "takeback", text, card)
@@ -6220,12 +6285,14 @@ def cmd_run(args):
                 if lead > 72 and not weekly:
                     continue   # scored for the board; the log keeps far windows on weekly runs only
                 p = s["feats"]["dmg_parts"] or {}
+                fm = s.get("feats_model") or s["feats"]   # the model's own feats when a correction was applied
                 rows.append({
                     "run_ts": t_now.isoformat(), "zone": zk, "window_key": s["w"]["key"],
                     "window_start": s["w"]["start"].isoformat(), "window_kind": s["w"]["kind"],
                     # RAW score logged: cmd_skill grades this against archive truth,
                     # so the correction loop measures residual bias, not itself
-                    "lead_h": round(lead, 1), "score": s.get("score_raw", s["score"]),
+                    "lead_h": round(lead, 1),
+                    "score": s["score_model"] if s.get("score_model") is not None else s.get("score_raw", s["score"]),
                     "cap_reason": s["cap_reason"] or "",
                     "confidence": s["conf"], "completeness": round(s["completeness"], 2),
                     "agreement": round(s["agreement"], 2),
@@ -6235,8 +6302,9 @@ def cmd_run(args):
                     "wind_energy_48h": round(s["feats"]["wind_energy_48h"], 0) if s["feats"]["wind_energy_48h"] is not None else "",
                     "swell_energy_72h": round(s["feats"]["swell_energy_72h"], 0) if s["feats"]["swell_energy_72h"] is not None else "",
                     "dry_hours": round(s["feats"]["dry_hours"], 0) if s["feats"]["dry_hours"] is not None else "",
-                    "wind_window_max_kn": round(s["feats"]["wind_window_max_kn"], 1) if s["feats"]["wind_window_max_kn"] is not None else "",
-                    "wind_window_eff_kn": round(s["feats"]["wind_window_eff_kn"], 1) if s["feats"].get("wind_window_eff_kn") is not None else "",
+                    "wind_window_max_kn": round(fm["wind_window_max_kn"], 1) if fm["wind_window_max_kn"] is not None else "",
+                    "wind_window_eff_kn": round(fm["wind_window_eff_kn"], 1) if fm.get("wind_window_eff_kn") is not None else "",
+                    "wind_corr_kn": s.get("wind_corr_kn") if s.get("wind_corr_kn") is not None else "",
                     "obs_frac": round(s["feats"]["obs_frac"], 2),
                     "anchor": s["feats"]["anchor"] if s["feats"].get("anchor") is not None else "",
                     "cloud_pct": round(s["feats"]["cloud_pct"]) if s["feats"].get("cloud_pct") is not None else "",
@@ -6248,7 +6316,7 @@ def cmd_run(args):
                     "cloud_nbm": round(s["feats"]["cloud_pct_nbm"]) if s["feats"].get("cloud_pct_nbm") is not None else "",
                     "p_dry": (s.get("odds") or {}).get("p_dry", "") if (s.get("odds") or {}).get("p_dry") is not None else "",
                     "kd490_m1": s["feats"].get("kd490") if s["feats"].get("kd490") is not None else "",
-                    "perfect_gate": "PASS" if perfect_gate(s["feats"], s["score"], sst, zc)[0] else "",
+                    "perfect_gate": "PASS" if perfect_gate(fm, s["score_model"] if s.get("score_model") is not None else s["score"], sst, zc)[0] else "",
                     "rang": "RING" if s.get("gate") else "",
                     "best_entries": " / ".join(s["entries"]), "alerted": "",
                     "flags": "; ".join(s["flags"])})
@@ -6326,7 +6394,7 @@ def cmd_run(args):
                            args.dry_run, topic=ztopic)
             # the weekly reading by text: marked due on Wednesdays, delivered by
             # the first quiet-legal run of the week (see sms_digest)
-            sms_digest(zk, zc, scored, state, args.dry_run, weekly=weekly)
+            sms_digest(zk, zc, scored, state, args.dry_run, weekly=weekly, t_now=t_now)
             append_log(LOG_PATH, LOG_COLS, rows, args.dry_run)
             # the record: standing promises re-read, passed windows judged by
             # the instruments, and the tally the bell can stand behind. A ring
@@ -7202,6 +7270,15 @@ def _window_at(t0, lead_h, kind="dawn", dur=3):
 
 
 def cmd_test(args):
+    global _ODDS
+    _ODDS = {}   # drills never read the production score_log: odds empty unless a drill passes a table
+    _WIND_STATUS.clear()
+    for _zk in CONFIG["zones"]:
+        _WIND_STATUS[_zk] = {"days": 0, "need": WIND_EARN_MIN_DAYS, "on": False, "kn": None}
+    return _cmd_test(args)
+
+
+def _cmd_test(args):
     zc = CONFIG["zones"]["A"]
     t0 = datetime(2026, 8, 10, 6, 0, tzinfo=PT)
     failures = []
@@ -8021,7 +8098,9 @@ def cmd_test(args):
         washed = [_win(2, "Fri dawn", 5.2, limit="swell")]
         st5 = {"digest_promise": {"A": {"days": [pday], "week": "w"}}}
         check_retraction("A", zc, washed, st5, t0, dry_run=True)
-        check("(mm2) washed-out promise withdrawn", notes5 == ["The bell takes back its word"]
+        check("(mm2) one losing run is a flicker, not a take-back", notes5 == [] and not st5["digest_promise"]["A"].get("retracted"))
+        check_retraction("A", zc, washed, st5, t0, dry_run=True)
+        check("(mm2) washed-out promise withdrawn on the second losing run", notes5 == ["The bell takes back its word"]
               and st5["digest_promise"]["A"].get("retracted"), str(notes5))
         check_retraction("A", zc, washed, st5, t0, dry_run=True)
         check("(mm2) withdrawn once, not twice", len(notes5) == 1)
@@ -8032,6 +8111,7 @@ def cmd_test(args):
               and not st5b["digest_promise"]["A"].get("retracted"))
         st5c = {"digest_promise": {"A": {"days": [(t0 + timedelta(days=6)).date().isoformat()],
                                          "week": "w"}}}
+        check_retraction("A", zc, washed, st5c, t0, dry_run=True)
         check_retraction("A", zc, washed, st5c, t0, dry_run=True)
         check("(mm2) over-the-horizon promise waits", len(notes5) == 1)
     finally:
@@ -9180,7 +9260,7 @@ def cmd_test(args):
     t_mp = datetime.fromtimestamp(1786129200, tz=timezone.utc)
     w_mp = {"start": t_mp, "end": t_mp + timedelta(hours=2), "label": "Wed dawn", "key": "k"}
     check("(mp) a window reads the largest nearby 3-hourly swell, in feet",
-          mop_window(fm_mp.data["points"]["OC266"], w_mp) == {"ft": round(0.7 * 3.281, 1), "s": 13.0, "dir": 210})
+          mop_window(fm_mp.data["points"]["OC266"], w_mp) == {"m": 0.7, "ft": round(0.7 * 3.281, 1), "s": 13.0, "dir": 210})
     feats_mp = dict(sc_y[0]["feats"], damage=3.0)
     cv_mp = cove_scores(zc, w_mp, feats_mp, 7.0, fm_mp, [], 14.0)
     names_mp = [c["name"] for c in cv_mp]
@@ -9280,6 +9360,89 @@ def cmd_test(args):
     cl_r = clearing_outlook({"shore": sh_cl, "weather": rain_cl}, t_w, zc)
     check("(cl) rain inside three days is named as what could stir it again",
           cl_r and cl_r["stir"] and cl_r["stir"][0].startswith("rain due"), str(cl_r and cl_r.get("stir")))
+
+    # (rv) the reviewers' findings, each pinned by a drill (2026-11-12)
+    t_rv = datetime(2026, 8, 12, 9, 0, tzinfo=PT)
+    def rv_win(lead, score, gate=False, **kw):
+        st_ = t_rv + timedelta(hours=lead)
+        return dict({"w": {"start": st_, "end": st_ + timedelta(hours=3), "label": "W%d" % lead, "kind": "dawn",
+                           "key": "%s-dawn" % st_.strftime("%Y%m%dT%H%M")},
+                     "score": score, "gate": gate, "entries": ["Shaw's Cove"], "feats": {"damage": 1.0}}, **kw)
+    vet = rv_win(30, 8.9, gate=False, split="models split: glassy in 30% of runs")
+    rng = rv_win(36, 8.6, gate=True)
+    act_rv, pay_rv = decide_alert([vet, rng], t_rv, {}, "A")
+    check("(rv) a live ring outranks a higher score a veto holds back", pay_rv is rng, str(act_rv))
+    act_h, pay_h = decide_alert([rv_win(30, 9.1, hazard="High Surf Advisory")], t_rv, {}, "A")
+    check("(rv) no alert at all under an NWS hazard", act_h is None and pay_h is None)
+    check("(rv) a take-back names the real reason in words, never a table label",
+          takeback_reason({"split": "x"}) == "the models split on the wind"
+          and takeback_reason({"hazard": "Beach Hazards Statement"}) == "an NWS beach hazards statement is out"
+          and takeback_reason({"axes": {"flat": True, "glass": False, "dry": True, "sun": False, "warm": True}})
+          == "the wind came up and cloud moved in"
+          and takeback_reason({"limit": "all clear"}) == "the forecast moved")
+    near_rv = dict(rv_win(8, 9.0, gate=True), gate_raw=True)
+    st_rv = {"ring_ledger": {"A": []}}
+    pl_rv = board_entry("A", zc, [dict(sc_y[0], w=near_rv["w"], gate=True, gate_raw=True, chance=0.4)], st_rv,
+                        {"promises": 0, "rings": 0}, "t", 20.0, None, t_rv)["windows"][0]
+    st_rv2 = {"ring_ledger": {"A": [{"wkey": near_rv["w"]["key"], "status": "rung"}]}}
+    pl_rv2 = board_entry("A", zc, [dict(sc_y[0], w=near_rv["w"], gate=True, gate_raw=True, chance=0.4)], st_rv2,
+                         {"promises": 0, "rings": 0}, "t", 20.0, None, t_rv)["windows"][0]
+    check("(rv) a gate first seen under 12 h is not shown ringing (it can never be texted) - unless it already rang",
+          pl_rv["gate"] is False and pl_rv2["gate"] is True and pl_rv["chance"] is None and pl_rv2["chance"] is None)
+    pl_rv3 = board_entry("A", zc, [dict(sc_y[0], w=rv_win(30, 6.0)["w"], gate=False, chance=0.12)], st_rv,
+                         {"promises": 0, "rings": 0}, "t", 20.0, None, t_rv)["windows"][0]
+    check("(rv) the odds show only where a ring could still come", pl_rv3["chance"] == 0.12)
+    asc_rough = ("waveTime[4]\n%d, %d, %d, %d\n\nwaveHs[4]\n1.2, 1.2, 1.2, 1.2\n\n"
+                 % tuple(int((t_y + timedelta(hours=3 * i)).timestamp()) for i in range(-2, 2)))
+    class _RSrc:
+        offline = True
+        def get(self, key, url, timeout=25):
+            return asc_rough
+    mop_rough = fetch_mop(_RSrc(), sorted(set(zc["mop"].values())))
+    w_r = {"start": t_y - timedelta(hours=1), "end": t_y + timedelta(hours=1), "label": "now", "key": "k"}
+    cv_r = cove_scores(dict(zc, mop={"_bell": "OC266"}), w_r, dict(sc_y[0]["feats"], damage=1.0), 9.0, mop_rough, [], 14.0)
+    check("(rv) a cove with no point of its own is vetoed by the bell's read point",
+          cv_r and cv_r[0]["mapped"] is False and cv_r[0]["veto_ft"] == round(1.2 * 3.281, 1) > MOP_FLAT_FT)
+    saved_pg2, saved_wc = g7["perfect_gate"], g7["wind_correction"]
+    g7["perfect_gate"] = lambda feats, score, sst, zone_cfg=None: (True, [])
+    g7["wind_correction"] = lambda zk_: {"on": True, "kn": 2.0, "days": 28, "need": 21}
+    try:
+        sc_rv = score_zone("A", zc, dict(fx_y, mop=mop_rough), t_y, 24 * 7)
+    finally:
+        g7["perfect_gate"], g7["wind_correction"] = saved_pg2, saved_wc
+    r0_ = next((s for s in sc_rv if s.get("rough")), None)
+    check("(rv) a rough nearshore read point vetoes the named cove's ring", r0_ is not None and r0_["gate"] is False
+          and "(CDIP)" in r0_["rough"], str([s.get("rough") for s in sc_rv[:2]]))
+    m0_ = sc_rv[0]
+    check("(rv) the earned correction moves the forecast's wind but never the RAW score the skill loop grades",
+          m0_["feats_model"] is not None and m0_["wind_corr_kn"] == 2.0
+          and m0_["feats"]["wind_window_max_kn"] == m0_["feats_model"]["wind_window_max_kn"] + 2.0
+          and m0_["score_model"] == score_window(m0_["feats_model"])[0], str(m0_.get("wind_corr_kn")))
+    calls_rv = []
+    def fake_get(url, timeout=25):
+        calls_rv.append(url)
+        if url.endswith(".dds"):
+            return "Dataset {\n    Int32 waveTime[waveTime = 300];\n} x;"
+        lo, hi = 60, 299
+        ts = [int((t_y - timedelta(hours=299 - i)).timestamp()) for i in range(lo, hi + 1)]
+        return "waveTime[%d]\n%s\n\nwaveHs[%d]\n%s\n" % (len(ts), ", ".join(map(str, ts)), len(ts),
+                                                       ", ".join("0.5" for _ in ts))
+    saved_hg = g7["http_get"]
+    g7["http_get"] = fake_get
+    _NOWCAST.clear()
+    try:
+        v1 = mop_nowcast_window("OC281", t_y - timedelta(hours=5), t_y - timedelta(hours=2))
+        v2 = mop_nowcast_window("OC281", t_y - timedelta(hours=5), t_y - timedelta(hours=2))
+    finally:
+        g7["http_get"] = saved_hg
+        _NOWCAST.clear()
+    check("(rv) the nowcast asks for the last 240 hours by index, once per window per run",
+          v1 == v2 == round(0.5 * 3.281, 1) and len(calls_rv) == 2 and "[60:1:299]" in calls_rv[1], str(calls_rv[-1:]))
+    big_rv = Fetch("marine", True, {"wave_height": {floor_hour(t_w): 1.0, t_w + timedelta(hours=40): 1.8}})
+    cl_b = clearing_outlook({"shore": sh_cl, "marine": big_rv}, t_w, zc)
+    check("(rv) a bigger swell inside three days is named as what could stir it again",
+          cl_b and any(x.startswith("a bigger swell") for x in cl_b["stir"]), str(cl_b and cl_b.get("stir")))
+    check("(rv) the drills read no production history", ring_odds(30.0, 8.6, True) is None)
 
     # fixture suite: degraded + disagreement
     print("fixture tests:")

@@ -352,6 +352,33 @@ Three months of dawn windows against airport ceilometers and rain gauges
   46% of windows have no reading within 12 h of the window (late crons);
   that does not bias the base rate, and loosening the cutoff did not help.
 
+## Four independent checks, and what they changed (2026-11-12)
+
+Run as parallel read-only analyses, each against measured truth or the code:
+- REVIEW (adversarial): the earned wind correction would have leaked into
+  the RAW score the skill loop grades - now `feats_model`/`score_model` are
+  logged and the correction has its own column (`wind_corr_kn`); a vetoed
+  higher score could outrank a live ring in `decide_alert` - now (gate,
+  score), and nothing alerts under an NWS hazard; one run's veto could
+  retract a promise permanently with "all clear filled in" - now two
+  consecutive losses and `takeback_reason` in words; an unmapped first cove
+  skipped the nearshore veto - now `veto_ft` falls back to the read point;
+  a gate first seen under 12 h showed RINGING though it can't be texted -
+  now only rung windows keep the label there; the odds are hidden on
+  ringing windows and under 12 h; drills no longer read production history.
+- COVES (a year of MOP nowcast): Monterey, Point Lobos and La Jolla rank
+  right; Laguna's four north coves are indistinguishable at 10 m (shelter
+  decides, as intended). Palos Verdes' read point sat in Long Point's lee -
+  moved L0342 -> L0346; Malibu's Point Dume Cove has its own point (L1034);
+  Fisherman's Cove maps to OC280; ratios are computed in unrounded metres.
+- SWELL vs CDIP's nowcast truth: the engine's damage ranks the nearshore
+  truth only 0.30-0.80 (Spearman) - island shadow (Santa Barbara, Monterey),
+  a secondary swell the marine fetch never reads, underrated long period.
+  CDIP's own spectra, mapped to the engine's damage scale, are the fix
+  (next section).
+- ODDS (out-of-sample): see "The lights, tested". Also: 539 flat-by-absence
+  rows from before 2026-09-14 no longer feed the odds.
+
 ## The maps (2026-11-03)
 
 Each bell page draws its water (Leaflet from unpkg; USGS imagery for US
