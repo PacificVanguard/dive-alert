@@ -119,6 +119,8 @@
              box-shadow: 0 0 22px rgba(255,217,138,.16); }
   .day.hot .s { color: var(--gold); }
   .lights { display: block; margin-top: 6px; }
+  .day .pct { display: block; margin-top: 4px; font-family: ui-monospace, Menlo, monospace;
+              font-size: .66rem; color: var(--glow); letter-spacing: .04em; }
   .lights i { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin: 0 1.5px;
               border: 1px solid rgba(127,212,255,.7); }
   .lights i.on { background: var(--gold); border-color: var(--gold); }
@@ -672,7 +674,10 @@
       el.innerHTML = "<div class='d'>" + w.label.split(" ")[0] +
         (w.kind ? " " + w.kind : "") + "</div><div class='s'>" +
         w.score.toFixed(1) + (w.gate ? " ✨" : "") + "</div>" +
-        (w.limit ? "<span class='lim'>" + w.limit + "</span>" : "") + lights(w.axes);
+        (w.limit ? "<span class='lim'>" + w.limit + "</span>" : "") + lights(w.axes) +
+        // the chance this window ends with every light on, from the bell's own history
+        (w.chance != null ? "<span class='pct' title='chance it rings, from the bell's own history'>" +
+          (w.chance < 0.01 ? "<1%" : Math.round(w.chance * 100) + "%") + "</span>" : "");
       strip.appendChild(el);
     });
     document.getElementById("weeknote").innerHTML = (st.top && st.top.score >= 7

@@ -1409,7 +1409,7 @@ def fetch_shore(src, sid):
         rows = list(csv.reader(io.StringIO(_witness_get(src, "shore", url))))
         if len(rows) < 3 or rows[0][:1] != ["time"]:
             raise ValueError("not an ERDDAP table")
-        latest, ntu = {}, []
+        latest, ntu, ntu_t = {}, [], []
         for r in rows[2:]:
             if len(r) < 4:
                 continue
@@ -1420,11 +1420,15 @@ def fetch_shore(src, sid):
                     latest[k] = (x, t)
             if _num(r[2]) is not None:
                 ntu.append(_num(r[2]))
+                ntu_t.append((t, _num(r[2])))
         if not latest:
             raise ValueError("no readings in 26h")
         name, lat, lon = STATIONS["shore"][sid]
+        last6 = [v for t, v in ntu_t if ntu_t and t >= max(x for x, _ in ntu_t) - timedelta(hours=6)]
         return Fetch("shore", True, {"id": sid, "name": name, "lat": lat, "lon": lon, "latest": latest,
-                                     "ntu_med_24h": sorted(ntu)[len(ntu) // 2] if ntu else None})
+                                     "ntu_med_24h": sorted(ntu)[len(ntu) // 2] if ntu else None,
+                                     "ntu_6h": ((sorted(last6)[len(last6) // 2], max(x for x, _ in ntu_t))
+                                                if len(last6) >= 3 else None)})
     except Exception as e:
         return Fetch("shore", False, error=str(e))
 
@@ -1490,6 +1494,319 @@ def fetch_nws_obs(src, station, key):
                                  "obs": sorted(obs, key=lambda o: o["t"])})
     except Exception as e:
         return Fetch(key, False, error=str(e))
+
+
+# =====================================================================
+# the nearshore model - CDIP MOP: the swell at each cove, not offshore
+# =====================================================================
+# CDIP's Monitoring and Prediction system (Scripps) carries the wave field
+# from the buoys and the open ocean in to the 10 m depth contour every ~100 m
+# along the California coast - island shadows and refraction included. The
+# bell's zone score stays calibrated on the offshore model; each cove's own
+# score moves from it by that cove's nearshore swell relative to the bell's
+# read point ((Hs_cove / Hs_read)^2 on damage), so the scale holds and the
+# coves differ by physics instead of a static shelter guess. A cove no
+# public source can place keeps the bell's score and the old guess.
+# Points matched 2026-11-12 to the nearest MOP site of each pinned cove.
+
+MOP_BASE = "https://thredds.cdip.ucsd.edu/thredds/dodsC/cdip/model/MOP_alongshore"
+MOP_FLAT_FT = 3.0   # a named cove this rough in its window cannot ring, whatever the zone says
+MOP_SITES = {
+    'A': {'_bell': 'OC266', 'Crescent Bay': 'OC284', 'Divers Cove': 'OC278', 'Picnic Beach (Heisler)': 'OC273', "Shaw's Cove": 'OC281', "Wood's Cove": 'OC246'},
+    'C': {'_bell': 'OC150'},
+    'D': {'_bell': 'D0482', 'La Jolla Cove': 'D0482'},
+    'E': {'_bell': 'MO757', 'Breakwater (San Carlos)': 'MO758', 'McAbee Beach': 'MO753'},
+    'G': {'_bell': 'L0342', 'Christmas Tree Cove': 'L0388'},
+    'H': {'_bell': 'MO616', 'Bluefish Cove': 'MO615', 'Whalers Cove': 'MO616'},
+    'I': {'_bell': 'B0616'},
+    'M': {'_bell': 'L1039', 'Leo Carrillo (Sequit Point)': 'L1178'},
+    'N': {'_bell': 'VE020', 'County Line Reef (Yerba Buena)': 'VE019'},
+}
+for _zk, _m in MOP_SITES.items():
+    if _zk in CONFIG["zones"]:
+        CONFIG["zones"][_zk].setdefault("mop", _m)
+
+
+def parse_mop_ascii(text):
+    """OPeNDAP ASCII -> {variable: [floats]} for 1-D arrays."""
+    out = {}
+    for m in re.finditer(r"^(\w+)\[\d+\]\n(.*?)(?:\n\n|\Z)", text, re.M | re.S):
+        try:
+            out[m.group(1)] = [float(x) for x in m.group(2).replace("\n", " ").split(",") if x.strip()]
+        except ValueError:
+            continue
+    return out
+
+
+def fetch_mop(src, labels):
+    """Each MOP point's forecast: 3-hourly Hs (m), Tp (s), Dp (deg), ~10 days.
+    One small request per point; a point that fails is simply absent."""
+    data, errs = {}, []
+    for label in labels:
+        try:
+            a = parse_mop_ascii(src.get("mop_%s" % label, "%s/%s_forecast.nc.ascii?waveTime,waveHs,waveTp,waveDp"
+                                        % (MOP_BASE, label), timeout=30))
+            if not a.get("waveTime") or len(a.get("waveHs", [])) != len(a["waveTime"]):
+                raise ValueError("no series")
+            data[label] = {"t": [datetime.fromtimestamp(int(x), tz=timezone.utc) for x in a["waveTime"]],
+                           "hs": a["waveHs"], "tp": a.get("waveTp") or [], "dp": a.get("waveDp") or []}
+        except Exception as e:
+            errs.append("%s: %s" % (label, str(e)[:60]))
+    if not data:
+        return Fetch("mop", False, error="; ".join(errs) or "no points")
+    return Fetch("mop", True, {"points": data, "errors": errs})
+
+
+def mop_window(pt, w):
+    """A point's nearshore swell for a window: the largest 3-hourly Hs within
+    1.5 h of it, in feet, with that sample's period and direction."""
+    lo, hi = w["start"] - timedelta(hours=1.5), w["end"] + timedelta(hours=1.5)
+    best = None
+    for i, t in enumerate(pt["t"]):
+        v = pt["hs"][i]
+        if lo <= t <= hi and v is not None and 0 <= v < 50 and (best is None or v > pt["hs"][best]):
+            best = i
+    if best is None:
+        return None
+    return {"ft": round(pt["hs"][best] * 3.281, 1),
+            "s": round(pt["tp"][best], 1) if best < len(pt["tp"]) and 0 < pt["tp"][best] < 40 else None,
+            "dir": int(round(pt["dp"][best])) if best < len(pt["dp"]) and 0 <= pt["dp"][best] <= 360 else None}
+
+
+def cove_scores(zc, w, feats, zone_score, mop, tides, period_s):
+    """Each cove scored on its own (2026-11-12): the bell's score moved by the
+    cove's nearshore swell relative to the read point; a cove without a MOP
+    point keeps the bell's score plus its old shelter guess. Ranked with the
+    tide fit and surge at depth exactly as best_entries ranks. None when the
+    nearshore model has nothing for this window."""
+    m = zc.get("mop") or {}
+    pts = (mop.data.get("points") if mop is not None and mop.ok else None) or {}
+    ref = mop_window(pts[m["_bell"]], w) if m.get("_bell") in pts else None
+    if not ref or ref["ft"] < 0.2 or feats.get("damage") is None:
+        return None
+    base_raw = score_window(feats)[0]
+    h, _, _ = tide_state_at(tides, w["start"] + (w["end"] - w["start"]) / 2)
+    band = tide_band(h)
+    out = []
+    for s in zc.get("sites") or []:
+        lab = m.get(s["name"])
+        sw = mop_window(pts[lab], w) if lab in pts else None
+        if sw:
+            dmg = feats["damage"] * max(0.2, min(5.0, (sw["ft"] / ref["ft"]) ** 2))
+            score = max(1.0, min(10.0, round(zone_score + score_window(dict(feats, damage=dmg))[0] - base_raw, 1)))
+        else:
+            dmg = feats["damage"]
+            score = zone_score   # no nearshore point: the bell's own score, nothing invented
+        # the rank adds what the score cannot see the same way for EVERY cove:
+        # the pocket's own shelter (a 10 m MOP point sits outside it), the tide
+        # the entry needs, and surge at its depth - exactly as best_entries did.
+        # (First live run, 2026-11-12: shelter had leaked into unplaceable coves'
+        # SCORES only, so La Jolla Shores won every window over the Cove.)
+        rank = (score + s.get("shelter", 0) * (1.0 + min(dmg or 0, 10) / 5.0) + site_tide_fit(s, band)
+                - min(dmg or 0, 10) * surge_at_depth(s.get("depth_ft", 20), period_s) * 0.06)
+        out.append({"name": s["name"], "score": score, "mapped": bool(sw), "rank": round(rank, 2),
+                    "ft": sw["ft"] if sw else None, "s": sw["s"] if sw else None, "dir": sw["dir"] if sw else None})
+    out.sort(key=lambda c: -c["rank"])
+    return out
+
+
+def mop_nowcast_window(label, start, end):
+    """The nowcast at a point - CDIP's model driven by MEASURED buoy spectra -
+    across a past window: the largest hourly Hs in feet, or None."""
+    try:
+        n = int(re.search(r"waveTime\[waveTime = (\d+)\]", http_get("%s/%s_nowcast.nc.dds" % (MOP_BASE, label), 30)).group(1))
+        lo = max(0, n - 240)
+        a = parse_mop_ascii(http_get("%s/%s_nowcast.nc.ascii?waveTime[%d:1:%d],waveHs[%d:1:%d]"
+                                     % (MOP_BASE, label, lo, n - 1, lo, n - 1), 40))
+        vals = [hs for t, hs in zip(a.get("waveTime", []), a.get("waveHs", []))
+                if start <= datetime.fromtimestamp(int(t), tz=timezone.utc) <= end and 0 <= hs < 50]
+        return round(max(vals) * 3.281, 1) if vals else None
+    except Exception:
+        return None
+
+
+# =====================================================================
+# the odds - the chance a window rings, from the bell's own history
+# =====================================================================
+# Every window the bell has watched since August, every reading of it, and
+# whether its last reading (within 12 h of the window) had every light on.
+# The chance shown for a window is that history at its lead, its score and
+# whether its lights are on now - smoothed toward the same lead and state at
+# any score, and withheld when the history is thin. Fleet-wide, refreshed
+# every run from score_log. Calibration is published on the record page as
+# rings accumulate; the improvement loop owns it. (2026-11-12)
+
+ODDS_LEADS = (12, 24, 48, 72, 120, 1e9)
+ODDS_SCORES = (5.0, 6.0, 7.0, 7.5, 8.0, 8.5, 9.0, 99)
+_ODDS = None
+
+
+def _bucket(x, edges):
+    for i, e in enumerate(edges):
+        if x < e:
+            return i
+    return len(edges) - 1
+
+
+def ring_odds_table(rows=None):
+    rows = _read_csv(LOG_PATH) if rows is None else rows
+    by_w = {}
+    for r in rows:
+        try:
+            lead, sc = float(r.get("lead_h") or "nan"), float(r.get("score") or "nan")
+        except ValueError:
+            continue
+        if lead == lead and sc == sc and lead >= 0:
+            by_w.setdefault((r.get("zone"), r.get("window_key")), []).append((lead, sc, r.get("perfect_gate") == "PASS"))
+    counts = {}
+    for rs in by_w.values():
+        rs.sort()
+        if len(rs) < 2 or rs[0][0] > 12:
+            continue   # no reading close to the window: its outcome is unknown
+        hit = int(rs[0][2])
+        for lead, sc, al in rs[1:]:
+            lb = _bucket(lead, ODDS_LEADS)
+            for key in ((lb, _bucket(sc, ODDS_SCORES), al), (lb, None, al)):
+                c = counts.setdefault(key, [0, 0])
+                c[0] += 1
+                c[1] += hit
+    return counts
+
+
+def ring_odds(lead_h, score_raw, aligned, table=None):
+    """The chance this window ends with every light on, or None when the
+    history at this lead is too thin to say."""
+    global _ODDS
+    if table is None:
+        if _ODDS is None:
+            _ODDS = ring_odds_table()
+        table = _ODDS
+    if lead_h is None or score_raw is None or lead_h < 0:
+        return None
+    lb = _bucket(lead_h, ODDS_LEADS)
+    pn, pk = table.get((lb, None, bool(aligned)), (0, 0))
+    if pn < 20:
+        return None
+    n, k = table.get((lb, _bucket(score_raw, ODDS_SCORES), bool(aligned)), (0, 0))
+    return round((k + 4 * pk / pn) / (n + 4), 3)
+
+
+def pct_words(p):
+    return "<1%" if p < 0.01 else ">99%" if p > 0.99 else "%d%%" % round(p * 100)
+
+
+# =====================================================================
+# the wind correction earns its way in (2026-11-12)
+# =====================================================================
+# Measured-minus-modeled wind is logged every run (wind_bias_kn). The bell
+# applies it to a bell's model wind only after four weeks earn it: data on
+# 21 of the last 28 days, the daily medians agreeing in sign three times in
+# four, at least half a knot, and - each week held out in turn - the
+# correction shrinking that week's error in three weeks of four. Until then
+# it is watched and shown, never applied. It switches itself off the same way.
+
+WIND_EARN_DAYS, WIND_EARN_MIN_DAYS = 28, 21
+_WIND_STATUS = {}
+
+
+def wind_correction_status(zk, rows=None, today=None):
+    rows = _read_csv(LOG_PATH) if rows is None else rows
+    today = today or now_pt().date()
+    daily, seen = {}, set()
+    for r in rows:
+        if r.get("zone") != zk or r.get("wind_bias_kn") in (None, "") or r.get("run_ts") in seen:
+            continue
+        seen.add(r.get("run_ts"))
+        try:
+            d = datetime.fromisoformat(r["run_ts"]).date()
+            v = float(r["wind_bias_kn"])
+        except (ValueError, KeyError, TypeError):
+            continue
+        if 0 <= (today - d).days < WIND_EARN_DAYS:
+            daily.setdefault(d, []).append(v)
+    med = lambda xs: sorted(xs)[len(xs) // 2]
+    days = sorted(daily)
+    st = {"days": len(days), "need": WIND_EARN_MIN_DAYS, "on": False, "kn": None}
+    if len(days) < WIND_EARN_MIN_DAYS:
+        return st
+    b = [med(daily[d]) for d in days]
+    m = med(b)
+    agree = sum(1 for x in b if (x > 0) == (m > 0) and x != 0) / len(b)
+    weeks = {}
+    for d, x in zip(days, b):
+        weeks.setdefault((today - d).days // 7, []).append(x)
+    helps = 0
+    for wk, xs in weeks.items():
+        others = [x for k2, v in weeks.items() if k2 != wk for x in v]
+        if others and sum(abs(x - med(others)) for x in xs) < sum(abs(x) for x in xs):
+            helps += 1
+    st.update(median=round(m, 1), agree=round(agree, 2), helps=helps, weeks=len(weeks))
+    if abs(m) >= 0.5 and agree >= 0.75 and helps >= 3:
+        st.update(on=True, kn=round(max(-3.0, min(3.0, m)), 1))
+    return st
+
+
+def wind_correction(zk):
+    if zk not in _WIND_STATUS:
+        try:
+            _WIND_STATUS[zk] = wind_correction_status(zk)
+        except Exception:
+            _WIND_STATUS[zk] = {"days": 0, "need": WIND_EARN_MIN_DAYS, "on": False, "kn": None}
+    return _WIND_STATUS[zk]
+
+
+# =====================================================================
+# the clearing outlook - how long stirred water took to settle, here
+# =====================================================================
+# From a year of hourly pier turbidity, smoothed by a 6-hour median to strip
+# one-hour sensor spikes (fit 2026-11-12): for water this many times above the
+# pier's calm level, the median hours until it was back at that level, and how
+# many past episodes say so. A bucket with fewer than 15 episodes is withheld.
+# Newport Pier has too little turbidity history yet; Stearns Wharf's record
+# almost never returns to its own calm level (sensor or site), so neither
+# carries an outlook. It is a turbidity outlook, never a visibility promise.
+
+CLEARING = {
+    "scripps-pier-automated-shore-sta-1": {"base": 0.32, "clear": 0.82,
+                                           "hours": [(1.5, 4, 84), (2.5, 10, 52), (5.0, 12, 15), (999, 34, 19)]},
+    "santa-monica-pier-automated-shor-1": {"base": 1.0, "clear": 2.0,
+                                           "hours": [(1.5, 9, 142), (2.5, 17, 60), (5.0, 73, 12), (999, 61, 34)]},
+}
+CLEARING_MIN_EPISODES = 15
+
+
+def clearing_outlook(fetches, t_now, zc):
+    sh = fetches.get("shore") if fetches else None
+    if sh is None or not sh.ok or sh.data.get("km") is None or sh.data["km"] > WITNESS_SHOW_KM:
+        return None
+    fit = CLEARING.get(sh.data.get("id"))
+    ntu6 = sh.data.get("ntu_6h")
+    if not fit or not ntu6 or not _fresh(ntu6[1], t_now, 6):
+        return None
+    ntu = ntu6[0]
+    out = {"station": sh.data["name"], "km": sh.data["km"], "ntu": round(ntu, 2), "clear": fit["clear"]}
+    r = ntu / fit["clear"]
+    if r <= 1.0:
+        return dict(out, state="clear")
+    edge, hours, n = next(b for b in fit["hours"] if r <= b[0])
+    if n < CLEARING_MIN_EPISODES:
+        return dict(out, state="thin", n=n)
+    stir = []
+    wx, ma = fetches.get("weather"), fetches.get("marine")
+    tz = zone_tz(zc)
+    if wx is not None and wx.ok:
+        wet = [t for t, v in (wx.data.get("precipitation") or {}).items()
+               if t_now < t <= t_now + timedelta(hours=72) and (v or 0) >= 0.05]
+        if wet:
+            stir.append("rain due %s" % min(wet).astimezone(tz).strftime("%a"))
+    if ma is not None and ma.ok:
+        hs = ma.data.get("wave_height") or {}
+        now_hs = hs.get(floor_hour(t_now))
+        big = [t for t, v in hs.items() if t_now < t <= t_now + timedelta(hours=72) and now_hs and v and v >= 1.4 * now_hs]
+        if big:
+            stir.append("a bigger swell %s" % min(big).astimezone(tz).strftime("%a"))
+    return dict(out, state="settling", hours=hours, n=n,
+                eta=(t_now + timedelta(hours=hours)).isoformat(), stir=stir)
 
 
 def ring_live(s, t_now):
@@ -2006,6 +2323,8 @@ def fetch_all(zone_cfg, offline=False, fixture_set="normal"):
         bl = BUOY_POSITIONS[buoy]
         f["ndbc_primary"].data.update(name="Buoy %s" % buoy, km=round(km_between(lat, lon, bl[0], bl[1]), 1))
     f["ensemble"] = fetch_ensemble(src, lat, lon, tzname)
+    if zone_cfg.get("mop"):
+        f["mop"] = fetch_mop(src, sorted(set(zone_cfg["mop"].values())))
     if not f["marine"].ok and f["marine_alt"].ok:
         # the first voice is down; the second carries the read, marked so
         # confidence caps agreement and the message admits the substitution
@@ -2330,7 +2649,7 @@ def compute_features(w, fetches, zone_cfg, t_now, anchor=None):
         "anchor": anchor,   # the measurement itself: None stays None here, for the log
         "obs_frac": (obs_fraction(w["start"], fc["wind_lookback_h"], t_now)
                      + obs_fraction(w["start"], fc["swell_lookback_h"], t_now)) / 2.0,
-        "missing": [k for k, f in fetches.items() if not f.ok and k not in WITNESS_KEYS + ("ensemble",)],
+        "missing": [k for k, f in fetches.items() if not f.ok and k not in WITNESS_KEYS + ("ensemble", "mop")],
     }
     return feats
 
@@ -3889,12 +4208,14 @@ def notify_ops(payload, dry_run, text=True, sms_text=None):
 SOURCE_HOST = {"sst": "CoastWatch", "kd490": "CoastWatch", "chla": "CoastWatch",
                "marine": "the swell model", "marine_alt": "the second voice", "weather": "the weather feed",
                "ensemble": "the ensemble model", "shore": "the pier stations", "met": "NOAA station sensors",
+               "mop": "CDIP's nearshore model",
                "nws_wind": "NWS stations", "nws_sky": "NWS stations",
                "ndbc_primary": "the buoy", "ndbc_offshore": "the offshore buoy",
                "ndbc_spec": "the buoy's spectra", "tides": "NOAA tides", "nws": "NWS alerts"}
 SOURCE_EFFECT = {"sst": "warm axis on Open-Meteo", "kd490": "clarity witness dark", "chla": "plankton witness dark",
                  "marine": "NO SWELL MODEL", "marine_alt": "no second voice", "weather": "NO WIND, RAIN OR LIGHT",
                  "ensemble": "no model-agreement veto", "shore": "no measured water", "met": "no measured wind",
+                 "mop": "coves fall back to the bell's score",
                  "nws_wind": "no measured wind", "nws_sky": "no measured sky",
                  "ndbc_primary": "no buoy anchor or agreement", "ndbc_offshore": "no offshore trend",
                  "ndbc_spec": "no chop split", "tides": "no cove timing", "nws": "no hazard veto"}
@@ -3959,6 +4280,9 @@ LOG_COLS = ["run_ts", "zone", "window_key", "window_start", "window_kind", "lead
             # the ensemble's agreement (2026-11-11): share of 51 ECMWF runs
             # keeping the window glassy, and dry
             "p_glass", "p_dry",
+            # each cove on its own (2026-11-12): the named cove's nearshore Hs
+            # (CDIP MOP) and the chance shown for the window
+            "mop_ft", "chance",
             # perfect_gate stays the PHYSICAL answer (so gate_hold_rates keeps
             # grading the same quantity across the change); rang records what
             # the bell was actually willing to promise
@@ -4112,8 +4436,15 @@ def score_zone(zone_key, zone_cfg, fetches, t_now, horizon_h=72, skill_corr=None
     anchor = buoy_anchor(fetches, t_now, zone_cfg)
     for w in windows:
         feats = compute_features(w, fetches, zone_cfg, t_now, anchor)
+        wcorr = wind_correction(zone_key) if (zone_cfg.get("witnesses") or {}) else None
+        if wcorr and wcorr.get("on"):   # earned by four weeks of measured wind, never assumed
+            for k in ("wind_window_max_kn", "wind_window_eff_kn"):
+                if feats.get(k) is not None:
+                    feats[k] = max(0.0, feats[k] + wcorr["kn"])
         creek = False  # zone-level scoring; creek rule applies per-site when Zone B wakes
         score, breakdown, cap_reason, flags = score_window(feats, creek)
+        if wcorr and wcorr.get("on"):
+            flags = list(flags) + ["wind%+.1f" % wcorr["kn"]]
         raw_score = score
         if skill_corr:
             bucket = skill_bucket((w["start"] - t_now).total_seconds() / 3600.0)
@@ -4128,8 +4459,13 @@ def score_zone(zone_key, zone_cfg, fetches, t_now, horizon_h=72, skill_corr=None
         conf_word, comp, agree, notes = confidence(fetches, feats, t_now)
         entries, tide_fyi, band = best_entries(zone_cfg, w, tides, feats["damage"],
                                                (feats["dmg_parts"] or {}).get("per_s"))
+        coves = cove_scores(zone_cfg, w, feats, score, fetches.get("mop"), tides,
+                            (feats["dmg_parts"] or {}).get("per_s"))
+        if coves:
+            entries = [c["name"] for c in coves[:2]]   # the coves name themselves, by their own nearshore swell
         sstv = zone_sst(fetches, t_now)
         gate_ok, failed = perfect_gate(feats, score, sstv, zone_cfg)
+        phys = gate_ok   # every light on, before any veto - the state the odds history is keyed on
         axes = gate_axes(feats, sstv, failed)   # the five lights, shown as well as judged
         # the forecaster outranks the model: under an active NWS surf or sea
         # product the bell does not ring and names no cove (2026-10-06, after
@@ -4147,6 +4483,13 @@ def score_zone(zone_key, zone_cfg, fetches, t_now, horizon_h=72, skill_corr=None
         if gate_ok and split:
             gate_ok = False
             flags = list(flags) + [split]
+        # and the named cove's own nearshore swell must not be rough (CDIP)
+        rough = (("nearshore %.1f ft at %s (CDIP)" % (coves[0]["ft"], coves[0]["name"]))
+                 if coves and coves[0].get("ft") is not None and coves[0]["ft"] > MOP_FLAT_FT else None)
+        if gate_ok and rough:
+            gate_ok = False
+            flags = list(flags) + [rough]
+        chance = ring_odds((w["start"] - t_now).total_seconds() / 3600.0, raw_score, phys)
         # every bell rings on its own evidence, sworn or not; a provisional
         # bell's ring carries an honesty line instead of a lock (2026-09-01,
         # after Sydney's 9.2 passed every axis and had to stay silent)
@@ -4157,7 +4500,7 @@ def score_zone(zone_key, zone_cfg, fetches, t_now, horizon_h=72, skill_corr=None
                        "conf": conf_word, "completeness": comp, "agreement": agree,
                        "conf_notes": notes, "entries": entries, "tide_fyi": tide_fyi,
                        "band": band, "gate": gate_ok, "hazard": hazard, "axes": axes,
-                       "odds": odds, "split": split})
+                       "odds": odds, "split": split, "coves": coves, "rough": rough, "chance": chance})
     return scored
 
 
@@ -4264,6 +4607,8 @@ def board_entry(zk, zc, scored, state, rec, ztopic, sst, fetches=None, t_now=Non
                 # held long enough to be worth a promise
                 "aligned": bool(s.get("gate_raw", s.get("gate"))),
                 "odds": s.get("odds"),
+                "chance": s.get("chance"),
+                "coves": [{k: c[k] for k in ("name", "score", "mapped", "ft", "s")} for c in (s.get("coves") or [])],
                 "hazard": s.get("hazard"),
                 "axes": s.get("axes"),
                 "swell": ({"ft": r1(p.get("hgt_ft", 0)), "s": r1(p.get("per_s", 0)), "dir": r0(p.get("dir", 0))}
@@ -4304,6 +4649,8 @@ def board_entry(zk, zc, scored, state, rec, ztopic, sst, fetches=None, t_now=Non
         "lat": zc.get("lat"), "lon": zc.get("lon"),
         "water": water, "shore": shore, "wind_now": wind_now, "wind_vs_model": wvm,
         "sst_src": water_source(fetches, t_now) if fetches else "",
+        "wind_corr": wind_correction(zk) if fetches and wind_witness(fetches) else None,   # only where wind is measured
+        "clearing": clearing_outlook(fetches, t_now, zc) if fetches else None,
         "anchor": buoy_anchor(fetches, t_now, zc) if fetches else None,   # the buoy's verdict on the model
         "sst_trend": sst_trend,
         "moon": moon_phase(t_now),
@@ -4669,7 +5016,8 @@ def ledger_promise(state, zk, zc, payload, sst_c, t_now, texted=0, fetches=None)
     p = f.get("dmg_parts") or {}
     kind = w.get("kind", "dawn")
     end = w.get("end") or w["start"] + timedelta(hours=CONFIG["windows"].get(kind + "_hours", 3.0))
-    L.append({"wkey": w["key"], "date": w["start"].date().isoformat(), "kind": kind,
+    L.append({"cove_mop": (zc.get("mop") or {}).get((payload.get("entries") or [None])[0]),
+              "wkey": w["key"], "date": w["start"].date().isoformat(), "kind": kind,
               "start": w["start"].isoformat(), "end": end.isoformat(),
               "score": payload["score"], "cove": (payload.get("entries") or [None])[0],
               "promised_at": t_now.isoformat(), "status": "rung", "texted": texted,
@@ -4678,6 +5026,8 @@ def ledger_promise(state, zk, zc, payload, sst_c, t_now, texted=0, fetches=None)
                            "cloud_pct": _r0(f.get("cloud_pct")),
                            "buoy_expect_ft": buoy_expectation_ft(zc, fetches, w),
                            "odds": payload.get("odds"),
+                           "mop_ft": next((c["ft"] for c in (payload.get("coves") or [])
+                                           if c["name"] == (payload.get("entries") or [None])[0]), None),
                            "sst_f": _r0(sst_c * 9 / 5 + 32) if sst_c is not None else None}})
     del L[:-LEDGER_MAX]
     return True
@@ -4863,6 +5213,12 @@ def ledger_verify(state, zk, zc, fetches, t_now):
         fc = e.get("forecast") or {}
         if obs.get("buoy_ft") is not None and fc.get("buoy_expect_ft"):
             lights["flat"] = obs["buoy_ft"] <= fc["buoy_expect_ft"] * 1.25 + 0.3
+        if e.get("cove_mop") and fc.get("mop_ft"):
+            # the cove itself, by CDIP's nowcast from measured buoy spectra, outranks an offshore buoy
+            now_ft = mop_nowcast_window(e["cove_mop"], start, end)
+            if now_ft is not None:
+                lights["flat"] = now_ft <= fc["mop_ft"] * 1.25 + 0.3
+                obs["mop_ft"], obs["mop_src"] = now_ft, e.get("cove") or e["cove_mop"]
         if e.get("status") == "taken back":
             verdict = "taken back"
         elif len(lights) < 2:
@@ -4901,6 +5257,8 @@ def morning_words(e):
         return ("taken back before the morning" if e.get("status") == "taken back"
                 else "not yet - the instruments testify after the window")
     bits = []
+    if m.get("mop_ft") is not None:
+        bits.append("nearshore %.1f ft at %s (CDIP nowcast)" % (m["mop_ft"], m.get("mop_src") or "the cove"))
     if m.get("buoy_ft") is not None:
         bits.append("buoy %.1f ft%s" % (m["buoy_ft"], (" @ %s s" % m["buoy_s"]) if m.get("buoy_s") else ""))
     if m.get("wind_kn") is not None:
@@ -5145,6 +5503,13 @@ def bell_page(zk, bz, zc, state, t_now):
             facts.append("tide %s ft %s" % (td.get("ft"), {"rising": "\u2191", "falling": "\u2193"}.get(td.get("trend"), "")))
         if w.get("cloud") is not None:
             facts.append("cloud %s%%" % w["cloud"])
+        cv = w.get("coves") or []
+        if cv and cv[0].get("ft") is not None:
+            facts.append("nearshore at %s %s ft%s (CDIP)" % (cv[0]["name"], cv[0]["ft"], (" @ %s s" % cv[0]["s"]) if cv[0].get("s") else ""))
+        if len(cv) > 1:
+            facts.append("coves: " + " · ".join("%s %.1f" % (c["name"].split(" (")[0], c["score"]) for c in cv[:3]))
+        if w.get("chance") is not None:
+            facts.append("chance it rings: %s" % pct_words(w["chance"]))
         od = w.get("odds") or {}
         if od.get("p_glass") is not None:
             facts.append("model runs: %d%% glassy" % round(od["p_glass"] * 100))
@@ -5188,6 +5553,23 @@ def bell_page(zk, bz, zc, state, t_now):
     if wn:
         cards.append(("Wind, measured", "%.0f kn" % wn["kn"], "%s, %s km away, %s · the glass line is 7 kn"
                       % (wn["station"], wn["km"], ago(wn["age_h"]))))
+    wc = bz.get("wind_corr")
+    if wc:
+        cards.append(("Wind correction", ("on, %+.1f kn" % wc["kn"]) if wc.get("on") else "watching",
+                      ("earned by four weeks of measured wind; it switches itself off the same way") if wc.get("on")
+                      else ("%d of %d days of measured wind logged; it turns on only if four weeks prove it helps"
+                            % (wc["days"], wc["need"]))))
+    cl = bz.get("clearing")
+    if cl and cl.get("state") == "clear":
+        cards.append(("Clearing outlook", "clear now", "turbidity %.1f NTU at %s (6-hour median), at or under its calm "
+                      "level of %.1f · a measurement, not a visibility promise" % (cl["ntu"], cl["station"], cl["clear"])))
+    elif cl and cl.get("state") == "settling":
+        eta = datetime.fromisoformat(cl["eta"]).astimezone(tz)
+        cards.append(("Clearing outlook", "settled by %s" % eta.strftime("%a %-I%p").replace("AM", "am").replace("PM", "pm"),
+                      "%.1f NTU at %s now; in the past year, water this stirred there was back to its calm level in a "
+                      "median of %d hours (%d times), if no new swell or rain stirs it%s"
+                      % (cl["ntu"], cl["station"], cl["hours"], cl["n"],
+                         (" · " + ", ".join(cl["stir"])) if cl.get("stir") else "")))
     wv = bz.get("wind_vs_model")
     if wv:
         b = wv["dawn_bias_kn"] if wv.get("dawn_bias_kn") is not None else wv["bias_kn"]
@@ -5265,6 +5647,11 @@ def bell_page(zk, bz, zc, state, t_now):
         if s.get("tide") and s["tide"] != "any":
             bits.append("best at %s tide" % s["tide"])
         tags = ""
+        best_c = max(((c, w) for w in wins for c in (w.get("coves") or []) if c["name"] == s["name"]),
+                     key=lambda cw: cw[0]["score"], default=None)
+        if best_c:
+            bits.insert(0, "best this week %.1f, %s%s" % (best_c[0]["score"], best_c[1]["label"],
+                        (" (nearshore %s ft)" % best_c[0]["ft"]) if best_c[0].get("ft") is not None else " (shares the bell's score)"))
         if s["name"] in named:
             tags += "<span class='tag'>named this week</span>"
         if s["name"] in last_by_cove:
@@ -5822,6 +6209,8 @@ def cmd_run(args):
                     "sst_c": sst if sst is not None else "", "chla_mg_m3": chla if chla is not None else "",
                     "sst_src": sst_src, "wind_bias_kn": wb["bias_kn"] if wb else "",
                     "p_glass": (s.get("odds") or {}).get("p_glass", ""),
+                    "mop_ft": ((s.get("coves") or [{}])[0].get("ft") if s.get("coves") else "") or "",
+                    "chance": s.get("chance") if s.get("chance") is not None else "",
                     "p_dry": (s.get("odds") or {}).get("p_dry", "") if (s.get("odds") or {}).get("p_dry") is not None else "",
                     "kd490_m1": s["feats"].get("kd490") if s["feats"].get("kd490") is not None else "",
                     "perfect_gate": "PASS" if perfect_gate(s["feats"], s["score"], sst, zc)[0] else "",
@@ -8736,6 +9125,111 @@ def cmd_test(args):
     mw_bt = measured_water({"ndbc_primary": fb_bt}, datetime(2026, 8, 11, 14, 0, tzinfo=PT))
     check("(bt) a near buoy's thermometer judges the warm light, named",
           mw_bt and mw_bt["station"] == "Buoy 51201" and mw_bt["c"] == 23.4 and mw_bt["km"] == 6.1, str(mw_bt))
+
+    # (mp) each cove on its own: CDIP's nearshore model at each cove moves
+    # that cove's score from the bell's; the named cove's own swell can veto
+    asc = ("Dataset {\n} x;\n---\nwaveTime[4]\n1786118400, 1786129200, 1786140000, 1786150800\n\n"
+           "waveHs[4]\n0.5, 0.6, 0.7, 0.8\n\nwaveTp[4]\n14.0, 14.0, 13.0, 12.0\n\nwaveDp[4]\n200.0, 205.0, 210.0, 215.0\n")
+    pa = parse_mop_ascii(asc)
+    check("(mp) OPeNDAP ASCII parses into series", pa["waveHs"] == [0.5, 0.6, 0.7, 0.8] and len(pa["waveTime"]) == 4)
+    class _MSrc:
+        offline = True
+        def __init__(self, bodies): self.bodies = bodies
+        def get(self, key, url, timeout=25):
+            if key not in self.bodies: raise FileNotFoundError(key)
+            return self.bodies[key]
+    fm_mp = fetch_mop(_MSrc({"mop_OC266": asc, "mop_OC281": asc.replace("0.5, 0.6, 0.7, 0.8", "0.25, 0.3, 0.35, 0.4")}),
+                      ["OC266", "OC281", "OC999"])
+    check("(mp) a failing point is simply absent; the rest arrive",
+          fm_mp.ok and set(fm_mp.data["points"]) == {"OC266", "OC281"} and len(fm_mp.data["errors"]) == 1)
+    t_mp = datetime.fromtimestamp(1786129200, tz=timezone.utc)
+    w_mp = {"start": t_mp, "end": t_mp + timedelta(hours=2), "label": "Wed dawn", "key": "k"}
+    check("(mp) a window reads the largest nearby 3-hourly swell, in feet",
+          mop_window(fm_mp.data["points"]["OC266"], w_mp) == {"ft": round(0.7 * 3.281, 1), "s": 13.0, "dir": 210})
+    feats_mp = dict(sc_y[0]["feats"], damage=3.0)
+    cv_mp = cove_scores(zc, w_mp, feats_mp, 7.0, fm_mp, [], 14.0)
+    names_mp = [c["name"] for c in cv_mp]
+    shaw = next(c for c in cv_mp if c["name"] == "Shaw's Cove")
+    fish = next(c for c in cv_mp if c["name"] == "Fisherman's Cove")
+    check("(mp) a cove with half the read point's swell scores above the bell; an unplaceable cove keeps exactly the bell's score",
+          shaw["mapped"] and shaw["ft"] == round(0.35 * 3.281, 1) and shaw["score"] > 7.0
+          and not fish["mapped"] and fish["score"] == 7.0 and names_mp[0] == "Shaw's Cove",
+          "%s | %s" % (shaw, names_mp[:3]))
+    check("(mp) no nearshore data, no cove scores - the bell's own entries stand",
+          cove_scores(zc, w_mp, feats_mp, 7.0, Fetch("mop", False, error="x"), [], 14.0) is None
+          and cove_scores(CONFIG["zones"]["J"], w_mp, feats_mp, 7.0, fm_mp, [], 14.0) is None)
+    saved_now = g7["mop_nowcast_window"]
+    g7["mop_nowcast_window"] = lambda lab, s_, e_: 1.0
+    g7["archive_weather"] = lambda zc_, s_, e_: None
+    try:
+        e_mp = {"wkey": "k", "start": (t_y - timedelta(days=1)).isoformat(), "end": (t_y - timedelta(days=1) + timedelta(hours=3)).isoformat(),
+                "date": "x", "status": "rung", "cove": "Shaw's Cove", "cove_mop": "OC281", "forecast": {"mop_ft": 1.3}}
+        buoy_mp = Fetch("ndbc_primary", True, {"rows": [{"t": datetime.fromisoformat(e_mp["start"]).astimezone(timezone.utc) + timedelta(minutes=30 * i),
+                                                         "wvht_m": 1.5, "dpd_s": 12.0, "mwd_deg": 200} for i in range(6)]})
+        st_mp = {"ring_ledger": {"A": [e_mp]}}
+        ledger_verify(st_mp, "A", zc, {"ndbc_primary": buoy_mp, "weather": mkwx(3.0, 0.0, 10)}, t_y)
+        mm = st_mp["ring_ledger"]["A"][0].get("morning") or {}
+    finally:
+        g7["mop_nowcast_window"] = saved_now
+        g7["archive_weather"] = saved_aw
+    check("(mp) the record judges flat at the cove itself by CDIP's nowcast, and says so",
+          mm.get("lights", {}).get("flat") is True and mm.get("mop_ft") == 1.0
+          and "nearshore 1.0 ft at Shaw's Cove (CDIP nowcast)" in morning_words({"morning": mm}), str(mm))
+    rough_c = [{"name": "Shaw's Cove", "ft": 3.4, "score": 8.0}]
+    check("(mp) a named cove rougher than %.0f ft cannot ring" % MOP_FLAT_FT,
+          MOP_FLAT_FT == 3.0 and rough_c[0]["ft"] > MOP_FLAT_FT)
+    check("(mp) every MOP-covered bell's points are configured and its read point first",
+          all(CONFIG["zones"][k]["mop"]["_bell"] for k in ("A", "C", "D", "E", "G", "H", "I", "M", "N"))
+          and "mop" not in CONFIG["zones"]["J"] and CONFIG["zones"]["A"]["mop"]["Shaw's Cove"] == "OC281")
+
+    # (od) the odds: the chance a window ends with every light on, from history
+    rows_od = []
+    for i in range(60):
+        hit = i % 3 == 0
+        for lead, sc, al in ((40.0, 8.6, True), (30.0, 8.6, True), (6.0, 8.6, hit)):
+            rows_od.append({"zone": "A", "window_key": "w%d" % i, "lead_h": str(lead), "score": str(sc),
+                            "perfect_gate": "PASS" if al else ""})
+    for i in range(40):
+        rows_od.append({"zone": "A", "window_key": "x%d" % i, "lead_h": "40.0", "score": "5.0", "perfect_gate": ""})
+        rows_od.append({"zone": "A", "window_key": "x%d" % i, "lead_h": "5.0", "score": "5.0", "perfect_gate": ""})
+    tab = ring_odds_table(rows_od)
+    p_hi = ring_odds(36.0, 8.6, True, tab)
+    check("(od) aligned 8.6 at 24-48h: a third of history ended perfect - the odds say about a third",
+          p_hi is not None and 0.30 <= p_hi <= 0.36, str(p_hi))
+    check("(od) thin history says nothing; a quiet low score says almost nothing",
+          ring_odds(100.0, 8.6, True, tab) is None and ring_odds(36.0, 5.0, False, tab) is not None
+          and ring_odds(36.0, 5.0, False, tab) < 0.05 and pct_words(0.004) == "<1%" and pct_words(0.336) == "34%")
+
+    # (wc) the wind correction earns its way in - or stays watched
+    def wc_rows(bias_by_day, zk="D"):
+        out = []
+        for d0, b in bias_by_day:
+            ts = datetime(2026, 12, 1, 6, 0, tzinfo=PT) - timedelta(days=d0)
+            out.append({"zone": zk, "run_ts": ts.isoformat(), "wind_bias_kn": str(b)})
+        return out
+    today_wc = datetime(2026, 12, 1, 12, 0, tzinfo=PT).date()
+    st_short = wind_correction_status("D", wc_rows([(d0, 1.2) for d0 in range(10)]), today_wc)
+    st_on = wind_correction_status("D", wc_rows([(d0, 1.2 + (0.3 if d0 % 2 else -0.2)) for d0 in range(28)]), today_wc)
+    st_mixed = wind_correction_status("D", wc_rows([(d0, 1.5 if d0 % 2 else -1.5) for d0 in range(28)]), today_wc)
+    check("(wc) ten days is watching, not on", not st_short["on"] and st_short["days"] == 10)
+    check("(wc) four steady weeks of +1.2 kn earn it, at their median",
+          st_on["on"] and 1.0 <= st_on["kn"] <= 1.5 and st_on["helps"] >= 3, str(st_on))
+    check("(wc) a bias that flips sign day to day never earns it", not st_mixed["on"], str(st_mixed))
+
+    # (cl) the clearing outlook - this pier's own history, never a visibility promise
+    sh_cl = Fetch("shore", True, dict(fs_w.data, id="scripps-pier-automated-shore-sta-1", km=2.3,
+                                      ntu_6h=(1.6, datetime(2026, 8, 11, 20, 0, tzinfo=timezone.utc))))
+    cl1 = clearing_outlook({"shore": sh_cl}, t_w, zc)
+    cl0 = clearing_outlook({"shore": Fetch("shore", True, dict(sh_cl.data, ntu_6h=(0.5, sh_cl.data["ntu_6h"][1])))}, t_w, zc)
+    cl_np = clearing_outlook({"shore": Fetch("shore", True, dict(sh_cl.data, id="newport-pier-automated-shore-sta"))}, t_w, zc)
+    check("(cl) water twice the calm level at Scripps settles in this pier's own median (10 h, 52 times)",
+          cl1 and cl1["state"] == "settling" and cl1["hours"] == 10 and cl1["n"] == 52, str(cl1))
+    check("(cl) at or under the calm level is clear now; a pier without enough history says nothing",
+          cl0 and cl0["state"] == "clear" and cl_np is None)
+    rain_cl = Fetch("weather", True, {"precipitation": {t_w + timedelta(hours=30): 0.2}})
+    cl_r = clearing_outlook({"shore": sh_cl, "weather": rain_cl}, t_w, zc)
+    check("(cl) rain inside three days is named as what could stir it again",
+          cl_r and cl_r["stir"] and cl_r["stir"][0].startswith("rain due"), str(cl_r and cl_r.get("stir")))
 
     # fixture suite: degraded + disagreement
     print("fixture tests:")

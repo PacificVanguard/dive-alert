@@ -292,6 +292,41 @@ odds are logged (`p_glass`, `p_dry`) and kept on each ring in the record.
 The buoy's own thermometer (NDBC WTMP) is a measured-water witness too:
 Oahu North Shore now reads Waimea Bay buoy 51201, 6 km out.
 
+## Each cove on its own: CDIP's nearshore model (2026-11-12)
+
+CDIP MOP (Scripps) carries the wave field to the 10 m contour every ~100 m
+along California, island shadows and refraction included. `MOP_SITES` maps
+each bell's read point and each pinned cove to its nearest MOP point
+(0.1-0.9 km; built from CDIP's own site table). Per window, `cove_scores`
+moves the bell's calibrated score for each mapped cove by the cove's
+nearshore swell relative to the read point ((Hs_cove/Hs_read)^2 on damage),
+so the scale holds and the coves differ by physics; an unplaceable cove
+keeps the bell's score. The rank adds, for every cove alike, its pocket
+shelter (a 10 m point sits outside the pocket), the tide its entry needs,
+and surge at depth - the coves name themselves. A named cove rougher than
+3 ft nearshore cannot ring (`MOP_FLAT_FT`). The record judges the flat
+light at the named cove itself by CDIP's NOWCAST (driven by measured buoy
+spectra) when the ring carried a MOP point. MOP covers California only;
+Hawaii, Bonaire and Sydney keep the bell's own entries.
+
+## The odds, the earned wind correction, the clearing outlook (2026-11-12)
+
+- `ring_odds`: the chance a window ends with every light on, from the
+  bell's own history (score_log: every window's earlier readings against
+  whether its last reading, within 12 h, had every light on), bucketed by
+  lead, score and current alignment, smoothed toward the lead's base rate,
+  withheld under 20 readings. Shown on every window and day; logged as
+  `chance`. The improvement loop owns its calibration.
+- `wind_correction_status`: the measured-minus-modeled wind turns itself on
+  for a bell only after 21 of 28 days of data, sign agreement 3 days in 4,
+  at least 0.5 kn, and a held-out week-by-week test it helps 3 weeks of 4;
+  off the same way. Shown as "watching N of 21 days" until then.
+- `clearing_outlook`: from a year of 6-hour-median pier turbidity, the
+  median hours water this stirred took to settle at that pier (Scripps,
+  Santa Monica; Newport lacks history, Stearns Wharf never settles to its
+  own calm level), with what could stir it again in the next three days.
+  A turbidity outlook - never a visibility promise.
+
 ## The maps (2026-11-03)
 
 Each bell page draws its water (Leaflet from unpkg; USGS imagery for US
