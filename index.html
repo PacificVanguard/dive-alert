@@ -677,7 +677,7 @@
         (w.limit ? "<span class='lim'>" + w.limit + "</span>" : "") + lights(w.axes) +
         // the chance this window ends with every light on, from the bell's own history
         (w.chance != null ? "<span class='pct' title='chance it rings, from the bell's own history'>" +
-          (w.chance < 0.01 ? "<1%" : Math.round(w.chance * 100) + "%") + "</span>" : "");
+          (w.chance < 0.05 ? "<5%" : w.chance > 0.95 ? ">95%" : Math.round(w.chance * 20) * 5 + "%") + "</span>" : "");
       strip.appendChild(el);
     });
     document.getElementById("weeknote").innerHTML = (st.top && st.top.score >= 7

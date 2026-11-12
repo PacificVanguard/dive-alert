@@ -1692,7 +1692,10 @@ def ring_odds(lead_h, score_raw, aligned, table=None):
 
 
 def pct_words(p):
-    return "<1%" if p < 0.01 else ">99%" if p > 0.99 else "%d%%" % round(p * 100)
+    """Only as precise as it is honest. Out-of-sample (2026-11-12): 15-50%
+    calibrated within a few points; below 15% it ran 1.5-2.5x high - so the
+    low end reads 'under 5%', and everything else to the nearest 5."""
+    return "under 5%" if p < 0.05 else "over 95%" if p > 0.95 else "%d%%" % (round(p * 20) * 5)
 
 
 # =====================================================================
@@ -1840,6 +1843,25 @@ def fetch_ensemble(src, lat, lon, tzname):
         return Fetch("ensemble", True, {"wind": wind, "rain": rain})
     except Exception as e:
         return Fetch("ensemble", False, error=str(e))
+
+
+def fetch_nbm(src, lat, lon, tzname):
+    """NOAA's National Blend of Models: hourly cloud cover at the bell, a
+    calibrated blend that sees the marine layer better than HRRR alone.
+    Measured 2026-11-12 against airport ceilometers at dawn, Aug-Nov: when
+    HRRR and the Blend BOTH call it sunny, false sun fell from 48% to 31% at
+    La Jolla, 35% to 25% at Laguna, 16% to 8% at Ventura. CONUS only."""
+    try:
+        q = urllib.parse.urlencode({"latitude": lat, "longitude": lon, "hourly": "cloud_cover",
+                                    "models": "ncep_nbm_conus", "forecast_days": 8, "past_days": 1,
+                                    "timezone": tzname})
+        d = json.loads(src.get("nbm", CONFIG["sources"]["weather"] + "?" + q, timeout=30))
+        cloud = hourly_map(d["hourly"]["time"], d["hourly"]["cloud_cover"], ZoneInfo(tzname))
+        if not cloud:
+            raise ValueError("no cloud for this point")
+        return Fetch("nbm", True, {"cloud_cover": cloud})
+    except Exception as e:
+        return Fetch("nbm", False, error=str(e))
 
 
 def ensemble_odds(ens, w, det_wind, zc=None):
@@ -2323,6 +2345,8 @@ def fetch_all(zone_cfg, offline=False, fixture_set="normal"):
         bl = BUOY_POSITIONS[buoy]
         f["ndbc_primary"].data.update(name="Buoy %s" % buoy, km=round(km_between(lat, lon, bl[0], bl[1]), 1))
     f["ensemble"] = fetch_ensemble(src, lat, lon, tzname)
+    if nws_covered(zone_cfg) and lon > -130:   # the Blend covers the contiguous US only
+        f["nbm"] = fetch_nbm(src, lat, lon, tzname)
     if zone_cfg.get("mop"):
         f["mop"] = fetch_mop(src, sorted(set(zone_cfg["mop"].values())))
     if not f["marine"].ok and f["marine_alt"].ok:
@@ -2633,8 +2657,11 @@ def compute_features(w, fetches, zone_cfg, t_now, anchor=None):
     kd = fetches.get("kd490")
     clouds = [wx.get("cloud_cover", {}).get(t) for t in win_hrs]
     clouds_complete = bool(clouds) and all(c is not None for c in clouds)
+    nbm_f = fetches.get("nbm")
+    nbm_c = [nbm_f.data["cloud_cover"].get(t) for t in win_hrs] if (nbm_f is not None and nbm_f.ok) else []
     feats = {
         "cloud_pct": (sum(clouds) / len(clouds)) if clouds_complete else None,
+        "cloud_pct_nbm": (sum(nbm_c) / len(nbm_c)) if nbm_c and all(c is not None for c in nbm_c) else None,
         "wind_energy_48h": wind_e if wind else None,
         "swell_energy_72h": swell_e if swell_series else None,
         "dry_hours": dry, "rain_window_in": rain_window_in,
@@ -2649,7 +2676,7 @@ def compute_features(w, fetches, zone_cfg, t_now, anchor=None):
         "anchor": anchor,   # the measurement itself: None stays None here, for the log
         "obs_frac": (obs_fraction(w["start"], fc["wind_lookback_h"], t_now)
                      + obs_fraction(w["start"], fc["swell_lookback_h"], t_now)) / 2.0,
-        "missing": [k for k, f in fetches.items() if not f.ok and k not in WITNESS_KEYS + ("ensemble", "mop")],
+        "missing": [k for k, f in fetches.items() if not f.ok and k not in WITNESS_KEYS + ("ensemble", "mop", "nbm")],
     }
     return feats
 
@@ -3178,7 +3205,11 @@ def perfect_gate(feats, score, sst_c, zone_cfg=None):
         ("glass", feats.get("wind_window_eff_kn", feats.get("wind_window_max_kn")),
          lambda v: v <= g["max_wind_kn"]),
         ("dry", feats.get("dry_hours"), lambda v: v >= g["min_dry_hours"]),
-        ("sun", feats.get("cloud_pct"), lambda v: v <= g["max_cloud_pct"]),
+        # sun needs BOTH skies when the Blend is there: HRRR alone missed the
+        # marine layer on a third of SoCal dawns it called sunny (2026-11-12)
+        ("sun", (max(feats["cloud_pct"], feats["cloud_pct_nbm"])
+                 if feats.get("cloud_pct") is not None and feats.get("cloud_pct_nbm") is not None
+                 else feats.get("cloud_pct")), lambda v: v <= g["max_cloud_pct"]),
         ("warm", sst_c, lambda v: v >= g["min_sst_c"]),
         ("score", score, lambda v: v >= g["min_score"]),
     ]
@@ -4208,14 +4239,14 @@ def notify_ops(payload, dry_run, text=True, sms_text=None):
 SOURCE_HOST = {"sst": "CoastWatch", "kd490": "CoastWatch", "chla": "CoastWatch",
                "marine": "the swell model", "marine_alt": "the second voice", "weather": "the weather feed",
                "ensemble": "the ensemble model", "shore": "the pier stations", "met": "NOAA station sensors",
-               "mop": "CDIP's nearshore model",
+               "mop": "CDIP's nearshore model", "nbm": "the National Blend",
                "nws_wind": "NWS stations", "nws_sky": "NWS stations",
                "ndbc_primary": "the buoy", "ndbc_offshore": "the offshore buoy",
                "ndbc_spec": "the buoy's spectra", "tides": "NOAA tides", "nws": "NWS alerts"}
 SOURCE_EFFECT = {"sst": "warm axis on Open-Meteo", "kd490": "clarity witness dark", "chla": "plankton witness dark",
                  "marine": "NO SWELL MODEL", "marine_alt": "no second voice", "weather": "NO WIND, RAIN OR LIGHT",
                  "ensemble": "no model-agreement veto", "shore": "no measured water", "met": "no measured wind",
-                 "mop": "coves fall back to the bell's score",
+                 "mop": "coves fall back to the bell's score", "nbm": "sun leans on one model",
                  "nws_wind": "no measured wind", "nws_sky": "no measured sky",
                  "ndbc_primary": "no buoy anchor or agreement", "ndbc_offshore": "no offshore trend",
                  "ndbc_spec": "no chop split", "tides": "no cove timing", "nws": "no hazard veto"}
@@ -4283,6 +4314,8 @@ LOG_COLS = ["run_ts", "zone", "window_key", "window_start", "window_kind", "lead
             # each cove on its own (2026-11-12): the named cove's nearshore Hs
             # (CDIP MOP) and the chance shown for the window
             "mop_ft", "chance",
+            # the National Blend's window cloud (2026-11-12): sun needs both skies
+            "cloud_nbm",
             # perfect_gate stays the PHYSICAL answer (so gate_hold_rates keeps
             # grading the same quantity across the change); rang records what
             # the bell was actually willing to promise
@@ -4614,7 +4647,7 @@ def board_entry(zk, zc, scored, state, rec, ztopic, sst, fetches=None, t_now=Non
                 "swell": ({"ft": r1(p.get("hgt_ft", 0)), "s": r1(p.get("per_s", 0)), "dir": r0(p.get("dir", 0))}
                           if p else None),
                 "wind_kn": r1(f.get("wind_window_eff_kn", f.get("wind_window_max_kn"))),
-                "cloud": r0(f.get("cloud_pct")), "dry_h": r0(f.get("dry_hours")),
+                "cloud": r0(f.get("cloud_pct")), "cloud_nbm": r0(f.get("cloud_pct_nbm")), "dry_h": r0(f.get("dry_hours")),
                 "tide": ({"ft": tide["ft"], "trend": tide["trend"]} if tide else None)}
     return {
         "keeper": zc.get("keeper"),
@@ -5502,7 +5535,8 @@ def bell_page(zk, bz, zc, state, t_now):
         if td:
             facts.append("tide %s ft %s" % (td.get("ft"), {"rising": "\u2191", "falling": "\u2193"}.get(td.get("trend"), "")))
         if w.get("cloud") is not None:
-            facts.append("cloud %s%%" % w["cloud"])
+            facts.append("cloud %s%%" % w["cloud"] if w.get("cloud_nbm") is None or abs(w["cloud_nbm"] - w["cloud"]) < 15
+                         else "cloud %s%% (HRRR) vs %s%% (National Blend)" % (w["cloud"], w["cloud_nbm"]))
         cv = w.get("coves") or []
         if cv and cv[0].get("ft") is not None:
             facts.append("nearshore at %s %s ft%s (CDIP)" % (cv[0]["name"], cv[0]["ft"], (" @ %s s" % cv[0]["s"]) if cv[0].get("s") else ""))
@@ -6211,6 +6245,7 @@ def cmd_run(args):
                     "p_glass": (s.get("odds") or {}).get("p_glass", ""),
                     "mop_ft": ((s.get("coves") or [{}])[0].get("ft") if s.get("coves") else "") or "",
                     "chance": s.get("chance") if s.get("chance") is not None else "",
+                    "cloud_nbm": round(s["feats"]["cloud_pct_nbm"]) if s["feats"].get("cloud_pct_nbm") is not None else "",
                     "p_dry": (s.get("odds") or {}).get("p_dry", "") if (s.get("odds") or {}).get("p_dry") is not None else "",
                     "kd490_m1": s["feats"].get("kd490") if s["feats"].get("kd490") is not None else "",
                     "perfect_gate": "PASS" if perfect_gate(s["feats"], s["score"], sst, zc)[0] else "",
@@ -9182,6 +9217,20 @@ def cmd_test(args):
           all(CONFIG["zones"][k]["mop"]["_bell"] for k in ("A", "C", "D", "E", "G", "H", "I", "M", "N"))
           and "mop" not in CONFIG["zones"]["J"] and CONFIG["zones"]["A"]["mop"]["Shaw's Cove"] == "OC281")
 
+    # (sk) sun needs both skies: HRRR (the feed) and the National Blend
+    f_sk = {"damage": 1.0, "wind_window_eff_kn": 3.0, "dry_hours": 72, "cloud_pct": 10.0, "cloud_pct_nbm": 40.0}
+    check("(sk) the Blend's cloud overrules a sunny HRRR; agreement lets the sun light on; a missing Blend vetoes nothing",
+          "sun" in perfect_gate(f_sk, 9.0, 20.0, zc)[1]
+          and "sun" not in perfect_gate(dict(f_sk, cloud_pct_nbm=12.0), 9.0, 20.0, zc)[1]
+          and "sun" not in perfect_gate(dict(f_sk, cloud_pct_nbm=None), 9.0, 20.0, zc)[1])
+    nb_body = json.dumps({"hourly": {"time": ["2026-08-12T%02d:00" % h for h in range(24)], "cloud_cover": [50] * 24}})
+    class _NSrc:
+        offline = True
+        def get(self, key, url, timeout=25):
+            return nb_body
+    fn_sk = fetch_nbm(_NSrc(), 33.5, -117.8, "America/Los_Angeles")
+    check("(sk) the Blend parses in the bell's clock", fn_sk.ok and fn_sk.data["cloud_cover"][datetime(2026, 8, 12, 6, 0, tzinfo=PT)] == 50.0)
+
     # (od) the odds: the chance a window ends with every light on, from history
     rows_od = []
     for i in range(60):
@@ -9198,7 +9247,8 @@ def cmd_test(args):
           p_hi is not None and 0.30 <= p_hi <= 0.36, str(p_hi))
     check("(od) thin history says nothing; a quiet low score says almost nothing",
           ring_odds(100.0, 8.6, True, tab) is None and ring_odds(36.0, 5.0, False, tab) is not None
-          and ring_odds(36.0, 5.0, False, tab) < 0.05 and pct_words(0.004) == "<1%" and pct_words(0.336) == "34%")
+          and ring_odds(36.0, 5.0, False, tab) < 0.05 and pct_words(0.004) == "under 5%" and pct_words(0.336) == "35%"
+          and pct_words(0.99) == "over 95%")
 
     # (wc) the wind correction earns its way in - or stays watched
     def wc_rows(bias_by_day, zk="D"):

@@ -327,6 +327,31 @@ Hawaii, Bonaire and Sydney keep the bell's own entries.
   own calm level), with what could stir it again in the next three days.
   A turbidity outlook - never a visibility promise.
 
+## The lights, tested against what was measured (2026-11-12)
+
+Three months of dawn windows against airport ceilometers and rain gauges
+(Iowa Mesonet ASOS archive) and Scripps Pier's anemometer:
+- SUN was the weakest light: when the forecast (HRRR - Open-Meteo's
+  best_match is HRRR in the US) called a SoCal dawn sunny, it was cloudy
+  26-48% of the time (the marine layer). NOAA's National Blend of Models
+  saw it better; requiring BOTH to call it sunny (`fetch_nbm`, the sun
+  check in `perfect_gate`) cut false sun to 31% La Jolla, 25% Laguna,
+  29% Dana, 8% Ventura, 18% Monterey, 12% Point Lobos. A missing Blend
+  vetoes nothing. Hawaii is outside the Blend.
+- After a measured cloudy dawn, false sun doubled (27% vs 14% fleet-wide,
+  n=66/115) - logged as a lead for the loop, not a rule (too few cases).
+- DRY is sound: 0-5% of "dry" forecasts were wet.
+- GLASS: the model runs ~0.7 kn too windy at La Jolla and Monterey but the
+  sign flips day to day (60-72% agreement) - the earned wind correction
+  correctly stays off; the misses are gust variance, not bias.
+- THE ODDS (independent out-of-sample audit): Brier skill 0.19-0.34 over the
+  base rate; 15-50% calibrated within a few points (said ~21%, 22% rang);
+  below 15% it ran 1.5-2.5x high - so it shows "under 5%" there and rounds
+  to 5 elsewhere (`pct_words`). Three alternatives (per-region tables,
+  lights-off counts, previous-reading state) were worse out of sample.
+  46% of windows have no reading within 12 h of the window (late crons);
+  that does not bias the base rate, and loosening the cutoff did not help.
+
 ## The maps (2026-11-03)
 
 Each bell page draws its water (Leaflet from unpkg; USGS imagery for US
