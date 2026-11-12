@@ -270,6 +270,28 @@ NWS hazard veto, and a missing witness is never a "missing source". A run's
 clock is floored to the hour, so a reading from later in that hour is
 current (`_fresh` allows 90 minutes ahead).
 
+## The ring waits for 48 hours; the model's own runs must agree (2026-11-11)
+
+Keeper's decision: the bell says RINGING only inside the 48 hours a ring can
+be texted (`ring_live`, the alerting lead_max_h). A confirmed gate further
+out is LINING UP — blue on the fleet map, "looks perfect - if it holds, the
+bell will ring" in the forecast — and the Wednesday reading promises only
+live rings, so a far gate can never need taking back. `gate` in zones.json
+now means exactly that; `lining_up` carries the rest. The log's `rang` keeps
+its old meaning (the confirmed gate at any lead) so history stays comparable.
+
+The ECMWF 51-member ensemble (`fetch_ensemble`, Open-Meteo) is read for
+every bell. Each member's window wind is DRESSED around the bell's own
+calibrated forecast (its departure from the ensemble mean), and a window
+the majority of runs call windy cannot ring (`ensemble_veto`, flag "models
+split: glassy in N% of runs"). Only glass vetoes: the ensemble's rain is a
+25 km grid cell that includes the mountains behind the coast, so `p_dry` is
+logged and watched, not applied. An absent ensemble vetoes nothing. Both
+odds are logged (`p_glass`, `p_dry`) and kept on each ring in the record.
+
+The buoy's own thermometer (NDBC WTMP) is a measured-water witness too:
+Oahu North Shore now reads Waimea Bay buoy 51201, 6 km out.
+
 ## The maps (2026-11-03)
 
 Each bell page draws its water (Leaflet from unpkg; USGS imagery for US

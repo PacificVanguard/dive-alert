@@ -943,6 +943,8 @@ CONFIG = {
         "marine": "https://marine-api.open-meteo.com/v1/marine",
         "weather": "https://api.open-meteo.com/v1/forecast",
         "weather_archive": "https://archive-api.open-meteo.com/v1/archive",
+        # ECMWF's 51-member ensemble: how many of the model's own runs agree
+        "ensemble": "https://ensemble-api.open-meteo.com/v1/ensemble",
         "ndbc_primary": "46253",   # San Pedro South (CDIP 213) — nearest live buoy; 46223 Dana Point is decommissioned
         "ndbc_offshore": "46086",  # San Clemente Basin — offshore trend
         "ndbc_url": "https://www.ndbc.noaa.gov/data/realtime2/{station}.txt",
@@ -1490,6 +1492,75 @@ def fetch_nws_obs(src, station, key):
         return Fetch(key, False, error=str(e))
 
 
+def ring_live(s, t_now):
+    """A ring is said aloud only inside the window it can be texted (12-48h
+    ahead, decide_alert). Beyond 48 hours a perfect, confirmed reading is
+    LINING UP: only about a quarter of gates seen 1-3 days out survive to the
+    morning, and calling them ringing was a false positive waiting to happen
+    (keeper's decision, 2026-11-11: hold until 48 hours out)."""
+    lead = (s["w"]["start"] - t_now).total_seconds() / 3600.0
+    return bool(s.get("gate")) and lead <= CONFIG["alerting"]["lead_max_h"]
+
+
+ENSEMBLE_MIN_AGREE = 0.5   # "most runs": a majority must keep the window glassy, and dry
+
+
+def fetch_ensemble(src, lat, lon, tzname):
+    """ECMWF's 51-member ensemble at the bell: hourly wind (kn) and rain (in)
+    for each member. A bonus witness - its absence vetoes nothing."""
+    try:
+        q = urllib.parse.urlencode({
+            "latitude": lat, "longitude": lon, "hourly": "wind_speed_10m,precipitation",
+            "models": "ecmwf_ifs025", "wind_speed_unit": "kn", "precipitation_unit": "inch",
+            "forecast_days": 8, "past_days": 1, "timezone": tzname})
+        d = json.loads(src.get("ensemble", CONFIG["sources"]["ensemble"] + "?" + q, timeout=40))
+        h, tz = d["hourly"], ZoneInfo(tzname)
+        members = lambda var: [hourly_map(h["time"], h[k], tz) for k in sorted(h)
+                               if k == var or k.startswith(var + "_member")]
+        wind, rain = members("wind_speed_10m"), members("precipitation")
+        if len(wind) < 10:
+            raise ValueError("only %d members" % len(wind))
+        return Fetch("ensemble", True, {"wind": wind, "rain": rain})
+    except Exception as e:
+        return Fetch("ensemble", False, error=str(e))
+
+
+def ensemble_odds(ens, w, det_wind, zc=None):
+    """Of the ensemble's runs, how many keep this window glassy, and how many
+    keep it and the day before it dry. Each member's wind is DRESSED around
+    the bell's own calibrated forecast (its departure from the ensemble mean,
+    added to det_wind): the ensemble lends its spread, never its coarse-grid
+    level, so a 25 km grid cannot overrule a calibrated cove."""
+    if not ens or det_wind is None:
+        return None
+    g = dict(CONFIG["perfect_gate"], **((zc or {}).get("perfect_gate_overrides", {})))
+    hours, h = [], floor_hour(w["start"])
+    while h <= w["end"]:
+        hours.append(h)
+        h += timedelta(hours=1)
+    mx = [max(v) for v in ([m[x] for x in hours if x in m] for m in ens.get("wind", [])) if v]
+    if len(mx) < 10:
+        return None
+    mean = sum(mx) / len(mx)
+    p_glass = sum(1 for x in mx if det_wind + (x - mean) <= g["max_wind_kn"]) / len(mx)
+    wet_hours = [floor_hour(w["start"]) - timedelta(hours=i) for i in range(1, 25)] + hours
+    wet = [sum(v) for v in ([m[x] for x in wet_hours if x in m] for m in ens.get("rain", [])) if v]
+    p_dry = (sum(1 for x in wet if x < 0.1) / len(wet)) if len(wet) >= 10 else None
+    return {"p_glass": round(p_glass, 2), "p_dry": round(p_dry, 2) if p_dry is not None else None,
+            "n": len(mx)}
+
+
+def ensemble_veto(odds):
+    """The reason a window may not ring, or None. Unknown odds veto nothing.
+    Only GLASS vetoes: wind dressing around the bell's calibrated forecast is
+    sound, but a 25 km grid cell's rain includes the mountains behind the
+    coast (first live read, 2026-11-11: Oahu's leeward dawns 'dry in 6% of
+    runs'). p_dry is logged and watched, not applied - the record decides."""
+    if not odds or odds["p_glass"] >= ENSEMBLE_MIN_AGREE:
+        return None
+    return "models split: glassy in %d%% of runs" % round(odds["p_glass"] * 100)
+
+
 def _fresh(t, t_now, hours):
     """A run's clock is floored to the hour (now_pt), so a reading taken this
     hour lands up to 59 minutes AFTER it - that is current, not the future.
@@ -1501,14 +1572,18 @@ def measured_water(fetches, t_now, max_km=WATER_GATE_KM):
     """The water's temperature measured at the coast within reach: the
     nearest reading no older than 6 hours, from a pier or a tide station."""
     best = None
-    for k in ("shore", "met"):
+    for k in ("shore", "met", "ndbc_primary"):
         f = fetches.get(k)
         if f is None or not f.ok or f.data.get("km") is None or f.data["km"] > max_km:
             continue
-        r = (f.data.get("latest") or {}).get("temp_c") if k == "shore" else f.data.get("water_f")
+        if k == "ndbc_primary":
+            row = next((x for x in f.data.get("rows", []) if x.get("wtmp_c") is not None), None)
+            r = (row["wtmp_c"], row["t"]) if row else None
+        else:
+            r = (f.data.get("latest") or {}).get("temp_c") if k == "shore" else f.data.get("water_f")
         if not r or not _fresh(r[1], t_now, 6):
             continue
-        c = r[0] if k == "shore" else (r[0] - 32) * 5 / 9
+        c = r[0] if k in ("shore", "ndbc_primary") else (r[0] - 32) * 5 / 9
         cand = {"c": round(c, 2), "f": round(c * 9 / 5 + 32, 1), "t": r[1],
                 "station": f.data["name"], "km": f.data["km"]}
         if best is None or cand["km"] < best["km"]:
@@ -1704,7 +1779,9 @@ def parse_ndbc(text: str):
             continue
         def num(s):
             return None if s == "MM" else float(s)
-        rows.append({"t": dt, "wvht_m": num(p[8]), "dpd_s": num(p[9]), "mwd_deg": num(p[11])})
+        rows.append({"t": dt, "wvht_m": num(p[8]), "dpd_s": num(p[9]), "mwd_deg": num(p[11]),
+                     # WTMP: the buoy's own thermometer - a measured water witness
+                     "wtmp_c": num(p[14]) if len(p) > 14 else None})
     return rows
 
 
@@ -1925,6 +2002,10 @@ def fetch_all(zone_cfg, offline=False, fixture_set="normal"):
     for k in WITNESS_KEYS:
         if k in f and f[k].ok:
             f[k].data["km"] = round(km_between(lat, lon, f[k].data["lat"], f[k].data["lon"]), 1)
+    if f["ndbc_primary"].ok and buoy in BUOY_POSITIONS and not zone_cfg.get("buoy_aodn"):
+        bl = BUOY_POSITIONS[buoy]
+        f["ndbc_primary"].data.update(name="Buoy %s" % buoy, km=round(km_between(lat, lon, bl[0], bl[1]), 1))
+    f["ensemble"] = fetch_ensemble(src, lat, lon, tzname)
     if not f["marine"].ok and f["marine_alt"].ok:
         # the first voice is down; the second carries the read, marked so
         # confidence caps agreement and the message admits the substitution
@@ -2249,7 +2330,7 @@ def compute_features(w, fetches, zone_cfg, t_now, anchor=None):
         "anchor": anchor,   # the measurement itself: None stays None here, for the log
         "obs_frac": (obs_fraction(w["start"], fc["wind_lookback_h"], t_now)
                      + obs_fraction(w["start"], fc["swell_lookback_h"], t_now)) / 2.0,
-        "missing": [k for k, f in fetches.items() if not f.ok and k not in WITNESS_KEYS],
+        "missing": [k for k, f in fetches.items() if not f.ok and k not in WITNESS_KEYS + ("ensemble",)],
     }
     return feats
 
@@ -2854,7 +2935,7 @@ def render_digest(scored, t_now, state, sst_c=None, tip=None, actions=None):
         # lesson (2026-09-14): Tuesday's 8.9 at six days became 5.2 by Sunday.
         # Past 72h the bell says "forming", names the distance, and reserves
         # its sworn word for inside two days.
-        far_gate = (gd["w"]["start"] - t_now).total_seconds() / 3600.0 > 72
+        far_gate = (gd["w"]["start"] - t_now).total_seconds() / 3600.0 > CONFIG["alerting"]["lead_max_h"]
         headline = "✨ %s — everything lines up" % gd["w"]["label"]
         if far_gate:
             lead = ("%s stands perfect at %d days' distance — flat, dry, sunny, "
@@ -3430,7 +3511,7 @@ def ntfy_digest(zk, zc, scored, state, t_now, dry_run, weekly, sst=None):
     sent[zk] = week
     # the reading's word is a debt: every gate day it names is remembered,
     # and if the ocean later takes one back, check_retraction says so
-    gds = sorted({s["w"]["start"].date().isoformat() for s in scored if s.get("gate")})
+    gds = sorted({s["w"]["start"].date().isoformat() for s in scored if ring_live(s, t_now)})
     if gds:
         state.setdefault("digest_promise", {})[zk] = {"days": gds, "week": week}
 
@@ -3523,6 +3604,11 @@ def score_word(score):
 
 
 def sms_digest_text(zone_cfg, scored, footer=True, t_now=None):
+    tn = t_now or datetime.now(timezone.utc)
+    return _sms_digest_text(zone_cfg, scored, footer, t_now, tn)
+
+
+def _sms_digest_text(zone_cfg, scored, footer, t_now, tn):
     """The week ahead, sized for a phone and led by the answer: the best day
     in words, each day out of ten, then what the bell makes of it. The cove
     named is THIS bell's best entry for THAT window (best_entries), and is
@@ -3536,7 +3622,7 @@ def sms_digest_text(zone_cfg, scored, footer=True, t_now=None):
         if d not in by_day:
             by_day[d] = s
             order.append(d)
-        elif (bool(s.get("gate")), s["score"]) > (bool(by_day[d].get("gate")), by_day[d]["score"]):
+        elif (ring_live(s, tn), s["score"]) > (ring_live(by_day[d], tn), by_day[d]["score"]):
             by_day[d] = s      # a ringing window speaks for its day, whatever its rank
     if not order:
         return None
@@ -3564,9 +3650,9 @@ def sms_digest_text(zone_cfg, scored, footer=True, t_now=None):
             (best.get("entries") or ["your cove"])[0])
     strip = " / ".join("%s %.1f" % (by_day[d]["w"]["start"].strftime("%a"), by_day[d]["score"])
                        for d in order)
-    rung = next((by_day[d] for d in order if by_day[d].get("gate")), None)
+    rung = next((by_day[d] for d in order if ring_live(by_day[d], tn)), None)
     forming = next((by_day[d] for d in order
-                    if by_day[d].get("gate_raw") and not by_day[d].get("gate")), None)
+                    if (by_day[d].get("gate_raw") or by_day[d].get("gate")) and not ring_live(by_day[d], tn)), None)
     if rung:
         close = "%s is perfect - the bell is ringing." % rung["w"]["label"]
     elif forming:
@@ -3802,10 +3888,14 @@ def notify_ops(payload, dry_run, text=True, sms_text=None):
 
 SOURCE_HOST = {"sst": "CoastWatch", "kd490": "CoastWatch", "chla": "CoastWatch",
                "marine": "the swell model", "marine_alt": "the second voice", "weather": "the weather feed",
+               "ensemble": "the ensemble model", "shore": "the pier stations", "met": "NOAA station sensors",
+               "nws_wind": "NWS stations", "nws_sky": "NWS stations",
                "ndbc_primary": "the buoy", "ndbc_offshore": "the offshore buoy",
                "ndbc_spec": "the buoy's spectra", "tides": "NOAA tides", "nws": "NWS alerts"}
 SOURCE_EFFECT = {"sst": "warm axis on Open-Meteo", "kd490": "clarity witness dark", "chla": "plankton witness dark",
                  "marine": "NO SWELL MODEL", "marine_alt": "no second voice", "weather": "NO WIND, RAIN OR LIGHT",
+                 "ensemble": "no model-agreement veto", "shore": "no measured water", "met": "no measured wind",
+                 "nws_wind": "no measured wind", "nws_sky": "no measured sky",
                  "ndbc_primary": "no buoy anchor or agreement", "ndbc_offshore": "no offshore trend",
                  "ndbc_spec": "no chop split", "tides": "no cove timing", "nws": "no hazard veto"}
 LOAD_BEARING = ("marine", "weather", "ndbc_primary", "tides")
@@ -3866,6 +3956,9 @@ LOG_COLS = ["run_ts", "zone", "window_key", "window_start", "window_kind", "lead
             # the witnesses (2026-11-03): which water the warm light read, and
             # the measured-minus-modeled wind the loop is watching, unapplied
             "sst_src", "wind_bias_kn",
+            # the ensemble's agreement (2026-11-11): share of 51 ECMWF runs
+            # keeping the window glassy, and dry
+            "p_glass", "p_dry",
             # perfect_gate stays the PHYSICAL answer (so gate_hold_rates keeps
             # grading the same quantity across the change); rang records what
             # the bell was actually willing to promise
@@ -4045,6 +4138,15 @@ def score_zone(zone_key, zone_cfg, fetches, t_now, horizon_h=72, skill_corr=None
         if hazard:
             gate_ok = False
             flags = list(flags) + ["nws:%s" % hazard]
+        # and the model's own runs must mostly agree (2026-11-11, after two of
+        # Monterey's four October rings broke on wind the forecast called glassy)
+        ens = fetches.get("ensemble")
+        odds = (ensemble_odds(ens.data, w, feats.get("wind_window_eff_kn", feats.get("wind_window_max_kn")), zone_cfg)
+                if ens is not None and ens.ok else None)
+        split = ensemble_veto(odds)
+        if gate_ok and split:
+            gate_ok = False
+            flags = list(flags) + [split]
         # every bell rings on its own evidence, sworn or not; a provisional
         # bell's ring carries an honesty line instead of a lock (2026-09-01,
         # after Sydney's 9.2 passed every axis and had to stay silent)
@@ -4054,7 +4156,8 @@ def score_zone(zone_key, zone_cfg, fetches, t_now, horizon_h=72, skill_corr=None
                        "breakdown": breakdown, "cap_reason": cap_reason, "flags": flags,
                        "conf": conf_word, "completeness": comp, "agreement": agree,
                        "conf_notes": notes, "entries": entries, "tide_fyi": tide_fyi,
-                       "band": band, "gate": gate_ok, "hazard": hazard, "axes": axes})
+                       "band": band, "gate": gate_ok, "hazard": hazard, "axes": axes,
+                       "odds": odds, "split": split})
     return scored
 
 
@@ -4153,10 +4256,14 @@ def board_entry(zk, zc, scored, state, rec, ztopic, sst, fetches=None, t_now=Non
                 "score": s["score"], "conf": s["conf"],
                 "limit": s.get("limit"),
                 "entries": s["entries"][:2],
-                "gate": bool(s.get("gate")),
+                # ringing only inside the 48 hours a ring can be texted; a
+                # confirmed gate further out is lining up, not a promise
+                "gate": ring_live(s, t_now),
+                "lining_up": bool(s.get("gate")) and not ring_live(s, t_now),
                 # every axis aligned this run, whether or not it has
                 # held long enough to be worth a promise
                 "aligned": bool(s.get("gate_raw", s.get("gate"))),
+                "odds": s.get("odds"),
                 "hazard": s.get("hazard"),
                 "axes": s.get("axes"),
                 "swell": ({"ft": r1(p.get("hgt_ft", 0)), "s": r1(p.get("per_s", 0)), "dir": r0(p.get("dir", 0))}
@@ -4570,6 +4677,7 @@ def ledger_promise(state, zk, zc, payload, sst_c, t_now, texted=0, fetches=None)
                            "wind_kn": _r1(f.get("wind_window_eff_kn", f.get("wind_window_max_kn"))),
                            "cloud_pct": _r0(f.get("cloud_pct")),
                            "buoy_expect_ft": buoy_expectation_ft(zc, fetches, w),
+                           "odds": payload.get("odds"),
                            "sst_f": _r0(sst_c * 9 / 5 + 32) if sst_c is not None else None}})
     del L[:-LEDGER_MAX]
     return True
@@ -5025,6 +5133,7 @@ def bell_page(zk, bz, zc, state, t_now):
     for w in wins:
         mark = ("RINGING" if w.get("gate") else
                 ("NWS: %s" % w["hazard"]) if w.get("hazard") else
+                "lining up - rings at 48 hours out if it holds" if w.get("lining_up") else
                 "every axis aligned" if w.get("aligned") else "")
         sw, td = w.get("swell") or {}, w.get("tide") or {}
         facts = []
@@ -5036,6 +5145,9 @@ def bell_page(zk, bz, zc, state, t_now):
             facts.append("tide %s ft %s" % (td.get("ft"), {"rising": "\u2191", "falling": "\u2193"}.get(td.get("trend"), "")))
         if w.get("cloud") is not None:
             facts.append("cloud %s%%" % w["cloud"])
+        od = w.get("odds") or {}
+        if od.get("p_glass") is not None:
+            facts.append("model runs: %d%% glassy" % round(od["p_glass"] * 100))
         ws_, we_ = datetime.fromisoformat(w["start"]), datetime.fromisoformat(w["end"])
         hm = lambda d: d.strftime("%-I:%M%p").lower()
         if w.get("kind") == "dawn":
@@ -5709,6 +5821,8 @@ def cmd_run(args):
                     "cloud_pct": round(s["feats"]["cloud_pct"]) if s["feats"].get("cloud_pct") is not None else "",
                     "sst_c": sst if sst is not None else "", "chla_mg_m3": chla if chla is not None else "",
                     "sst_src": sst_src, "wind_bias_kn": wb["bias_kn"] if wb else "",
+                    "p_glass": (s.get("odds") or {}).get("p_glass", ""),
+                    "p_dry": (s.get("odds") or {}).get("p_dry", "") if (s.get("odds") or {}).get("p_dry") is not None else "",
                     "kd490_m1": s["feats"].get("kd490") if s["feats"].get("kd490") is not None else "",
                     "perfect_gate": "PASS" if perfect_gate(s["feats"], s["score"], sst, zc)[0] else "",
                     "rang": "RING" if s.get("gate") else "",
@@ -8542,6 +8656,86 @@ def cmd_test(args):
     check("(wt) a missing witness is not a missing source",
           not fx_wd["shore"].ok and not any(k in WITNESS_KEYS for k in
                                             score_zone("A", zc, fx_wd, src_y.fixture_now() or t0)[0]["feats"]["missing"]))
+
+    # (rl) the bell holds its ring until 48 hours out: a confirmed gate
+    # further away is lining up, never ringing, never promised
+    t_r48 = datetime(2026, 8, 12, 9, 0, tzinfo=PT)
+    near48 = dict(sc_y[0], w=dict(sc_y[0]["w"], start=t_r48 + timedelta(hours=30), end=t_r48 + timedelta(hours=33),
+                                  label="Thu dawn", key="20260813T1500-dawn"), gate=True, gate_raw=True)
+    far48 = dict(sc_y[0], w=dict(sc_y[0]["w"], start=t_r48 + timedelta(hours=60), end=t_r48 + timedelta(hours=63),
+                                 label="Fri dusk", key="20260814T2100-dusk"), gate=True, gate_raw=True)
+    check("(rl) ringing inside 48 hours, lining up beyond",
+          ring_live(near48, t_r48) and not ring_live(far48, t_r48))
+    pl48 = board_entry("A", zc, [near48, far48], st_y, {"promises": 0, "rings": 0}, "t", 20.0, None, t_r48)["windows"]
+    check("(rl) the board's plate says gate only for the live one, lining_up for the far one",
+          pl48[0]["gate"] and not pl48[0]["lining_up"] and not pl48[1]["gate"] and pl48[1]["lining_up"])
+    txt_far = sms_digest_text(zc, [far48], t_now=t_r48)
+    txt_near = sms_digest_text(zc, [far48, near48], t_now=t_r48)
+    check("(rl) the forecast says 'if it holds' for a far gate and 'ringing' only for a live one",
+          "Fri dusk looks perfect - if it holds, the bell will ring." in txt_far and "is ringing" not in txt_far
+          and "Thu dawn is perfect - the bell is ringing." in txt_near, txt_far[-90:])
+    st48 = {}
+    ntfy_digest("A", zc, [near48, far48], st48, t_r48, True, weekly=True)
+    check("(rl) the Wednesday reading promises only the live ring, so a far one can never need taking back",
+          st48.get("digest_promise", {}).get("A", {}).get("days") == [near48["w"]["start"].date().isoformat()],
+          str(st48.get("digest_promise")))
+
+    # (en) the model's own runs must mostly agree before the bell rings
+    w_en = {"start": datetime(2026, 8, 12, 6, 0, tzinfo=PT), "end": datetime(2026, 8, 12, 9, 0, tzinfo=PT)}
+    hrs_en = [w_en["start"] + timedelta(hours=i) for i in range(-24, 4)]
+    def ens_of(peaks, wet_every=0):
+        return {"wind": [{h: (pk if h >= w_en["start"] else 2.0) for h in hrs_en} for pk in peaks],
+                "rain": [{h: (0.2 if (wet_every and i % wet_every == 0 and h == hrs_en[0]) else 0.0) for h in hrs_en}
+                         for i, _ in enumerate(peaks)]}
+    calm = ens_of([3 + (i % 5) for i in range(51)])            # peaks 3-7 kn, mean 5
+    odds_c = ensemble_odds(calm, w_en, 4.0, zc)
+    check("(en) dressed around the bell's own forecast: 4 kn with this spread is glassy in most runs",
+          odds_c and odds_c["n"] == 51 and odds_c["p_glass"] >= 0.8 and odds_c["p_dry"] == 1.0, str(odds_c))
+    odds_w = ensemble_odds(calm, w_en, 7.0, zc)
+    check("(en) a forecast right on the glass line, with this spread, splits the runs",
+          odds_w and odds_w["p_glass"] < 0.5, str(odds_w))
+    odds_r = ensemble_odds(ens_of([3] * 51, wet_every=2), w_en, 3.0, zc)
+    check("(en) rain in half the runs is measured and logged, but only glass vetoes (a grid cell's mountains are not the cove)",
+          odds_r and odds_r["p_dry"] < 0.5 and ensemble_veto(odds_r) is None)
+    check("(en) the veto speaks only on a split, and unknown odds veto nothing",
+          ensemble_veto(odds_c) is None and "glassy in" in ensemble_veto(odds_w) and ensemble_veto(None) is None
+          and ensemble_odds(None, w_en, 4.0) is None and ensemble_odds(calm, w_en, None) is None)
+    ens_json = json.dumps({"hourly": dict(
+        {"time": ["2026-08-12T%02d:00" % h for h in range(0, 12)]},
+        **{("wind_speed_10m" if i == 0 else "wind_speed_10m_member%02d" % i): [3.0] * 12 for i in range(12)},
+        **{("precipitation" if i == 0 else "precipitation_member%02d" % i): [0.0] * 12 for i in range(12)})})
+    class _ESrc:
+        offline = True
+        def get(self, key, url, timeout=25):
+            return ens_json
+    fe = fetch_ensemble(_ESrc(), 33.5, -117.8, "America/Los_Angeles")
+    check("(en) the ensemble parses member by member, in the bell's clock",
+          fe.ok and len(fe.data["wind"]) == 12 and len(fe.data["rain"]) == 12
+          and fe.data["wind"][0][datetime(2026, 8, 12, 6, 0, tzinfo=PT)] == 3.0)
+    saved_pg = g7["perfect_gate"]
+    g7["perfect_gate"] = lambda feats, score, sst, zone_cfg=None: (True, [])
+    try:
+        w0 = sc_y[0]["w"]
+        hrs0 = [floor_hour(w0["start"]) + timedelta(hours=i) for i in range(-26, 6)]
+        split_ens = {"wind": [{h: 30.0 if i % 3 else 1.0 for h in hrs0} for i in range(51)],   # two runs in three blow
+                     "rain": [{h: 0.0 for h in hrs0} for _ in range(51)]}
+        fx_en = dict(fx_y, ensemble=Fetch("ensemble", True, split_ens))
+        sc_en = score_zone("A", zc, fx_en, t_y, 24 * 7)
+        fx_ok = dict(fx_y, ensemble=Fetch("ensemble", False, error="down"))   # an ensemble that did not answer
+        sc_ok = score_zone("A", zc, fx_ok, t_y, 24 * 7)
+    finally:
+        g7["perfect_gate"] = saved_pg
+    check("(en) a split ensemble takes the gate away and says why; an absent one leaves it",
+          sc_en[0]["gate"] is False and any(f.startswith("models split") for f in sc_en[0]["flags"])
+          and sc_ok[0]["split"] is None and sc_ok[0]["gate"] is True, str(sc_en[0]["flags"][-2:]))
+
+    # (bt) the buoy's own thermometer is a measured-water witness
+    row_bt = parse_ndbc("2026 08 11 20 26  MM   MM   MM  0.6  14  7.9 200 1016.2 21.0 23.4 MM MM MM MM\n")
+    check("(bt) WTMP is read from the buoy row", row_bt and row_bt[0]["wtmp_c"] == 23.4 and row_bt[0]["wvht_m"] == 0.6)
+    fb_bt = Fetch("ndbc_primary", True, {"rows": row_bt, "latest": row_bt[0], "name": "Buoy 51201", "km": 6.1})
+    mw_bt = measured_water({"ndbc_primary": fb_bt}, datetime(2026, 8, 11, 14, 0, tzinfo=PT))
+    check("(bt) a near buoy's thermometer judges the warm light, named",
+          mw_bt and mw_bt["station"] == "Buoy 51201" and mw_bt["c"] == 23.4 and mw_bt["km"] == 6.1, str(mw_bt))
 
     # fixture suite: degraded + disagreement
     print("fixture tests:")
