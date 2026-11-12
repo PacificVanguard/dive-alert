@@ -133,6 +133,7 @@
      },
      "wind_kn": 1.9,
      "cloud": 14,
+     "cloud_nbm": 24,
      "dry_h": 72,
      "tide": {
       "ft": 3.8,
@@ -226,6 +227,7 @@
      },
      "wind_kn": 7.0,
      "cloud": 40,
+     "cloud_nbm": 20,
      "dry_h": 72,
      "tide": {
       "ft": 1.3,
@@ -319,6 +321,7 @@
      },
      "wind_kn": 4.6,
      "cloud": 96,
+     "cloud_nbm": 57,
      "dry_h": 72,
      "tide": {
       "ft": 3.5,
@@ -412,6 +415,7 @@
      },
      "wind_kn": 11.0,
      "cloud": 58,
+     "cloud_nbm": 32,
      "dry_h": 72,
      "tide": {
       "ft": 2.2,
@@ -505,6 +509,7 @@
      },
      "wind_kn": 8.1,
      "cloud": 100,
+     "cloud_nbm": 73,
      "dry_h": 72,
      "tide": {
       "ft": 3.4,
@@ -598,6 +603,7 @@
      },
      "wind_kn": 5.5,
      "cloud": 100,
+     "cloud_nbm": 41,
      "dry_h": 72,
      "tide": {
       "ft": 2.9,
@@ -691,6 +697,7 @@
      },
      "wind_kn": 1.8,
      "cloud": 100,
+     "cloud_nbm": 47,
      "dry_h": 72,
      "tide": {
       "ft": 3.4,
@@ -784,6 +791,7 @@
      },
      "wind_kn": 7.8,
      "cloud": 47,
+     "cloud_nbm": 36,
      "dry_h": 72,
      "tide": {
       "ft": 3.4,
@@ -877,6 +885,7 @@
      },
      "wind_kn": 2.6,
      "cloud": 100,
+     "cloud_nbm": 76,
      "dry_h": 72,
      "tide": {
       "ft": 3.5,
@@ -970,6 +979,7 @@
      },
      "wind_kn": 5.5,
      "cloud": 100,
+     "cloud_nbm": 72,
      "dry_h": 72,
      "tide": {
       "ft": 3.8,
@@ -1063,6 +1073,7 @@
      },
      "wind_kn": 7.6,
      "cloud": 100,
+     "cloud_nbm": 62,
      "dry_h": 0,
      "tide": {
       "ft": 3.8,
@@ -1156,6 +1167,7 @@
      },
      "wind_kn": 10.0,
      "cloud": 64,
+     "cloud_nbm": 38,
      "dry_h": 0,
      "tide": {
       "ft": 3.9,
@@ -1239,7 +1251,7 @@
       "flat": false,
       "glass": true,
       "dry": false,
-      "sun": true,
+      "sun": false,
       "warm": true
      },
      "swell": {
@@ -1249,6 +1261,7 @@
      },
      "wind_kn": 1.3,
      "cloud": 9,
+     "cloud_nbm": 26,
      "dry_h": 1,
      "tide": {
       "ft": 4.1,
@@ -1292,6 +1305,7 @@
      },
      "wind_kn": 6.5,
      "cloud": 92,
+     "cloud_nbm": 43,
      "dry_h": 1,
      "tide": {
       "ft": 3.6,
@@ -1469,8 +1483,8 @@
    "buoy_now": {
     "ft": 3.6,
     "s": 14.0,
-    "dir": 259,
-    "age_h": 0.7
+    "dir": 243,
+    "age_h": 0.4
    },
    "lat": 33.542,
    "lon": -117.785,
@@ -1484,8 +1498,8 @@
    "shore": {
     "station": "Newport Pier",
     "km": 15.2,
-    "ntu": 0.32,
-    "chl": 0.44,
+    "ntu": 0.1,
+    "chl": 0.64,
     "age_h": 0.0,
     "ntu_med_24h": 0.25
    },
@@ -1536,7 +1550,10 @@
     "full_in_d": 12,
     "new_in_d": 27
    },
-   "kd490": null,
+   "kd490": {
+    "m1": 0.058,
+    "age_d": 10
+   },
    "chla": 0.33
   },
   "C": {
@@ -1634,6 +1651,7 @@
      },
      "wind_kn": 1.9,
      "cloud": 14,
+     "cloud_nbm": 15,
      "dry_h": 72,
      "tide": {
       "ft": 3.8,
@@ -1692,6 +1710,7 @@
      },
      "wind_kn": 6.8,
      "cloud": 55,
+     "cloud_nbm": 16,
      "dry_h": 72,
      "tide": {
       "ft": 1.4,
@@ -1750,6 +1769,7 @@
      },
      "wind_kn": 5.7,
      "cloud": 98,
+     "cloud_nbm": 61,
      "dry_h": 72,
      "tide": {
       "ft": 3.5,
@@ -1808,6 +1828,7 @@
      },
      "wind_kn": 10.0,
      "cloud": 40,
+     "cloud_nbm": 28,
      "dry_h": 72,
      "tide": {
       "ft": 2.2,
@@ -1866,6 +1887,7 @@
      },
      "wind_kn": 8.1,
      "cloud": 100,
+     "cloud_nbm": 75,
      "dry_h": 0,
      "tide": {
       "ft": 3.4,
@@ -1924,6 +1946,7 @@
      },
      "wind_kn": 5.7,
      "cloud": 59,
+     "cloud_nbm": 38,
      "dry_h": 1,
      "tide": {
       "ft": 2.9,
@@ -1982,6 +2005,7 @@
      },
      "wind_kn": 2.1,
      "cloud": 100,
+     "cloud_nbm": 44,
      "dry_h": 12,
      "tide": {
       "ft": 3.4,
@@ -2040,6 +2064,7 @@
      },
      "wind_kn": 7.0,
      "cloud": 38,
+     "cloud_nbm": 29,
      "dry_h": 21,
      "tide": {
       "ft": 3.4,
@@ -2098,6 +2123,7 @@
      },
      "wind_kn": 2.1,
      "cloud": 99,
+     "cloud_nbm": 75,
      "dry_h": 36,
      "tide": {
       "ft": 3.5,
@@ -2156,6 +2182,7 @@
      },
      "wind_kn": 5.6,
      "cloud": 84,
+     "cloud_nbm": 68,
      "dry_h": 45,
      "tide": {
       "ft": 3.8,
@@ -2214,6 +2241,7 @@
      },
      "wind_kn": 6.5,
      "cloud": 100,
+     "cloud_nbm": 65,
      "dry_h": 0,
      "tide": {
       "ft": 3.8,
@@ -2272,6 +2300,7 @@
      },
      "wind_kn": 10.0,
      "cloud": 94,
+     "cloud_nbm": 34,
      "dry_h": 0,
      "tide": {
       "ft": 3.9,
@@ -2320,7 +2349,7 @@
       "flat": false,
       "glass": true,
       "dry": false,
-      "sun": true,
+      "sun": false,
       "warm": true
      },
      "swell": {
@@ -2330,6 +2359,7 @@
      },
      "wind_kn": 1.3,
      "cloud": 19,
+     "cloud_nbm": 29,
      "dry_h": 1,
      "tide": {
       "ft": 4.1,
@@ -2373,6 +2403,7 @@
      },
      "wind_kn": 5.4,
      "cloud": 92,
+     "cloud_nbm": 40,
      "dry_h": 1,
      "tide": {
       "ft": 3.6,
@@ -2550,8 +2581,8 @@
    "buoy_now": {
     "ft": 3.6,
     "s": 14.0,
-    "dir": 259,
-    "age_h": 0.7
+    "dir": 243,
+    "age_h": 0.4
    },
    "lat": 33.46,
    "lon": -117.714,
@@ -2565,14 +2596,14 @@
    "shore": {
     "station": "Newport Pier",
     "km": 25.8,
-    "ntu": 0.32,
-    "chl": 0.44,
+    "ntu": 0.1,
+    "chl": 0.64,
     "age_h": 0.0,
     "ntu_med_24h": 0.25
    },
    "wind_now": null,
    "wind_vs_model": null,
-   "sst_src": "model",
+   "sst_src": "satellite",
    "wind_corr": null,
    "clearing": null,
    "anchor": 1.058,
@@ -2617,7 +2648,10 @@
     "full_in_d": 12,
     "new_in_d": 27
    },
-   "kd490": null,
+   "kd490": {
+    "m1": 0.059,
+    "age_d": 10
+   },
    "chla": 0.3
   },
   "D": {
@@ -2715,6 +2749,7 @@
      },
      "wind_kn": 1.9,
      "cloud": 3,
+     "cloud_nbm": 11,
      "dry_h": 72,
      "tide": {
       "ft": 3.7,
@@ -2773,6 +2808,7 @@
      },
      "wind_kn": 8.3,
      "cloud": 33,
+     "cloud_nbm": 19,
      "dry_h": 72,
      "tide": {
       "ft": 1.3,
@@ -2831,6 +2867,7 @@
      },
      "wind_kn": 7.0,
      "cloud": 87,
+     "cloud_nbm": 69,
      "dry_h": 72,
      "tide": {
       "ft": 3.5,
@@ -2889,6 +2926,7 @@
      },
      "wind_kn": 10.4,
      "cloud": 70,
+     "cloud_nbm": 34,
      "dry_h": 72,
      "tide": {
       "ft": 2.1,
@@ -2947,6 +2985,7 @@
      },
      "wind_kn": 8.7,
      "cloud": 100,
+     "cloud_nbm": 80,
      "dry_h": 72,
      "tide": {
       "ft": 3.4,
@@ -3005,6 +3044,7 @@
      },
      "wind_kn": 6.6,
      "cloud": 68,
+     "cloud_nbm": 47,
      "dry_h": 1,
      "tide": {
       "ft": 2.8,
@@ -3063,6 +3103,7 @@
      },
      "wind_kn": 2.4,
      "cloud": 100,
+     "cloud_nbm": 45,
      "dry_h": 8,
      "tide": {
       "ft": 3.4,
@@ -3121,6 +3162,7 @@
      },
      "wind_kn": 8.6,
      "cloud": 62,
+     "cloud_nbm": 28,
      "dry_h": 17,
      "tide": {
       "ft": 3.3,
@@ -3179,6 +3221,7 @@
      },
      "wind_kn": 1.2,
      "cloud": 33,
+     "cloud_nbm": 68,
      "dry_h": 32,
      "tide": {
       "ft": 3.4,
@@ -3237,6 +3280,7 @@
      },
      "wind_kn": 7.4,
      "cloud": 79,
+     "cloud_nbm": 65,
      "dry_h": 41,
      "tide": {
       "ft": 3.7,
@@ -3295,6 +3339,7 @@
      },
      "wind_kn": 9.5,
      "cloud": 92,
+     "cloud_nbm": 66,
      "dry_h": 0,
      "tide": {
       "ft": 3.7,
@@ -3353,6 +3398,7 @@
      },
      "wind_kn": 10.5,
      "cloud": 93,
+     "cloud_nbm": 38,
      "dry_h": 0,
      "tide": {
       "ft": 3.8,
@@ -3411,6 +3457,7 @@
      },
      "wind_kn": 7.2,
      "cloud": 78,
+     "cloud_nbm": 43,
      "dry_h": 1,
      "tide": {
       "ft": 4.0,
@@ -3454,6 +3501,7 @@
      },
      "wind_kn": 7.0,
      "cloud": 95,
+     "cloud_nbm": 41,
      "dry_h": 1,
      "tide": {
       "ft": 3.5,
@@ -3629,30 +3677,30 @@
     }
    ],
    "buoy_now": {
-    "ft": 3.0,
-    "s": 10.0,
-    "dir": 284,
-    "age_h": 0.7
+    "ft": 2.6,
+    "s": 13.0,
+    "dir": 289,
+    "age_h": 0.4
    },
    "lat": 32.85,
    "lon": -117.272,
    "water": {
-    "f": 75.2,
+    "f": 75.4,
     "station": "Buoy 46254",
     "km": 2.1,
-    "age_h": 0.6,
+    "age_h": 0.1,
     "judges": true
    },
    "shore": {
     "station": "Scripps Pier",
     "km": 2.4,
-    "ntu": 0.37,
-    "chl": 0.38,
-    "age_h": 0.1,
+    "ntu": 0.25,
+    "chl": 0.29,
+    "age_h": 0.0,
     "ntu_med_24h": 0.7
    },
    "wind_now": {
-    "kn": 2.14,
+    "kn": 2.33,
     "station": "Scripps Pier (NOAA)",
     "km": 2.3,
     "age_h": 0.0
@@ -3726,7 +3774,10 @@
     "full_in_d": 12,
     "new_in_d": 27
    },
-   "kd490": null,
+   "kd490": {
+    "m1": 0.074,
+    "age_d": 10
+   },
    "chla": 0.59
   },
   "E": {
@@ -3787,7 +3838,11 @@
      "gate": false,
      "lining_up": false,
      "aligned": false,
-     "odds": null,
+     "odds": {
+      "p_glass": 1.0,
+      "p_dry": 1.0,
+      "n": 51
+     },
      "chance": 0.0,
      "coves": [
       {
@@ -3820,6 +3875,7 @@
      },
      "wind_kn": 4.8,
      "cloud": 51,
+     "cloud_nbm": 52,
      "dry_h": 72,
      "tide": {
       "ft": 3.6,
@@ -3841,7 +3897,11 @@
      "gate": false,
      "lining_up": false,
      "aligned": false,
-     "odds": null,
+     "odds": {
+      "p_glass": 0.63,
+      "p_dry": 1.0,
+      "n": 51
+     },
      "chance": 0.0,
      "coves": [
       {
@@ -3874,6 +3934,7 @@
      },
      "wind_kn": 6.1,
      "cloud": 91,
+     "cloud_nbm": 71,
      "dry_h": 72,
      "tide": {
       "ft": 2.5,
@@ -3895,7 +3956,11 @@
      "gate": false,
      "lining_up": false,
      "aligned": false,
-     "odds": null,
+     "odds": {
+      "p_glass": 1.0,
+      "p_dry": 0.92,
+      "n": 51
+     },
      "chance": 0.0,
      "coves": [
       {
@@ -3928,6 +3993,7 @@
      },
      "wind_kn": 2.4,
      "cloud": 93,
+     "cloud_nbm": 49,
      "dry_h": 72,
      "tide": {
       "ft": 3.5,
@@ -3949,7 +4015,11 @@
      "gate": false,
      "lining_up": false,
      "aligned": false,
-     "odds": null,
+     "odds": {
+      "p_glass": 0.41,
+      "p_dry": 0.02,
+      "n": 51
+     },
      "chance": 0.005,
      "coves": [
       {
@@ -3982,6 +4052,7 @@
      },
      "wind_kn": 7.7,
      "cloud": 100,
+     "cloud_nbm": 88,
      "dry_h": 0,
      "tide": {
       "ft": 3.2,
@@ -4003,7 +4074,11 @@
      "gate": false,
      "lining_up": false,
      "aligned": false,
-     "odds": null,
+     "odds": {
+      "p_glass": 1.0,
+      "p_dry": 0.0,
+      "n": 51
+     },
      "chance": 0.005,
      "coves": [
       {
@@ -4036,6 +4111,7 @@
      },
      "wind_kn": 2.0,
      "cloud": 74,
+     "cloud_nbm": 46,
      "dry_h": 1,
      "tide": {
       "ft": 3.5,
@@ -4057,7 +4133,11 @@
      "gate": false,
      "lining_up": false,
      "aligned": false,
-     "odds": null,
+     "odds": {
+      "p_glass": 0.92,
+      "p_dry": 0.04,
+      "n": 51
+     },
      "chance": 0.005,
      "coves": [
       {
@@ -4090,6 +4170,7 @@
      },
      "wind_kn": 5.5,
      "cloud": 68,
+     "cloud_nbm": 40,
      "dry_h": 1,
      "tide": {
       "ft": 3.7,
@@ -4111,7 +4192,11 @@
      "gate": false,
      "lining_up": false,
      "aligned": false,
-     "odds": null,
+     "odds": {
+      "p_glass": 1.0,
+      "p_dry": 0.96,
+      "n": 51
+     },
      "chance": 0.0,
      "coves": [
       {
@@ -4144,6 +4229,7 @@
      },
      "wind_kn": 1.7,
      "cloud": 100,
+     "cloud_nbm": 76,
      "dry_h": 16,
      "tide": {
       "ft": 3.7,
@@ -4165,7 +4251,11 @@
      "gate": false,
      "lining_up": false,
      "aligned": false,
-     "odds": null,
+     "odds": {
+      "p_glass": 0.57,
+      "p_dry": 0.82,
+      "n": 51
+     },
      "chance": 0.0,
      "coves": [
       {
@@ -4198,6 +4288,7 @@
      },
      "wind_kn": 6.4,
      "cloud": 100,
+     "cloud_nbm": 85,
      "dry_h": 24,
      "tide": {
       "ft": 4.0,
@@ -4219,7 +4310,11 @@
      "gate": false,
      "lining_up": false,
      "aligned": false,
-     "odds": null,
+     "odds": {
+      "p_glass": 0.96,
+      "p_dry": 0.12,
+      "n": 51
+     },
      "chance": 0.0,
      "coves": [
       {
@@ -4252,6 +4347,7 @@
      },
      "wind_kn": 3.1,
      "cloud": 100,
+     "cloud_nbm": 78,
      "dry_h": 40,
      "tide": {
       "ft": 3.9,
@@ -4273,7 +4369,11 @@
      "gate": false,
      "lining_up": false,
      "aligned": false,
-     "odds": null,
+     "odds": {
+      "p_glass": 0.98,
+      "p_dry": 0.12,
+      "n": 51
+     },
      "chance": 0.0,
      "coves": [
       {
@@ -4306,6 +4406,7 @@
      },
      "wind_kn": 1.6,
      "cloud": 100,
+     "cloud_nbm": 64,
      "dry_h": 0,
      "tide": {
       "ft": 4.1,
@@ -4327,7 +4428,11 @@
      "gate": false,
      "lining_up": false,
      "aligned": false,
-     "odds": null,
+     "odds": {
+      "p_glass": 1.0,
+      "p_dry": 0.65,
+      "n": 51
+     },
      "chance": 0.014,
      "coves": [
       {
@@ -4360,6 +4465,7 @@
      },
      "wind_kn": 1.6,
      "cloud": 87,
+     "cloud_nbm": 35,
      "dry_h": 1,
      "tide": {
       "ft": 4.1,
@@ -4381,7 +4487,11 @@
      "gate": false,
      "lining_up": false,
      "aligned": false,
-     "odds": null,
+     "odds": {
+      "p_glass": 0.22,
+      "p_dry": 0.88,
+      "n": 51
+     },
      "chance": 0.014,
      "coves": [
       {
@@ -4404,7 +4514,7 @@
       "flat": false,
       "glass": false,
       "dry": false,
-      "sun": true,
+      "sun": false,
       "warm": true
      },
      "swell": {
@@ -4414,6 +4524,7 @@
      },
      "wind_kn": 10.3,
      "cloud": 12,
+     "cloud_nbm": 26,
      "dry_h": 1,
      "tide": {
       "ft": 3.8,
@@ -4435,7 +4546,11 @@
      "gate": false,
      "lining_up": false,
      "aligned": false,
-     "odds": null,
+     "odds": {
+      "p_glass": 0.9,
+      "p_dry": 0.71,
+      "n": 51
+     },
      "chance": 0.014,
      "coves": [
       {
@@ -4468,6 +4583,7 @@
      },
      "wind_kn": 2.0,
      "cloud": 72,
+     "cloud_nbm": 76,
      "dry_h": 16,
      "tide": {
       "ft": 4.4,
@@ -4489,7 +4605,11 @@
      "gate": false,
      "lining_up": false,
      "aligned": false,
-     "odds": null,
+     "odds": {
+      "p_glass": 0.92,
+      "p_dry": 0.41,
+      "n": 51
+     },
      "chance": 0.014,
      "coves": [],
      "hazard": null,
@@ -4507,6 +4627,7 @@
      },
      "wind_kn": 3.0,
      "cloud": 100,
+     "cloud_nbm": 79,
      "dry_h": 24,
      "tide": {
       "ft": 3.3,
@@ -4695,7 +4816,7 @@
     "ft": 5.2,
     "s": 13.0,
     "dir": 278,
-    "age_h": 0.6
+    "age_h": 0.8
    },
    "lat": 36.611,
    "lon": -121.898,
@@ -4770,7 +4891,10 @@
     "full_in_d": 12,
     "new_in_d": 27
    },
-   "kd490": null,
+   "kd490": {
+    "m1": 0.078,
+    "age_d": 10
+   },
    "chla": 1.3
   },
   "F": {
@@ -4814,7 +4938,7 @@
    "forecast_sms": "THE DIVE BELL - CATALINA, the week ahead as of Wed 10pm.\nBest: Thu dawn, 5.9 of 10 - marginal, held back by stirred-up water.\nThu 5.9 / Fri 4.7 / Sat 2.2 / Sun 3.3 / Mon 3.5 / Tue 1.4 / Wed 2.8\nA quiet week.",
    "read_at": "2026-11-11T22:00:00-08:00",
    "last_ring": "2026-09-04",
-   "sst_f": 76,
+   "sst_f": 75,
    "windows": [
     {
      "label": "Thu dawn",
@@ -4853,6 +4977,7 @@
      },
      "wind_kn": 2.0,
      "cloud": 16,
+     "cloud_nbm": 16,
      "dry_h": 72,
      "tide": {
       "ft": 3.9,
@@ -4896,6 +5021,7 @@
      },
      "wind_kn": 3.3,
      "cloud": 39,
+     "cloud_nbm": 17,
      "dry_h": 72,
      "tide": {
       "ft": 1.3,
@@ -4939,6 +5065,7 @@
      },
      "wind_kn": 4.1,
      "cloud": 100,
+     "cloud_nbm": 33,
      "dry_h": 72,
      "tide": {
       "ft": 3.7,
@@ -4982,6 +5109,7 @@
      },
      "wind_kn": 5.1,
      "cloud": 50,
+     "cloud_nbm": 21,
      "dry_h": 72,
      "tide": {
       "ft": 2.0,
@@ -5025,6 +5153,7 @@
      },
      "wind_kn": 9.5,
      "cloud": 100,
+     "cloud_nbm": 60,
      "dry_h": 72,
      "tide": {
       "ft": 4.0,
@@ -5068,6 +5197,7 @@
      },
      "wind_kn": 4.1,
      "cloud": 73,
+     "cloud_nbm": 30,
      "dry_h": 72,
      "tide": {
       "ft": 2.7,
@@ -5111,6 +5241,7 @@
      },
      "wind_kn": 3.5,
      "cloud": 100,
+     "cloud_nbm": 44,
      "dry_h": 72,
      "tide": {
       "ft": 3.5,
@@ -5154,6 +5285,7 @@
      },
      "wind_kn": 4.4,
      "cloud": 100,
+     "cloud_nbm": 42,
      "dry_h": 72,
      "tide": {
       "ft": 3.2,
@@ -5197,6 +5329,7 @@
      },
      "wind_kn": 5.1,
      "cloud": 100,
+     "cloud_nbm": 67,
      "dry_h": 72,
      "tide": {
       "ft": 3.5,
@@ -5240,6 +5373,7 @@
      },
      "wind_kn": 3.2,
      "cloud": 100,
+     "cloud_nbm": 61,
      "dry_h": 72,
      "tide": {
       "ft": 3.6,
@@ -5283,6 +5417,7 @@
      },
      "wind_kn": 5.7,
      "cloud": 100,
+     "cloud_nbm": 50,
      "dry_h": 72,
      "tide": {
       "ft": 3.8,
@@ -5326,6 +5461,7 @@
      },
      "wind_kn": 10.4,
      "cloud": 46,
+     "cloud_nbm": 30,
      "dry_h": 1,
      "tide": {
       "ft": 3.7,
@@ -5369,6 +5505,7 @@
      },
      "wind_kn": 9.2,
      "cloud": 23,
+     "cloud_nbm": 23,
      "dry_h": 1,
      "tide": {
       "ft": 4.2,
@@ -5412,6 +5549,7 @@
      },
      "wind_kn": 5.4,
      "cloud": 83,
+     "cloud_nbm": 38,
      "dry_h": 5,
      "tide": {
       "ft": 3.5,
@@ -5577,10 +5715,10 @@
     }
    ],
    "buoy_now": {
-    "ft": 3.3,
-    "s": 14.0,
-    "dir": 232,
-    "age_h": 0.7
+    "ft": 3.0,
+    "s": 13.0,
+    "dir": 256,
+    "age_h": 0.4
    },
    "lat": 33.345,
    "lon": -118.325,
@@ -5588,7 +5726,7 @@
    "shore": null,
    "wind_now": null,
    "wind_vs_model": null,
-   "sst_src": "model",
+   "sst_src": "satellite",
    "wind_corr": null,
    "clearing": null,
    "anchor": 0.903,
@@ -5633,7 +5771,10 @@
     "full_in_d": 12,
     "new_in_d": 27
    },
-   "kd490": null,
+   "kd490": {
+    "m1": 0.046,
+    "age_d": 10
+   },
    "chla": 0.25
   },
   "G": {
@@ -5677,7 +5818,7 @@
    "forecast_sms": "THE DIVE BELL - PALOS VERDES, the week ahead as of Wed 10pm.\nBest: Thu dawn, 5.7 of 10 - marginal, held back by swell. NWS has a beach hazards statement out for Thu - no cove named under a warning.\nThu 5.7 / Fri 3.8 / Sat 1.4 / Sun 1.4 / Mon 2.3 / Tue 1.4 / Wed 3.6\nA quiet week.",
    "read_at": "2026-11-11T22:00:00-08:00",
    "last_ring": "2026-10-18",
-   "sst_f": 75,
+   "sst_f": 74,
    "windows": [
     {
      "label": "Thu dawn",
@@ -5731,6 +5872,7 @@
      },
      "wind_kn": 4.4,
      "cloud": 7,
+     "cloud_nbm": 21,
      "dry_h": 72,
      "tide": {
       "ft": 3.9,
@@ -5789,6 +5931,7 @@
      },
      "wind_kn": 8.7,
      "cloud": 55,
+     "cloud_nbm": 21,
      "dry_h": 72,
      "tide": {
       "ft": 1.4,
@@ -5847,6 +5990,7 @@
      },
      "wind_kn": 8.2,
      "cloud": 100,
+     "cloud_nbm": 39,
      "dry_h": 72,
      "tide": {
       "ft": 3.7,
@@ -5905,6 +6049,7 @@
      },
      "wind_kn": 10.9,
      "cloud": 67,
+     "cloud_nbm": 15,
      "dry_h": 72,
      "tide": {
       "ft": 2.2,
@@ -5963,6 +6108,7 @@
      },
      "wind_kn": 11.9,
      "cloud": 100,
+     "cloud_nbm": 54,
      "dry_h": 72,
      "tide": {
       "ft": 4.1,
@@ -6021,6 +6167,7 @@
      },
      "wind_kn": 6.7,
      "cloud": 93,
+     "cloud_nbm": 36,
      "dry_h": 72,
      "tide": {
       "ft": 2.9,
@@ -6079,6 +6226,7 @@
      },
      "wind_kn": 6.3,
      "cloud": 100,
+     "cloud_nbm": 42,
      "dry_h": 72,
      "tide": {
       "ft": 3.5,
@@ -6137,6 +6285,7 @@
      },
      "wind_kn": 6.9,
      "cloud": 71,
+     "cloud_nbm": 42,
      "dry_h": 72,
      "tide": {
       "ft": 3.4,
@@ -6195,6 +6344,7 @@
      },
      "wind_kn": 3.4,
      "cloud": 100,
+     "cloud_nbm": 69,
      "dry_h": 72,
      "tide": {
       "ft": 3.7,
@@ -6253,6 +6403,7 @@
      },
      "wind_kn": 8.3,
      "cloud": 100,
+     "cloud_nbm": 64,
      "dry_h": 72,
      "tide": {
       "ft": 3.8,
@@ -6311,6 +6462,7 @@
      },
      "wind_kn": 8.7,
      "cloud": 100,
+     "cloud_nbm": 56,
      "dry_h": 72,
      "tide": {
       "ft": 3.9,
@@ -6369,6 +6521,7 @@
      },
      "wind_kn": 11.0,
      "cloud": 82,
+     "cloud_nbm": 37,
      "dry_h": 0,
      "tide": {
       "ft": 4.0,
@@ -6427,6 +6580,7 @@
      },
      "wind_kn": 3.3,
      "cloud": 28,
+     "cloud_nbm": 25,
      "dry_h": 1,
      "tide": {
       "ft": 4.3,
@@ -6470,6 +6624,7 @@
      },
      "wind_kn": 6.6,
      "cloud": 84,
+     "cloud_nbm": 35,
      "dry_h": 1,
      "tide": {
       "ft": 3.7,
@@ -6635,10 +6790,10 @@
     }
    ],
    "buoy_now": {
-    "ft": 3.3,
-    "s": 14.0,
-    "dir": 232,
-    "age_h": 0.7
+    "ft": 3.0,
+    "s": 13.0,
+    "dir": 256,
+    "age_h": 0.4
    },
    "lat": 33.738,
    "lon": -118.396,
@@ -6646,20 +6801,20 @@
     "f": 75.0,
     "station": "Buoy 46221",
     "km": 25.5,
-    "age_h": 0.6,
+    "age_h": 0.1,
     "judges": false
    },
    "shore": {
     "station": "Santa Monica Pier",
     "km": 31.5,
-    "ntu": 1.28,
-    "chl": 0.66,
+    "ntu": 0.9,
+    "chl": 0.51,
     "age_h": 0.0,
     "ntu_med_24h": 0.95
    },
    "wind_now": null,
    "wind_vs_model": null,
-   "sst_src": "model",
+   "sst_src": "satellite",
    "wind_corr": null,
    "clearing": {
     "station": "Santa Monica Pier",
@@ -6710,7 +6865,10 @@
     "full_in_d": 12,
     "new_in_d": 27
    },
-   "kd490": null,
+   "kd490": {
+    "m1": 0.058,
+    "age_d": 10
+   },
    "chla": 0.39
   },
   "H": {
@@ -6798,7 +6956,7 @@
       "flat": false,
       "glass": true,
       "dry": true,
-      "sun": true,
+      "sun": false,
       "warm": true
      },
      "swell": {
@@ -6808,6 +6966,7 @@
      },
      "wind_kn": 3.1,
      "cloud": 22,
+     "cloud_nbm": 48,
      "dry_h": 72,
      "tide": {
       "ft": 3.6,
@@ -6866,6 +7025,7 @@
      },
      "wind_kn": 5.3,
      "cloud": 70,
+     "cloud_nbm": 76,
      "dry_h": 72,
      "tide": {
       "ft": 2.5,
@@ -6924,6 +7084,7 @@
      },
      "wind_kn": 2.7,
      "cloud": 89,
+     "cloud_nbm": 48,
      "dry_h": 72,
      "tide": {
       "ft": 3.5,
@@ -6982,6 +7143,7 @@
      },
      "wind_kn": 13.6,
      "cloud": 100,
+     "cloud_nbm": 89,
      "dry_h": 0,
      "tide": {
       "ft": 3.2,
@@ -7040,6 +7202,7 @@
      },
      "wind_kn": 1.4,
      "cloud": 92,
+     "cloud_nbm": 45,
      "dry_h": 1,
      "tide": {
       "ft": 3.5,
@@ -7098,6 +7261,7 @@
      },
      "wind_kn": 4.9,
      "cloud": 66,
+     "cloud_nbm": 42,
      "dry_h": 1,
      "tide": {
       "ft": 3.7,
@@ -7156,6 +7320,7 @@
      },
      "wind_kn": 1.6,
      "cloud": 100,
+     "cloud_nbm": 75,
      "dry_h": 16,
      "tide": {
       "ft": 3.7,
@@ -7214,6 +7379,7 @@
      },
      "wind_kn": 4.5,
      "cloud": 96,
+     "cloud_nbm": 86,
      "dry_h": 24,
      "tide": {
       "ft": 4.0,
@@ -7272,6 +7438,7 @@
      },
      "wind_kn": 5.4,
      "cloud": 100,
+     "cloud_nbm": 79,
      "dry_h": 0,
      "tide": {
       "ft": 3.9,
@@ -7330,6 +7497,7 @@
      },
      "wind_kn": 4.7,
      "cloud": 100,
+     "cloud_nbm": 67,
      "dry_h": 1,
      "tide": {
       "ft": 4.1,
@@ -7388,6 +7556,7 @@
      },
      "wind_kn": 3.4,
      "cloud": 58,
+     "cloud_nbm": 36,
      "dry_h": 1,
      "tide": {
       "ft": 4.1,
@@ -7436,7 +7605,7 @@
       "flat": false,
       "glass": false,
       "dry": false,
-      "sun": true,
+      "sun": false,
       "warm": true
      },
      "swell": {
@@ -7446,6 +7615,7 @@
      },
      "wind_kn": 11.1,
      "cloud": 5,
+     "cloud_nbm": 31,
      "dry_h": 5,
      "tide": {
       "ft": 3.8,
@@ -7504,6 +7674,7 @@
      },
      "wind_kn": 2.8,
      "cloud": 100,
+     "cloud_nbm": 72,
      "dry_h": 21,
      "tide": {
       "ft": 4.4,
@@ -7547,6 +7718,7 @@
      },
      "wind_kn": 3.0,
      "cloud": 100,
+     "cloud_nbm": 81,
      "dry_h": 0,
      "tide": {
       "ft": 3.3,
@@ -7735,7 +7907,7 @@
     "ft": 6.6,
     "s": 10.0,
     "dir": 315,
-    "age_h": 435.1
+    "age_h": 435.4
    },
    "lat": 36.522,
    "lon": -121.94,
@@ -7810,7 +7982,10 @@
     "full_in_d": 12,
     "new_in_d": 27
    },
-   "kd490": null,
+   "kd490": {
+    "m1": 0.07,
+    "age_d": 10
+   },
    "chla": 1.0
   },
   "I": {
@@ -7854,7 +8029,7 @@
    "forecast_sms": "THE DIVE BELL - SANTA BARBARA, the week ahead as of Wed 10pm.\nBest: Wed dusk, 3.6 of 10 - rough, held back by stirred-up water.\nThu 3.3 / Fri 1.5 / Sat 1.0 / Sun 1.0 / Mon 1.0 / Tue 1.0 / Wed 3.6\nA quiet week.",
    "read_at": "2026-11-11T22:00:00-08:00",
    "last_ring": "2026-09-07",
-   "sst_f": 72,
+   "sst_f": 73,
    "windows": [
     {
      "label": "Thu dawn",
@@ -7908,6 +8083,7 @@
      },
      "wind_kn": 7.6,
      "cloud": 92,
+     "cloud_nbm": 48,
      "dry_h": 72,
      "tide": {
       "ft": 3.8,
@@ -7966,6 +8142,7 @@
      },
      "wind_kn": 8.2,
      "cloud": 60,
+     "cloud_nbm": 25,
      "dry_h": 72,
      "tide": {
       "ft": 1.7,
@@ -8024,6 +8201,7 @@
      },
      "wind_kn": 10.1,
      "cloud": 85,
+     "cloud_nbm": 47,
      "dry_h": 72,
      "tide": {
       "ft": 3.6,
@@ -8082,6 +8260,7 @@
      },
      "wind_kn": 4.9,
      "cloud": 78,
+     "cloud_nbm": 45,
      "dry_h": 72,
      "tide": {
       "ft": 2.5,
@@ -8140,6 +8319,7 @@
      },
      "wind_kn": 3.0,
      "cloud": 50,
+     "cloud_nbm": 30,
      "dry_h": 1,
      "tide": {
       "ft": 3.9,
@@ -8198,6 +8378,7 @@
      },
      "wind_kn": 5.2,
      "cloud": 7,
+     "cloud_nbm": 14,
      "dry_h": 1,
      "tide": {
       "ft": 3.1,
@@ -8256,6 +8437,7 @@
      },
      "wind_kn": 2.2,
      "cloud": 76,
+     "cloud_nbm": 52,
      "dry_h": 14,
      "tide": {
       "ft": 3.3,
@@ -8314,6 +8496,7 @@
      },
      "wind_kn": 3.8,
      "cloud": 100,
+     "cloud_nbm": 51,
      "dry_h": 22,
      "tide": {
       "ft": 3.6,
@@ -8372,6 +8555,7 @@
      },
      "wind_kn": 2.0,
      "cloud": 100,
+     "cloud_nbm": 76,
      "dry_h": 38,
      "tide": {
       "ft": 3.7,
@@ -8430,6 +8614,7 @@
      },
      "wind_kn": 4.1,
      "cloud": 100,
+     "cloud_nbm": 71,
      "dry_h": 46,
      "tide": {
       "ft": 3.9,
@@ -8488,6 +8673,7 @@
      },
      "wind_kn": 2.5,
      "cloud": 100,
+     "cloud_nbm": 40,
      "dry_h": 62,
      "tide": {
       "ft": 3.9,
@@ -8546,6 +8732,7 @@
      },
      "wind_kn": 4.0,
      "cloud": 73,
+     "cloud_nbm": 31,
      "dry_h": 70,
      "tide": {
       "ft": 3.9,
@@ -8604,6 +8791,7 @@
      },
      "wind_kn": 2.7,
      "cloud": 90,
+     "cloud_nbm": 46,
      "dry_h": 72,
      "tide": {
       "ft": 4.3,
@@ -8647,6 +8835,7 @@
      },
      "wind_kn": 5.3,
      "cloud": 69,
+     "cloud_nbm": 44,
      "dry_h": 72,
      "tide": {
       "ft": 3.5,
@@ -8813,9 +9002,9 @@
    ],
    "buoy_now": {
     "ft": 8.2,
-    "s": null,
+    "s": 14.0,
     "dir": 290,
-    "age_h": 0.5
+    "age_h": 0.6
    },
    "lat": 34.462,
    "lon": -120.07,
@@ -8823,20 +9012,20 @@
     "f": 72.3,
     "station": "Stearns Wharf",
     "km": 35.5,
-    "age_h": 0.1,
+    "age_h": 0.0,
     "judges": false
    },
    "shore": {
     "station": "Stearns Wharf",
     "km": 35.5,
-    "ntu": 4.76,
-    "chl": 0.54,
-    "age_h": 0.1,
+    "ntu": 5.08,
+    "chl": 0.56,
+    "age_h": 0.0,
     "ntu_med_24h": 5.32
    },
    "wind_now": null,
    "wind_vs_model": null,
-   "sst_src": "model",
+   "sst_src": "satellite",
    "wind_corr": null,
    "clearing": null,
    "anchor": null,
@@ -8881,7 +9070,10 @@
     "full_in_d": 12,
     "new_in_d": 27
    },
-   "kd490": null,
+   "kd490": {
+    "m1": 0.07,
+    "age_d": 10
+   },
    "chla": 0.35
   },
   "J": {
@@ -8964,6 +9156,7 @@
      },
      "wind_kn": 9.9,
      "cloud": 53,
+     "cloud_nbm": null,
      "dry_h": 72,
      "tide": {
       "ft": 2.1,
@@ -9007,6 +9200,7 @@
      },
      "wind_kn": 9.9,
      "cloud": 46,
+     "cloud_nbm": null,
      "dry_h": 72,
      "tide": {
       "ft": 0.5,
@@ -9050,6 +9244,7 @@
      },
      "wind_kn": 7.4,
      "cloud": 68,
+     "cloud_nbm": null,
      "dry_h": 72,
      "tide": {
       "ft": 2.0,
@@ -9093,6 +9288,7 @@
      },
      "wind_kn": 8.2,
      "cloud": 53,
+     "cloud_nbm": null,
      "dry_h": 72,
      "tide": {
       "ft": 0.4,
@@ -9136,6 +9332,7 @@
      },
      "wind_kn": 7.1,
      "cloud": 69,
+     "cloud_nbm": null,
      "dry_h": 72,
      "tide": {
       "ft": 1.8,
@@ -9179,6 +9376,7 @@
      },
      "wind_kn": 7.6,
      "cloud": 72,
+     "cloud_nbm": null,
      "dry_h": 1,
      "tide": {
       "ft": 0.4,
@@ -9222,6 +9420,7 @@
      },
      "wind_kn": 6.3,
      "cloud": 55,
+     "cloud_nbm": null,
      "dry_h": 1,
      "tide": {
       "ft": 1.6,
@@ -9265,6 +9464,7 @@
      },
      "wind_kn": 6.6,
      "cloud": 33,
+     "cloud_nbm": null,
      "dry_h": 1,
      "tide": {
       "ft": 0.3,
@@ -9308,6 +9508,7 @@
      },
      "wind_kn": 4.9,
      "cloud": 52,
+     "cloud_nbm": null,
      "dry_h": 9,
      "tide": {
       "ft": 1.4,
@@ -9351,6 +9552,7 @@
      },
      "wind_kn": 5.2,
      "cloud": 47,
+     "cloud_nbm": null,
      "dry_h": 18,
      "tide": {
       "ft": 0.4,
@@ -9394,6 +9596,7 @@
      },
      "wind_kn": 4.8,
      "cloud": 22,
+     "cloud_nbm": null,
      "dry_h": 33,
      "tide": {
       "ft": 1.1,
@@ -9437,6 +9640,7 @@
      },
      "wind_kn": 6.0,
      "cloud": 92,
+     "cloud_nbm": null,
      "dry_h": 42,
      "tide": {
       "ft": 0.4,
@@ -9480,6 +9684,7 @@
      },
      "wind_kn": 4.7,
      "cloud": 96,
+     "cloud_nbm": null,
      "dry_h": 1,
      "tide": {
       "ft": 0.9,
@@ -9523,6 +9728,7 @@
      },
      "wind_kn": 5.8,
      "cloud": 27,
+     "cloud_nbm": null,
      "dry_h": 1,
      "tide": {
       "ft": 0.4,
@@ -9706,7 +9912,7 @@
     "ft": 12.1,
     "s": 14.0,
     "dir": 325,
-    "age_h": 0.7
+    "age_h": 1.0
    },
    "lat": 21.655,
    "lon": -158.063,
@@ -9765,7 +9971,10 @@
     "full_in_d": 12,
     "new_in_d": 27
    },
-   "kd490": null,
+   "kd490": {
+    "m1": 0.051,
+    "age_d": 10
+   },
    "chla": 0.19
   },
   "K": {
@@ -9831,7 +10040,7 @@
       "p_dry": 1.0,
       "n": 51
      },
-     "chance": 0.016,
+     "chance": 0.015,
      "coves": [],
      "hazard": null,
      "axes": {
@@ -9848,6 +10057,7 @@
      },
      "wind_kn": 2.6,
      "cloud": 12,
+     "cloud_nbm": null,
      "dry_h": 72,
      "tide": {
       "ft": 2.4,
@@ -9891,6 +10101,7 @@
      },
      "wind_kn": 1.0,
      "cloud": 8,
+     "cloud_nbm": null,
      "dry_h": 72,
      "tide": {
       "ft": 0.6,
@@ -9934,6 +10145,7 @@
      },
      "wind_kn": 0.2,
      "cloud": 32,
+     "cloud_nbm": null,
      "dry_h": 72,
      "tide": {
       "ft": 2.3,
@@ -9977,6 +10189,7 @@
      },
      "wind_kn": 0.8,
      "cloud": 20,
+     "cloud_nbm": null,
      "dry_h": 72,
      "tide": {
       "ft": 0.5,
@@ -10003,7 +10216,7 @@
       "p_dry": 0.98,
       "n": 51
      },
-     "chance": 0.01,
+     "chance": 0.009,
      "coves": [],
      "hazard": null,
      "axes": {
@@ -10020,6 +10233,7 @@
      },
      "wind_kn": 1.3,
      "cloud": 64,
+     "cloud_nbm": null,
      "dry_h": 72,
      "tide": {
       "ft": 2.0,
@@ -10046,7 +10260,7 @@
       "p_dry": 0.98,
       "n": 51
      },
-     "chance": 0.01,
+     "chance": 0.009,
      "coves": [],
      "hazard": null,
      "axes": {
@@ -10063,6 +10277,7 @@
      },
      "wind_kn": 1.9,
      "cloud": 86,
+     "cloud_nbm": null,
      "dry_h": 72,
      "tide": {
       "ft": 0.5,
@@ -10106,6 +10321,7 @@
      },
      "wind_kn": 1.0,
      "cloud": 7,
+     "cloud_nbm": null,
      "dry_h": 72,
      "tide": {
       "ft": 1.8,
@@ -10149,6 +10365,7 @@
      },
      "wind_kn": 1.7,
      "cloud": 61,
+     "cloud_nbm": null,
      "dry_h": 72,
      "tide": {
       "ft": 0.4,
@@ -10192,6 +10409,7 @@
      },
      "wind_kn": 0.3,
      "cloud": 70,
+     "cloud_nbm": null,
      "dry_h": 72,
      "tide": {
       "ft": 1.5,
@@ -10235,6 +10453,7 @@
      },
      "wind_kn": 1.6,
      "cloud": 21,
+     "cloud_nbm": null,
      "dry_h": 72,
      "tide": {
       "ft": 0.5,
@@ -10278,6 +10497,7 @@
      },
      "wind_kn": 0.9,
      "cloud": 16,
+     "cloud_nbm": null,
      "dry_h": 72,
      "tide": {
       "ft": 1.2,
@@ -10321,6 +10541,7 @@
      },
      "wind_kn": 2.0,
      "cloud": 35,
+     "cloud_nbm": null,
      "dry_h": 72,
      "tide": {
       "ft": 0.5,
@@ -10364,6 +10585,7 @@
      },
      "wind_kn": 0.8,
      "cloud": 0,
+     "cloud_nbm": null,
      "dry_h": 72,
      "tide": {
       "ft": 1.0,
@@ -10407,6 +10629,7 @@
      },
      "wind_kn": 3.1,
      "cloud": 6,
+     "cloud_nbm": null,
      "dry_h": 72,
      "tide": {
       "ft": 0.5,
@@ -10590,7 +10813,7 @@
     "ft": 11.2,
     "s": null,
     "dir": 82,
-    "age_h": 0.8
+    "age_h": 1.1
    },
    "lat": 19.421,
    "lon": -155.913,
@@ -10598,7 +10821,7 @@
    "shore": null,
    "wind_now": null,
    "wind_vs_model": null,
-   "sst_src": "model",
+   "sst_src": "satellite",
    "wind_corr": null,
    "clearing": null,
    "anchor": null,
@@ -10643,7 +10866,10 @@
     "full_in_d": 12,
     "new_in_d": 27
    },
-   "kd490": null,
+   "kd490": {
+    "m1": 0.031,
+    "age_d": 16
+   },
    "chla": 0.04
   },
   "L": {
@@ -10726,6 +10952,7 @@
      },
      "wind_kn": 6.5,
      "cloud": 26,
+     "cloud_nbm": null,
      "dry_h": 1,
      "tide": null
     },
@@ -10766,6 +10993,7 @@
      },
      "wind_kn": 5.4,
      "cloud": 0,
+     "cloud_nbm": null,
      "dry_h": 11,
      "tide": null
     },
@@ -10806,6 +11034,7 @@
      },
      "wind_kn": 6.1,
      "cloud": 78,
+     "cloud_nbm": null,
      "dry_h": 24,
      "tide": null
     },
@@ -10846,6 +11075,7 @@
      },
      "wind_kn": 4.9,
      "cloud": 12,
+     "cloud_nbm": null,
      "dry_h": 35,
      "tide": null
     },
@@ -10886,6 +11116,7 @@
      },
      "wind_kn": 6.2,
      "cloud": 20,
+     "cloud_nbm": null,
      "dry_h": 49,
      "tide": null
     },
@@ -10926,6 +11157,7 @@
      },
      "wind_kn": 4.5,
      "cloud": 25,
+     "cloud_nbm": null,
      "dry_h": 59,
      "tide": null
     },
@@ -10966,6 +11198,7 @@
      },
      "wind_kn": 5.7,
      "cloud": 17,
+     "cloud_nbm": null,
      "dry_h": 72,
      "tide": null
     },
@@ -11006,6 +11239,7 @@
      },
      "wind_kn": 5.2,
      "cloud": 99,
+     "cloud_nbm": null,
      "dry_h": 72,
      "tide": null
     },
@@ -11046,6 +11280,7 @@
      },
      "wind_kn": 5.7,
      "cloud": 27,
+     "cloud_nbm": null,
      "dry_h": 72,
      "tide": null
     },
@@ -11086,6 +11321,7 @@
      },
      "wind_kn": 5.1,
      "cloud": 13,
+     "cloud_nbm": null,
      "dry_h": 72,
      "tide": null
     },
@@ -11126,6 +11362,7 @@
      },
      "wind_kn": 3.7,
      "cloud": 61,
+     "cloud_nbm": null,
      "dry_h": 72,
      "tide": null
     },
@@ -11166,6 +11403,7 @@
      },
      "wind_kn": 3.6,
      "cloud": 31,
+     "cloud_nbm": null,
      "dry_h": 72,
      "tide": null
     },
@@ -11206,6 +11444,7 @@
      },
      "wind_kn": 4.6,
      "cloud": 12,
+     "cloud_nbm": null,
      "dry_h": 72,
      "tide": null
     },
@@ -11246,6 +11485,7 @@
      },
      "wind_kn": 4.5,
      "cloud": 41,
+     "cloud_nbm": null,
      "dry_h": 72,
      "tide": null
     }
@@ -11258,7 +11498,7 @@
    "shore": null,
    "wind_now": null,
    "wind_vs_model": null,
-   "sst_src": "model",
+   "sst_src": "satellite",
    "wind_corr": null,
    "clearing": null,
    "anchor": null,
@@ -11303,7 +11543,10 @@
     "full_in_d": 12,
     "new_in_d": 27
    },
-   "kd490": null,
+   "kd490": {
+    "m1": 0.039,
+    "age_d": 13
+   },
    "chla": 0.12
   },
   "M": {
@@ -11347,7 +11590,7 @@
    "forecast_sms": "THE DIVE BELL - MALIBU, the week ahead as of Wed 10pm.\nBest: Thu dawn, 5.2 of 10 - marginal, held back by swell.\nThu 5.2 / Fri 1.5 / Sat 1.0 / Sun 1.0 / Mon 4.0 / Tue 1.0 / Wed 4.0\nA quiet week.",
    "read_at": "2026-11-11T22:00:00-08:00",
    "last_ring": null,
-   "sst_f": 72,
+   "sst_f": 75,
    "windows": [
     {
      "label": "Thu dawn",
@@ -11401,6 +11644,7 @@
      },
      "wind_kn": 5.0,
      "cloud": 30,
+     "cloud_nbm": 25,
      "dry_h": 72,
      "tide": {
       "ft": 3.9,
@@ -11459,6 +11703,7 @@
      },
      "wind_kn": 8.6,
      "cloud": 57,
+     "cloud_nbm": 18,
      "dry_h": 72,
      "tide": {
       "ft": 1.4,
@@ -11517,6 +11762,7 @@
      },
      "wind_kn": 14.3,
      "cloud": 54,
+     "cloud_nbm": 45,
      "dry_h": 0,
      "tide": {
       "ft": 3.6,
@@ -11575,6 +11821,7 @@
      },
      "wind_kn": 11.7,
      "cloud": 68,
+     "cloud_nbm": 26,
      "dry_h": 72,
      "tide": {
       "ft": 2.2,
@@ -11633,6 +11880,7 @@
      },
      "wind_kn": 5.2,
      "cloud": 94,
+     "cloud_nbm": 51,
      "dry_h": 1,
      "tide": {
       "ft": 3.5,
@@ -11691,6 +11939,7 @@
      },
      "wind_kn": 6.7,
      "cloud": 50,
+     "cloud_nbm": 21,
      "dry_h": 7,
      "tide": {
       "ft": 2.9,
@@ -11749,6 +11998,7 @@
      },
      "wind_kn": 3.0,
      "cloud": 100,
+     "cloud_nbm": 50,
      "dry_h": 22,
      "tide": {
       "ft": 3.4,
@@ -11807,6 +12057,7 @@
      },
      "wind_kn": 7.0,
      "cloud": 100,
+     "cloud_nbm": 40,
      "dry_h": 31,
      "tide": {
       "ft": 3.4,
@@ -11865,6 +12116,7 @@
      },
      "wind_kn": 1.6,
      "cloud": 98,
+     "cloud_nbm": 76,
      "dry_h": 46,
      "tide": {
       "ft": 3.5,
@@ -11923,6 +12175,7 @@
      },
      "wind_kn": 7.0,
      "cloud": 100,
+     "cloud_nbm": 61,
      "dry_h": 55,
      "tide": {
       "ft": 3.8,
@@ -11981,6 +12234,7 @@
      },
      "wind_kn": 3.3,
      "cloud": 75,
+     "cloud_nbm": 49,
      "dry_h": 70,
      "tide": {
       "ft": 3.8,
@@ -12039,6 +12293,7 @@
      },
      "wind_kn": 3.8,
      "cloud": 100,
+     "cloud_nbm": 35,
      "dry_h": 1,
      "tide": {
       "ft": 3.9,
@@ -12097,6 +12352,7 @@
      },
      "wind_kn": 1.6,
      "cloud": 38,
+     "cloud_nbm": 36,
      "dry_h": 1,
      "tide": {
       "ft": 4.2,
@@ -12140,6 +12396,7 @@
      },
      "wind_kn": 5.0,
      "cloud": 88,
+     "cloud_nbm": 31,
      "dry_h": 5,
      "tide": {
       "ft": 3.6,
@@ -12315,10 +12572,10 @@
     }
    ],
    "buoy_now": {
-    "ft": 3.3,
-    "s": 14.0,
-    "dir": 232,
-    "age_h": 0.7
+    "ft": 3.0,
+    "s": 13.0,
+    "dir": 256,
+    "age_h": 0.5
    },
    "lat": 33.99,
    "lon": -118.805,
@@ -12326,20 +12583,20 @@
     "f": 75.0,
     "station": "Buoy 46221",
     "km": 21.8,
-    "age_h": 0.6,
+    "age_h": 0.1,
     "judges": false
    },
    "shore": {
     "station": "Santa Monica Pier",
     "km": 28.3,
-    "ntu": 1.28,
-    "chl": 0.66,
+    "ntu": 0.9,
+    "chl": 0.51,
     "age_h": 0.0,
     "ntu_med_24h": 0.95
    },
    "wind_now": null,
    "wind_vs_model": null,
-   "sst_src": "model",
+   "sst_src": "satellite",
    "wind_corr": null,
    "clearing": {
     "station": "Santa Monica Pier",
@@ -12390,7 +12647,10 @@
     "full_in_d": 12,
     "new_in_d": 27
    },
-   "kd490": null,
+   "kd490": {
+    "m1": 0.065,
+    "age_d": 10
+   },
    "chla": 0.32
   },
   "N": {
@@ -12434,7 +12694,7 @@
    "forecast_sms": "THE DIVE BELL - VENTURA COUNTY, the week ahead as of Wed 10pm.\nBest: Wed dawn, 3.0 of 10 - rough, held back by rain.\nThu 2.7 / Fri 1.3 / Sat 1.7 / Sun 1.3 / Mon 1.3 / Tue 1.6 / Wed 3.0\nA quiet week.",
    "read_at": "2026-11-11T22:00:00-08:00",
    "last_ring": null,
-   "sst_f": 72,
+   "sst_f": 74,
    "windows": [
     {
      "label": "Thu dawn",
@@ -12488,6 +12748,7 @@
      },
      "wind_kn": 1.4,
      "cloud": 26,
+     "cloud_nbm": 27,
      "dry_h": 72,
      "tide": {
       "ft": 3.8,
@@ -12546,6 +12807,7 @@
      },
      "wind_kn": 5.2,
      "cloud": 92,
+     "cloud_nbm": 20,
      "dry_h": 72,
      "tide": {
       "ft": 1.6,
@@ -12604,6 +12866,7 @@
      },
      "wind_kn": 10.5,
      "cloud": 59,
+     "cloud_nbm": 42,
      "dry_h": 72,
      "tide": {
       "ft": 3.6,
@@ -12662,6 +12925,7 @@
      },
      "wind_kn": 8.3,
      "cloud": 84,
+     "cloud_nbm": 36,
      "dry_h": 72,
      "tide": {
       "ft": 2.4,
@@ -12720,6 +12984,7 @@
      },
      "wind_kn": 3.1,
      "cloud": 78,
+     "cloud_nbm": 48,
      "dry_h": 72,
      "tide": {
       "ft": 3.9,
@@ -12778,6 +13043,7 @@
      },
      "wind_kn": 10.9,
      "cloud": 4,
+     "cloud_nbm": 21,
      "dry_h": 72,
      "tide": {
       "ft": 3.0,
@@ -12826,7 +13092,7 @@
       "flat": false,
       "glass": true,
       "dry": true,
-      "sun": true,
+      "sun": false,
       "warm": true
      },
      "swell": {
@@ -12836,6 +13102,7 @@
      },
      "wind_kn": 2.9,
      "cloud": 22,
+     "cloud_nbm": 49,
      "dry_h": 72,
      "tide": {
       "ft": 3.4,
@@ -12894,6 +13161,7 @@
      },
      "wind_kn": 10.4,
      "cloud": 100,
+     "cloud_nbm": 44,
      "dry_h": 72,
      "tide": {
       "ft": 3.5,
@@ -12952,6 +13220,7 @@
      },
      "wind_kn": 1.1,
      "cloud": 100,
+     "cloud_nbm": 74,
      "dry_h": 72,
      "tide": {
       "ft": 3.6,
@@ -13010,6 +13279,7 @@
      },
      "wind_kn": 8.4,
      "cloud": 100,
+     "cloud_nbm": 61,
      "dry_h": 72,
      "tide": {
       "ft": 3.8,
@@ -13068,6 +13338,7 @@
      },
      "wind_kn": 1.5,
      "cloud": 100,
+     "cloud_nbm": 48,
      "dry_h": 0,
      "tide": {
       "ft": 3.9,
@@ -13126,6 +13397,7 @@
      },
      "wind_kn": 8.1,
      "cloud": 100,
+     "cloud_nbm": 35,
      "dry_h": 1,
      "tide": {
       "ft": 3.9,
@@ -13184,6 +13456,7 @@
      },
      "wind_kn": 2.3,
      "cloud": 74,
+     "cloud_nbm": 40,
      "dry_h": 1,
      "tide": {
       "ft": 4.2,
@@ -13227,6 +13500,7 @@
      },
      "wind_kn": 5.9,
      "cloud": 78,
+     "cloud_nbm": 33,
      "dry_h": 6,
      "tide": {
       "ft": 3.6,
@@ -13392,10 +13666,10 @@
     }
    ],
    "buoy_now": {
-    "ft": 6.2,
-    "s": 12.0,
-    "dir": 262,
-    "age_h": 0.9
+    "ft": 4.6,
+    "s": 11.0,
+    "dir": 266,
+    "age_h": 0.6
    },
    "lat": 34.051,
    "lon": -118.964,
@@ -13414,7 +13688,7 @@
     "station": "Leo Carrillo (RAWS)",
     "km": 2.2
    },
-   "sst_src": "model",
+   "sst_src": "satellite",
    "wind_corr": {
     "days": 9,
     "need": 21,
@@ -13464,7 +13738,10 @@
     "full_in_d": 12,
     "new_in_d": 27
    },
-   "kd490": null,
+   "kd490": {
+    "m1": 0.065,
+    "age_d": 10
+   },
    "chla": 0.3
   },
   "O": {
@@ -13508,7 +13785,7 @@
    "forecast_sms": "THE DIVE BELL - SYDNEY, the week ahead as of Thu 5pm.\nBest: Fri dawn, 7.6 of 10 - good, held back by grey skies. In by 5:15am at Shelly Beach (Cabbage Tree Bay).\nThu 7.4 / Fri 7.6 / Sat 4.0 / Sun 4.0 / Mon 4.0 / Tue 4.0 / Wed 4.0\nNo ring in sight, but a morning worth having.",
    "read_at": "2026-11-11T22:00:00-08:00",
    "last_ring": "2026-09-06",
-   "sst_f": 69,
+   "sst_f": 68,
    "windows": [
     {
      "label": "Thu dusk",
@@ -13530,7 +13807,7 @@
       "p_dry": 1.0,
       "n": 51
      },
-     "chance": 0.016,
+     "chance": 0.015,
      "coves": [],
      "hazard": null,
      "axes": {
@@ -13547,6 +13824,7 @@
      },
      "wind_kn": 7.1,
      "cloud": 28,
+     "cloud_nbm": null,
      "dry_h": 72,
      "tide": null
     },
@@ -13570,7 +13848,7 @@
       "p_dry": 1.0,
       "n": 51
      },
-     "chance": 0.027,
+     "chance": 0.025,
      "coves": [],
      "hazard": null,
      "axes": {
@@ -13587,6 +13865,7 @@
      },
      "wind_kn": 2.9,
      "cloud": 100,
+     "cloud_nbm": null,
      "dry_h": 72,
      "tide": null
     },
@@ -13627,6 +13906,7 @@
      },
      "wind_kn": 12.2,
      "cloud": 89,
+     "cloud_nbm": null,
      "dry_h": 72,
      "tide": null
     },
@@ -13667,6 +13947,7 @@
      },
      "wind_kn": 2.7,
      "cloud": 36,
+     "cloud_nbm": null,
      "dry_h": 1,
      "tide": null
     },
@@ -13707,6 +13988,7 @@
      },
      "wind_kn": 7.6,
      "cloud": 83,
+     "cloud_nbm": null,
      "dry_h": 0,
      "tide": null
     },
@@ -13716,7 +13998,7 @@
      "end": "2026-11-15T08:13:00+11:00",
      "kind": "dawn",
      "score": 4.0,
-     "conf": "low",
+     "conf": "medium",
      "limit": "rain",
      "entries": [
       "Shelly Beach (Cabbage Tree Bay)",
@@ -13747,6 +14029,7 @@
      },
      "wind_kn": 4.0,
      "cloud": 99,
+     "cloud_nbm": null,
      "dry_h": 1,
      "tide": null
     },
@@ -13756,7 +14039,7 @@
      "end": "2026-11-15T19:35:00+11:00",
      "kind": "dusk",
      "score": 4.0,
-     "conf": "low",
+     "conf": "medium",
      "limit": "rain",
      "entries": [
       "Shelly Beach (Cabbage Tree Bay)",
@@ -13787,6 +14070,7 @@
      },
      "wind_kn": 9.5,
      "cloud": 98,
+     "cloud_nbm": null,
      "dry_h": 1,
      "tide": null
     },
@@ -13796,7 +14080,7 @@
      "end": "2026-11-16T08:13:00+11:00",
      "kind": "dawn",
      "score": 4.0,
-     "conf": "low",
+     "conf": "medium",
      "limit": "rain",
      "entries": [
       "Shelly Beach (Cabbage Tree Bay)",
@@ -13827,6 +14111,7 @@
      },
      "wind_kn": 8.3,
      "cloud": 100,
+     "cloud_nbm": null,
      "dry_h": 1,
      "tide": null
     },
@@ -13836,7 +14121,7 @@
      "end": "2026-11-16T19:36:00+11:00",
      "kind": "dusk",
      "score": 4.0,
-     "conf": "low",
+     "conf": "medium",
      "limit": "rain",
      "entries": [
       "Shelly Beach (Cabbage Tree Bay)",
@@ -13867,6 +14152,7 @@
      },
      "wind_kn": 9.1,
      "cloud": 100,
+     "cloud_nbm": null,
      "dry_h": 0,
      "tide": null
     },
@@ -13876,7 +14162,7 @@
      "end": "2026-11-17T08:12:00+11:00",
      "kind": "dawn",
      "score": 4.0,
-     "conf": "low",
+     "conf": "medium",
      "limit": "rain",
      "entries": [
       "Shelly Beach (Cabbage Tree Bay)",
@@ -13907,6 +14193,7 @@
      },
      "wind_kn": 10.8,
      "cloud": 99,
+     "cloud_nbm": null,
      "dry_h": 0,
      "tide": null
     },
@@ -13916,7 +14203,7 @@
      "end": "2026-11-17T19:37:00+11:00",
      "kind": "dusk",
      "score": 3.6,
-     "conf": "low",
+     "conf": "medium",
      "limit": "rain",
      "entries": [
       "Shelly Beach (Cabbage Tree Bay)",
@@ -13947,6 +14234,7 @@
      },
      "wind_kn": 5.7,
      "cloud": 82,
+     "cloud_nbm": null,
      "dry_h": 1,
      "tide": null
     },
@@ -13956,7 +14244,7 @@
      "end": "2026-11-18T08:12:00+11:00",
      "kind": "dawn",
      "score": 4.0,
-     "conf": "low",
+     "conf": "medium",
      "limit": "rain",
      "entries": [
       "Shelly Beach (Cabbage Tree Bay)",
@@ -13987,6 +14275,7 @@
      },
      "wind_kn": 2.4,
      "cloud": 86,
+     "cloud_nbm": null,
      "dry_h": 1,
      "tide": null
     },
@@ -13996,7 +14285,7 @@
      "end": "2026-11-18T19:38:00+11:00",
      "kind": "dusk",
      "score": 4.0,
-     "conf": "low",
+     "conf": "medium",
      "limit": "rain",
      "entries": [
       "Shelly Beach (Cabbage Tree Bay)",
@@ -14027,6 +14316,7 @@
      },
      "wind_kn": 6.9,
      "cloud": 14,
+     "cloud_nbm": null,
      "dry_h": 10,
      "tide": null
     },
@@ -14036,7 +14326,7 @@
      "end": "2026-11-19T08:11:00+11:00",
      "kind": "dawn",
      "score": 4.0,
-     "conf": "low",
+     "conf": "medium",
      "limit": "rain",
      "entries": [
       "Shelly Beach (Cabbage Tree Bay)",
@@ -14067,6 +14357,7 @@
      },
      "wind_kn": 3.3,
      "cloud": 70,
+     "cloud_nbm": null,
      "dry_h": 22,
      "tide": null
     }
@@ -14076,7 +14367,7 @@
     "ft": 3.8,
     "s": 14.8,
     "dir": 156,
-    "age_h": 6.2
+    "age_h": 6.4
    },
    "lat": -33.8,
    "lon": 151.297,
@@ -14084,7 +14375,7 @@
    "shore": null,
    "wind_now": null,
    "wind_vs_model": null,
-   "sst_src": "model",
+   "sst_src": "satellite",
    "wind_corr": null,
    "clearing": null,
    "anchor": null,
@@ -14129,7 +14420,10 @@
     "full_in_d": 12,
     "new_in_d": 27
    },
-   "kd490": null,
+   "kd490": {
+    "m1": 0.151,
+    "age_d": 13
+   },
    "chla": 1.99
   },
   "P": {
@@ -14173,7 +14467,7 @@
    "forecast_sms": "THE DIVE BELL - MAUI, the week ahead as of Wed 8pm.\nBest: Sat dawn, 8.4 of 10 - good, held back by stirred-up water. In by 6:06am at Kahekili (Airport Beach).\nThu 5.6 / Fri 6.1 / Sat 8.4 / Sun 7.2 / Mon 6.9 / Tue 4.0 / Wed 4.0\nNo ring in sight, but a morning worth having.",
    "read_at": "2026-11-11T22:00:00-08:00",
    "last_ring": "2026-10-22",
-   "sst_f": 81,
+   "sst_f": 80,
    "windows": [
     {
      "label": "Thu dawn",
@@ -14212,6 +14506,7 @@
      },
      "wind_kn": 4.8,
      "cloud": 90,
+     "cloud_nbm": null,
      "dry_h": 72,
      "tide": {
       "ft": 2.3,
@@ -14255,6 +14550,7 @@
      },
      "wind_kn": 5.6,
      "cloud": 56,
+     "cloud_nbm": null,
      "dry_h": 72,
      "tide": {
       "ft": 1.1,
@@ -14298,6 +14594,7 @@
      },
      "wind_kn": 3.4,
      "cloud": 63,
+     "cloud_nbm": null,
      "dry_h": 72,
      "tide": {
       "ft": 2.3,
@@ -14341,6 +14638,7 @@
      },
      "wind_kn": 3.8,
      "cloud": 49,
+     "cloud_nbm": null,
      "dry_h": 72,
      "tide": {
       "ft": 0.7,
@@ -14384,6 +14682,7 @@
      },
      "wind_kn": 2.9,
      "cloud": 23,
+     "cloud_nbm": null,
      "dry_h": 72,
      "tide": {
       "ft": 2.2,
@@ -14427,6 +14726,7 @@
      },
      "wind_kn": 4.0,
      "cloud": 27,
+     "cloud_nbm": null,
      "dry_h": 72,
      "tide": {
       "ft": 0.9,
@@ -14470,6 +14770,7 @@
      },
      "wind_kn": 2.4,
      "cloud": 73,
+     "cloud_nbm": null,
      "dry_h": 72,
      "tide": {
       "ft": 2.0,
@@ -14513,6 +14814,7 @@
      },
      "wind_kn": 3.1,
      "cloud": 74,
+     "cloud_nbm": null,
      "dry_h": 72,
      "tide": {
       "ft": 1.1,
@@ -14556,6 +14858,7 @@
      },
      "wind_kn": 2.1,
      "cloud": 44,
+     "cloud_nbm": null,
      "dry_h": 72,
      "tide": {
       "ft": 1.8,
@@ -14599,6 +14902,7 @@
      },
      "wind_kn": 0.5,
      "cloud": 100,
+     "cloud_nbm": null,
      "dry_h": 0,
      "tide": {
       "ft": 1.4,
@@ -14642,6 +14946,7 @@
      },
      "wind_kn": 1.7,
      "cloud": 15,
+     "cloud_nbm": null,
      "dry_h": 1,
      "tide": {
       "ft": 1.7,
@@ -14685,6 +14990,7 @@
      },
      "wind_kn": 2.5,
      "cloud": 65,
+     "cloud_nbm": null,
      "dry_h": 1,
      "tide": {
       "ft": 0.8,
@@ -14728,6 +15034,7 @@
      },
      "wind_kn": 2.6,
      "cloud": 33,
+     "cloud_nbm": null,
      "dry_h": 15,
      "tide": {
       "ft": 1.5,
@@ -14771,6 +15078,7 @@
      },
      "wind_kn": 2.8,
      "cloud": 57,
+     "cloud_nbm": null,
      "dry_h": 1,
      "tide": {
       "ft": 0.6,
@@ -14914,7 +15222,7 @@
     "ft": 7.2,
     "s": 14.0,
     "dir": 323,
-    "age_h": 707.3
+    "age_h": 707.5
    },
    "lat": 20.938,
    "lon": -156.694,
@@ -14922,7 +15230,7 @@
    "shore": null,
    "wind_now": null,
    "wind_vs_model": null,
-   "sst_src": "model",
+   "sst_src": "satellite",
    "wind_corr": null,
    "clearing": null,
    "anchor": null,
@@ -14967,7 +15275,10 @@
     "full_in_d": 12,
     "new_in_d": 27
    },
-   "kd490": null,
+   "kd490": {
+    "m1": 0.037,
+    "age_d": 10
+   },
    "chla": 0.14
   }
  }
