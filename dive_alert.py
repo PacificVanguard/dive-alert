@@ -1538,18 +1538,23 @@ def parse_mop_ascii(text):
     return out
 
 
-def fetch_mop(src, labels):
+def fetch_mop(src, labels, spectra=()):
     """Each MOP point's forecast: 3-hourly Hs (m), Tp (s), Dp (deg), ~10 days.
-    One small request per point; a point that fails is simply absent."""
+    One small request per point; a point that fails is simply absent. Points
+    in `spectra` (the bell's read point) also bring their spectra, as F per
+    time (2026-11-12); spectra that fail leave the point's Hs standing."""
     data, errs = {}, []
     for label in labels:
         try:
-            a = parse_mop_ascii(src.get("mop_%s" % label, "%s/%s_forecast.nc.ascii?waveTime,waveHs,waveTp,waveDp"
-                                        % (MOP_BASE, label), timeout=30))
+            q = "waveTime,waveHs,waveTp,waveDp" + (",waveFrequency,waveBandwidth,waveEnergyDensity" if label in spectra else "")
+            txt = src.get("mop_%s" % label, "%s/%s_forecast.nc.ascii?%s" % (MOP_BASE, label, q), timeout=30)
+            a = parse_mop_ascii(txt)
             if not a.get("waveTime") or len(a.get("waveHs", [])) != len(a["waveTime"]):
                 raise ValueError("no series")
             data[label] = {"t": [datetime.fromtimestamp(int(x), tz=timezone.utc) for x in a["waveTime"]],
                            "hs": a["waveHs"], "tp": a.get("waveTp") or [], "dp": a.get("waveDp") or []}
+            if label in spectra:
+                data[label]["F"] = mop_F_series(txt, a)
         except Exception as e:
             errs.append("%s: %s" % (label, str(e)[:60]))
     if not data:
@@ -1571,6 +1576,304 @@ def mop_window(pt, w):
     return {"m": pt["hs"][best], "ft": round(pt["hs"][best] * 3.281, 1),
             "s": round(pt["tp"][best], 1) if best < len(pt["tp"]) and 0 < pt["tp"][best] < 40 else None,
             "dir": int(round(pt["dp"][best])) if best < len(pt["dp"]) and 0 <= pt["dp"][best] <= 360 else None}
+
+
+# ---- the bell's own swell, from CDIP's spectra (2026-11-12) -------------
+# The offshore model sees the open ocean through a hand-drawn exposure fan;
+# CDIP carries measured and forecast spectra past the Channel Islands and
+# over the shelf to the 10 m contour. At each bell's read point, F is the
+# swell in the bell's own units - every band's share of Hs^2 (ft^2) times
+# the period factor at its period, f <= 0.22 Hz - meaned over the window's
+# hours exactly as the bell's damage is. A year of matched windows maps F
+# onto the bell's damage by quantiles, so the scale, the flat line and the
+# alert volume stay as calibrated; what changes is WHICH mornings are calm.
+#
+# It drives a bell only where a nearshore buoy that CDIP's model does NOT
+# take as input testified (2025-08..2026-11, each window meaned over its
+# hours): the share of each source's flat calls the buoy measured among its
+# calmest mornings, and the rank agreement with the buoy, old -> CDIP. That
+# test read CDIP's nowcast against the old input's hindcast - both on their
+# best boundary; forecasts carry both sources' boundary error, and
+# `swellcheck` grades the logged forecasts against the same buoys.
+# Elsewhere CDIP's number is logged beside the old one (damage_mop) until a
+# witness can judge it. Fit: scratch specfit2, 645-658 windows per bell.
+MOP_F_LIM_HZ = 0.22
+MOP_DAMAGE = {
+    'A': {"knots": ((1.574, 0.72), (2.185, 1.18), (2.512, 1.46), (2.936, 1.7), (3.273, 1.98), (3.687, 2.24), (4.156, 2.55), (4.515, 2.77), (4.781, 3.07), (5.21, 3.28), (6.078, 3.99), (7.282, 4.63), (8.773, 5.48), (10.855, 6.76), (15.731, 10.46), (20.356, 14.39), (30.609, 21.58)),
+          "witness": {"buoy": '284', "name": 'Capistrano Beach Nearshore', "km": 14.5, "rank": (0.75, 0.85), "flat_right": (0.5, 0.66), "n": 645}},
+    'C': {"knots": ((2.71, 1.01), (3.776, 1.3), (4.523, 1.62), (5.264, 2.01), (5.746, 2.35), (6.222, 2.68), (6.887, 3.02), (7.508, 3.38), (8.157, 3.92), (8.995, 4.33), (10.898, 5.09), (13.248, 6.06), (16.888, 6.97), (20.652, 8.58), (27.088, 11.87), (34.61, 20.81), (48.769, 27.85)),
+          "witness": {"buoy": '284', "name": 'Capistrano Beach Nearshore', "km": 3.5, "rank": (0.7, 0.82), "flat_right": (0.4, 0.58), "n": 652}},
+    'D': {"knots": ((1.716, 0.275), (2.467, 0.46), (2.991, 0.572), (3.458, 0.689), (3.995, 0.831), (4.373, 0.926), (4.759, 1.05), (5.404, 1.148), (5.909, 1.285), (6.341, 1.457), (7.419, 1.832), (9.179, 2.34), (11.078, 3.092), (14.81, 4.424), (20.599, 6.728), (24.894, 9.478), (31.725, 13.747)),
+          "witness": {"buoy": '201', "name": 'Scripps Nearshore', "km": 2.0, "rank": (0.63, 0.88), "flat_right": (0.64, 0.84), "n": 656}},
+    'E': {"knots": ((0.112, 0.08), (0.157, 0.22), (0.21, 0.48), (0.256, 0.7), (0.315, 0.89), (0.383, 1.22), (0.45, 1.55), (0.547, 1.78), (0.624, 2.08), (0.719, 2.36), (0.906, 3.08), (1.141, 3.82), (1.423, 4.58), (1.963, 5.88), (2.659, 8.67), (3.344, 11.31), (4.167, 16.1)),
+          "watching": "Monterey Bay: no nearshore buoy outside CDIP's own inputs stands close enough to judge it yet"},
+    'G': {"knots": ((2.019, 0.8), (2.72, 1.24), (3.013, 1.49), (3.364, 1.81), (3.694, 2.11), (4.095, 2.44), (4.567, 2.94), (4.982, 3.41), (5.377, 3.92), (5.907, 4.36), (7.08, 5.43), (8.637, 6.77), (10.227, 8.44), (13.116, 10.06), (18.529, 15.63), (26.237, 21.3), (36.884, 33.07)),
+          "witness": {"buoy": '215', "name": 'Long Beach Channel', "km": 18.6, "rank": (0.55, 0.74), "flat_right": (0.31, 0.54), "n": 648}},
+    'H': {"knots": ((1.37, 0.12), (1.95, 0.19), (2.248, 0.43), (3.141, 0.8), (4.073, 1.15), (4.747, 1.54), (5.823, 1.88), (6.607, 2.38), (7.861, 2.77), (8.747, 3.31), (10.593, 4.22), (13.252, 5.33), (16.139, 6.59), (20.257, 8.36), (27.782, 11.93), (35.68, 15.65), (45.674, 22.76)),
+          "watching": "Carmel Bay: no nearshore buoy outside CDIP's own inputs stands close enough to judge it yet"},
+    'I': {"knots": ((0.95, 0.5), (1.162, 0.71), (1.298, 0.94), (1.426, 1.26), (1.619, 1.49), (1.734, 1.69), (1.899, 2.03), (2.064, 2.34), (2.265, 2.76), (2.472, 3.17), (2.88, 3.93), (3.497, 4.6), (4.09, 5.51), (4.885, 6.87), (6.775, 11.67), (9.81, 21.09), (15.045, 35.43)),
+          "watching": "Santa Barbara Channel: no nearshore buoy outside CDIP's own inputs stands close enough to judge it yet"},
+    'M': {"knots": ((2.545, 0.92), (3.16, 1.11), (3.598, 1.43), (3.979, 1.77), (4.396, 2.11), (4.731, 2.45), (5.124, 2.94), (5.503, 3.41), (5.859, 3.78), (6.181, 4.19), (7.181, 5.09), (8.109, 6.14), (9.781, 7.3), (11.805, 9.62), (17.476, 14.93), (23.668, 21.93), (44.743, 34.21)),
+          "witness": {"buoy": '103', "name": 'Topanga Nearshore', "km": 21.2, "rank": (0.75, 0.89), "flat_right": (0.34, 0.7), "n": 655}},
+    'N': {"knots": ((2.335, 0.82), (2.908, 1.11), (3.542, 1.32), (4.156, 1.56), (4.572, 1.83), (5.034, 2.05), (5.464, 2.54), (5.856, 2.84), (6.211, 3.27), (6.759, 3.56), (7.929, 4.31), (9.191, 5.1), (10.833, 6.45), (13.074, 8.17), (18.715, 13.49), (27.37, 19.27), (50.153, 39.32)),
+          "witness": {"buoy": '103', "name": 'Topanga Nearshore', "km": 35.7, "rank": (0.67, 0.89), "flat_right": (0.38, 0.78), "n": 654}},
+}
+
+
+def mop_drives(zk):
+    """True where CDIP's swell has earned the bell's score."""
+    return bool((MOP_DAMAGE.get(zk) or {}).get("witness"))
+
+
+def swell_cdip_card(zk, scored):
+    """What the plate says about the bell's swell source: in charge (with the
+    witness that put it there), watching, or nothing for a bell CDIP does
+    not reach. `read` says whether this run actually read it."""
+    m = MOP_DAMAGE.get(zk)
+    if not m:
+        return None
+    read = any((s.get("feats") or {}).get("damage_mop") is not None for s in scored or [])
+    if m.get("witness"):
+        return dict(m["witness"], drives=True, read=read)
+    return {"drives": False, "read": read, "why": m.get("watching")}
+
+
+def parse_mop_grid(text, name="waveEnergyDensity"):
+    """OPeNDAP ASCII 2-D grid -> rows (time x frequency), or None when the
+    block is missing or ragged."""
+    m = re.search(r"^%s\.%s\[(\d+)\]\[(\d+)\]\n(.*?)(?:\n\n|\Z)" % (name, name), text or "", re.M | re.S)
+    if not m:
+        return None
+    nt, nf = int(m.group(1)), int(m.group(2))
+    rows = []
+    for ln in m.group(3).split("\n"):
+        if ln.strip():
+            try:
+                rows.append([float(x) for x in ln.split(",")[1:]])
+            except ValueError:
+                return None
+    if len(rows) != nt or any(len(r) != nf for r in rows):
+        return None
+    return rows
+
+
+def spectrum_F(row, freqs, bws):
+    """One spectrum's swell in the bell's units: sum over f <= 0.22 Hz of
+    16 E df (that band's Hs^2, in ft^2) times the period factor at 1/f.
+    Unknown when any of those bands is unreadable - missing is never zero."""
+    pf = CONFIG["scoring"]["period_factor"]
+    tot = 0.0
+    for e, f, b in zip(row, freqs, bws):
+        if not (0 < f <= MOP_F_LIM_HZ):
+            continue
+        if not (0 <= e < 1e4) or not (0 < b < 1):
+            return None
+        tot += 16.0 * e * b * 3.281 ** 2 * piecewise(1.0 / f, pf)
+    return tot
+
+
+def mop_F_series(txt, a):
+    """F for every forecast time of a point, aligned with its waveTime; None
+    when the spectra did not come or do not line up."""
+    rows = parse_mop_grid(txt)
+    fr, bw = a.get("waveFrequency") or [], a.get("waveBandwidth") or []
+    if not rows or not fr or len(fr) != len(bw) or len(rows) != len(a.get("waveTime") or []) or len(rows[0]) != len(fr):
+        return None
+    return [spectrum_F(r, fr, bw) for r in rows]
+
+
+def mop_window_F(pt, w):
+    """The read point's F over a window: each window hour linearly between
+    the 3-hourly samples (measured 1.2-1.6% from hourly truth), then the
+    mean. None when any hour falls outside the forecast."""
+    Fs, ts = pt.get("F"), pt.get("t") or []
+    if not Fs:
+        return None
+    vals = []
+    for t in window_hours(w):
+        v = None
+        for i in range(len(ts) - 1):
+            if ts[i] <= t <= ts[i + 1]:
+                a, b = Fs[i], Fs[i + 1]
+                span = (ts[i + 1] - ts[i]).total_seconds()
+                if a is not None and b is not None and 0 < span <= 3 * 3600 + 60:
+                    v = a + (b - a) * (t - ts[i]).total_seconds() / span
+                break
+        if v is None:
+            return None
+        vals.append(v)
+    return sum(vals) / len(vals) if vals else None
+
+
+def qmap_damage(knots, F):
+    """F -> the bell's damage through its year of quantile pairs: log-log
+    between knots; past either end, the end segment's slope held to 0.5-2."""
+    x = math.log(max(F, 1e-3))
+    xs = [math.log(k[0]) for k in knots]
+    ys = [math.log(k[1]) for k in knots]
+    i = 0 if x <= xs[0] else (len(xs) - 2 if x >= xs[-1] else max(j for j in range(len(xs) - 1) if xs[j] <= x))
+    s_ = (ys[i + 1] - ys[i]) / (xs[i + 1] - xs[i]) if xs[i + 1] > xs[i] else 0.0
+    if x < xs[0] or x > xs[-1]:
+        s_ = max(0.5, min(2.0, s_))
+    return math.exp(ys[i] + s_ * (x - xs[i]))
+
+
+def mop_damage(zk, zc, mop, w):
+    """CDIP's damage for a bell's window, or None (no map, no spectra, or
+    the window outside the forecast)."""
+    fit = MOP_DAMAGE.get(zk)
+    lab = (zc.get("mop") or {}).get("_bell")
+    pts = (mop.data.get("points") if mop is not None and mop.ok else None) or {}
+    if not fit or lab not in pts:
+        return None
+    Fw = mop_window_F(pts[lab], w)
+    return None if Fw is None else round(qmap_damage(fit["knots"], Fw), 3)
+
+
+def swell_from_cdip(feats, zk, zc, mop, w):
+    """CDIP's number goes in charge where a witness buoy proved it, and is
+    logged beside the old one wherever it exists. The words then describe
+    the swell the score read. Mutates feats; returns the damage source."""
+    md = mop_damage(zk, zc, mop, w)
+    feats["damage_engine"], feats["damage_mop"] = feats.get("damage"), md
+    feats["damage_src"] = "model" if feats.get("damage") is not None else None
+    if md is not None and mop_drives(zk):
+        feats["damage"], feats["damage_src"] = md, "cdip"
+        near = mop_window(mop.data["points"][zc["mop"]["_bell"]], w)
+        if near:
+            feats["swell_near"] = {"hgt_ft": near["ft"], "per_s": near["s"], "dir": near["dir"]}
+    return feats["damage_src"]
+
+
+# ---- swellcheck: the switch keeps earning its place ---------------------
+# Monthly (drift.yml): the forecasts the bell actually made - each window's
+# last reading 12-48 h ahead, both swells logged - against the same buoys
+# that put CDIP in charge, read from their own spectra in the same units.
+# A loss is a PROPOSAL to the keeper, never a silent switch: one month of
+# mornings is too few to overturn a year.
+CDIP_THREDDS = "https://thredds.cdip.ucsd.edu/thredds/dodsC/cdip"
+
+
+def witness_F(stn, since, get=None):
+    """A witness buoy's measured F, hour by hour since `since` ({utc hour: F}),
+    from its own QC-passed spectra. The realtime file first; the archive
+    fills what the realtime file has already let go of (Scripps Nearshore
+    keeps about three weeks there)."""
+    get = get or http_get
+    out = {}
+    for path in ("realtime/%sp1_rt.nc" % stn, "archive/%sp1/%sp1_historic.nc" % (stn, stn)):
+        if out and min(out) * 3600 <= since.timestamp() + 6 * 3600:
+            break   # the realtime file already reaches back far enough
+        try:
+            base = "%s/%s" % (CDIP_THREDDS, path)
+            times = [int(x) for x in parse_mop_ascii(get(base + ".ascii?waveTime", 180)).get("waveTime", [])]
+            lo = next((i for i, t in enumerate(times) if t >= since.timestamp()), None)
+            if lo is None:
+                continue
+            fb = parse_mop_ascii(get(base + ".ascii?waveFrequency,waveBandwidth", 60))
+            fr, bw = fb.get("waveFrequency") or [], fb.get("waveBandwidth") or []
+            txt = get(base + ".ascii?waveFlagPrimary[%d:1:%d],waveEnergyDensity[%d:1:%d][0:1:%d]"
+                      % (lo, len(times) - 1, lo, len(times) - 1, len(fr) - 1), 300)
+            flags, rows = parse_mop_ascii(txt).get("waveFlagPrimary") or [], parse_mop_grid(txt) or []
+            acc = {}
+            for i, (t, r) in enumerate(zip(times[lo:], rows)):
+                F = spectrum_F(r, fr, bw) if (i < len(flags) and flags[i] == 1) else None
+                if F is not None:
+                    acc.setdefault(t // 3600, []).append(F)
+            for h, v in acc.items():
+                out.setdefault(h, sum(v) / len(v))
+        except Exception:
+            continue
+    return out
+
+
+def _ranks(v):
+    o = sorted(range(len(v)), key=lambda i: v[i])
+    r, i = [0.0] * len(v), 0
+    while i < len(o):
+        j = i
+        while j + 1 < len(o) and v[o[j + 1]] == v[o[i]]:
+            j += 1
+        for k in range(i, j + 1):
+            r[o[k]] = (i + j) / 2.0
+        i = j + 1
+    return r
+
+
+def _spearman(x, y):
+    """Rank agreement, ties shared."""
+    rx, ry = _ranks(x), _ranks(y)
+    mx, my = sum(rx) / len(rx), sum(ry) / len(ry)
+    den = math.sqrt(sum((a - mx) ** 2 for a in rx) * sum((b - my) ** 2 for b in ry))
+    return sum((a - mx) * (b - my) for a, b in zip(rx, ry)) / den if den else 0.0
+
+
+def grade_swell(trip, flat=None):
+    """(old damage, CDIP damage, measured F) per window -> rank agreement
+    with the buoy for each, and of the mornings each called flat, the share
+    the buoy measured among its calmest (as many calmest as the two called
+    flat, on average) - the same test that put CDIP in charge."""
+    flat = CONFIG["perfect_gate"]["max_damage"] if flat is None else flat
+    n = len(trip)
+    if n < 3:
+        return {"n": n}
+    E, M, B = zip(*trip)
+    fe, fm = [i for i in range(n) if E[i] <= flat], [i for i in range(n) if M[i] <= flat]
+    calm = set(sorted(range(n), key=lambda i: B[i])[:max(1, int(round((len(fe) + len(fm)) / 2.0)))])
+    share = lambda idx: round(sum(1 for i in idx if i in calm) / float(len(idx)), 2) if idx else None
+    return {"n": n, "rank": [round(_spearman(E, B), 2), round(_spearman(M, B), 2)],
+            "flat_calls": [len(fe), len(fm)], "flat_right": [share(fe), share(fm)]}
+
+
+def cmd_swellcheck(args):
+    rows = _read_csv(LOG_PATH)
+    t_now = now_pt()
+    since = t_now - timedelta(days=args.days)
+    report, buoys, trouble = {}, {}, []
+    for zk, m in MOP_DAMAGE.items():
+        wit = m.get("witness")
+        if not wit:
+            continue
+        picks = {}
+        for r in rows:
+            if r.get("zone") != zk or r.get("damage_engine") in (None, "") or r.get("damage_mop") in (None, ""):
+                continue
+            try:
+                lead, ws = float(r["lead_h"]), datetime.fromisoformat(r["window_start"])
+                de, dm = float(r["damage_engine"]), float(r["damage_mop"])
+            except (KeyError, ValueError):
+                continue
+            if 12 <= lead <= 48 and since <= ws <= t_now - timedelta(hours=4):
+                if r["window_key"] not in picks or lead < picks[r["window_key"]][0]:
+                    picks[r["window_key"]] = (lead, ws, r.get("window_kind") or "dawn", de, dm)
+        if picks and wit["buoy"] not in buoys:
+            buoys[wit["buoy"]] = witness_F(wit["buoy"], since - timedelta(days=1))
+        B = buoys.get(wit["buoy"]) or {}
+        trip = []
+        for lead, ws, kind, de, dm in picks.values():
+            w = {"start": ws, "end": ws + timedelta(hours=CONFIG["windows"].get(kind + "_hours", 3.0))}
+            vals = [B.get(int(t.astimezone(timezone.utc).timestamp() // 3600)) for t in window_hours(w)]
+            if vals and all(v is not None for v in vals):
+                trip.append((de, dm, sum(vals) / len(vals)))
+        g = grade_swell(trip)
+        report[zk] = dict(g, buoy=wit["buoy"], name=wit["name"], logged=len(picks),
+                          year={"rank": list(wit["rank"]), "flat_right": list(wit["flat_right"]), "n": wit["n"]})
+        if g.get("rank"):
+            print("  %s %-14s vs %-27s n=%3d  rank old %.2f  CDIP %.2f   flat calls right old %s  CDIP %s"
+                  % (zk, CONFIG["zones"][zk]["name"], wit["name"], g["n"], g["rank"][0], g["rank"][1],
+                     g["flat_right"][0], g["flat_right"][1]))
+            if g["n"] >= 20 and g["rank"][1] < g["rank"][0] - 0.05:
+                trouble.append("%s (rank %.2f vs old %.2f, n=%d)" % (CONFIG["zones"][zk]["name"], g["rank"][1], g["rank"][0], g["n"]))
+        else:
+            print("  %s %-14s vs %-27s %d forecasts logged, %d with the buoy's reading - too few to grade"
+                  % (zk, CONFIG["zones"][zk]["name"], wit["name"], len(picks), g["n"]))
+    with open(os.path.join(DATA, "swell_check.json"), "w") as f:
+        json.dump({"run": t_now.isoformat(), "days": args.days, "bells": report}, f, indent=1, sort_keys=True)
+    if trouble and getattr(args, "notify", False):
+        notify_ops({"title": "CDIP lost to the old swell model 🔎",
+                    "message": "PROPOSAL: review %s - forecasts this month ranked the witness buoy's swell worse "
+                               "than the offshore model did. data/swell_check.json has the numbers." % "; ".join(trouble),
+                    "priority": 3}, dry_run=False)
 
 
 def cove_scores(zc, w, feats, zone_score, mop, tides, period_s):
@@ -2369,7 +2672,7 @@ def fetch_all(zone_cfg, offline=False, fixture_set="normal"):
     if nws_covered(zone_cfg) and lon > -130:   # the Blend covers the contiguous US only
         f["nbm"] = fetch_nbm(src, lat, lon, tzname)
     if zone_cfg.get("mop"):
-        f["mop"] = fetch_mop(src, sorted(set(zone_cfg["mop"].values())))
+        f["mop"] = fetch_mop(src, sorted(set(zone_cfg["mop"].values())), spectra=(zone_cfg["mop"].get("_bell"),))
     if not f["marine"].ok and f["marine_alt"].ok:
         # the first voice is down; the second carries the read, marked so
         # confidence caps agreement and the message admits the substitution
@@ -3043,7 +3346,7 @@ def why_line(feats, score, kind="dawn"):
     """One sentence, the way a friend who checked the buoys would say it:
     the two or three things that actually set up the day, then what you
     should be able to see. Numbers live in the log, not here."""
-    p = feats.get("dmg_parts") or {}
+    p = feats.get("swell_near") or feats.get("dmg_parts") or {}   # the swell the score read
     per, hgt = p.get("per_s") or 0, p.get("hgt_ft") or 0
     if per >= 14 and hgt <= 3.0:
         swell = "long-period swell with no size to it"
@@ -4366,6 +4669,9 @@ LOG_COLS = ["run_ts", "zone", "window_key", "window_start", "window_kind", "lead
             "mop_ft", "chance",
             # the National Blend's window cloud (2026-11-12): sun needs both skies
             "cloud_nbm",
+            # the swell, both ways (2026-11-12): the offshore model's damage,
+            # CDIP's from its spectra, and which one the score read
+            "damage_engine", "damage_mop", "damage_src",
             # perfect_gate stays the PHYSICAL answer (so gate_hold_rates keeps
             # grading the same quantity across the change); rang records what
             # the bell was actually willing to promise
@@ -4519,6 +4825,7 @@ def score_zone(zone_key, zone_cfg, fetches, t_now, horizon_h=72, skill_corr=None
     anchor = buoy_anchor(fetches, t_now, zone_cfg)
     for w in windows:
         feats = compute_features(w, fetches, zone_cfg, t_now, anchor)
+        swell_from_cdip(feats, zone_key, zone_cfg, fetches.get("mop"), w)   # before any copy: every reader sees one swell
         wcorr = wind_correction(zone_key) if (zone_cfg.get("witnesses") or {}) else None
         feats_model = None
         if wcorr and wcorr.get("on"):   # earned by four weeks of measured wind, never assumed
@@ -4530,6 +4837,8 @@ def score_zone(zone_key, zone_cfg, fetches, t_now, horizon_h=72, skill_corr=None
         score, breakdown, cap_reason, flags = score_window(feats, creek)
         if wcorr and wcorr.get("on"):
             flags = list(flags) + ["wind%+.1f" % wcorr["kn"]]
+        if mop_drives(zone_key) and feats.get("damage_src") != "cdip":
+            flags = list(flags) + ["swell:model (CDIP unread)"]
         raw_score = score
         if skill_corr:
             bucket = skill_bucket((w["start"] - t_now).total_seconds() / 3600.0)
@@ -4709,6 +5018,10 @@ def board_entry(zk, zc, scored, state, rec, ztopic, sst, fetches=None, t_now=Non
                 "axes": s.get("axes"),
                 "swell": ({"ft": r1(p.get("hgt_ft", 0)), "s": r1(p.get("per_s", 0)), "dir": r0(p.get("dir", 0))}
                           if p else None),
+                # the swell the score read when CDIP drives this bell (2026-11-12)
+                "swell_near": ({"ft": f["swell_near"]["hgt_ft"], "s": f["swell_near"]["per_s"], "dir": f["swell_near"]["dir"]}
+                               if f.get("swell_near") else None),
+                "swell_src": f.get("damage_src"),
                 "wind_kn": r1(f.get("wind_window_eff_kn", f.get("wind_window_max_kn"))),
                 "cloud": r0(f.get("cloud_pct")), "cloud_nbm": r0(f.get("cloud_pct_nbm")), "dry_h": r0(f.get("dry_hours")),
                 "tide": ({"ft": tide["ft"], "trend": tide["trend"]} if tide else None)}
@@ -4746,6 +5059,7 @@ def board_entry(zk, zc, scored, state, rec, ztopic, sst, fetches=None, t_now=Non
         "water": water, "shore": shore, "wind_now": wind_now, "wind_vs_model": wvm,
         "sst_src": water_source(fetches, t_now) if fetches else "",
         "wind_corr": wind_correction(zk) if fetches and wind_witness(fetches) else None,   # only where wind is measured
+        "swell_cdip": swell_cdip_card(zk, scored),
         "clearing": clearing_outlook(fetches, t_now, zc) if fetches else None,
         "anchor": buoy_anchor(fetches, t_now, zc) if fetches else None,   # the buoy's verdict on the model
         "sst_trend": sst_trend,
@@ -5591,9 +5905,14 @@ def bell_page(zk, bz, zc, state, t_now):
                 w["veto"] if w.get("veto") else
                 "every axis aligned" if w.get("aligned") else "")
         sw, td = w.get("swell") or {}, w.get("tide") or {}
+        sn = w.get("swell_near") or {}
         facts = []
+        if sn.get("ft") is not None:
+            facts.append("swell at the shore %s ft%s (CDIP nearshore model - what the score reads)"
+                         % (sn["ft"], (" @ %s s" % sn["s"]) if sn.get("s") else ""))
         if sw.get("ft") is not None:
-            facts.append("swell %s ft @ %s s from %s\u00b0" % (sw["ft"], sw.get("s"), sw.get("dir")))
+            facts.append(("offshore model %s ft @ %s s from %s\u00b0" if sn.get("ft") is not None else "swell %s ft @ %s s from %s\u00b0")
+                         % (sw["ft"], sw.get("s"), sw.get("dir")))
         if w.get("wind_kn") is not None:
             facts.append("wind %s kn" % w["wind_kn"])
         if td:
@@ -5651,6 +5970,19 @@ def bell_page(zk, bz, zc, state, t_now):
     if wn:
         cards.append(("Wind, measured", "%.0f kn" % wn["kn"], "%s, %s km away, %s · the glass line is 7 kn"
                       % (wn["station"], wn["km"], ago(wn["age_h"]))))
+    sc_ = bz.get("swell_cdip")
+    if sc_ and sc_.get("drives"):
+        cards.append(("Swell, read at the shore", "CDIP nearshore model" if sc_.get("read") else "offshore model this run",
+                      "Scripps' model carries the swell past the islands to this coast; the bell scores from its spectra. "
+                      "Tested over %d mornings against the %s buoy (%s km), which the model never uses: of the mornings "
+                      "each source called flat, the buoy measured %d%% among the calmest with CDIP, %d%% with the old "
+                      "offshore model%s" % (sc_["n"], sc_["name"], sc_["km"], round(100 * sc_["flat_right"][1]),
+                                            round(100 * sc_["flat_right"][0]),
+                                            "" if sc_.get("read") else " · CDIP did not answer this run, so the offshore model stood in")))
+    elif sc_ and sc_.get("read"):
+        cards.append(("Swell, two readings", "watching",
+                      "CDIP's nearshore model is logged beside the offshore model on every window here, not yet in "
+                      "charge - %s" % (sc_.get("why") or "no independent buoy to judge it")))
     wc = bz.get("wind_corr")
     if wc:
         cards.append(("Wind correction", ("on, %+.1f kn" % wc["kn"]) if wc.get("on") else "watching",
@@ -6314,6 +6646,9 @@ def cmd_run(args):
                     "mop_ft": ((s.get("coves") or [{}])[0].get("ft") if s.get("coves") else "") or "",
                     "chance": s.get("chance") if s.get("chance") is not None else "",
                     "cloud_nbm": round(s["feats"]["cloud_pct_nbm"]) if s["feats"].get("cloud_pct_nbm") is not None else "",
+                    "damage_engine": round(s["feats"]["damage_engine"], 2) if s["feats"].get("damage_engine") is not None else "",
+                    "damage_mop": round(s["feats"]["damage_mop"], 2) if s["feats"].get("damage_mop") is not None else "",
+                    "damage_src": s["feats"].get("damage_src") or "",
                     "p_dry": (s.get("odds") or {}).get("p_dry", "") if (s.get("odds") or {}).get("p_dry") is not None else "",
                     "kd490_m1": s["feats"].get("kd490") if s["feats"].get("kd490") is not None else "",
                     "perfect_gate": "PASS" if perfect_gate(fm, s["score_model"] if s.get("score_model") is not None else s["score"], sst, zc)[0] else "",
@@ -9297,6 +9632,109 @@ def _cmd_test(args):
           all(CONFIG["zones"][k]["mop"]["_bell"] for k in ("A", "C", "D", "E", "G", "H", "I", "M", "N"))
           and "mop" not in CONFIG["zones"]["J"] and CONFIG["zones"]["A"]["mop"]["Shaw's Cove"] == "OC281")
 
+    # (ms) the bell's own swell from CDIP's spectra: parsed, in the bell's
+    # units, meaned over the window as the old damage was, mapped onto the
+    # bell's scale by its year - and in charge only where a buoy CDIP never
+    # uses testified (2026-11-12)
+    grid_ms = ("waveEnergyDensity.waveEnergyDensity[2][3]\n[0], 1.0, 0.5, 9.0\n[1], 2.0, 1.0, 9.0\n\n"
+               "waveEnergyDensity.waveTime[2]\n1, 2\n")
+    check("(ms) a spectral grid parses by rows; a ragged one is refused",
+          parse_mop_grid(grid_ms) == [[1.0, 0.5, 9.0], [2.0, 1.0, 9.0]]
+          and parse_mop_grid(grid_ms.replace("[1], 2.0, 1.0, 9.0", "[1], 2.0, 1.0")) is None
+          and parse_mop_grid("nothing here") is None)
+    f_ms = spectrum_F([1.0, 0.5, 9.0], [0.0625, 0.1, 0.25], [0.01, 0.01, 0.01])
+    check("(ms) F is each band's Hs^2 in ft^2 times the period factor, swell bands only (0.25 Hz chop left out)",
+          f_ms is not None and abs(f_ms - 2.4544) < 1e-3, "F=%s" % f_ms)
+    check("(ms) an unreadable band in range makes F unknown, never zero; one out of range does not",
+          spectrum_F([1.0, -999.99, 9.0], [0.0625, 0.1, 0.25], [0.01, 0.01, 0.01]) is None
+          and spectrum_F([1.0, 0.5, -999.99], [0.0625, 0.1, 0.25], [0.01, 0.01, 0.01]) is not None)
+    t0_ms = datetime(2026, 11, 13, 0, 0, tzinfo=timezone.utc)
+    pt_ms = {"t": [t0_ms + timedelta(hours=3 * i) for i in range(4)], "F": [3.0, 6.0, 9.0, None]}
+    w_ms = {"start": t0_ms + timedelta(hours=1), "end": t0_ms + timedelta(hours=4), "kind": "dawn"}
+    check("(ms) the window's F is its hours' mean, each hour between the 3-hourly samples",
+          abs((mop_window_F(pt_ms, w_ms) or 0) - 5.0) < 1e-9, str(mop_window_F(pt_ms, w_ms)))
+    check("(ms) an hour beyond the forecast, or touching a missing sample, leaves the window unknown",
+          mop_window_F(pt_ms, {"start": t0_ms + timedelta(hours=7), "end": t0_ms + timedelta(hours=9), "kind": "dusk"}) is None
+          and mop_window_F(pt_ms, {"start": t0_ms + timedelta(hours=8), "end": t0_ms + timedelta(hours=14), "kind": "dawn"}) is None
+          and mop_window_F({"t": pt_ms["t"]}, w_ms) is None)
+    kn_ms = MOP_DAMAGE["D"]["knots"]
+    sweep = [qmap_damage(kn_ms, 0.5 * 1.15 ** i) for i in range(40)]
+    check("(ms) the year map passes through its knots and never turns back",
+          all(abs(qmap_damage(kn_ms, f_) - e_) < 1e-6 * max(1, e_) for f_, e_ in kn_ms)
+          and all(b >= a for a, b in zip(sweep, sweep[1:])))
+    lo_ms = qmap_damage(kn_ms, kn_ms[0][0] / 4.0)
+    check("(ms) past the calm end the map keeps falling, at a held slope - a glassy morning is not clipped",
+          0 < lo_ms < kn_ms[0][1] and abs(math.log(kn_ms[0][1] / lo_ms) / math.log(4.0) - 1.0) < 1.0 + 1e-9)
+    gl = CONFIG["perfect_gate"]["max_damage"]
+    check("(ms) every bell's flat line sits inside its year of knots (the gate is judged by data, not by extrapolation)",
+          all(m["knots"][0][1] < gl < m["knots"][-1][1] for m in MOP_DAMAGE.values()))
+    check("(ms) CDIP drives only where a buoy outside its inputs testified; the rest are watching",
+          sorted(k for k in MOP_DAMAGE if mop_drives(k)) == ["A", "C", "D", "G", "M", "N"]
+          and all(not mop_drives(k) and MOP_DAMAGE[k].get("watching") for k in ("E", "H", "I"))
+          and all(MOP_DAMAGE[k]["witness"]["flat_right"][1] > MOP_DAMAGE[k]["witness"]["flat_right"][0]
+                  and MOP_DAMAGE[k]["witness"]["rank"][1] > MOP_DAMAGE[k]["witness"]["rank"][0]
+                  for k in MOP_DAMAGE if mop_drives(k))
+          and not mop_drives("J") and not mop_drives("F"))
+    asc_ms = ("waveTime[4]\n%d, %d, %d, %d\n\nwaveHs[4]\n0.3, 0.3, 0.3, 0.3\n\nwaveTp[4]\n14.0, 14.0, 14.0, 14.0\n\n"
+              "waveDp[4]\n210.0, 210.0, 210.0, 210.0\n\nwaveFrequency[3]\n0.0625, 0.1, 0.25\n\nwaveBandwidth[3]\n0.01, 0.01, 0.01\n\n"
+              "waveEnergyDensity.waveEnergyDensity[4][3]\n[0], 1.0, 0.5, 9.0\n[1], 1.0, 0.5, 9.0\n[2], 1.0, 0.5, 9.0\n[3], 1.0, 0.5, 9.0\n\n"
+              % tuple(int((t0_ms + timedelta(hours=3 * i)).timestamp()) for i in range(4)))
+    fm_ms = fetch_mop(_MSrc({"mop_D0482": asc_ms, "mop_OC266": asc}), ["D0482", "OC266"], spectra=("D0482",))
+    pD = fm_ms.data["points"]["D0482"]
+    check("(ms) the read point brings its spectra as F per time; a cove point does not ask",
+          pD.get("F") and len(pD["F"]) == 4 and abs(pD["F"][0] - 2.4544) < 1e-3 and "F" not in fm_ms.data["points"]["OC266"])
+    fm_ms2 = fetch_mop(_MSrc({"mop_D0482": asc_ms.split("waveFrequency")[0]}), ["D0482"], spectra=("D0482",))
+    check("(ms) spectra that do not come leave the point's swell heights standing",
+          fm_ms2.ok and fm_ms2.data["points"]["D0482"].get("F") is None and fm_ms2.data["points"]["D0482"]["hs"][0] == 0.3)
+    zd_ms = CONFIG["zones"]["D"]
+    fe_ms = {"damage": 5.0, "dmg_parts": {"hgt_ft": 4.0, "per_s": 9.0, "dir": 270}}
+    src_ms = swell_from_cdip(fe_ms, "D", zd_ms, fm_ms, w_ms)
+    want_ms = round(qmap_damage(kn_ms, 2.4544), 3)
+    check("(ms) a proven bell scores CDIP's swell, keeps the old number beside it, and its words describe the shore (1 ft @ 14 s, not the model's 4 ft chop)",
+          src_ms == "cdip" and abs(fe_ms["damage"] - want_ms) < 2e-3 and fe_ms["damage_engine"] == 5.0
+          and fe_ms["damage_mop"] == fe_ms["damage"] and fe_ms["swell_near"]["hgt_ft"] == round(0.3 * 3.281, 1)
+          and "long-period swell with no size to it" in why_line(fe_ms, 8.0).lower() and "chop" not in why_line(fe_ms, 8.0),
+          "%s %s %s" % (fe_ms.get("damage"), want_ms, why_line(fe_ms, 8.0)))
+    fe_e = {"damage": 5.0, "dmg_parts": {}}
+    zE = dict(CONFIG["zones"]["E"], mop={"_bell": "D0482"})
+    check("(ms) a watching bell logs CDIP's number and scores the old one",
+          swell_from_cdip(fe_e, "E", zE, fm_ms, w_ms) == "model" and fe_e["damage"] == 5.0
+          and fe_e["damage_mop"] is not None and "swell_near" not in fe_e)
+    fe_n = {"damage": 5.0, "dmg_parts": {}}
+    check("(ms) CDIP silent: the old number stands, said so",
+          swell_from_cdip(fe_n, "D", zd_ms, Fetch("mop", False, error="x"), w_ms) == "model"
+          and fe_n["damage"] == 5.0 and fe_n["damage_mop"] is None)
+    sc_ms = score_zone("D", zd_ms, dict(fx_y, mop=Fetch("mop", False, error="down")), t_y, 24)
+    check("(ms) a proven bell scoring without CDIP flags it on every window",
+          sc_ms and all("swell:model (CDIP unread)" in s_["flags"] for s_ in sc_ms))
+    trip_ms = [(0.5, 0.4, 1.0), (3.0, 1.0, 2.0), (1.0, 4.0, 9.0), (6.0, 5.0, 8.0), (2.0, 2.5, 3.0), (8.0, 7.0, 10.0)]
+    g_ms = grade_swell(trip_ms)
+    check("(ms) swellcheck grades both swells against the buoy by rank and by flat calls the buoy found calm",
+          g_ms["n"] == 6 and g_ms["flat_calls"] == [2, 2] and g_ms["flat_right"] == [0.5, 1.0]
+          and g_ms["rank"][1] > g_ms["rank"][0] and abs(_spearman([1, 2, 2, 3], [1, 2, 2, 3]) - 1.0) < 1e-9, str(g_ms))
+    t_wf = datetime(2026, 11, 1, tzinfo=timezone.utc)
+    rt_wf = {"waveTime": "waveTime[3]\n%d, %d, %d\n" % tuple(int((t_wf + timedelta(minutes=30 * i)).timestamp()) for i in range(3)),
+             "freq": "waveFrequency[3]\n0.0625, 0.1, 0.25\n\nwaveBandwidth[3]\n0.01, 0.01, 0.01\n",
+             "grid": "waveFlagPrimary[3]\n1, 4, 1\n\nwaveEnergyDensity.waveEnergyDensity[3][3]\n[0], 1.0, 0.5, 9.0\n[1], 50.0, 50.0, 9.0\n[2], 3.0, 1.5, 9.0\n\n"}
+    def _wf_get(url, timeout=25):
+        if "historic" in url: raise IOError("no archive")
+        return rt_wf["grid"] if "waveEnergyDensity" in url else (rt_wf["freq"] if "waveFrequency" in url else rt_wf["waveTime"])
+    wf = witness_F("201", t_wf, get=_wf_get)
+    check("(ms) a witness buoy's spectra become hourly F in the same units; a flagged record is left out",
+          sorted(wf) == [int(t_wf.timestamp()) // 3600, int(t_wf.timestamp()) // 3600 + 1]
+          and abs(wf[int(t_wf.timestamp()) // 3600] - 2.4544) < 1e-3          # the flagged half-hour (50 m2/Hz) left out
+          and abs(wf[int(t_wf.timestamp()) // 3600 + 1] - 3 * 2.4544) < 2e-3, str(wf))
+    check("(ms) the log carries both swells and which one scored",
+          all(c in LOG_COLS for c in ("damage_engine", "damage_mop", "damage_src")))
+    card_ms = swell_cdip_card("D", [{"feats": {"damage_mop": 1.0}}])
+    bz_ms = dict(bz_y, swell_cdip=card_ms)
+    pg_ms = bell_page("A", bz_ms, zc, st_y, t_y)
+    check("(ms) the page names the swell source and the buoy that put it in charge",
+          card_ms["drives"] and card_ms["read"] and "Swell, read at the shore" in pg_ms and "Scripps Nearshore buoy" in pg_ms
+          and "84% among the calmest with CDIP, 64% with the old offshore model" in pg_ms)
+    check("(ms) a watching bell says so; a bell CDIP does not reach says nothing",
+          swell_cdip_card("E", [{"feats": {"damage_mop": 1.0}}])["drives"] is False and swell_cdip_card("J", []) is None)
+
     # (sk) sun needs both skies: HRRR (the feed) and the National Blend
     f_sk = {"damage": 1.0, "wind_window_eff_kn": 3.0, "dry_hours": 72, "cloud_pct": 10.0, "cloud_pct_nbm": 40.0}
     check("(sk) the Blend's cloud overrules a sunny HRRR; agreement lets the sun light on; a missing Blend vetoes nothing",
@@ -9514,6 +9952,9 @@ def main():
     sub.add_parser("owed", help="exit 0 when today's morning read never landed (the guard scores instead of ingesting)")
     p_post = sub.add_parser("post", help="pay the public-voice queue to every wired account")
     p_post.add_argument("--dry-run", action="store_true")
+    p_swc = sub.add_parser("swellcheck", help="grade the logged swell forecasts, CDIP's and the old model's, against buoys CDIP never uses")
+    p_swc.add_argument("--days", type=int, default=35)
+    p_swc.add_argument("--notify", action="store_true")
     p_sc = sub.add_parser("smscheck")
     p_sc.add_argument("--ping", action="store_true",
                       help="also send one test text to KEEPER_PHONE")
@@ -9555,6 +9996,8 @@ def main():
         cmd_skill(args)
     elif args.cmd == "post":
         cmd_post(args)
+    elif args.cmd == "swellcheck":
+        cmd_swellcheck(args)
     elif args.cmd == "owed":
         owed = morning_owed(load_state(), now_pt())
         print("morning read: %s" % ("OWED - no scoring run since 2am Pacific today" if owed else "landed"))

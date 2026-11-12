@@ -309,6 +309,46 @@ light at the named cove itself by CDIP's NOWCAST (driven by measured buoy
 spectra) when the ring carried a MOP point. MOP covers California only;
 Hawaii, Bonaire and Sydney keep the bell's own entries.
 
+## The bell's swell from CDIP's own spectra (2026-11-12)
+
+Where it has earned it, the bell's swell (`damage`, the flat light, the
+score) comes from CDIP's forecast spectra at the bell's read point, not the
+offshore model. `spectrum_F`: each band's share of Hs^2 in ft^2 times the
+period factor, f <= 0.22 Hz, meaned over the window's hours (3-hourly
+samples interpolated; 1.2-1.6% from hourly truth). `MOP_DAMAGE[zk]["knots"]`
+maps F onto the bell's damage by a year of quantiles (645-658 windows per
+bell, 2025-08..2026-11), so the scale, the flat line and the alert volume
+hold; what changes is WHICH mornings are calm.
+
+It drives a bell only where a nearshore buoy that CDIP's model does NOT use
+as input testified (checked against each read point's
+`waveModelInputSource`). Of the mornings each source called flat, the share
+the buoy measured among its calmest; rank agreement in brackets:
+
+| bell | witness buoy (km) | old | CDIP |
+|---|---|---|---|
+| D La Jolla | Scripps Nearshore 201 (2) | 64% (0.63) | 84% (0.88) |
+| C Dana Point | Capistrano Beach Nearshore 284 (3.5) | 40% (0.70) | 58% (0.82) |
+| A Laguna | Capistrano Beach Nearshore 284 (14.5) | 50% (0.75) | 66% (0.85) |
+| G Palos Verdes | Long Beach Channel 215 (18.6) | 31% (0.55) | 54% (0.74) |
+| M Malibu | Topanga Nearshore 103 (21) | 34% (0.75) | 70% (0.89) |
+| N Ventura County | Topanga Nearshore 103 (36) | 38% (0.67) | 78% (0.89) |
+
+On the mornings the two disagreed, CDIP's flat calls were measured calm
+50-75% of the time; the old model's 3-20%. Honest limit: that test read
+CDIP's NOWCAST against the old input's hindcast (both on their best
+boundary). Forecasts carry both sources' boundary error, so the monthly
+`swellcheck` (drift.yml) grades the logged 12-48 h forecasts against the
+same buoys and PROPOSES a return to the old model if CDIP loses; it never
+switches itself. Monterey, Point Lobos and Santa Barbara have no witness
+outside CDIP's inputs: CDIP's number is logged beside the old one there
+(`damage_mop`) and the page says "watching". If CDIP does not answer, the
+old number scores and every window carries `swell:model (CDIP unread)`.
+Log: `damage_engine`, `damage_mop`, `damage_src`. The words ("barely a
+ripple") and the page's "swell at the shore" describe the swell the score
+read. Refit the knots yearly; the fit and the buoy test live in the
+2026-11-12 session's scratch (`specfit2/fit2.py`, `truth.py`, `buoyF.py`).
+
 ## The odds, the earned wind correction, the clearing outlook (2026-11-12)
 
 - `ring_odds`: the chance a window ends with every light on, from the

@@ -35,6 +35,11 @@ jobs:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
         run: python dive_alert.py skill --notify
 
+      - name: Grade the swell source against buoys CDIP never uses
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+        run: python dive_alert.py swellcheck --notify || true
+
       - name: Grade the bell's promises
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
