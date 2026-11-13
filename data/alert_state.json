@@ -1,14 +1,14 @@
 {
  "streaks": {
   "K": {
-   "score": 8.3,
+   "score": 8.5,
    "entries": [
     "Two Step (Honaunau)",
     "Kahalu'u"
    ],
    "window_key": "20261114T1544-dusk",
    "since": "2026-11-12T18:00:00-08:00",
-   "gate": false
+   "gate": true
   },
   "P": {
    "score": 8.3,
@@ -39,7 +39,7 @@
   "A:tides": 0,
   "A:sst": 0,
   "A:chla": 0,
-  "A:kd490": 1,
+  "A:kd490": 0,
   "A:ndbc_spec": 0,
   "C:marine": 0,
   "C:weather": 0,
@@ -124,13 +124,13 @@
   "K:ndbc_spec": 0,
   "L:marine": 0,
   "L:weather": 0,
-  "L:ndbc_primary": 229,
-  "L:ndbc_offshore": 229,
-  "L:tides": 229,
+  "L:ndbc_primary": 230,
+  "L:ndbc_offshore": 230,
+  "L:tides": 230,
   "L:sst": 0,
   "L:chla": 0,
   "L:kd490": 0,
-  "L:ndbc_spec": 229,
+  "L:ndbc_spec": 230,
   "M:marine": 0,
   "M:weather": 0,
   "M:ndbc_primary": 0,
@@ -152,12 +152,12 @@
   "O:marine": 0,
   "O:weather": 0,
   "O:ndbc_primary": 0,
-  "O:ndbc_offshore": 229,
-  "O:tides": 229,
+  "O:ndbc_offshore": 230,
+  "O:tides": 230,
   "O:sst": 0,
   "O:chla": 0,
   "O:kd490": 0,
-  "O:ndbc_spec": 229,
+  "O:ndbc_spec": 230,
   "P:marine": 0,
   "P:weather": 0,
   "P:ndbc_primary": 0,
@@ -232,15 +232,15 @@
   "N:ensemble": 0,
   "O:ensemble": 0,
   "P:ensemble": 0,
-  "A:mop": 1,
-  "C:mop": 1,
-  "D:mop": 1,
-  "E:mop": 1,
-  "G:mop": 1,
-  "H:mop": 1,
-  "I:mop": 1,
-  "M:mop": 1,
-  "N:mop": 1,
+  "A:mop": 0,
+  "C:mop": 0,
+  "D:mop": 0,
+  "E:mop": 0,
+  "G:mop": 0,
+  "H:mop": 0,
+  "I:mop": 0,
+  "M:mop": 0,
+  "N:mop": 0,
   "A:nbm": 0,
   "C:nbm": 0,
   "D:nbm": 0,
@@ -329,7 +329,7 @@
    "unverified": 0
   },
   "K": {
-   "promises": 13,
+   "promises": 14,
    "rings": 0,
    "held": 0,
    "broke": 0,
@@ -410,7 +410,7 @@
   "F": "20261004T0619-dawn",
   "G": "20261026T0637-dawn",
   "P": "20261022T0554-dawn",
-  "K": "20261105T1547-dusk"
+  "K": "20261114T1544-dusk"
  },
  "sms_digest_due": {},
  "sms_digest_sent": {
@@ -519,41 +519,20 @@
   "I": {},
   "J": {},
   "K": {
-   "20261116T0602-dawn": 2,
-   "20261116T1544-dusk": 2,
-   "20261114T1544-dusk": 1
+   "20261116T0602-dawn": 3,
+   "20261114T1544-dusk": 2,
+   "20261115T0601-dawn": 1,
+   "20261115T1544-dusk": 1,
+   "20261120T0604-dawn": 1
   },
   "L": {},
   "M": {},
   "N": {},
   "O": {},
-  "P": {
-   "20261119T0609-dawn": 1
-  }
+  "P": {}
  },
  "social_posted": {},
  "social_queue": [
-  {
-   "key": "week:2026-W46",
-   "kind": "week",
-   "text": "The week ahead, 15 bells. Best: Kona Mon dawn 9.2, Maui Sat dusk 8.1, Bonaire Tue dusk 8.0. Kona is ringing. Quietest: Laguna Beach, 92 days. thedivebell.com/",
-   "card": {
-    "kind": "week",
-    "eyebrow": "THE DIVE BELL \u00b7 15 BELLS \u00b7 NOV 11",
-    "lines": [
-     "Kona \u00b7 Mon dawn \u00b7 9.2  RINGING",
-     "Maui \u00b7 Sat dusk \u00b7 8.1",
-     "Bonaire \u00b7 Tue dusk \u00b7 8.0",
-     "Sydney \u00b7 Fri dawn \u00b7 8.0",
-     "Monterey \u00b7 Thu dawn \u00b7 6.4",
-     "Catalina \u00b7 Thu dusk \u00b7 5.8"
-    ],
-    "foot": "thedivebell.com/  \u00b7  Kona is ringing"
-   },
-   "alt": "The Dive Bell, the week ahead across 15 bells. Kona Mon dawn 9.2, Maui Sat dusk 8.1, Bonaire Tue dusk 8.0",
-   "created": "2026-11-11T17:59:23.551263+00:00",
-   "done": []
-  },
   {
    "key": "takeback:K:2026-11-15",
    "kind": "takeback",
@@ -589,6 +568,24 @@
    },
    "alt": "Palos Verdes will not ring Thu: NWS Beach Hazards Statement through Thu. Thu dusk would have scored 7.1 - the forecaster outranks the model. thedivebell.com/palos-verdes/",
    "created": "2026-11-12T19:32:52.562724+00:00",
+   "done": []
+  },
+  {
+   "key": "ring:K:20261114T1544-dusk",
+   "kind": "ring",
+   "text": "THE BELL IS RINGING - KONA. Sat Nov 14 at dusk: flat, glassy, dry, sunny, 81F water. In by 3:44pm at Two Step (Honaunau). thedivebell.com/kona/",
+   "card": {
+    "kind": "ring",
+    "eyebrow": "THE DIVE BELL \u00b7 BELL NO. 10",
+    "lines": [
+     "Kona \u00b7 Sat Nov 14 at dusk",
+     "flat \u00b7 glassy \u00b7 dry \u00b7 sunny \u00b7 81F water",
+     "In by 3:44pm at Two Step (Honaunau)"
+    ],
+    "foot": "thedivebell.com/kona/  \u00b7  text KONA to 833-858-2355"
+   },
+   "alt": "The Dive Bell: Kona is ringing for Sat Nov 14 at dusk, 81F water, in by 3:44pm at Two Step (Honaunau).",
+   "created": "2026-11-13T23:35:59.665941+00:00",
    "done": []
   }
  ],
@@ -1343,6 +1340,34 @@
      ],
      "verified_at": "2026-11-06T09:00:00-08:00"
     }
+   },
+   {
+    "cove_mop": null,
+    "wkey": "20261114T1544-dusk",
+    "date": "2026-11-14",
+    "kind": "dusk",
+    "start": "2026-11-14T15:44:00-10:00",
+    "end": "2026-11-14T17:44:00-10:00",
+    "score": 8.5,
+    "cove": "Two Step (Honaunau)",
+    "promised_at": "2026-11-13T15:00:00-08:00",
+    "status": "rung",
+    "texted": 0,
+    "forecast": {
+     "swell_ft": 1.9,
+     "per_s": 9.4,
+     "wind_kn": 0.8,
+     "cloud_pct": 11,
+     "buoy_expect_ft": 2.4,
+     "odds": {
+      "p_glass": 1.0,
+      "p_dry": 1.0,
+      "n": 51
+     },
+     "mop_ft": null,
+     "sst_f": 81
+    },
+    "taken_back": null
    }
   ]
  },
@@ -1538,9 +1563,17 @@
    "text": "Palos Verdes will not ring Thu: NWS Beach Hazards Statement through Thu. Thu dusk would have scored 7.1 - the forecaster outranks the model. thedivebell.com/palos-verdes/",
    "date": "2026-11-12T19:32:52.562724+00:00",
    "link": "https://thedivebell.com/palos-verdes/"
+  },
+  {
+   "key": "ring:K:20261114T1544-dusk",
+   "kind": "ring",
+   "title": "The bell is ringing",
+   "text": "THE BELL IS RINGING - KONA. Sat Nov 14 at dusk: flat, glassy, dry, sunny, 81F water. In by 3:44pm at Two Step (Honaunau). thedivebell.com/kona/",
+   "date": "2026-11-13T23:35:59.665941+00:00",
+   "link": "https://thedivebell.com/kona/"
   }
  ],
- "last_scored": "2026-11-13T09:00:00-08:00",
+ "last_scored": "2026-11-13T15:00:00-08:00",
  "sms_digest_nums": {
   "A:2026-W45": [
    "2851fe611844520f",
