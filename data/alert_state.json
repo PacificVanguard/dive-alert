@@ -9,16 +9,6 @@
    "window_key": "20261116T1544-dusk",
    "since": "2026-11-12T18:00:00-08:00",
    "gate": true
-  },
-  "P": {
-   "score": 7.0,
-   "entries": [
-    "Kahekili (Airport Beach)",
-    "Black Rock (Pu'u Keka'a)"
-   ],
-   "window_key": "20261115T0607-dawn",
-   "since": "2026-11-14T08:00:00-08:00",
-   "gate": false
   }
  },
  "last_tip_id": "db1",
@@ -124,13 +114,13 @@
   "K:ndbc_spec": 0,
   "L:marine": 0,
   "L:weather": 0,
-  "L:ndbc_primary": 234,
-  "L:ndbc_offshore": 234,
-  "L:tides": 234,
+  "L:ndbc_primary": 235,
+  "L:ndbc_offshore": 235,
+  "L:tides": 235,
   "L:sst": 0,
   "L:chla": 0,
   "L:kd490": 0,
-  "L:ndbc_spec": 234,
+  "L:ndbc_spec": 235,
   "M:marine": 0,
   "M:weather": 0,
   "M:ndbc_primary": 0,
@@ -152,12 +142,12 @@
   "O:marine": 0,
   "O:weather": 0,
   "O:ndbc_primary": 0,
-  "O:ndbc_offshore": 234,
-  "O:tides": 234,
+  "O:ndbc_offshore": 235,
+  "O:tides": 235,
   "O:sst": 0,
   "O:chla": 0,
   "O:kd490": 0,
-  "O:ndbc_spec": 234,
+  "O:ndbc_spec": 235,
   "P:marine": 0,
   "P:weather": 0,
   "P:ndbc_primary": 0,
@@ -333,7 +323,7 @@
    "rings": 0,
    "held": 0,
    "broke": 0,
-   "taken_back": 1,
+   "taken_back": 2,
    "unverified": 0
   },
   "L": {
@@ -517,18 +507,18 @@
   "I": {},
   "J": {},
   "K": {
-   "20261119T0604-dawn": 3,
-   "20261116T1544-dusk": 2,
-   "20261115T1544-dusk": 1,
-   "20261116T0602-dawn": 1,
-   "20261120T0604-dawn": 1
+   "20261119T0604-dawn": 4,
+   "20261116T1544-dusk": 3,
+   "20261115T1544-dusk": 2,
+   "20261119T1543-dusk": 1
   },
   "L": {},
   "M": {},
   "N": {},
   "O": {},
   "P": {
-   "20261118T1544-dusk": 1
+   "20261121T1544-dusk": 1,
+   "20261122T0611-dawn": 1
   }
  },
  "social_posted": {},
@@ -1351,6 +1341,28 @@
     "taken_back": {
      "at": "2026-11-14T14:00:00-08:00",
      "why": "stirred up"
+    },
+    "morning": {
+     "buoy_ft": 9.5,
+     "buoy_s": 10.0,
+     "buoy_n": 8,
+     "weather_source": "feed",
+     "wind_kn": 1.4,
+     "cloud_pct": 6,
+     "rain_in": 0.0,
+     "rain_win_in": 0.0,
+     "rain_span_h": 73,
+     "lights": {
+      "glass": true,
+      "dry": true,
+      "sun": true,
+      "flat": false
+     },
+     "verdict": "taken back",
+     "failed": [
+      "flat"
+     ],
+     "verified_at": "2026-11-15T09:00:00-08:00"
     }
    },
    {
@@ -1593,7 +1605,7 @@
    "link": "https://thedivebell.com/kona/"
   }
  ],
- "last_scored": "2026-11-14T18:00:00-08:00",
+ "last_scored": "2026-11-15T09:00:00-08:00",
  "sms_digest_nums": {
   "A:2026-W45": [
    "2851fe611844520f",
