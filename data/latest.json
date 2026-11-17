@@ -1,109 +1,8 @@
 {
- "updated": "2026-11-16T20:00:00-08:00",
+ "updated": "2026-11-17T11:00:00-08:00",
  "zone": "A",
- "sst_f": 73,
+ "sst_f": 74,
  "windows": [
-  {
-   "label": "Tue dawn",
-   "start": "2026-11-17T05:54:00-08:00",
-   "end": "2026-11-17T08:54:00-08:00",
-   "kind": "dawn",
-   "score": 1.0,
-   "conf": "medium",
-   "limit": "wind",
-   "entries": [
-    "Shaw's Cove",
-    "Fisherman's Cove"
-   ],
-   "gate": false,
-   "lining_up": false,
-   "veto": "models split: glassy in 0% of runs",
-   "aligned": false,
-   "odds": {
-    "p_glass": 0.0,
-    "p_dry": 0.12,
-    "n": 51
-   },
-   "chance": null,
-   "coves": [
-    {
-     "name": "Shaw's Cove",
-     "score": 1.0,
-     "mapped": true,
-     "ft": 3.6,
-     "s": 13.3
-    },
-    {
-     "name": "Fisherman's Cove",
-     "score": 1.0,
-     "mapped": true,
-     "ft": 3.8,
-     "s": 13.3
-    },
-    {
-     "name": "Divers Cove",
-     "score": 1.0,
-     "mapped": true,
-     "ft": 3.7,
-     "s": 13.3
-    },
-    {
-     "name": "Crescent Bay",
-     "score": 1.0,
-     "mapped": true,
-     "ft": 3.9,
-     "s": 13.3
-    },
-    {
-     "name": "Wood's Cove",
-     "score": 1.0,
-     "mapped": true,
-     "ft": 4.5,
-     "s": 7.7
-    },
-    {
-     "name": "Picnic Beach (Heisler)",
-     "score": 1.0,
-     "mapped": true,
-     "ft": 4.0,
-     "s": 6.7
-    },
-    {
-     "name": "Cleo Street barge",
-     "score": 1.0,
-     "mapped": false,
-     "ft": null,
-     "s": null
-    }
-   ],
-   "hazard": "High Surf Advisory",
-   "axes": {
-    "flat": false,
-    "glass": false,
-    "dry": true,
-    "sun": true,
-    "warm": true
-   },
-   "swell": {
-    "ft": 5.2,
-    "s": 5.7,
-    "dir": 272
-   },
-   "swell_near": {
-    "ft": 4.1,
-    "s": 7.7,
-    "dir": 242
-   },
-   "swell_src": "cdip",
-   "wind_kn": 14.8,
-   "cloud": 0,
-   "cloud_nbm": 7,
-   "dry_h": 72,
-   "tide": {
-    "ft": 3.8,
-    "trend": "falling"
-   }
-  },
   {
    "label": "Tue dusk",
    "start": "2026-11-17T14:47:00-08:00",
@@ -113,8 +12,8 @@
    "conf": "medium",
    "limit": "swell",
    "entries": [
-    "Shaw's Cove",
-    "Fisherman's Cove"
+    "Fisherman's Cove",
+    "Shaw's Cove"
    ],
    "gate": false,
    "lining_up": false,
@@ -122,51 +21,51 @@
    "aligned": false,
    "odds": {
     "p_glass": 0.0,
-    "p_dry": 0.67,
+    "p_dry": 0.22,
     "n": 51
    },
-   "chance": 0.0,
+   "chance": null,
    "coves": [
-    {
-     "name": "Shaw's Cove",
-     "score": 1.0,
-     "mapped": true,
-     "ft": 2.7,
-     "s": 13.3
-    },
     {
      "name": "Fisherman's Cove",
      "score": 1.0,
      "mapped": true,
-     "ft": 2.8,
+     "ft": 2.5,
+     "s": 13.3
+    },
+    {
+     "name": "Shaw's Cove",
+     "score": 1.0,
+     "mapped": true,
+     "ft": 2.4,
      "s": 13.3
     },
     {
      "name": "Divers Cove",
      "score": 1.0,
      "mapped": true,
-     "ft": 2.7,
+     "ft": 2.4,
      "s": 13.3
     },
     {
      "name": "Crescent Bay",
      "score": 1.0,
      "mapped": true,
-     "ft": 2.9,
+     "ft": 2.6,
      "s": 13.3
     },
     {
      "name": "Wood's Cove",
      "score": 1.0,
      "mapped": true,
-     "ft": 3.2,
+     "ft": 2.9,
      "s": 13.3
     },
     {
      "name": "Picnic Beach (Heisler)",
      "score": 1.0,
      "mapped": true,
-     "ft": 2.9,
+     "ft": 2.6,
      "s": 13.3
     },
     {
@@ -186,19 +85,19 @@
     "warm": true
    },
    "swell": {
-    "ft": 3.2,
-    "s": 7.4,
+    "ft": 3.4,
+    "s": 7.5,
     "dir": 269
    },
    "swell_near": {
-    "ft": 2.9,
+    "ft": 2.7,
     "s": 13.3,
     "dir": 210
    },
    "swell_src": "cdip",
-   "wind_kn": 10.5,
+   "wind_kn": 10.1,
    "cloud": 0,
-   "cloud_nbm": 7,
+   "cloud_nbm": 4,
    "dry_h": 72,
    "tide": {
     "ft": 3.9,
@@ -210,7 +109,7 @@
    "start": "2026-11-18T05:55:00-08:00",
    "end": "2026-11-18T08:55:00-08:00",
    "kind": "dawn",
-   "score": 3.5,
+   "score": 2.5,
    "conf": "medium",
    "limit": "stirred up",
    "entries": [
@@ -222,57 +121,57 @@
    "veto": null,
    "aligned": false,
    "odds": {
-    "p_glass": 1.0,
+    "p_glass": 0.71,
     "p_dry": 1.0,
     "n": 51
    },
-   "chance": 0.001,
+   "chance": 0.0,
    "coves": [
     {
      "name": "Fisherman's Cove",
-     "score": 3.6,
+     "score": 2.6,
      "mapped": true,
      "ft": 1.8,
      "s": 12.5
     },
     {
      "name": "Shaw's Cove",
-     "score": 3.7,
+     "score": 2.7,
      "mapped": true,
      "ft": 1.7,
      "s": 12.5
     },
     {
      "name": "Divers Cove",
-     "score": 3.7,
+     "score": 2.8,
      "mapped": true,
      "ft": 1.7,
      "s": 12.5
     },
     {
      "name": "Crescent Bay",
-     "score": 3.4,
+     "score": 2.4,
      "mapped": true,
-     "ft": 1.8,
+     "ft": 1.9,
      "s": 12.5
     },
     {
      "name": "Picnic Beach (Heisler)",
-     "score": 3.5,
+     "score": 2.5,
      "mapped": true,
      "ft": 1.8,
      "s": 12.5
     },
     {
      "name": "Wood's Cove",
-     "score": 3.0,
+     "score": 2.0,
      "mapped": true,
      "ft": 2.0,
      "s": 12.5
     },
     {
      "name": "Cleo Street barge",
-     "score": 3.5,
+     "score": 2.5,
      "mapped": false,
      "ft": null,
      "s": null
@@ -287,8 +186,8 @@
     "warm": true
    },
    "swell": {
-    "ft": 2.5,
-    "s": 8.7,
+    "ft": 2.7,
+    "s": 8.6,
     "dir": 276
    },
    "swell_near": {
@@ -297,9 +196,9 @@
     "dir": 209
    },
    "swell_src": "cdip",
-   "wind_kn": 4.6,
-   "cloud": 59,
-   "cloud_nbm": 58,
+   "wind_kn": 6.7,
+   "cloud": 80,
+   "cloud_nbm": 43,
    "dry_h": 72,
    "tide": {
     "ft": 4.1,
@@ -311,7 +210,7 @@
    "start": "2026-11-18T14:46:00-08:00",
    "end": "2026-11-18T16:46:00-08:00",
    "kind": "dusk",
-   "score": 4.8,
+   "score": 3.9,
    "conf": "medium",
    "limit": "stirred up",
    "entries": [
@@ -320,60 +219,60 @@
    ],
    "gate": false,
    "lining_up": false,
-   "veto": "models split: glassy in 25% of runs",
+   "veto": "models split: glassy in 18% of runs",
    "aligned": false,
    "odds": {
-    "p_glass": 0.25,
+    "p_glass": 0.18,
     "p_dry": 1.0,
     "n": 51
    },
-   "chance": 0.0,
+   "chance": 0.001,
    "coves": [
     {
      "name": "Fisherman's Cove",
-     "score": 4.7,
+     "score": 3.9,
      "mapped": true,
      "ft": 1.4,
      "s": 12.5
     },
     {
      "name": "Shaw's Cove",
-     "score": 4.8,
+     "score": 3.9,
      "mapped": true,
      "ft": 1.4,
      "s": 12.5
     },
     {
      "name": "Divers Cove",
-     "score": 4.9,
+     "score": 4.0,
      "mapped": true,
      "ft": 1.3,
      "s": 12.5
     },
     {
      "name": "Crescent Bay",
-     "score": 4.7,
+     "score": 3.8,
      "mapped": true,
      "ft": 1.5,
      "s": 12.5
     },
     {
      "name": "Picnic Beach (Heisler)",
-     "score": 4.8,
+     "score": 3.9,
      "mapped": true,
      "ft": 1.4,
      "s": 12.5
     },
     {
      "name": "Wood's Cove",
-     "score": 4.5,
+     "score": 3.6,
      "mapped": true,
      "ft": 1.6,
      "s": 12.5
     },
     {
      "name": "Cleo Street barge",
-     "score": 4.8,
+     "score": 3.9,
      "mapped": false,
      "ft": null,
      "s": null
@@ -388,9 +287,9 @@
     "warm": true
    },
    "swell": {
-    "ft": 2.6,
-    "s": 7.8,
-    "dir": 274
+    "ft": 2.7,
+    "s": 8.0,
+    "dir": 275
    },
    "swell_near": {
     "ft": 1.4,
@@ -398,9 +297,9 @@
     "dir": 210
    },
    "swell_src": "cdip",
-   "wind_kn": 7.5,
-   "cloud": 63,
-   "cloud_nbm": 38,
+   "wind_kn": 7.7,
+   "cloud": 91,
+   "cloud_nbm": 63,
    "dry_h": 72,
    "tide": {
     "ft": 3.6,
@@ -412,7 +311,7 @@
    "start": "2026-11-19T05:56:00-08:00",
    "end": "2026-11-19T08:56:00-08:00",
    "kind": "dawn",
-   "score": 6.3,
+   "score": 4.5,
    "conf": "medium",
    "limit": "stirred up",
    "entries": [
@@ -421,60 +320,60 @@
    ],
    "gate": false,
    "lining_up": false,
-   "veto": null,
+   "veto": "models split: glassy in 2% of runs",
    "aligned": false,
    "odds": {
-    "p_glass": 0.51,
-    "p_dry": 0.71,
+    "p_glass": 0.02,
+    "p_dry": 0.75,
     "n": 51
    },
-   "chance": 0.004,
+   "chance": 0.0,
    "coves": [
     {
      "name": "Fisherman's Cove",
-     "score": 6.3,
+     "score": 4.5,
      "mapped": true,
-     "ft": 1.4,
+     "ft": 2.0,
      "s": 14.3
     },
     {
      "name": "Shaw's Cove",
-     "score": 6.3,
+     "score": 4.5,
      "mapped": true,
-     "ft": 1.4,
+     "ft": 2.0,
      "s": 14.3
     },
     {
      "name": "Divers Cove",
-     "score": 6.3,
+     "score": 4.6,
      "mapped": true,
-     "ft": 1.4,
+     "ft": 1.9,
      "s": 14.3
     },
     {
      "name": "Crescent Bay",
-     "score": 6.2,
+     "score": 4.5,
      "mapped": true,
-     "ft": 1.5,
-     "s": 14.3
-    },
-    {
-     "name": "Picnic Beach (Heisler)",
-     "score": 6.3,
-     "mapped": true,
-     "ft": 1.4,
+     "ft": 2.1,
      "s": 14.3
     },
     {
      "name": "Wood's Cove",
-     "score": 6.1,
+     "score": 4.4,
      "mapped": true,
-     "ft": 1.6,
+     "ft": 2.2,
+     "s": 14.3
+    },
+    {
+     "name": "Picnic Beach (Heisler)",
+     "score": 4.5,
+     "mapped": true,
+     "ft": 2.0,
      "s": 14.3
     },
     {
      "name": "Cleo Street barge",
-     "score": 6.3,
+     "score": 4.5,
      "mapped": false,
      "ft": null,
      "s": null
@@ -483,25 +382,25 @@
    "hazard": null,
    "axes": {
     "flat": true,
-    "glass": true,
+    "glass": false,
     "dry": true,
     "sun": false,
     "warm": true
    },
    "swell": {
-    "ft": 2.8,
+    "ft": 2.9,
     "s": 8.1,
-    "dir": 278
+    "dir": 276
    },
    "swell_near": {
-    "ft": 1.4,
+    "ft": 2.0,
     "s": 14.3,
     "dir": 211
    },
    "swell_src": "cdip",
-   "wind_kn": 7.0,
-   "cloud": 71,
-   "cloud_nbm": 87,
+   "wind_kn": 10.4,
+   "cloud": 100,
+   "cloud_nbm": 57,
    "dry_h": 72,
    "tide": {
     "ft": 4.6,
@@ -513,7 +412,7 @@
    "start": "2026-11-19T14:46:00-08:00",
    "end": "2026-11-19T16:46:00-08:00",
    "kind": "dusk",
-   "score": 1.2,
+   "score": 1.0,
    "conf": "medium",
    "limit": "rain",
    "entries": [
@@ -522,10 +421,10 @@
    ],
    "gate": false,
    "lining_up": false,
-   "veto": "models split: glassy in 10% of runs",
+   "veto": "models split: glassy in 0% of runs",
    "aligned": false,
    "odds": {
-    "p_glass": 0.1,
+    "p_glass": 0.0,
     "p_dry": 0.0,
     "n": 51
    },
@@ -533,49 +432,49 @@
    "coves": [
     {
      "name": "Shaw's Cove",
-     "score": 1.5,
+     "score": 1.0,
      "mapped": true,
-     "ft": 2.7,
+     "ft": 3.0,
      "s": 14.3
     },
     {
      "name": "Fisherman's Cove",
-     "score": 1.4,
-     "mapped": true,
-     "ft": 2.8,
-     "s": 14.3
-    },
-    {
-     "name": "Divers Cove",
-     "score": 1.4,
-     "mapped": true,
-     "ft": 2.8,
-     "s": 4.8
-    },
-    {
-     "name": "Crescent Bay",
-     "score": 1.4,
-     "mapped": true,
-     "ft": 2.8,
-     "s": 14.3
-    },
-    {
-     "name": "Picnic Beach (Heisler)",
-     "score": 1.1,
-     "mapped": true,
-     "ft": 3.0,
-     "s": 4.8
-    },
-    {
-     "name": "Wood's Cove",
      "score": 1.0,
      "mapped": true,
      "ft": 3.1,
      "s": 14.3
     },
     {
+     "name": "Divers Cove",
+     "score": 1.0,
+     "mapped": true,
+     "ft": 3.1,
+     "s": 4.8
+    },
+    {
+     "name": "Crescent Bay",
+     "score": 1.0,
+     "mapped": true,
+     "ft": 3.3,
+     "s": 14.3
+    },
+    {
+     "name": "Wood's Cove",
+     "score": 1.0,
+     "mapped": true,
+     "ft": 3.6,
+     "s": 5.6
+    },
+    {
+     "name": "Picnic Beach (Heisler)",
+     "score": 1.0,
+     "mapped": true,
+     "ft": 3.4,
+     "s": 6.2
+    },
+    {
      "name": "Cleo Street barge",
-     "score": 1.2,
+     "score": 1.0,
      "mapped": false,
      "ft": null,
      "s": null
@@ -590,20 +489,20 @@
     "warm": true
    },
    "swell": {
-    "ft": 3.0,
-    "s": 6.4,
-    "dir": 256
+    "ft": 4.1,
+    "s": 6.1,
+    "dir": 263
    },
    "swell_near": {
-    "ft": 2.9,
+    "ft": 3.2,
     "s": 4.8,
-    "dir": 242
+    "dir": 250
    },
    "swell_src": "cdip",
-   "wind_kn": 9.1,
-   "cloud": 100,
-   "cloud_nbm": 73,
-   "dry_h": 0,
+   "wind_kn": 11.7,
+   "cloud": 98,
+   "cloud_nbm": 70,
+   "dry_h": 1,
    "tide": {
     "ft": 3.0,
     "trend": "rising"
@@ -630,7 +529,7 @@
     "p_dry": 0.0,
     "n": 51
    },
-   "chance": 0.0,
+   "chance": 0.001,
    "coves": [
     {
      "name": "Fisherman's Cove",
@@ -643,14 +542,14 @@
      "name": "Shaw's Cove",
      "score": 3.5,
      "mapped": true,
-     "ft": 2.0,
+     "ft": 2.1,
      "s": 13.3
     },
     {
      "name": "Divers Cove",
      "score": 3.5,
      "mapped": true,
-     "ft": 2.0,
+     "ft": 2.1,
      "s": 13.3
     },
     {
@@ -661,17 +560,17 @@
      "s": 13.3
     },
     {
-     "name": "Wood's Cove",
-     "score": 3.5,
-     "mapped": true,
-     "ft": 2.5,
-     "s": 13.3
-    },
-    {
      "name": "Picnic Beach (Heisler)",
      "score": 3.5,
      "mapped": true,
-     "ft": 2.1,
+     "ft": 2.2,
+     "s": 13.3
+    },
+    {
+     "name": "Wood's Cove",
+     "score": 3.1,
+     "mapped": true,
+     "ft": 2.5,
      "s": 13.3
     },
     {
@@ -692,18 +591,18 @@
    },
    "swell": {
     "ft": 4.7,
-    "s": 7.6,
+    "s": 7.9,
     "dir": 274
    },
    "swell_near": {
-    "ft": 2.2,
+    "ft": 2.3,
     "s": 13.3,
-    "dir": 217
+    "dir": 216
    },
    "swell_src": "cdip",
-   "wind_kn": 1.2,
-   "cloud": 54,
-   "cloud_nbm": 27,
+   "wind_kn": 1.3,
+   "cloud": 30,
+   "cloud_nbm": 28,
    "dry_h": 1,
    "tide": {
     "ft": 5.2,
@@ -727,8 +626,8 @@
    "veto": null,
    "aligned": false,
    "odds": {
-    "p_glass": 0.51,
-    "p_dry": 0.35,
+    "p_glass": 0.8,
+    "p_dry": 0.49,
     "n": 51
    },
    "chance": 0.0,
@@ -737,7 +636,7 @@
      "name": "Fisherman's Cove",
      "score": 3.5,
      "mapped": true,
-     "ft": 1.8,
+     "ft": 1.7,
      "s": 13.3
     },
     {
@@ -751,28 +650,28 @@
      "name": "Divers Cove",
      "score": 3.5,
      "mapped": true,
-     "ft": 1.7,
+     "ft": 1.6,
      "s": 13.3
     },
     {
      "name": "Crescent Bay",
      "score": 3.5,
      "mapped": true,
-     "ft": 1.9,
+     "ft": 1.8,
      "s": 13.3
     },
     {
      "name": "Wood's Cove",
      "score": 3.5,
      "mapped": true,
-     "ft": 2.1,
+     "ft": 2.0,
      "s": 13.3
     },
     {
      "name": "Picnic Beach (Heisler)",
      "score": 3.5,
      "mapped": true,
-     "ft": 1.8,
+     "ft": 1.7,
      "s": 13.3
     },
     {
@@ -786,26 +685,26 @@
    "hazard": null,
    "axes": {
     "flat": false,
-    "glass": false,
+    "glass": true,
     "dry": false,
     "sun": true,
     "warm": true
    },
    "swell": {
-    "ft": 2.9,
-    "s": 9.0,
-    "dir": 276
+    "ft": 3.2,
+    "s": 8.2,
+    "dir": 274
    },
    "swell_near": {
-    "ft": 1.9,
+    "ft": 1.8,
     "s": 13.3,
-    "dir": 213
+    "dir": 212
    },
    "swell_src": "cdip",
-   "wind_kn": 7.1,
-   "cloud": 14,
-   "cloud_nbm": 15,
-   "dry_h": 1,
+   "wind_kn": 6.3,
+   "cloud": 0,
+   "cloud_nbm": 10,
+   "dry_h": 2,
    "tide": {
     "ft": 2.0,
     "trend": "rising"
@@ -838,7 +737,7 @@
      "name": "Fisherman's Cove",
      "score": 3.5,
      "mapped": true,
-     "ft": 1.6,
+     "ft": 1.5,
      "s": 13.3
     },
     {
@@ -849,14 +748,14 @@
      "s": 13.3
     },
     {
-     "name": "Picnic Beach (Heisler)",
+     "name": "Divers Cove",
      "score": 3.5,
      "mapped": true,
      "ft": 1.5,
      "s": 13.3
     },
     {
-     "name": "Divers Cove",
+     "name": "Picnic Beach (Heisler)",
      "score": 3.5,
      "mapped": true,
      "ft": 1.5,
@@ -889,13 +788,13 @@
     "flat": false,
     "glass": true,
     "dry": false,
-    "sun": true,
+    "sun": false,
     "warm": true
    },
    "swell": {
-    "ft": 1.7,
-    "s": 10.8,
-    "dir": 210
+    "ft": 2.0,
+    "s": 8.9,
+    "dir": 270
    },
    "swell_near": {
     "ft": 1.5,
@@ -903,10 +802,10 @@
     "dir": 208
    },
    "swell_src": "cdip",
-   "wind_kn": 1.5,
-   "cloud": 0,
-   "cloud_nbm": 25,
-   "dry_h": 16,
+   "wind_kn": 1.4,
+   "cloud": 40,
+   "cloud_nbm": 24,
+   "dry_h": 17,
    "tide": {
     "ft": 5.7,
     "trend": "rising"
@@ -926,10 +825,10 @@
    ],
    "gate": false,
    "lining_up": false,
-   "veto": "models split: glassy in 47% of runs",
+   "veto": null,
    "aligned": false,
    "odds": {
-    "p_glass": 0.47,
+    "p_glass": 1.0,
     "p_dry": 1.0,
     "n": 51
    },
@@ -946,21 +845,21 @@
      "name": "Divers Cove",
      "score": 3.5,
      "mapped": true,
-     "ft": 1.5,
+     "ft": 1.4,
      "s": 16.7
     },
     {
      "name": "Crescent Bay",
      "score": 3.5,
      "mapped": true,
-     "ft": 1.6,
+     "ft": 1.5,
      "s": 16.7
     },
     {
      "name": "Fisherman's Cove",
      "score": 3.5,
      "mapped": true,
-     "ft": 1.6,
+     "ft": 1.5,
      "s": 16.7
     },
     {
@@ -974,7 +873,7 @@
      "name": "Picnic Beach (Heisler)",
      "score": 3.5,
      "mapped": true,
-     "ft": 1.5,
+     "ft": 1.4,
      "s": 16.7
     },
     {
@@ -988,26 +887,26 @@
    "hazard": null,
    "axes": {
     "flat": true,
-    "glass": false,
+    "glass": true,
     "dry": false,
-    "sun": true,
+    "sun": false,
     "warm": true
    },
    "swell": {
-    "ft": 1.9,
-    "s": 6.3,
-    "dir": 275
+    "ft": 1.8,
+    "s": 9.6,
+    "dir": 225
    },
    "swell_near": {
-    "ft": 1.5,
+    "ft": 1.4,
     "s": 16.7,
     "dir": 211
    },
    "swell_src": "cdip",
-   "wind_kn": 7.2,
-   "cloud": 8,
-   "cloud_nbm": 18,
-   "dry_h": 25,
+   "wind_kn": 3.9,
+   "cloud": 98,
+   "cloud_nbm": 30,
+   "dry_h": 26,
    "tide": {
     "ft": 0.9,
     "trend": "rising"
@@ -1034,7 +933,7 @@
     "p_dry": 1.0,
     "n": 51
    },
-   "chance": 0.009,
+   "chance": 0.0,
    "coves": [
     {
      "name": "Fisherman's Cove",
@@ -1047,7 +946,7 @@
      "name": "Shaw's Cove",
      "score": 3.5,
      "mapped": true,
-     "ft": 1.8,
+     "ft": 1.7,
      "s": 15.4
     },
     {
@@ -1061,7 +960,7 @@
      "name": "Divers Cove",
      "score": 3.5,
      "mapped": true,
-     "ft": 1.7,
+     "ft": 1.6,
      "s": 15.4
     },
     {
@@ -1095,9 +994,9 @@
     "warm": true
    },
    "swell": {
-    "ft": 1.8,
-    "s": 13.1,
-    "dir": 189
+    "ft": 1.7,
+    "s": 13.7,
+    "dir": 188
    },
    "swell_near": {
     "ft": 1.7,
@@ -1105,10 +1004,10 @@
     "dir": 212
    },
    "swell_src": "cdip",
-   "wind_kn": 3.1,
-   "cloud": 100,
-   "cloud_nbm": 43,
-   "dry_h": 40,
+   "wind_kn": 1.3,
+   "cloud": 3,
+   "cloud_nbm": 33,
+   "dry_h": 41,
    "tide": {
     "ft": 6.1,
     "trend": "rising"
@@ -1128,10 +1027,10 @@
    ],
    "gate": false,
    "lining_up": false,
-   "veto": "models split: glassy in 31% of runs",
+   "veto": null,
    "aligned": false,
    "odds": {
-    "p_glass": 0.31,
+    "p_glass": 0.69,
     "p_dry": 0.98,
     "n": 51
    },
@@ -1141,31 +1040,38 @@
      "name": "Shaw's Cove",
      "score": 3.5,
      "mapped": true,
-     "ft": 1.9,
+     "ft": 2.0,
      "s": 18.2
     },
     {
      "name": "Divers Cove",
+     "score": 3.5,
+     "mapped": true,
+     "ft": 1.9,
+     "s": 18.2
+    },
+    {
+     "name": "Crescent Bay",
+     "score": 3.5,
+     "mapped": true,
+     "ft": 2.0,
+     "s": 18.2
+    },
+    {
+     "name": "Fisherman's Cove",
+     "score": 3.5,
+     "mapped": true,
+     "ft": 2.0,
+     "s": 18.2
+    },
+    {
+     "name": "Picnic Beach (Heisler)",
      "score": 3.5,
      "mapped": true,
      "ft": 1.8,
      "s": 18.2
     },
     {
-     "name": "Crescent Bay",
-     "score": 3.5,
-     "mapped": true,
-     "ft": 1.9,
-     "s": 18.2
-    },
-    {
-     "name": "Fisherman's Cove",
-     "score": 3.5,
-     "mapped": true,
-     "ft": 1.9,
-     "s": 18.2
-    },
-    {
      "name": "Cleo Street barge",
      "score": 3.5,
      "mapped": false,
@@ -1173,119 +1079,11 @@
      "s": null
     },
     {
-     "name": "Picnic Beach (Heisler)",
-     "score": 3.5,
-     "mapped": true,
-     "ft": 1.7,
-     "s": 18.2
-    },
-    {
      "name": "Wood's Cove",
      "score": 3.5,
      "mapped": true,
-     "ft": 2.0,
+     "ft": 2.1,
      "s": 18.2
-    }
-   ],
-   "hazard": null,
-   "axes": {
-    "flat": true,
-    "glass": false,
-    "dry": false,
-    "sun": false,
-    "warm": true
-   },
-   "swell": {
-    "ft": 1.8,
-    "s": 13.3,
-    "dir": 190
-   },
-   "swell_near": {
-    "ft": 1.8,
-    "s": 18.2,
-    "dir": 212
-   },
-   "swell_src": "cdip",
-   "wind_kn": 7.5,
-   "cloud": 90,
-   "cloud_nbm": 47,
-   "dry_h": 49,
-   "tide": {
-    "ft": -0.2,
-    "trend": "rising"
-   }
-  },
-  {
-   "label": "Mon dawn",
-   "start": "2026-11-23T06:00:00-08:00",
-   "end": "2026-11-23T09:00:00-08:00",
-   "kind": "dawn",
-   "score": 3.5,
-   "conf": "medium",
-   "limit": "rain",
-   "entries": [
-    "Fisherman's Cove",
-    "Shaw's Cove"
-   ],
-   "gate": false,
-   "lining_up": false,
-   "veto": null,
-   "aligned": false,
-   "odds": {
-    "p_glass": 1.0,
-    "p_dry": 0.9,
-    "n": 51
-   },
-   "chance": 0.009,
-   "coves": [
-    {
-     "name": "Fisherman's Cove",
-     "score": 3.5,
-     "mapped": true,
-     "ft": 2.5,
-     "s": 16.7
-    },
-    {
-     "name": "Shaw's Cove",
-     "score": 3.5,
-     "mapped": true,
-     "ft": 2.5,
-     "s": 16.7
-    },
-    {
-     "name": "Divers Cove",
-     "score": 3.5,
-     "mapped": true,
-     "ft": 2.4,
-     "s": 16.7
-    },
-    {
-     "name": "Picnic Beach (Heisler)",
-     "score": 3.5,
-     "mapped": true,
-     "ft": 2.4,
-     "s": 16.7
-    },
-    {
-     "name": "Crescent Bay",
-     "score": 3.5,
-     "mapped": true,
-     "ft": 2.5,
-     "s": 16.7
-    },
-    {
-     "name": "Wood's Cove",
-     "score": 3.5,
-     "mapped": true,
-     "ft": 2.7,
-     "s": 16.7
-    },
-    {
-     "name": "Cleo Street barge",
-     "score": 3.5,
-     "mapped": false,
-     "ft": null,
-     "s": null
     }
    ],
    "hazard": null,
@@ -1298,18 +1096,119 @@
    },
    "swell": {
     "ft": 1.9,
-    "s": 12.6,
-    "dir": 190
+    "s": 13.4,
+    "dir": 191
    },
    "swell_near": {
-    "ft": 2.5,
+    "ft": 1.9,
+    "s": 18.2,
+    "dir": 212
+   },
+   "swell_src": "cdip",
+   "wind_kn": 6.6,
+   "cloud": 97,
+   "cloud_nbm": 57,
+   "dry_h": 50,
+   "tide": {
+    "ft": -0.2,
+    "trend": "rising"
+   }
+  },
+  {
+   "label": "Mon dawn",
+   "start": "2026-11-23T06:00:00-08:00",
+   "end": "2026-11-23T09:00:00-08:00",
+   "kind": "dawn",
+   "score": 3.1,
+   "conf": "medium",
+   "limit": "rain",
+   "entries": [
+    "Shaw's Cove",
+    "Fisherman's Cove"
+   ],
+   "gate": false,
+   "lining_up": false,
+   "veto": null,
+   "aligned": false,
+   "odds": {
+    "p_glass": 1.0,
+    "p_dry": 0.84,
+    "n": 51
+   },
+   "chance": 0.009,
+   "coves": [
+    {
+     "name": "Shaw's Cove",
+     "score": 3.4,
+     "mapped": true,
+     "ft": 2.9,
+     "s": 16.7
+    },
+    {
+     "name": "Fisherman's Cove",
+     "score": 3.1,
+     "mapped": true,
+     "ft": 3.0,
+     "s": 16.7
+    },
+    {
+     "name": "Divers Cove",
+     "score": 3.3,
+     "mapped": true,
+     "ft": 2.9,
+     "s": 16.7
+    },
+    {
+     "name": "Crescent Bay",
+     "score": 3.1,
+     "mapped": true,
+     "ft": 3.0,
+     "s": 16.7
+    },
+    {
+     "name": "Picnic Beach (Heisler)",
+     "score": 3.1,
+     "mapped": true,
+     "ft": 3.0,
+     "s": 16.7
+    },
+    {
+     "name": "Wood's Cove",
+     "score": 2.5,
+     "mapped": true,
+     "ft": 3.4,
+     "s": 16.7
+    },
+    {
+     "name": "Cleo Street barge",
+     "score": 3.1,
+     "mapped": false,
+     "ft": null,
+     "s": null
+    }
+   ],
+   "hazard": null,
+   "axes": {
+    "flat": false,
+    "glass": true,
+    "dry": false,
+    "sun": true,
+    "warm": true
+   },
+   "swell": {
+    "ft": 2.0,
+    "s": 12.5,
+    "dir": 189
+   },
+   "swell_near": {
+    "ft": 3.0,
     "s": 16.7,
     "dir": 211
    },
    "swell_src": "cdip",
-   "wind_kn": 3.2,
-   "cloud": 19,
-   "cloud_nbm": 36,
+   "wind_kn": 1.4,
+   "cloud": 0,
+   "cloud_nbm": 24,
    "dry_h": 1,
    "tide": {
     "ft": 6.2,
@@ -1330,11 +1229,11 @@
    ],
    "gate": false,
    "lining_up": false,
-   "veto": "models split: glassy in 0% of runs",
+   "veto": null,
    "aligned": false,
    "odds": {
-    "p_glass": 0.0,
-    "p_dry": 0.88,
+    "p_glass": 0.98,
+    "p_dry": 0.82,
     "n": 51
    },
    "chance": 0.009,
@@ -1342,24 +1241,71 @@
    "hazard": null,
    "axes": {
     "flat": false,
-    "glass": false,
+    "glass": true,
     "dry": false,
     "sun": true,
     "warm": true
    },
    "swell": {
-    "ft": 1.9,
+    "ft": 2.0,
     "s": 12.5,
-    "dir": 190
+    "dir": 189
    },
    "swell_near": null,
    "swell_src": "model",
-   "wind_kn": 9.4,
-   "cloud": 16,
-   "cloud_nbm": 18,
+   "wind_kn": 3.9,
+   "cloud": 6,
+   "cloud_nbm": 23,
    "dry_h": 1,
    "tide": {
     "ft": -1.0,
+    "trend": "rising"
+   }
+  },
+  {
+   "label": "Tue dawn",
+   "start": "2026-11-24T06:01:00-08:00",
+   "end": "2026-11-24T09:01:00-08:00",
+   "kind": "dawn",
+   "score": 3.5,
+   "conf": "medium",
+   "limit": "rain",
+   "entries": [
+    "Fisherman's Cove",
+    "Shaw's Cove"
+   ],
+   "gate": false,
+   "lining_up": false,
+   "veto": null,
+   "aligned": false,
+   "odds": {
+    "p_glass": 1.0,
+    "p_dry": 0.92,
+    "n": 51
+   },
+   "chance": 0.009,
+   "coves": [],
+   "hazard": null,
+   "axes": {
+    "flat": false,
+    "glass": true,
+    "dry": false,
+    "sun": false,
+    "warm": true
+   },
+   "swell": {
+    "ft": 1.9,
+    "s": 11.7,
+    "dir": 191
+   },
+   "swell_near": null,
+   "swell_src": "model",
+   "wind_kn": 1.2,
+   "cloud": 50,
+   "cloud_nbm": 47,
+   "dry_h": 10,
+   "tide": {
+    "ft": 6.0,
     "trend": "rising"
    }
   }
