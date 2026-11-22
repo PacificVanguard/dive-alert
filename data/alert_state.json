@@ -1,14 +1,14 @@
 {
  "streaks": {
   "K": {
-   "score": 8.3,
+   "score": 9.0,
    "entries": [
     "Two Step (Honaunau)",
     "Kahalu'u"
    ],
-   "window_key": "20261122T0605-dawn",
+   "window_key": "20261123T1543-dusk",
    "since": "2026-11-12T18:00:00-08:00",
-   "gate": false
+   "gate": true
   },
   "P": {
    "score": 7.8,
@@ -38,26 +38,6 @@
    ],
    "window_key": "20261123T1447-dusk",
    "since": "2026-11-21T09:00:00-08:00",
-   "gate": false
-  },
-  "C": {
-   "score": 7.1,
-   "entries": [
-    "Dana Point Harbor breakwall (outside)",
-    "Salt Creek"
-   ],
-   "window_key": "20261122T0558-dawn",
-   "since": "2026-11-21T15:00:00-08:00",
-   "gate": false
-  },
-  "D": {
-   "score": 7.3,
-   "entries": [
-    "La Jolla Cove",
-    "La Jolla Shores (Canyon)"
-   ],
-   "window_key": "20261122T0555-dawn",
-   "since": "2026-11-21T15:00:00-08:00",
    "gate": false
   },
   "N": {
@@ -174,13 +154,13 @@
   "K:ndbc_spec": 0,
   "L:marine": 0,
   "L:weather": 0,
-  "L:ndbc_primary": 255,
-  "L:ndbc_offshore": 255,
-  "L:tides": 255,
+  "L:ndbc_primary": 256,
+  "L:ndbc_offshore": 256,
+  "L:tides": 256,
   "L:sst": 0,
   "L:chla": 0,
   "L:kd490": 0,
-  "L:ndbc_spec": 255,
+  "L:ndbc_spec": 256,
   "M:marine": 0,
   "M:weather": 0,
   "M:ndbc_primary": 0,
@@ -202,12 +182,12 @@
   "O:marine": 0,
   "O:weather": 0,
   "O:ndbc_primary": 0,
-  "O:ndbc_offshore": 255,
-  "O:tides": 255,
+  "O:ndbc_offshore": 256,
+  "O:tides": 256,
   "O:sst": 0,
   "O:chla": 0,
   "O:kd490": 0,
-  "O:ndbc_spec": 255,
+  "O:ndbc_spec": 256,
   "P:marine": 0,
   "P:weather": 0,
   "P:ndbc_primary": 0,
@@ -260,7 +240,7 @@
   "H:met": 0,
   "H:nws_wind": 0,
   "H:nws_sky": 0,
-  "I:shore": 1,
+  "I:shore": 2,
   "I:met": 0,
   "I:nws_sky": 0,
   "M:shore": 0,
@@ -379,7 +359,7 @@
    "unverified": 0
   },
   "K": {
-   "promises": 17,
+   "promises": 18,
    "rings": 2,
    "held": 0,
    "broke": 2,
@@ -461,7 +441,7 @@
   "F": "20261004T0619-dawn",
   "G": "20261026T0637-dawn",
   "P": "20261022T0554-dawn",
-  "K": "20261120T0604-dawn"
+  "K": "20261123T1543-dusk"
  },
  "sms_digest_due": {},
  "sms_digest_sent": {
@@ -570,16 +550,15 @@
   "I": {},
   "J": {},
   "K": {
-   "20261123T1543-dusk": 1,
-   "20261124T0607-dawn": 1
+   "20261123T1543-dusk": 2,
+   "20261124T0607-dawn": 2
   },
   "L": {},
   "M": {},
   "N": {},
   "O": {},
   "P": {
-   "20261123T1544-dusk": 1,
-   "20261124T0612-dawn": 1
+   "20261124T0612-dawn": 2
   }
  },
  "social_posted": {},
@@ -619,6 +598,24 @@
    },
    "alt": "Kona rang for Fri dawn and the morning broke its word: buoy 8.2 ft @ 7.0 s, wind 2.6 kn (modeled), dry, cloud 21% (modeled). The bell says so. The record: 2 rings, 0 held, 2 broke. thedivebell.com/record/",
    "created": "2026-11-21T00:03:30.840978+00:00",
+   "done": []
+  },
+  {
+   "key": "ring:K:20261123T1543-dusk",
+   "kind": "ring",
+   "text": "THE BELL IS RINGING - KONA. Mon Nov 23 at dusk: flat, glassy, dry, sunny, 80F water. In by 3:43pm at Two Step (Honaunau). thedivebell.com/kona/",
+   "card": {
+    "kind": "ring",
+    "eyebrow": "THE DIVE BELL \u00b7 BELL NO. 10",
+    "lines": [
+     "Kona \u00b7 Mon Nov 23 at dusk",
+     "flat \u00b7 glassy \u00b7 dry \u00b7 sunny \u00b7 80F water",
+     "In by 3:43pm at Two Step (Honaunau)"
+    ],
+    "foot": "thedivebell.com/kona/  \u00b7  text KONA to 833-858-2355"
+   },
+   "alt": "The Dive Bell: Kona is ringing for Mon Nov 23 at dusk, 80F water, in by 3:43pm at Two Step (Honaunau).",
+   "created": "2026-11-22T02:44:25.511135+00:00",
    "done": []
   }
  ],
@@ -1526,6 +1523,34 @@
      ],
      "verified_at": "2026-11-20T15:00:00-08:00"
     }
+   },
+   {
+    "cove_mop": null,
+    "wkey": "20261123T1543-dusk",
+    "date": "2026-11-23",
+    "kind": "dusk",
+    "start": "2026-11-23T15:43:00-10:00",
+    "end": "2026-11-23T17:43:00-10:00",
+    "score": 9.0,
+    "cove": "Two Step (Honaunau)",
+    "promised_at": "2026-11-21T18:00:00-08:00",
+    "status": "rung",
+    "texted": 0,
+    "forecast": {
+     "swell_ft": 2.2,
+     "per_s": 10.4,
+     "wind_kn": 1.3,
+     "cloud_pct": 16,
+     "buoy_expect_ft": 2.3,
+     "odds": {
+      "p_glass": 1.0,
+      "p_dry": 1.0,
+      "n": 51
+     },
+     "mop_ft": null,
+     "sst_f": 80
+    },
+    "taken_back": null
    }
   ]
  },
@@ -1769,9 +1794,17 @@
    "text": "Kona rang for Fri dawn and the morning broke its word: buoy 8.2 ft @ 7.0 s, wind 2.6 kn (modeled), dry, cloud 21% (modeled). The bell says so. The record: 2 rings, 0 held, 2 broke. thedivebell.com/record/",
    "date": "2026-11-21T00:03:30.840978+00:00",
    "link": "https://thedivebell.com/record/"
+  },
+  {
+   "key": "ring:K:20261123T1543-dusk",
+   "kind": "ring",
+   "title": "The bell is ringing",
+   "text": "THE BELL IS RINGING - KONA. Mon Nov 23 at dusk: flat, glassy, dry, sunny, 80F water. In by 3:43pm at Two Step (Honaunau). thedivebell.com/kona/",
+   "date": "2026-11-22T02:44:25.511135+00:00",
+   "link": "https://thedivebell.com/kona/"
   }
  ],
- "last_scored": "2026-11-21T15:00:00-08:00",
+ "last_scored": "2026-11-21T18:00:00-08:00",
  "sms_digest_nums": {
   "A:2026-W45": [
    "2851fe611844520f",
