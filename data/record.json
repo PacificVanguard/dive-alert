@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-21T18:00:00-08:00",
+ "updated": "2026-11-22T09:00:00-08:00",
  "bells": {
   "A": {
    "bell": "Laguna Beach",
@@ -988,7 +988,7 @@
      "score": 9.0,
      "cove": "Two Step (Honaunau)",
      "promised_at": "2026-11-21T18:00:00-08:00",
-     "status": "rung",
+     "status": "taken back",
      "forecast": {
       "swell_ft": 2.2,
       "per_s": 10.4,
@@ -1003,7 +1003,10 @@
       "mop_ft": null,
       "sst_f": 80
      },
-     "taken_back": null,
+     "taken_back": {
+      "at": "2026-11-22T09:00:00-08:00",
+      "why": "all clear"
+     },
      "verdicts": {}
     }
    ]
@@ -1102,6 +1105,34 @@
       "failed": [],
       "verified_at": "2026-10-29T21:00:00-07:00"
      },
+     "verdicts": {}
+    },
+    {
+     "cove_mop": null,
+     "wkey": "20261124T0612-dawn",
+     "date": "2026-11-24",
+     "kind": "dawn",
+     "start": "2026-11-24T06:12:00-10:00",
+     "end": "2026-11-24T09:12:00-10:00",
+     "score": 8.9,
+     "cove": "Kahekili (Airport Beach)",
+     "promised_at": "2026-11-22T09:00:00-08:00",
+     "status": "rung",
+     "forecast": {
+      "swell_ft": 1.6,
+      "per_s": 9.3,
+      "wind_kn": 2.0,
+      "cloud_pct": 6,
+      "buoy_expect_ft": 2.7,
+      "odds": {
+       "p_glass": 1.0,
+       "p_dry": 1.0,
+       "n": 51
+      },
+      "mop_ft": null,
+      "sst_f": 80
+     },
+     "taken_back": null,
      "verdicts": {}
     }
    ]
