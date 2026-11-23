@@ -21,7 +21,7 @@
    "gate": true
   },
   "M": {
-   "score": 8.2,
+   "score": 7.1,
    "entries": [
     "Point Dume Cove",
     "Leo Carrillo (Sequit Point)"
@@ -31,12 +31,12 @@
    "gate": false
   },
   "N": {
-   "score": 7.3,
+   "score": 7.5,
    "entries": [
-    "County Line Reef (Yerba Buena)",
-    "La Jenelle (Port Hueneme)"
+    "La Jenelle (Port Hueneme)",
+    "County Line Reef (Yerba Buena)"
    ],
-   "window_key": "20261123T0606-dawn",
+   "window_key": "20261124T1447-dusk",
    "since": "2026-11-21T15:00:00-08:00",
    "gate": false
   },
@@ -50,34 +50,24 @@
    "since": "2026-11-22T09:00:00-08:00",
    "gate": false
   },
-  "D": {
-   "score": 7.7,
-   "entries": [
-    "La Jolla Cove",
-    "La Jolla Shores (Canyon)"
-   ],
-   "window_key": "20261123T1444-dusk",
-   "since": "2026-11-22T09:00:00-08:00",
-   "gate": false
-  },
   "J": {
-   "score": 8.1,
+   "score": 7.1,
    "entries": [
     "Three Tables",
     "Shark's Cove"
    ],
-   "window_key": "20261123T1548-dusk",
+   "window_key": "20261124T0619-dawn",
    "since": "2026-11-22T09:00:00-08:00",
    "gate": false
   },
-  "A": {
-   "score": 7.2,
+  "G": {
+   "score": 8.2,
    "entries": [
-    "Picnic Beach (Heisler)",
-    "Fisherman's Cove"
+    "Christmas Tree Cove",
+    "Terranea (Old Marineland)"
    ],
-   "window_key": "20261124T0601-dawn",
-   "since": "2026-11-22T19:00:00-08:00",
+   "window_key": "20261124T1446-dusk",
+   "since": "2026-11-23T14:00:00-08:00",
    "gate": false
   }
  },
@@ -93,7 +83,7 @@
   "kd490": 1,
   "ndbc_spec": 0,
   "A:marine": 0,
-  "A:weather": 0,
+  "A:weather": 1,
   "A:ndbc_primary": 0,
   "A:ndbc_offshore": 0,
   "A:tides": 0,
@@ -184,13 +174,13 @@
   "K:ndbc_spec": 0,
   "L:marine": 0,
   "L:weather": 0,
-  "L:ndbc_primary": 259,
-  "L:ndbc_offshore": 259,
-  "L:tides": 259,
+  "L:ndbc_primary": 260,
+  "L:ndbc_offshore": 260,
+  "L:tides": 260,
   "L:sst": 0,
   "L:chla": 0,
-  "L:kd490": 3,
-  "L:ndbc_spec": 259,
+  "L:kd490": 0,
+  "L:ndbc_spec": 260,
   "M:marine": 0,
   "M:weather": 0,
   "M:ndbc_primary": 0,
@@ -198,7 +188,7 @@
   "M:tides": 0,
   "M:sst": 0,
   "M:chla": 0,
-  "M:kd490": 3,
+  "M:kd490": 0,
   "M:ndbc_spec": 0,
   "N:marine": 0,
   "N:weather": 0,
@@ -212,12 +202,12 @@
   "O:marine": 0,
   "O:weather": 0,
   "O:ndbc_primary": 0,
-  "O:ndbc_offshore": 259,
-  "O:tides": 259,
+  "O:ndbc_offshore": 260,
+  "O:tides": 260,
   "O:sst": 0,
   "O:chla": 0,
   "O:kd490": 0,
-  "O:ndbc_spec": 259,
+  "O:ndbc_spec": 260,
   "P:marine": 0,
   "P:weather": 0,
   "P:ndbc_primary": 0,
@@ -270,7 +260,7 @@
   "H:met": 0,
   "H:nws_wind": 0,
   "H:nws_sky": 0,
-  "I:shore": 5,
+  "I:shore": 0,
   "I:met": 0,
   "I:nws_sky": 0,
   "M:shore": 0,
@@ -357,7 +347,7 @@
    "unverified": 0
   },
   "G": {
-   "promises": 28,
+   "promises": 29,
    "rings": 1,
    "held": 1,
    "broke": 0,
@@ -413,7 +403,7 @@
    "unverified": 0
   },
   "N": {
-   "promises": 17,
+   "promises": 18,
    "rings": 0,
    "held": 0,
    "broke": 0,
@@ -437,7 +427,7 @@
    "unverified": 0
   }
  },
- "hook_idx": 294,
+ "hook_idx": 296,
  "axis_blind": {
   "flat": 0,
   "glass": 0,
@@ -580,15 +570,15 @@
   "I": {},
   "J": {},
   "K": {
-   "20261124T0607-dawn": 5,
-   "20261123T1543-dusk": 1
+   "20261124T0607-dawn": 6,
+   "20261125T0607-dawn": 1
   },
   "L": {},
   "M": {},
   "N": {},
   "O": {},
   "P": {
-   "20261124T0612-dawn": 5
+   "20261124T0612-dawn": 6
   }
  },
  "social_posted": {},
@@ -1573,7 +1563,7 @@
     "score": 9.0,
     "cove": "Two Step (Honaunau)",
     "promised_at": "2026-11-21T18:00:00-08:00",
-    "status": "rung",
+    "status": "taken back",
     "texted": 0,
     "forecast": {
      "swell_ft": 2.2,
@@ -1589,7 +1579,10 @@
      "mop_ft": null,
      "sst_f": 80
     },
-    "taken_back": null
+    "taken_back": {
+     "at": "2026-11-23T14:00:00-08:00",
+     "why": "stirred up"
+    }
    }
   ]
  },
@@ -1851,7 +1844,7 @@
    "link": "https://thedivebell.com/maui/"
   }
  ],
- "last_scored": "2026-11-22T19:00:00-08:00",
+ "last_scored": "2026-11-23T14:00:00-08:00",
  "sms_digest_nums": {
   "A:2026-W45": [
    "2851fe611844520f",
