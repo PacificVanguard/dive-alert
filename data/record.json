@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-23T19:00:00-08:00",
+ "updated": "2026-11-23T22:00:00-08:00",
  "bells": {
   "A": {
    "bell": "Laguna Beach",
@@ -773,7 +773,7 @@
     "rings": 2,
     "held": 0,
     "broke": 2,
-    "taken_back": 2,
+    "taken_back": 3,
     "unverified": 0,
     "last_ring": "2026-11-20"
    },
@@ -1006,6 +1006,29 @@
      "taken_back": {
       "at": "2026-11-23T14:00:00-08:00",
       "why": "stirred up"
+     },
+     "morning": {
+      "buoy_ft": 6.6,
+      "buoy_s": 11.0,
+      "buoy_n": 8,
+      "weather_source": "feed",
+      "wind_kn": 2.4,
+      "cloud_pct": 65,
+      "rain_in": 0.08,
+      "rain_win_in": 0.04,
+      "rain_span_h": 73,
+      "lights": {
+       "glass": true,
+       "dry": true,
+       "sun": false,
+       "flat": false
+      },
+      "verdict": "taken back",
+      "failed": [
+       "sun",
+       "flat"
+      ],
+      "verified_at": "2026-11-23T22:00:00-08:00"
      },
      "verdicts": {}
     }
