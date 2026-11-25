@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-25T11:00:00-08:00",
+ "updated": "2026-11-25T15:00:00-08:00",
  "bells": {
   "A": {
    "bell": "Laguna Beach",
@@ -770,12 +770,12 @@
   "K": {
    "bell": "Kona",
    "record": {
-    "rings": 2,
+    "rings": 3,
     "held": 0,
-    "broke": 2,
+    "broke": 3,
     "taken_back": 3,
     "unverified": 0,
-    "last_ring": "2026-11-20"
+    "last_ring": "2026-11-25"
    },
    "rings": [
     {
@@ -1058,6 +1058,28 @@
       "sst_f": 79
      },
      "taken_back": null,
+     "morning": {
+      "buoy_ft": 8.2,
+      "buoy_s": 14.0,
+      "buoy_n": 12,
+      "weather_source": "feed",
+      "wind_kn": 3.1,
+      "cloud_pct": 12,
+      "rain_in": 0.02,
+      "rain_win_in": 0.0,
+      "rain_span_h": 74,
+      "lights": {
+       "glass": true,
+       "dry": true,
+       "sun": true,
+       "flat": false
+      },
+      "verdict": "broke",
+      "failed": [
+       "flat"
+      ],
+      "verified_at": "2026-11-25T15:00:00-08:00"
+     },
      "verdicts": {}
     }
    ]
